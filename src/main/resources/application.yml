@@ -1,0 +1,42 @@
+server:
+  port: 7012
+  servlet:
+    contextPath: /playandgo
+
+spring:
+  data:
+    mongodb:
+      url: ${SPRING_DATA_MONGODB_URL:}
+  http:
+    multipart:
+      enabled: true
+      max-file-size: ${SPRING_HTTP_MULTIPART_MAX_FILE_SIZE:}
+      max-request-size: ${SPRING_HTTP_MULTIPART_MAX_REQUEST_SIZE:}
+
+security:
+  oauth2:
+    resourceserver:
+      jwt:
+        issuer-uri: 
+        client-id: 
+      opaque-token:
+        introspection-uri: ${AAC_INTROSPECTION_URI:}
+        client-id: ${AAC_CLIENT_ID:}
+        client-secret: ${AAC_CLIENT_SECRET:}
+
+mail:
+  host: ${MAIL_HOST:}
+  port: ${MAIL_PORT:}
+  user: ${MAIL_USER:}
+  password: ${MAIL_PASSWORD:}
+  from: ${MAIL_FROM:}
+  url: ${MAIL_URL:}
+
+rabbitmq:
+  host: ${RABBITMQ_HOST:}
+  virtualhost: ${RABBITMQ_VIRTUALHOST:}
+  port: ${RABBITMQ_PORT:}
+  user: ${RABBITMQ_USER:}
+  password: ${RABBITMQ_PASSWORD:}
+  geExchangeName: ${RABBITMQ_GE_EXCHANGE_NAME:}
+  geRoutingKeyPrefix: ${RABBITMQ_GE_ROUTING_KEY_PREFIX:}
