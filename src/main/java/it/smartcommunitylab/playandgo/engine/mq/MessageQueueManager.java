@@ -54,7 +54,7 @@ public class MessageQueueManager {
 		Connection connection = connectionFactory.newConnection();
 		
 		validateTripChannel = connection.createChannel();
-		validateTripChannel.exchangeDeclare(validateTripRequest, BuiltinExchangeType.TOPIC);
+		validateTripChannel.exchangeDeclare(validateTripRequest, BuiltinExchangeType.DIRECT);
 		validateTripChannel.queueDeclare(validateTripResponse, true, false, false, null);
 		
 		gamificationEngineChannel = connection.createChannel();
