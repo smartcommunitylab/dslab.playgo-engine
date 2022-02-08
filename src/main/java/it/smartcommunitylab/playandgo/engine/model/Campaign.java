@@ -6,26 +6,24 @@ import java.util.Map;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection="campaign")
+@Document(collection="campaigns")
 public class Campaign {
 	public static enum Type {
 		company, city, school
 	};
 
 	@Id
-	private String id;
-	
+	private String campaignId;
 	private String playerId;	
 	private Type type;
-	private String campaignId;
 	private String territory;
 	private String name;
 	private String description;
 	private LocalDate dateFrom;
 	private LocalDate dateTo;
 	private String gameId;
-	private Boolean active = Boolean.FALSE;
-	private Boolean communications = Boolean.FALSE;
+	private boolean active;
+	private boolean communications;
 	
 	private String webPageUrl;
 	private String privacyUrl;
@@ -35,14 +33,6 @@ public class Campaign {
 	private String registrationUrl;
 	
 	private Map<String, Object> validationData;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
 
 	public String getPlayerId() {
 		return playerId;
@@ -116,19 +106,19 @@ public class Campaign {
 		this.gameId = gameId;
 	}
 
-	public Boolean getActive() {
+	public boolean getActive() {
 		return active;
 	}
 
-	public void setActive(Boolean active) {
+	public void setActive(boolean active) {
 		this.active = active;
 	}
 
-	public Boolean getCommunications() {
+	public boolean getCommunications() {
 		return communications;
 	}
 
-	public void setCommunications(Boolean communications) {
+	public void setCommunications(boolean communications) {
 		this.communications = communications;
 	}
 

@@ -3,12 +3,10 @@ package it.smartcommunitylab.playandgo.engine.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection="player")
+@Document(collection="players")
 public class Player {
 	
 	@Id
-	private String id;
-	
 	private String playerId;
 	
 	private String name;
@@ -25,14 +23,6 @@ public class Player {
 	
 	public Player() {
 		super();
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public String getPlayerId() {
