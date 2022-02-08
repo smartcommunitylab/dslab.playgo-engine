@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="campaigns")
@@ -14,9 +15,10 @@ public class Campaign {
 
 	@Id
 	private String campaignId;
+	@Indexed
 	private String playerId;	
 	private Type type;
-	private String territory;
+	private String territoryId;
 	private String name;
 	private String description;
 	private LocalDate dateFrom;
@@ -24,6 +26,7 @@ public class Campaign {
 	private String gameId;
 	private boolean active;
 	private boolean communications;
+	private boolean defaultForTerritory;
 	
 	private String webPageUrl;
 	private String privacyUrl;
@@ -56,14 +59,6 @@ public class Campaign {
 
 	public void setCampaignId(String campaignId) {
 		this.campaignId = campaignId;
-	}
-
-	public String getTerritory() {
-		return territory;
-	}
-
-	public void setTerritory(String territory) {
-		this.territory = territory;
 	}
 
 	public String getName() {
@@ -176,6 +171,22 @@ public class Campaign {
 
 	public void setValidationData(Map<String, Object> validationData) {
 		this.validationData = validationData;
+	}
+
+	public boolean isDefaultForTerritory() {
+		return defaultForTerritory;
+	}
+
+	public void setDefaultForTerritory(boolean defaultForTerritory) {
+		this.defaultForTerritory = defaultForTerritory;
+	}
+
+	public String getTerritoryId() {
+		return territoryId;
+	}
+
+	public void setTerritoryId(String territoryId) {
+		this.territoryId = territoryId;
 	}
 	
 	

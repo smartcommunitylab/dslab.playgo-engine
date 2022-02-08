@@ -8,7 +8,6 @@ public class Player {
 	
 	@Id
 	private String playerId;
-	
 	private String name;
 	private String surname;
 	private String nickname;
@@ -16,6 +15,7 @@ public class Player {
 	private String mail;
 	private boolean sendMail;
 	private Avatar avatar;
+	private String territoryId;
 //	private Map<String, Object> personalData;
 //	private Map<String,Map<String,Object>> surveys;
 //	private boolean checkedRecommendation;
@@ -87,6 +87,14 @@ public class Player {
 
 	public void setAvatar(Avatar avatar) {
 		this.avatar = avatar;
+	}
+
+	public String getTerritoryId() {
+		return territoryId;
+	}
+
+	public void setTerritoryId(String territoryId) {
+		this.territoryId = territoryId;
 	}
 
 	

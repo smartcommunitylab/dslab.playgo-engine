@@ -40,7 +40,7 @@ public class MessageQueueManager {
 	private Channel validateTripChannel; 
 	private Channel gamificationEngineChannel;
 	
-	@PostConstruct
+	//@PostConstruct
 	public void init() throws Exception {
 		logger.info("Connecting to RabbitMQ");
 		ConnectionFactory connectionFactory = new ConnectionFactory();
