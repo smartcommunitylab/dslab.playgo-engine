@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -41,7 +42,11 @@ public class CampaignManager {
 	}
 	
 	public List<Campaign> getCampaigns() {
-		return campaignRepository.findAll();
+		return campaignRepository.findAll(Sort.by(Sort.Direction.DESC, "dateFrom"));
+	}
+	
+	public List<Campaign> getCampaignsByTerritory(String territoryId) {
+		return campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
 	}
 	
 	public Campaign deleteCampaign(String campaignId) {

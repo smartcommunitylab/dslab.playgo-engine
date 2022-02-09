@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
 public class CampaignController implements PlayAndGoController {
@@ -41,12 +43,17 @@ public class CampaignController implements PlayAndGoController {
 	}
 	
 	@GetMapping("/api/campaign")
-	public List<Campaign> getTerritories(HttpServletRequest request) throws Exception {
+	public List<Campaign> getCampaigns(
+			@RequestParam(required=false) String territoryId,
+			HttpServletRequest request) throws Exception {
+		if(Utils.isNotEmpty(territoryId)) {
+			return campaignManager.getCampaignsByTerritory(territoryId);
+		}
 		return campaignManager.getCampaigns();
 	}
 	
 	@DeleteMapping("/api/campaign/{campaignId}")
-	public Campaign deleteTerritory(
+	public Campaign deleteCampaign(
 			@PathVariable String campaignId,
 			HttpServletRequest request) throws Exception {
 		return campaignManager.deleteCampaign(campaignId);
