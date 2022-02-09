@@ -15,8 +15,6 @@ public class Campaign {
 
 	@Id
 	private String campaignId;
-	@Indexed
-	private String playerId;	
 	private Type type;
 	private String territoryId;
 	private String name;
@@ -36,14 +34,6 @@ public class Campaign {
 	private String registrationUrl;
 	
 	private Map<String, Object> validationData;
-
-	public String getPlayerId() {
-		return playerId;
-	}
-
-	public void setPlayerId(String playerId) {
-		this.playerId = playerId;
-	}
 
 	public Type getType() {
 		return type;
