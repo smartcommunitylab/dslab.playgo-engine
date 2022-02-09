@@ -22,7 +22,7 @@ public class PlayerController implements PlayAndGoController {
 	@Autowired
 	private PlayerManager playerManager;
 	
-	@PostMapping("/api/player")
+	@PostMapping("/api/player/register")
 	public Player registerPlayer(
 			@RequestBody Player player,
 			HttpServletRequest request) throws Exception {

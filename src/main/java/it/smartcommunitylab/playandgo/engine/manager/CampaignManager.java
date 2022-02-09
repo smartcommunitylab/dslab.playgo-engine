@@ -5,17 +5,32 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 
 @Component
 public class CampaignManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(CampaignManager.class);
 	
+	private static final String CAMPAIGNSUB = "campaignSubscriptions";
+	
+	@Autowired
+	MongoTemplate template;
+	
 	@Autowired
 	private CampaignRepository campaignRepository;
+	
+	@Autowired
+	private CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	public void saveTerritory(Campaign campaign) {
 		campaignRepository.save(campaign);
@@ -35,5 +50,33 @@ public class CampaignManager {
 			campaignRepository.deleteById(campaignId);
 		}
 		return campaign;
+	}
+	
+	public Campaign getDefaultCampaignByTerritory(String territoryId) {
+		return campaignRepository.findDefaultByTerritoryId(territoryId);
+	}
+	
+	public CampaignSubscription subscribePlayer(Player player, String campaignId) {
+		CampaignSubscription sub = new CampaignSubscription();
+		sub.setPlayerId(player.getPlayerId());
+		sub.setCampaignId(campaignId);
+		sub.setMail(player.getMail());
+		sub.setSendMail(player.isSendMail());
+		//TODO campaign data?
+		return campaignSubscriptionRepository.save(sub);
+	}
+	
+	public void updateDefaultCampaignSuscription(Player player) {
+		Campaign campaign = getDefaultCampaignByTerritory(player.getTerritoryId());
+		if(campaign != null) {
+			CampaignSubscription sub = campaignSubscriptionRepository.findByPlayerId(campaign.getCampaignId(), player.getPlayerId());
+			if(sub != null) {
+				Query query = new Query(new Criteria("id").is(sub.getId()));
+				Update update = new Update();
+				update.set("sendMail", player.isSendMail());
+				update.set("mail", player.getMail());
+				template.updateFirst(query, update, CAMPAIGNSUB);
+			}
+		}
 	}
 }
