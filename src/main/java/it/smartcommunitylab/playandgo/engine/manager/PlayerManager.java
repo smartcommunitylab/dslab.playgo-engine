@@ -19,6 +19,14 @@ public class PlayerManager {
 	@Autowired
 	private CampaignManager campaignManager;
 	
+	public Player addPlayer(Player player) {
+		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
+		if(playerDb == null) {
+			return playerRepository.save(player);
+		}
+		return null;
+	}
+	
 	public Player registerPlayer(Player player) {
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
 		if(playerDb != null) {

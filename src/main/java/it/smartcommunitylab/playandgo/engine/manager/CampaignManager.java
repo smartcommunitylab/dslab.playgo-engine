@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
@@ -83,5 +85,18 @@ public class CampaignManager {
 				template.updateFirst(query, update, CAMPAIGNSUB);
 			}
 		}
+	}
+	
+	public List<PlayerCampaignDTO> getPlayerCampaigns(String playerId) {
+		List<PlayerCampaignDTO> result = new ArrayList<>();
+		List<CampaignSubscription> campaigns = campaignSubscriptionRepository.findByPlayerId(playerId);
+		for(CampaignSubscription sub : campaigns) {
+			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
+			if(campaign != null) {
+				PlayerCampaignDTO dto = new PlayerCampaignDTO(campaign, sub);
+				result.add(dto);
+			}
+		}
+		return result;
 	}
 }

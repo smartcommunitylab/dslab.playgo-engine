@@ -6,7 +6,7 @@ server:
 spring:
   data:
     mongodb:
-      url: ${SPRING_DATA_MONGODB_URL:}
+      uri: ${SPRING_DATA_MONGODB_URL:}
   http:
     multipart:
       enabled: true
@@ -40,3 +40,7 @@ rabbitmq:
   password: ${RABBITMQ_PASSWORD:}
   geExchangeName: ${RABBITMQ_GE_EXCHANGE_NAME:}
   geRoutingKeyPrefix: ${RABBITMQ_GE_ROUTING_KEY_PREFIX:}
+
+validation:
+  shapefolder: ${VALIDATION_SHAPE:}
+  

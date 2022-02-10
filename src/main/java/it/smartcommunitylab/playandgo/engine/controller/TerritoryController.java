@@ -18,7 +18,7 @@ import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 
 @RestController
-public class TerritoryController implements PlayAndGoController {
+public class TerritoryController extends PlayAndGoController {
 	private static transient final Logger logger = LoggerFactory.getLogger(TerritoryController.class);
 	
 	@Autowired

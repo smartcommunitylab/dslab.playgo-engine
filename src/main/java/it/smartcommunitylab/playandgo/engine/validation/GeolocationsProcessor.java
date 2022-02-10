@@ -1,5 +1,4 @@
 package it.smartcommunitylab.playandgo.engine.validation;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -15,9 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -88,26 +84,11 @@ public class GeolocationsProcessor {
 				TrackedInstance ti = preSaveTrackedInstance(key, userId, deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts);
 				if (ti != null) {
 					instances.add(ti);
+					logger.info("Saved geolocation events, user: " + userId + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
 				}
 			}
 
 			for (TrackedInstance ti : instances) {
-				// limit number of points to avoid failure of saving data
-				if (ti.getGeolocationEvents() != null) {
-					int mul = 1; 
-					while (ti.getGeolocationEvents().size() > (mul * MAX_LOCATIONS)) mul++;
-					if (mul > 1) {
-						logger.info("TOO MANY GEOLOCATION EVENTS, user: " + userId + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
-						List<Geolocation> src = new LinkedList<>(ti.getGeolocationEvents());
-						List<Geolocation> res = new LinkedList<>();
-						for (int i = 0; i < src.size(); i += mul) {
-							res.add(src.get(i));
-						}
-						ti.setGeolocationEvents(res);
-					}
-				}
-				saveTrackedInstance(ti);
-				logger.info("Saved geolocation events, user: " + userId + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
 				//TODO start validation 
 				//sendTrackedInstance(userId, appId, ti);
 			}
@@ -373,6 +354,20 @@ public class GeolocationsProcessor {
 				res.setSharedTravelId(sharedId);
 				logger.info("Resulting events: " + res.getGeolocationEvents().size());
 			}
+			// limit number of points to avoid failure of saving data
+			if (res.getGeolocationEvents() != null) {
+				int mul = 1; 
+				while (res.getGeolocationEvents().size() > (mul * MAX_LOCATIONS)) mul++;
+				if (mul > 1) {
+					logger.info("TOO MANY GEOLOCATION EVENTS, user: " + userId + ", travel: " + res.getId() + ", " + res.getGeolocationEvents().size() + " events.");
+					List<Geolocation> src = new LinkedList<>(res.getGeolocationEvents());
+					List<Geolocation> list = new LinkedList<>();
+					for (int i = 0; i < src.size(); i += mul) {
+						list.add(src.get(i));
+					}
+					res.setGeolocationEvents(list);
+				}
+			}
 			res.setDeviceInfo(deviceInfo);		
 			res.setMultimodalId(multimodalId);
 			trackedInstanceRepository.save(res);
@@ -388,53 +383,4 @@ public class GeolocationsProcessor {
 		return res;
 	}
 	
-	private long getStartTime(TrackedInstance trackedInstance) throws ParseException {
-		long time = 0;
-		if (trackedInstance.getGeolocationEvents() != null && !trackedInstance.getGeolocationEvents().isEmpty()) {
-			Geolocation event = trackedInstance.getGeolocationEvents().stream().sorted().findFirst().get();
-			time = event.getRecorded_at().getTime();
-		} else if (trackedInstance.getDay() != null && trackedInstance.getTime() != null) {
-			String dt = trackedInstance.getDay() + " " + trackedInstance.getTime();
-			time = fullSdf.parse(dt).getTime();
-		} else if (trackedInstance.getDay() != null) {
-			time = shortSdf.parse(trackedInstance.getDay()).getTime();
-		}
-		return time;
-	}
-	
-	private void saveTrackedInstance(TrackedInstance tracked) {
-		Query query = new Query(
-				new Criteria("clientId").is(tracked.getClientId())
-				.and("day").is(tracked.getDay())
-				.and("userId").is(tracked.getUserId()));
-		Update update = new Update();
-		if (tracked.getGeolocationEvents() != null && !tracked.getGeolocationEvents().isEmpty()) {
-			update.set("geolocationEvents", tracked.getGeolocationEvents());
-		}
-		if (tracked.getStarted() != null) {
-			update.set("started", tracked.getStarted());
-		}
-		if (tracked.getComplete() != null) {
-			update.set("complete", tracked.getComplete());
-		}
-		if (tracked.getValidationResult() != null) {
-			update.set("validationResult", tracked.getValidationResult());
-		}	
-		if (tracked.getDeviceInfo() != null && !tracked.getDeviceInfo().isEmpty()) {
-			update.set("deviceInfo", tracked.getDeviceInfo());
-		}
-		update.set("changedValidity", tracked.getChangedValidity());
-		if (tracked.getApproved() != null) {
-			update.set("approved", tracked.getApproved());
-		}
-		if (tracked.getOverriddenDistances() != null) {
-			update.set("overriddenDistances", tracked.getOverriddenDistances());
-			
-		}
-		update.set("toCheck", tracked.getToCheck());
-		update.set("multimodalId", tracked.getMultimodalId());
-		update.set("sharedTravelId", tracked.getSharedTravelId());
-		template.updateFirst(query, update, TRACKEDINSTANCE);
-	}
-
 }

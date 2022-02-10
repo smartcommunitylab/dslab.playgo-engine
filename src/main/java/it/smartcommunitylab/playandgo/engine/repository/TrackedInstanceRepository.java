@@ -1,5 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.repository;
 
+import java.util.List;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,4 +15,7 @@ public interface TrackedInstanceRepository extends MongoRepository<TrackedInstan
 	
 	@Query ("{'itinerary.userId': ?0, 'itinerary.clientId' : ?1}")
 	public TrackedInstance findByItinerary(String userId, String clientId);
+	
+	@Query ("{'userId' : ?0}")
+	public List<TrackedInstance> findByUserId(String userId, Sort sort);
 }

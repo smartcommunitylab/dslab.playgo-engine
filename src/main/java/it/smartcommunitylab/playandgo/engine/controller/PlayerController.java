@@ -16,11 +16,18 @@ import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 
 @RestController
-public class PlayerController implements PlayAndGoController {
+public class PlayerController extends PlayAndGoController {
 	private static transient final Logger logger = LoggerFactory.getLogger(PlayerController.class);
 	
 	@Autowired
 	private PlayerManager playerManager;
+	
+	@PostMapping("/api/player")
+	public Player addPlayer(
+			@RequestBody Player player,
+			HttpServletRequest request) throws Exception {
+		return playerManager.addPlayer(player);
+	}
 	
 	@PostMapping("/api/player/register")
 	public Player registerPlayer(
@@ -44,4 +51,11 @@ public class PlayerController implements PlayAndGoController {
 		//TODO delete other data
 		return player;
 	}
+	
+	@GetMapping("/api/player/profile")
+	public Player getProfile(
+			HttpServletRequest request) throws Exception {
+		return getCurrentPlayer(request);
+	}
+
 }
