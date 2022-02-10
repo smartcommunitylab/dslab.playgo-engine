@@ -3,9 +3,9 @@ package it.smartcommunitylab.playandgo.engine.manager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylab.playandgo.engine.gamification.GeolocationsProcessor;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
+import it.smartcommunitylab.playandgo.engine.validation.GeolocationsProcessor;
 
 @Component
 public class TrackedInstanceManager {
