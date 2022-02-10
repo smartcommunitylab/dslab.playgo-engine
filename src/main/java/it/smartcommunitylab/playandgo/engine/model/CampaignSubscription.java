@@ -17,7 +17,6 @@ public class CampaignSubscription {
 	private String mail;
 	private boolean sendMail;
 	private Map<String, Object> campaignData;
-	private Map<String,Map<String,Object>> surveys;
 	
 	public String getId() {
 		return id;
@@ -54,11 +53,5 @@ public class CampaignSubscription {
 	}
 	public void setCampaignData(Map<String, Object> campaignData) {
 		this.campaignData = campaignData;
-	}
-	public Map<String, Map<String, Object>> getSurveys() {
-		return surveys;
-	}
-	public void setSurveys(Map<String, Map<String, Object>> surveys) {
-		this.surveys = surveys;
 	}
 }

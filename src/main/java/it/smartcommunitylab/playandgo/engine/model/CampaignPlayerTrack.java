@@ -5,6 +5,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="campaignPlayerTracks")
 public class CampaignPlayerTrack {
+	public enum ScoreStatus {
+		UNASSIGNED, COMPUTED, SENT, ASSIGNED
+	}	
+
 	@Id
 	private String id;
 	
@@ -12,6 +16,9 @@ public class CampaignPlayerTrack {
 	private String campaignId;
 	private String campaignSubscriptionId;
 	private String trackedInstanceId;
+	
+	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
+	private Long score;
 	
 	public String getId() {
 		return id;
@@ -42,6 +49,18 @@ public class CampaignPlayerTrack {
 	}
 	public void setTrackedInstanceId(String trackedInstanceId) {
 		this.trackedInstanceId = trackedInstanceId;
+	}
+	public ScoreStatus getScoreStatus() {
+		return scoreStatus;
+	}
+	public void setScoreStatus(ScoreStatus scoreStatus) {
+		this.scoreStatus = scoreStatus;
+	}
+	public Long getScore() {
+		return score;
+	}
+	public void setScore(Long score) {
+		this.score = score;
 	}
 
 }

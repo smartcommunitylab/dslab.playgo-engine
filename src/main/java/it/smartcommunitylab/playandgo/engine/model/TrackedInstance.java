@@ -12,14 +12,10 @@ import com.google.common.collect.Sets;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
-import it.smartcommunitylab.playandgo.engine.mobility.model.ItineraryObject;
 
 @Document(collection = "trackedInstances")
 public class TrackedInstance {
 
-	public enum ScoreStatus {
-		UNASSIGNED, COMPUTED, SENT, ASSIGNED
-	}	
 	
 	@Id
 	private String id;
@@ -30,14 +26,11 @@ public class TrackedInstance {
 	private String multimodalId;
 	private String sharedTravelId;
 	
-	private ItineraryObject itinerary;
 	private String freeTrackingTransport;
 	
 	private Collection<Geolocation> geolocationEvents;
 	private Boolean started = Boolean.FALSE;
 	private Boolean complete = Boolean.FALSE;
-	
-	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
 	
 	private String time;
 	
@@ -47,10 +40,6 @@ public class TrackedInstance {
 	private String day;
 	
 	private ValidationResult validationResult;
-	
-	private Long score;
-
-	private String appId;
 	
 	private TravelValidity changedValidity;
 	private Boolean approved;
@@ -101,14 +90,6 @@ public class TrackedInstance {
 
 	public void setMultimodalId(String multimodalId) {
 		this.multimodalId = multimodalId;
-	}
-
-	public ItineraryObject getItinerary() {
-		return itinerary;
-	}
-
-	public void setItinerary(ItineraryObject itinerary) {
-		this.itinerary = itinerary;
 	}
 
 	public Collection<Geolocation> getGeolocationEvents() {
@@ -193,22 +174,6 @@ public class TrackedInstance {
 		this.freeTrackingTransport = freeTrackingTransport;
 	}
 
-	public Long getScore() {
-		return score;
-	}
-
-	public void setScore(Long score) {
-		this.score = score;
-	}
-
-	public String getAppId() {
-		return appId;
-	}
-
-	public void setAppId(String appId) {
-		this.appId = appId;
-	}
-
 	public TravelValidity getChangedValidity() {
 		return changedValidity;
 	}
@@ -223,14 +188,6 @@ public class TrackedInstance {
 
 	public void setApproved(Boolean approved) {
 		this.approved = approved;
-	}
-
-	public ScoreStatus getScoreStatus() {
-		return scoreStatus;
-	}
-
-	public void setScoreStatus(ScoreStatus scoreAssigned) {
-		this.scoreStatus = scoreAssigned;
 	}
 
 	public Boolean getToCheck() {
