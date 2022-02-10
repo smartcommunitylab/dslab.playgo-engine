@@ -1,5 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.gamification;
-
+package it.smartcommunitylab.playandgo.engine.validation;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;

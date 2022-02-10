@@ -49,8 +49,8 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 
-import it.smartcommunitylab.playandgo.engine.gamification.TrackValidator;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
+import it.smartcommunitylab.playandgo.engine.validation.TrackValidator;
 
 
 /**

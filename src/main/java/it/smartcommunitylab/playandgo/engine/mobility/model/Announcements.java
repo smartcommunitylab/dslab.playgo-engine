@@ -2,10 +2,6 @@ package it.smartcommunitylab.playandgo.engine.mobility.model;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement (name = "annoucements")
-
 public class Announcements {
 
 	private List<Announcement> announcement;

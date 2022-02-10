@@ -14,7 +14,7 @@
  *    limitations under the License.
  ******************************************************************************/
 
-package it.smartcommunitylab.playandgo.engine.gamification;
+package it.smartcommunitylab.playandgo.engine.validation;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -35,8 +35,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import it.sayservice.platform.smartplanner.data.message.Itinerary;
-import it.sayservice.platform.smartplanner.data.message.Leg;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Shape;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.TrackSplit;
@@ -46,6 +44,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.Interval;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.TRIP_TYPE;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
 
 /**
@@ -54,42 +53,147 @@ import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
  */
 public class TrackValidator {
 
-	private static final int WALK_SPEED_THRESHOLD = 7; // km/h
-	private static final int WALK_AVG_SPEED_THRESHOLD = 8; // km/h
-	private static final double WALK_GUARANTEED_AVG_SPEED_THRESHOLD = 5; // km/h
-
-	private static final int BIKE_SPEED_THRESHOLD = 34; // km/h
-	private static final int BIKE_AVG_SPEED_THRESHOLD = 27; // km/h
-	private static final double BIKE_GUARANTEED_AVG_SPEED_THRESHOLD = 18; // km/h
-
-	public static final double VALIDITY_THRESHOLD = 80; // %
-	public static final double ACCURACY_THRESHOLD = 150; // meters
-	
-
-	public static final double MIN_COVERAGE_THRESHOLD = 30; // %
-
-	public static final double SHARED_TRIP_DISTANCE_THRESHOLD = 1000; // meters 
-
-	public static final double DISTANCE_THRESHOLD = 250; // meters 
-	public static final long DATA_HOLE_THRESHOLD = 10*60; // seconds
-	public static final double BIKE_DISTANCE_THRESHOLD = 100;// meters 
-	private static final double MAX_AVG_SPEED_THRESHOLD = 200; // km/h
-	
-	public static final int PENDING_COVERAGE_THRESHOLD = 60;
-	public static final int COVERAGE_THRESHOLD = 80; // %
-	public static final int CERTIFIED_COVERAGE_THRESHOLD_VALID = 70;
-	public static final int CERTIFIED_COVERAGE_THRESHOLD_PENDING = 50;	
-	private static final double GUARANTEED_COVERAGE_THRESHOLD_VALID = 90; // %
-	private static final double GUARANTEED_COVERAGE_THRESHOLD_PENDING = 80; // %
 	
 //	private static transient final Logger logger = LoggerFactory.getLogger(TrackValidator.class);
 	
+	/**
+	 * Validate free tracking: train. Take reference train shapes as input.
+	 * Preprocess track data; check if contains more than 2 points; split into blocks with 15km/h - 3 mins for stop - at least 1 min fast track; 
+	 * match fragments against reference track with 150m error and 80% coverage. Consider VALID if at least 80% of length is matched. If no
+	 * fast fragment found consider PENDING with TOO_SLOW error. Otherwise consider PENDING.
+	 * @param track
+	 * @param territory
+	 * @return
+	 */
+	public static ValidationStatus validateFreeTrain(Collection<Geolocation> track, Territory territory) {
+		MODE_TYPE mode = MODE_TYPE.TRAIN; 
+		double speedThreshold = 15, timeThreshold = 3*60*1000, minTrackThreshold = 1*60*1000; 
+		return validateFreePTMode(
+				track, 
+				PTDataHelper.getTrainTracksForTerritory(territory.getTerritoryId()), 
+				null, 
+				mode, 
+				speedThreshold, timeThreshold, minTrackThreshold, false, 
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_DISTANCE_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_MAX_AVG_SPEED_THRESHOLD),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_CERTIFIED_COVERAGE_THRESHOLD_VALID),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_CERTIFIED_COVERAGE_THRESHOLD_PENDING),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_GUARANTEED_COVERAGE_THRESHOLD_VALID),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_GUARANTEED_COVERAGE_THRESHOLD_PENDING)
+				);
+	}
+
+	/**
+	 * Validate free tracking: bus. Take reference bus shapes as input.
+	 * Preprocess track data; check if contains more than 2 points; split into blocks with 15km/h - 3 mins for stop - at least 30 sec fast track; 
+	 * match fragments against reference trac with 150m error and 80% coverage. Consider VALID if at least 80% of length is matched and is certified. 
+	 * If no fast fragment found consider PENDING with TOO_SLOW error. Otherwise consider PENDING.
+	 * @param track
+	 * @param referenceTracks
+	 * @param areas
+	 * @return
+	 */
+	public static ValidationStatus validateFreeBus(Collection<Geolocation> track, Territory territory) {
+		MODE_TYPE mode = MODE_TYPE.BUS; 
+		double speedThreshold = 10, timeThreshold = 1*60*1000, minTrackThreshold = 30*1000; 
+		return validateFreePTMode(
+				track, 
+				PTDataHelper.getBusTracksForTerritory(territory.getTerritoryId(), track), 
+				null, 
+				mode, 
+				speedThreshold, timeThreshold, minTrackThreshold, true, 
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_DISTANCE_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_MAX_AVG_SPEED_THRESHOLD),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_CERTIFIED_COVERAGE_THRESHOLD_VALID),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_CERTIFIED_COVERAGE_THRESHOLD_PENDING),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_GUARANTEED_COVERAGE_THRESHOLD_VALID),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_GUARANTEED_COVERAGE_THRESHOLD_PENDING)
+				);
+	}
+
+	/**
+	 * Validate free tracking: boat. Take reference boat shapes as input.
+	 * Preprocess track data; check if contains more than 2 points; split into blocks with 8km/h - 3 mins for stop - at least 1 min fast track; 
+	 * match fragments against reference k with 150m error and 80% coverage. Consider VALID if at least 80% of length is matched. If no
+	 * fast fragment found consider PENDING with TOO_SLOW error. Otherwise consider PENDING.
+	 * @param track
+	 * @param territory
+	 * @return
+	 */
+	public static ValidationStatus validateFreeBoat(Collection<Geolocation> track, Territory territory) {
+		MODE_TYPE mode = MODE_TYPE.BOAT; 
+		double speedThreshold = 8, timeThreshold = 3*60*1000, minTrackThreshold = 1*60*1000; 
+		return validateFreePTMode(
+				track, 
+				PTDataHelper.getBoatTracksForTerritory(territory.getTerritoryId()), 
+				null, 
+				mode, 
+				speedThreshold, timeThreshold, minTrackThreshold, false, 
+				1000,
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD),
+				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_MAX_AVG_SPEED_THRESHOLD),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_CERTIFIED_COVERAGE_THRESHOLD_VALID),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_CERTIFIED_COVERAGE_THRESHOLD_PENDING),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_GUARANTEED_COVERAGE_THRESHOLD_VALID),
+				ValidationConstants.getInt(territory, ValidationConstants.PARAM_GUARANTEED_COVERAGE_THRESHOLD_PENDING)
+				);
+	}
+
+	/**
+	 * Validate free walk. Check track start/stop is within the areas,
+	 * consider only the piece with valid walk speed (if any) and is longer than 250 meters.
+	 * @param track
+	 * @param territory
+	 * @return
+	 */
+	public static ValidationStatus validateFreeWalk(Collection<Geolocation> track, Territory territory) {
+	
+		MODE_TYPE mode = MODE_TYPE.WALK; 
+		double speedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_WALK_SPEED_THRESHOLD), 
+				timeThreshold = 30 * 1000, minTrackThreshold = 60*1000, 
+				avgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_WALK_AVG_SPEED_THRESHOLD), 
+				guaranteedAvgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_WALK_GUARANTEED_AVG_SPEED_THRESHOLD); 
+	
+		
+		return validateFreeMode(track, null, mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_DISTANCE_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD));
+	}
+
+	/**
+	 * Validate free walk. Check track start/stop is within the areas,
+	 * consider only the piece with valid bike speed (if any) and is longer than 250 meters.
+	 * @param track
+	 * @param territory
+	 * @return
+	 */
+	public static ValidationStatus validateFreeBike(Collection<Geolocation> track, Territory territory) {
+	
+		MODE_TYPE mode = MODE_TYPE.BIKE; 
+		double speedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_SPEED_THRESHOLD), 
+				timeThreshold = 10 * 1000, minTrackThreshold = 60*1000, 
+				avgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_AVG_SPEED_THRESHOLD), 
+				guaranteedAvgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_GUARANTEED_AVG_SPEED_THRESHOLD); 
+		ValidationStatus status = validateFreeMode(track, null, mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_DISTANCE_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD));
+	
+		if (TravelValidity.INVALID.equals(status.getValidationOutcome()) && ERROR_TYPE.TOO_SHORT.equals(status.getError())) {
+			status.setError(ERROR_TYPE.DOES_NOT_MATCH);
+		}
+		return status;
+	}
+
 	/**
 	 * Preprocess tracked data: spline, remove outstanding points, remove potentially erroneous start / stop points 
 	 * @param points
 	 * @return
 	 */
-	public static List<Geolocation> preprocessTrack(List<Geolocation> points) {
+	private static List<Geolocation> preprocessTrack(List<Geolocation> points) {
 		if (points.size() > 4) points.remove(0);
 		if (points.size() > 2) GamificationHelper.removeOutliers(points);
 //		if (points.size() > 3) removeNoise(points);
@@ -102,7 +206,7 @@ public class TrackValidator {
 	 * 3 points is sharp and distance shift is small, remove intermediate
 	 * @param points
 	 */
-	public static void removeNoise(List<Geolocation> points) {
+	private static void removeNoise(List<Geolocation> points) {
 		int i = 0;
 		while (i < points.size()-3) {
 			double dist = GamificationHelper.harvesineDistance(points.get(i), points.get(i+2));
@@ -118,14 +222,14 @@ public class TrackValidator {
 	/**
 	 * Preprocess and prevalidate track data.
 	 * Check for data 'holes'
-	 * Basic validation: minimal length and points, game area. 
+	 * Basic validation: minimal length and points, area. 
 	 * @param track
 	 * @param status
 	 * @param areas
 	 * @param distanceThreshold 
 	 * @return preprocessed track data
 	 */
-	public static List<Geolocation> prevalidate(Collection<Geolocation> track, ValidationStatus status, List<Shape> areas, double distanceThreshold) {
+	private static List<Geolocation> prevalidate(Collection<Geolocation> track, ValidationStatus status, List<Shape> areas, double distanceThreshold) {
 		// check data present
 		if (track == null || track.size() <= 1) {
 			status.setError(ERROR_TYPE.NO_DATA);
@@ -133,29 +237,12 @@ public class TrackValidator {
 			return Collections.emptyList();
 		}
 		List<Geolocation> points = new ArrayList<Geolocation>(track);
-		Collections.sort(points, (o1, o2) -> (int)(o1.getRecorded_at().getTime() - o2.getRecorded_at().getTime()));
-		// check for data holes. If there is missing data, set status to PENDING and stop
-//		for (int i = 1; i < points.size(); i++) {
-//			long interval = points.get(i).getRecorded_at().getTime() - points.get(i-1).getRecorded_at().getTime();
-//			if (interval > DATA_HOLE_THRESHOLD * 1000) {
-//				double dist = GamificationHelper.harvesineDistance(points.get(i), points.get(i-1));
-//				// if moving faster than 1 m/s through out the interval then data is missing
-//				if (dist*1000000 > interval) {
-//					status.setError(ERROR_TYPE.DATA_HOLE);
-//					status.setValidationOutcome(TravelValidity.PENDING);
-//					return Collections.emptyList();
-//				}
-//			}
-//		}
-		
+		Collections.sort(points, (o1, o2) -> (int)(o1.getRecorded_at().getTime() - o2.getRecorded_at().getTime()));		
 		// preprocess
 		status.computeAccuracy(points);
-//		System.err.println(GamificationHelper.encodePoly(points));
 		points = removeStarredClusters(points);
 		points = preprocessTrack(points);
 		TrackValidator.shortenByHighSpeed(points);
-		
-//		System.err.println(GamificationHelper.encodePoly(points));
 		
 		Collections.sort(points, (o1, o2) -> (int)(o1.getRecorded_at().getTime() - o2.getRecorded_at().getTime()));
 		status.updateMetrics(points);
@@ -186,12 +273,11 @@ public class TrackValidator {
 		return points;
 	}
 	
-	public static void shortenByHighSpeed(List<Geolocation> points) {
+	private static void shortenByHighSpeed(List<Geolocation> points) {
 		double prevSpeed = 0;
 
 		int start = 1;
 		boolean removed = false;
-//		int n = 0;
 		do {
 			removed = false;
 			Integer min = null;
@@ -201,12 +287,9 @@ public class TrackValidator {
 				long t = points.get(i).getRecorded_at().getTime() - points.get(i - 1).getRecorded_at().getTime();
 				if (t > 0) {
 					double speed = (1000.0 * d / ((double) t / 1000)) * 3.6;
-//					System.err.println((i - 1) + " -> " + i + " = " + speed + " / " + points.get(i - 1) + " -> " + points.get(i));
 					if (speed > 30 && speed > prevSpeed * 10 && prevSpeed > 1) {
-//						System.err.println("prev " + prevSpeed);
 						Integer found = findReachableBySpeed(i - 1, speed, points);
 						if (found != null) { // && found - i < 50) {
-//							System.err.println("[" + (i) + "," + found + "]");
 							min = i;
 							max = found;
 							break;
@@ -216,17 +299,15 @@ public class TrackValidator {
 				}
 			}
 
-			if (min != null) {// && max - min < 5) {
+			if (min != null) {
 				start = min + 1;
 				for (int j = 0; j <= max - min ; j++) {
 					int m = min.intValue();
-//					System.err.println("removing " + (j + min));
 					points.remove(m);
 				}
 				removed = true;
 			}
 			
-//			n++;
 		} while (removed);
 
 	}
@@ -238,10 +319,7 @@ public class TrackValidator {
 			double d = GamificationHelper.harvesineDistance(points.get(i), points.get(index));
 			long t = points.get(i).getRecorded_at().getTime() - points.get(index).getRecorded_at().getTime();
 			if (t > 0) {
-//				double speed = (1000.0 * d / ((double) t / 1000)) * 3.6;
-//				System.err.println("\t" + i + " / " + speed + " / " + d);
 				if (d < d0) {
-//					System.err.println("\t\t" +index + " -> " + i + " = " + speed + " / " + d);
 					found = i - 1;
 					break;
 				}
@@ -255,7 +333,7 @@ public class TrackValidator {
 		return found;
 	}
 	
-	public static List<Geolocation> removeStarredClusters(List<Geolocation> origPoints) {
+	private static List<Geolocation> removeStarredClusters(List<Geolocation> origPoints) {
 		List<Geolocation> points = new ArrayList<Geolocation>(origPoints);
 		Collections.sort(points);		
 		List<List<Geolocation>> groups = computeAngles(points);
@@ -291,12 +369,7 @@ public class TrackValidator {
 				prev = null;
 			}
 		}	
-		
-//		if (origPoints.size() != newPoints.size()) {
-//			logger.debug("Original polyline: " + GamificationHelper.encodePoly(origPoints));
-//			logger.debug("Reduced polyline: " + GamificationHelper.encodePoly(newPoints));
-//		}
-		
+
 		return newPoints;
 	}
 	
@@ -348,27 +421,6 @@ public class TrackValidator {
 				end = -1;
 			}
 
-			
-//			if (indexes.get(i) - indexes.get(i - 1) == 1 && start == -1) {
-//				start = i - 1;
-//			}
-//			if (start != -1 && indexes.get(i) - indexes.get(i - 1) > 5) {
-//				end = i - 1;
-//			}
-//			if (i == indexes.size() - 1 && start != -1) {
-//				end = i;
-//			}
-//			if (start != -1 && end != -1 && (end - start >= 20)) {
-//				List<Geolocation> group = Lists.newArrayList();
-//				for (int j = indexes.get(start); j <= indexes.get(end); j++) {
-//					group.add(points.get(j));
-//				}
-//				groups.add(group);
-//			}
-//			if (start != -1 && end != -1) {
-//				start = -1;
-//				end = -1;
-//			}
 		}
 		if (!closed && indexes.size() > 0) {
 			List<Geolocation> group = Lists.newLinkedList();
@@ -402,54 +454,6 @@ public class TrackValidator {
 		return geoloc;
 	}	
 
-	/**
-	 * Validate free tracking: train. Take reference train shapes as input.
-	 * Preprocess track data; check if contains more than 2 points; split into blocks with 15km/h - 3 mins for stop - at least 1 min fast track; 
-	 * match fragments against reference track with 150m error and 80% coverage. Consider VALID if at least 80% of length is matched. If no
-	 * fast fragment found consider PENDING with TOO_SLOW error. Otherwise consider PENDING.
-	 * @param track
-	 * @param referenceTracks
-	 * @param areas
-	 * @return
-	 */
-	public static ValidationStatus validateFreeTrain(Collection<Geolocation> track, List<List<Geolocation>> referenceTracks, List<Shape> areas) {
-		MODE_TYPE mode = MODE_TYPE.TRAIN; 
-		double speedThreshold = 15, timeThreshold = 3*60*1000, minTrackThreshold = 1*60*1000; 
-		return validateFreePTMode(track, referenceTracks, areas, mode, speedThreshold, timeThreshold, minTrackThreshold, false, DISTANCE_THRESHOLD);
-	}
-	
-	/**
-	 * Validate free tracking: boat. Take reference boat shapes as input.
-	 * Preprocess track data; check if contains more than 2 points; split into blocks with 8km/h - 3 mins for stop - at least 1 min fast track; 
-	 * match fragments against reference k with 150m error and 80% coverage. Consider VALID if at least 80% of length is matched. If no
-	 * fast fragment found consider PENDING with TOO_SLOW error. Otherwise consider PENDING.
-	 * @param track
-	 * @param referenceTracks
-	 * @param areas
-	 * @return
-	 */
-	public static ValidationStatus validateFreeBoat(Collection<Geolocation> track, List<List<Geolocation>> referenceTracks, List<Shape> areas) {
-		MODE_TYPE mode = MODE_TYPE.BOAT; 
-		double speedThreshold = 8, timeThreshold = 3*60*1000, minTrackThreshold = 1*60*1000; 
-		return validateFreePTMode(track, referenceTracks, areas, mode, speedThreshold, timeThreshold, minTrackThreshold, false, 1000);
-	}
-
-	/**
-	 * Validate free tracking: bus. Take reference bus shapes as input.
-	 * Preprocess track data; check if contains more than 2 points; split into blocks with 15km/h - 3 mins for stop - at least 30 sec fast track; 
-	 * match fragments against reference trac with 150m error and 80% coverage. Consider VALID if at least 80% of length is matched and is certified. 
-	 * If no fast fragment found consider PENDING with TOO_SLOW error. Otherwise consider PENDING.
-	 * @param track
-	 * @param referenceTracks
-	 * @param areas
-	 * @return
-	 */
-	public static ValidationStatus validateFreeBus(Collection<Geolocation> track, List<List<Geolocation>> referenceTracks, List<Shape> areas) {
-		MODE_TYPE mode = MODE_TYPE.BUS; 
-		double speedThreshold = 10, timeThreshold = 1*60*1000, minTrackThreshold = 30*1000; 
-		return validateFreePTMode(track, referenceTracks, areas, mode, speedThreshold, timeThreshold, minTrackThreshold, true, DISTANCE_THRESHOLD);
-	}
-	
 	private static ValidationStatus validateFreePTMode(
 			Collection<Geolocation> track, 
 			List<List<Geolocation>> referenceTracks,
@@ -459,15 +463,21 @@ public class TrackValidator {
 			double timeThreshold, 
 			double minTrackThreshold,
 			boolean checkCertificate,
-			double distanceThreshold) 
+			double distanceThreshold,
+			double validityThreshold,
+			double accuracyThreshold,
+			double coverageThreshold,
+			double maxAvgSpeedThteshold,
+			double cctv, double cctp, double gctv, double gctp
+			) 
 	{
 		ValidationStatus status = new ValidationStatus();
 		// set parameters
 		status.setTripType(TRIP_TYPE.FREE);
 		status.setModeType(mode);
-		status.setValidityThreshold(VALIDITY_THRESHOLD);
-		status.setMatchThreshold(ACCURACY_THRESHOLD);
-		status.setCoverageThreshold(COVERAGE_THRESHOLD);
+		status.setValidityThreshold(validityThreshold);
+		status.setMatchThreshold(accuracyThreshold);
+		status.setCoverageThreshold(coverageThreshold);
 
 		// basic validation
 		List<Geolocation> points = prevalidate(track, status, areas, distanceThreshold);
@@ -489,7 +499,7 @@ public class TrackValidator {
 			status.getEffectiveDistances().put(mode, status.getDistance());
 			return status;
 		}
-		status.updateFastSplit(trackSplit, MAX_AVG_SPEED_THRESHOLD);
+		status.updateFastSplit(trackSplit, maxAvgSpeedThteshold);
 
 		if (referenceTracks != null && !referenceTracks.isEmpty()) {
 			// compute matches checking each fast fragment against available reference train tracks
@@ -519,15 +529,15 @@ public class TrackValidator {
 			if (checkCertificate) { // bus
 				boolean certified = isCertifiedTrack(track); 
 				
-				if (certified && coverage >= COVERAGE_THRESHOLD) {
+				if (certified && coverage >= coverageThreshold) {
 					status.setValidationOutcome(TravelValidity.VALID);
-				} else if (certified && 100.0 * coveredDistance / transportDistance >= CERTIFIED_COVERAGE_THRESHOLD_VALID) {
+				} else if (certified && 100.0 * coveredDistance / transportDistance >= cctv) {
 					status.setValidationOutcome(TravelValidity.VALID);				
-				} else if (certified && 100.0 * coveredDistance / transportDistance >= CERTIFIED_COVERAGE_THRESHOLD_PENDING) {
+				} else if (certified && 100.0 * coveredDistance / transportDistance >= cctp) {
 					status.setValidationOutcome(TravelValidity.PENDING);				
-				} else if (!certified && 100.0 * coveredDistance / transportDistance >= GUARANTEED_COVERAGE_THRESHOLD_VALID) {
+				} else if (!certified && 100.0 * coveredDistance / transportDistance >= gctv) {
 					status.setValidationOutcome(TravelValidity.VALID);				
-				} else if (!certified && 100.0 * coveredDistance / transportDistance >= GUARANTEED_COVERAGE_THRESHOLD_PENDING) {
+				} else if (!certified && 100.0 * coveredDistance / transportDistance >= gctp) {
 					status.setValidationOutcome(TravelValidity.PENDING);				
 				} else {
 					status.setValidationOutcome(TravelValidity.INVALID);				
@@ -541,7 +551,7 @@ public class TrackValidator {
 //					status.setValidationOutcome(TravelValidity.PENDING);				
 //				}
 			} else {
-				if (coverage >= COVERAGE_THRESHOLD) {
+				if (coverage >= coverageThreshold) {
 					status.setValidationOutcome(TravelValidity.VALID);
 				} else {
 					status.setValidationOutcome(TravelValidity.INVALID);				
@@ -569,42 +579,6 @@ public class TrackValidator {
 		return track.stream().anyMatch(g -> !StringUtils.isEmpty(g.getCertificate()));
 	}
 
-	/**
-	 * Validate free walk. Check track start/stop is within the areas,
-	 * consider only the piece with valid walk speed (if any) and is longer than 250 meters.
-	 * @param track
-	 * @param areas
-	 * @return
-	 */
-	public static ValidationStatus validateFreeWalk(Collection<Geolocation> track, List<Shape> areas) {
-
-		MODE_TYPE mode = MODE_TYPE.WALK; 
-		double speedThreshold = WALK_SPEED_THRESHOLD, timeThreshold = 30 * 1000, minTrackThreshold = 60*1000, avgSpeedThreshold = WALK_AVG_SPEED_THRESHOLD, guaranteedAvgSpeedThreshold = WALK_GUARANTEED_AVG_SPEED_THRESHOLD; 
-
-		
-		return validateFreeMode(track, areas, mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, DISTANCE_THRESHOLD);
-	}
-
-	/**
-	 * Validate free walk. Check track start/stop is within the areas,
-	 * consider only the piece with valid bike speed (if any) and is longer than 250 meters.
-	 * @param track
-	 * @param areas
-	 * @return
-	 */
-	public static ValidationStatus validateFreeBike(Collection<Geolocation> track, List<Shape> areas) {
-
-		MODE_TYPE mode = MODE_TYPE.BIKE; 
-		double speedThreshold = BIKE_SPEED_THRESHOLD, timeThreshold = 10 * 1000, minTrackThreshold = 60*1000, avgSpeedThreshold = BIKE_AVG_SPEED_THRESHOLD, guaranteedAvgSpeedThreshold = BIKE_GUARANTEED_AVG_SPEED_THRESHOLD; 
-		ValidationStatus status = validateFreeMode(track, areas, mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, BIKE_DISTANCE_THRESHOLD);
-
-		if (TravelValidity.INVALID.equals(status.getValidationOutcome()) && ERROR_TYPE.TOO_SHORT.equals(status.getError())) {
-			status.setError(ERROR_TYPE.DOES_NOT_MATCH);
-		}
-		return status;
-	}
-
-	
 	private static ValidationStatus validateFreeMode(
 			Collection<Geolocation> track,
 			List<Shape> areas, 
@@ -614,13 +588,15 @@ public class TrackValidator {
 			double minTrackThreshold, 
 			double avgSpeedThreshold,
 			double guaranteedAvgSpeedThreshold,
-			double distanceThreshold) {
+			double distanceThreshold,
+			double validityThreshold,
+			double coverageThreshold) {
 		ValidationStatus status = new ValidationStatus();
 		// set parameters
 		status.setTripType(TRIP_TYPE.FREE);
 		status.setModeType(mode);
-		status.setValidityThreshold(VALIDITY_THRESHOLD);
-		status.setCoverageThreshold(COVERAGE_THRESHOLD);
+		status.setValidityThreshold(validityThreshold);
+		status.setCoverageThreshold(coverageThreshold);
 
 		// basic validation
 		List<Geolocation> points = prevalidate(track, status, areas, distanceThreshold);
@@ -632,16 +608,6 @@ public class TrackValidator {
 		if (points.size() == 2) {
 			status.setValidationOutcome(TravelValidity.INVALID);
 			status.setError(ERROR_TYPE.NO_DATA);
-//					long estimate = (long) (status.getDistance() * 1.5);
-//					long speed = estimate / status.getDuration();
-//					if (speed > avgSpeedThreshold) {
-//						status.setValidationOutcome(TravelValidity.INVALID);
-//						status.setError(ERROR_TYPE.TOO_FAST);
-//					} else {
-//						status.setValidationOutcome(TravelValidity.VALID);
-//						status.setEffectiveDistances(Collections.singletonMap(mode, status.getDistance()));
-//					} 
-			
 		}
 		
 		// split track into pieces. 
@@ -671,58 +637,6 @@ public class TrackValidator {
 		
 		return status;
 	}
-	/**
-	 * Validate planned trip
-	 * @param track
-	 * @param areas
-	 * @return
-	 */
-	public static ValidationStatus validatePlanned(Collection<Geolocation> track, Itinerary itinerary, List<Shape> areas) {
-		ValidationStatus status = new ValidationStatus();
-		// set parameters
-		status.setTripType(TRIP_TYPE.PLANNED);
-		status.setValidityThreshold(VALIDITY_THRESHOLD);
-		status.setMatchThreshold(ACCURACY_THRESHOLD);
-
-		// basic validation
-		List<Geolocation> points = prevalidate(track, status, areas, DISTANCE_THRESHOLD);
-		if (status.getValidationOutcome() != null) {
-			if (ERROR_TYPE.TOO_SHORT.equals(status.getError())) {
-				status.setError(ERROR_TYPE.DOES_NOT_MATCH);
-			}
-			return status;
-		}
-		
-		status.setValidationOutcome(TravelValidity.PENDING);
-		if (itinerary != null) {
-			status.updatePlannedDistances(itinerary);
-			List<List<Geolocation>> legTraces = itinerary.getLeg().stream().map(leg -> GamificationHelper.decodePoly(leg)).collect(Collectors.toList());
-			points = fillTrace(points, 100.0 / 1000 / 2 / Math.sqrt(2));
-			// check leg coverage: if is more than threshold (e.g., 80%) - valid, if less than minimum threshold - invalid. Otherwise pending
-			double matchedLength = 0, minMatchedLength = 0, totalLength = 0;
-			for (int i = 0; i < legTraces.size(); i++) {
-				Leg leg = itinerary.getLeg().get(i);
-				double legLength = leg.getLength();
-				List<Geolocation> legTrace = legTraces.get(i);
-				int effectiveLength = legTrace.size();
-				int invalid = trackMatch(legTrace, points, status.getMatchThreshold());
-				double subtrackPrecision =  100.0 * (effectiveLength-invalid) / (effectiveLength);
-				if (subtrackPrecision > COVERAGE_THRESHOLD) {
-					matchedLength += legLength;
-				}
-				minMatchedLength += legLength * subtrackPrecision / 100.0;
-				totalLength += legLength;
-			}
-			if ((100.0 * matchedLength / totalLength) > COVERAGE_THRESHOLD) {
-				status.setValidationOutcome(TravelValidity.VALID);
-			}
-			if ((100.0 * minMatchedLength / totalLength) < MIN_COVERAGE_THRESHOLD) {
-				status.setValidationOutcome(TravelValidity.INVALID);
-			}
-		} 
-		return status;
-	}
-	
 
 	/**
 	 * @param key
@@ -870,19 +784,19 @@ public class TrackValidator {
 	 * @param areas
 	 * @return
 	 */
-	public static ValidationStatus validateSharedPassenger(Collection<Geolocation> passengerTrack, Collection<Geolocation> driverTrack, List<Shape> areas) {
+	public static ValidationStatus validateSharedPassenger(Collection<Geolocation> passengerTrack, Collection<Geolocation> driverTrack, Territory territory) {
 		ValidationStatus status = new ValidationStatus();
 		// set parameters
 		status.setTripType(TRIP_TYPE.SHARED);
-		status.setValidityThreshold(VALIDITY_THRESHOLD);
-		status.setMatchThreshold(ACCURACY_THRESHOLD);
+		status.setValidityThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD));
+		status.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
 
 		// basic validation
-		List<Geolocation> points = prevalidate(passengerTrack, status, areas, SHARED_TRIP_DISTANCE_THRESHOLD);
+		List<Geolocation> points = prevalidate(passengerTrack, status, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
 		if (status.getValidationOutcome() != null) {
 			return status;
 		}
-		List<Geolocation> driverPoints = prevalidate(driverTrack, status, areas, SHARED_TRIP_DISTANCE_THRESHOLD);
+		List<Geolocation> driverPoints = prevalidate(driverTrack, status, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
 		if (status.getValidationOutcome() != null) {
 			return status;
 		}
@@ -897,22 +811,20 @@ public class TrackValidator {
 			int effectiveLength = driverPoints.size();
 			int invalid = trackMatch(driverPoints, points, status.getMatchThreshold());
 			double subtrackPrecision =  100.0 * (effectiveLength-invalid) / (effectiveLength);
-			if (subtrackPrecision > COVERAGE_THRESHOLD) {
+			if (subtrackPrecision > ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD)) {
 				matchedLength = status.getDistance();
 			}
 			minMatchedLength = matchedLength * subtrackPrecision / 100.0;
 			totalLength = status.getDistance();
 
-			if ((100.0 * matchedLength / totalLength) > COVERAGE_THRESHOLD) {
+			if ((100.0 * matchedLength / totalLength) > ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD)) {
 				status.setValidationOutcome(TravelValidity.VALID);
 			}
-			if ((100.0 * minMatchedLength / totalLength) < MIN_COVERAGE_THRESHOLD) {
+			if ((100.0 * minMatchedLength / totalLength) < ValidationConstants.getDouble(territory, ValidationConstants.PARAM_MIN_COVERAGE_THRESHOLD)) {
 				status.setValidationOutcome(TravelValidity.INVALID);
 				status.setError(ERROR_TYPE.SHARED_DOES_NOT_MATCH);
 				return status;
 			}
-			// TODO check timing
-			
 		} 
 		return status;
 	}
@@ -923,15 +835,15 @@ public class TrackValidator {
 	 * @param areas
 	 * @return
 	 */
-	public static ValidationStatus validateSharedDriver(Collection<Geolocation> driverTrack, List<Shape> areas) {
+	public static ValidationStatus validateSharedDriver(Collection<Geolocation> driverTrack, Territory territory) {
 		ValidationStatus status = new ValidationStatus();
 		// set parameters
 		status.setTripType(TRIP_TYPE.SHARED);
-		status.setValidityThreshold(VALIDITY_THRESHOLD);
-		status.setMatchThreshold(ACCURACY_THRESHOLD);
+		status.setValidityThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD));
+		status.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
 
 		// basic validation
-		prevalidate(driverTrack, status, areas, SHARED_TRIP_DISTANCE_THRESHOLD);
+		prevalidate(driverTrack, status, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
 		if (status.getValidationOutcome() != null) {
 			return status;
 		}
