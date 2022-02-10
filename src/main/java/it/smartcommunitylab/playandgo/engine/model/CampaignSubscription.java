@@ -15,7 +15,7 @@ public class CampaignSubscription {
 	@Indexed
 	private String campaignId;
 	private String mail;
-	private boolean sendMail;
+	private Boolean sendMail = Boolean.FALSE;
 	private Map<String, Object> campaignData;
 	
 	public String getId() {
@@ -42,16 +42,16 @@ public class CampaignSubscription {
 	public void setMail(String mail) {
 		this.mail = mail;
 	}
-	public boolean isSendMail() {
-		return sendMail;
-	}
-	public void setSendMail(boolean sendMail) {
-		this.sendMail = sendMail;
-	}
 	public Map<String, Object> getCampaignData() {
 		return campaignData;
 	}
 	public void setCampaignData(Map<String, Object> campaignData) {
 		this.campaignData = campaignData;
+	}
+	public Boolean getSendMail() {
+		return sendMail;
+	}
+	public void setSendMail(Boolean sendMail) {
+		this.sendMail = sendMail;
 	}
 }

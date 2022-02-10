@@ -108,8 +108,9 @@ public class GeolocationsProcessor {
 					}
 				}
 				saveTrackedInstance(ti);
-				//TODO sendTrackedInstance(userId, appId, ti);
 				logger.info("Saved geolocation events, user: " + userId + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
+				//TODO start validation 
+				//sendTrackedInstance(userId, appId, ti);
 			}
 		} else {
 			logger.error("Device of user " + userId + " is virtual: " + geolocationsEvent.getDevice());
@@ -335,35 +336,10 @@ public class GeolocationsProcessor {
 			multimodalId = splitId[1];
 		}
 
-		TrackedInstance res = null;
-
-		res = getStoredTrackedInstance(key, travelId, multimodalId, userId, geolocationsByItinerary, freeTracks, freeTrackStarts);
-
-		if (res.getComplete() != null && res.getComplete()) {
-			logger.info("Skipping complete trip " + res.getId());
-			return null;
-		} else {			
-			if (geolocationsByItinerary.get(key) != null) {
-				logger.info("Adding " + geolocationsByItinerary.get(key).size() + " geolocations to existing " + res.getGeolocationEvents().size() + ".");
-				res.getGeolocationEvents().addAll(geolocationsByItinerary.get(key));
-				String sharedId = res.getGeolocationEvents().stream().filter(e -> e.getSharedTravelId() != null).findFirst().map(e -> e.getSharedTravelId()).orElse(null);
-				res.setSharedTravelId(sharedId);
-				logger.info("Resulting events: " + res.getGeolocationEvents().size());
-			}
-
-			res.setDeviceInfo(deviceInfo);
-		}
-
-		return res;
-
-	}
-	
-	private TrackedInstance getStoredTrackedInstance(String key, String travelId, String multimodalId, String userId, Multimap<String, Geolocation> geolocationsByItinerary, Map<String, String> freeTracks,
-			Map<String, Long> freeTrackStarts) throws Exception {
-		
 		String day = shortSdf.format(freeTrackStarts.get(key));
 		String time = timeSdf.format(freeTrackStarts.get(key));
 		
+		//check existing track
 		TrackedInstance res = trackedInstanceRepository.findByDayAndUserIdAndClientId(day, userId, travelId);
 		if (res == null) {
 			logger.error("No existing TrackedInstance found.");
@@ -391,11 +367,28 @@ public class GeolocationsProcessor {
 			if (freeTrackStarts.containsKey(key)) {
 				res.setTime(timeSdf.format(new Date(freeTrackStarts.get(key))));
 			}
+			if (geolocationsByItinerary.get(key) != null) {
+				logger.info("Adding " + geolocationsByItinerary.get(key).size() + " geolocations to existing " + res.getGeolocationEvents().size() + ".");
+				res.getGeolocationEvents().addAll(geolocationsByItinerary.get(key));
+				String sharedId = res.getGeolocationEvents().stream().filter(e -> e.getSharedTravelId() != null).findFirst().map(e -> e.getSharedTravelId()).orElse(null);
+				res.setSharedTravelId(sharedId);
+				logger.info("Resulting events: " + res.getGeolocationEvents().size());
+			}
+			res.setDeviceInfo(deviceInfo);		
+			res.setMultimodalId(multimodalId);
+			trackedInstanceRepository.save(res);
+		} else {
+			if (res.getComplete() != null && res.getComplete()) {
+				logger.info("Skipping complete trip " + res.getId());
+				return null;				
+			} else {
+				logger.info("Skipping already existing trip " + res.getId());
+				return null;
+			}
 		}
-		res.setMultimodalId(multimodalId);
 		return res;
 	}
-
+	
 	private long getStartTime(TrackedInstance trackedInstance) throws ParseException {
 		long time = 0;
 		if (trackedInstance.getGeolocationEvents() != null && !trackedInstance.getGeolocationEvents().isEmpty()) {

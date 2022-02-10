@@ -66,7 +66,7 @@ public class CampaignManager {
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaignId);
 		sub.setMail(player.getMail());
-		sub.setSendMail(player.isSendMail());
+		sub.setSendMail(player.getSendMail());
 		//TODO campaign data?
 		return campaignSubscriptionRepository.save(sub);
 	}
@@ -78,7 +78,7 @@ public class CampaignManager {
 			if(sub != null) {
 				Query query = new Query(new Criteria("id").is(sub.getId()));
 				Update update = new Update();
-				update.set("sendMail", player.isSendMail());
+				update.set("sendMail", player.getSendMail());
 				update.set("mail", player.getMail());
 				template.updateFirst(query, update, CAMPAIGNSUB);
 			}

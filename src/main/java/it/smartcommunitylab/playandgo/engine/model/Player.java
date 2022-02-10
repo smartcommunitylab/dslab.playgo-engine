@@ -13,11 +13,10 @@ public class Player {
 	private String nickname;
 	private String language;
 	private String mail;
-	private boolean sendMail;
+	private Boolean sendMail = Boolean.FALSE;
 	private Avatar avatar;
 	private String territoryId;
 //	private Map<String, Object> personalData;
-//	private Map<String,Map<String,Object>> surveys;
 //	private boolean checkedRecommendation;
 //	private List<Event> eventsCheckIn;
 	
@@ -73,14 +72,6 @@ public class Player {
 		this.language = language;
 	}
 
-	public boolean isSendMail() {
-		return sendMail;
-	}
-
-	public void setSendMail(boolean sendMail) {
-		this.sendMail = sendMail;
-	}
-
 	public Avatar getAvatar() {
 		return avatar;
 	}
@@ -95,6 +86,14 @@ public class Player {
 
 	public void setTerritoryId(String territoryId) {
 		this.territoryId = territoryId;
+	}
+
+	public Boolean getSendMail() {
+		return sendMail;
+	}
+
+	public void setSendMail(Boolean sendMail) {
+		this.sendMail = sendMail;
 	}
 
 	

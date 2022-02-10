@@ -31,6 +31,7 @@ public class TrackedInstance {
 	private Collection<Geolocation> geolocationEvents;
 	private Boolean started = Boolean.FALSE;
 	private Boolean complete = Boolean.FALSE;
+	private Boolean validating = Boolean.FALSE;
 	
 	private String time;
 	
@@ -241,6 +242,14 @@ public class TrackedInstance {
 
 	public void setSharedTravelId(String sharedTravelId) {
 		this.sharedTravelId = sharedTravelId;
+	}
+
+	public Boolean getValidating() {
+		return validating;
+	}
+
+	public void setValidating(Boolean validating) {
+		this.validating = validating;
 	}
 	
 }

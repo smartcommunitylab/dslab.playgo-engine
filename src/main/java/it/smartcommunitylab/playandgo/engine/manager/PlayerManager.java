@@ -42,7 +42,7 @@ public class PlayerManager {
 			playerDb.setSurname(player.getSurname());
 			playerDb.setNickname(player.getNickname());
 			playerDb.setMail(player.getMail());
-			playerDb.setSendMail(player.isSendMail());
+			playerDb.setSendMail(player.getSendMail());
 			playerRepository.save(playerDb);
 			campaignManager.updateDefaultCampaignSuscription(playerDb);
 			return playerDb;

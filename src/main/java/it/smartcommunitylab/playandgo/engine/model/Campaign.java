@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="campaigns")
@@ -22,9 +21,9 @@ public class Campaign {
 	private LocalDate dateFrom;
 	private LocalDate dateTo;
 	private String gameId;
-	private boolean active;
-	private boolean communications;
-	private boolean defaultForTerritory;
+	private Boolean active = Boolean.FALSE;
+	private Boolean communications = Boolean.FALSE;
+	private Boolean defaultForTerritory = Boolean.FALSE;
 	
 	private String webPageUrl;
 	private String privacyUrl;
@@ -91,22 +90,6 @@ public class Campaign {
 		this.gameId = gameId;
 	}
 
-	public boolean getActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
-	public boolean getCommunications() {
-		return communications;
-	}
-
-	public void setCommunications(boolean communications) {
-		this.communications = communications;
-	}
-
 	public String getWebPageUrl() {
 		return webPageUrl;
 	}
@@ -163,20 +146,36 @@ public class Campaign {
 		this.validationData = validationData;
 	}
 
-	public boolean isDefaultForTerritory() {
-		return defaultForTerritory;
-	}
-
-	public void setDefaultForTerritory(boolean defaultForTerritory) {
-		this.defaultForTerritory = defaultForTerritory;
-	}
-
 	public String getTerritoryId() {
 		return territoryId;
 	}
 
 	public void setTerritoryId(String territoryId) {
 		this.territoryId = territoryId;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	public Boolean getCommunications() {
+		return communications;
+	}
+
+	public void setCommunications(Boolean communications) {
+		this.communications = communications;
+	}
+
+	public Boolean getDefaultForTerritory() {
+		return defaultForTerritory;
+	}
+
+	public void setDefaultForTerritory(Boolean defaultForTerritory) {
+		this.defaultForTerritory = defaultForTerritory;
 	}
 	
 	
