@@ -20,8 +20,8 @@ public class TrackedInstanceManager {
 	@Autowired
 	private GeolocationsProcessor geolocationsProcessor;
 	
-	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String playerId) throws Exception {
-		geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, playerId);
+	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String playerId, String territoryId) throws Exception {
+		geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, playerId, territoryId);
 	}
 	
 	public List<TrackedInstance> getPlayerTrakedInstaces(String playerId) {

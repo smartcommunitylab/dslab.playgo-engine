@@ -29,6 +29,8 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Location;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
+import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 
 @Component
@@ -43,6 +45,9 @@ public class GeolocationsProcessor {
 	@Autowired
 	private TrackedInstanceRepository trackedInstanceRepository;
 	
+	@Autowired
+	private MessageQueueManager queueManager;
+	
 	private static final int LOCATION_STORE_INTERVAL = 2 * 24 * 3600 * 1000;
 	private static FastDateFormat shortSdf = FastDateFormat.getInstance("yyyy/MM/dd");
 	private static FastDateFormat timeSdf = FastDateFormat.getInstance("HH:mm");
@@ -54,7 +59,7 @@ public class GeolocationsProcessor {
 	
 
 
-	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String userId) throws Exception {
+	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String userId, String territoryId) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
 		int pointCount = 0;
@@ -90,7 +95,8 @@ public class GeolocationsProcessor {
 
 			for (TrackedInstance ti : instances) {
 				//TODO start validation 
-				//sendTrackedInstance(userId, appId, ti);
+				ValidateTripRequest request = new ValidateTripRequest(userId, territoryId, ti.getId());
+				queueManager.sendValidateTripRequest(request);
 			}
 		} else {
 			logger.error("Device of user " + userId + " is virtual: " + geolocationsEvent.getDevice());

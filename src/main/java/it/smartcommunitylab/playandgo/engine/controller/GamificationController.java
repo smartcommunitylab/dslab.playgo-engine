@@ -29,7 +29,7 @@ public class GamificationController extends PlayAndGoController {
 			@RequestBody(required = false) GeolocationsEvent geolocationsEvent,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		trackedInstanceManager.storeGeolocationEvents(geolocationsEvent, player.getPlayerId());
+		trackedInstanceManager.storeGeolocationEvents(geolocationsEvent, player.getPlayerId(), player.getTerritoryId());
 	}
 	
 	@GetMapping("/api/gamification/track")
