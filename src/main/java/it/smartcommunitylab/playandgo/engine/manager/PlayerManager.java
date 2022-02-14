@@ -27,7 +27,7 @@ public class PlayerManager {
 		return null;
 	}
 	
-	public Player registerPlayer(Player player) {
+	public Player registerPlayer(Player player) throws Exception {
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
 		if(playerDb != null) {
 			return updatePlayer(player);

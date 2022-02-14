@@ -13,7 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -29,24 +28,14 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Location;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
-import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
-import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 
 @Component
 public class GeolocationsProcessor {
 	private static Log logger = LogFactory.getLog(GeolocationsProcessor.class);
 	
-	private static final String TRACKEDINSTANCE = "trackedInstances";
-	
-	@Autowired
-	MongoTemplate template;
-
 	@Autowired
 	private TrackedInstanceRepository trackedInstanceRepository;
-	
-	@Autowired
-	private MessageQueueManager queueManager;
 	
 	private static final int LOCATION_STORE_INTERVAL = 2 * 24 * 3600 * 1000;
 	private static FastDateFormat shortSdf = FastDateFormat.getInstance("yyyy/MM/dd");
@@ -57,9 +46,9 @@ public class GeolocationsProcessor {
 	public static final String START_TIME = "startTime";
 	private static final int MAX_LOCATIONS = 10000;
 	
-
-
-	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String userId, String territoryId) throws Exception {
+	public List<TrackedInstance> storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String userId, String territoryId) throws Exception {
+		List<TrackedInstance> instances = Lists.newArrayList();
+		
 		ObjectMapper mapper = new ObjectMapper();
 
 		int pointCount = 0;
@@ -84,7 +73,6 @@ public class GeolocationsProcessor {
 
 			groupByItinerary(geolocationsEvent, userId, geolocationsByItinerary, freeTracks, freeTrackStarts);
 
-			List<TrackedInstance> instances = Lists.newArrayList();
 			for (String key : geolocationsByItinerary.keySet()) {
 				TrackedInstance ti = preSaveTrackedInstance(key, userId, deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts);
 				if (ti != null) {
@@ -92,15 +80,10 @@ public class GeolocationsProcessor {
 					logger.info("Saved geolocation events, user: " + userId + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
 				}
 			}
-
-			for (TrackedInstance ti : instances) {
-				//TODO start validation 
-				ValidateTripRequest request = new ValidateTripRequest(userId, territoryId, ti.getId());
-				queueManager.sendValidateTripRequest(request);
-			}
 		} else {
 			logger.error("Device of user " + userId + " is virtual: " + geolocationsEvent.getDevice());
 		}
+		return instances;
 	}
 
 	private void checkEventsOrder(GeolocationsEvent geolocationsEvent, String userId) {
@@ -328,7 +311,7 @@ public class GeolocationsProcessor {
 		//check existing track
 		TrackedInstance res = trackedInstanceRepository.findByDayAndUserIdAndClientId(day, userId, travelId);
 		if (res == null) {
-			logger.error("No existing TrackedInstance found.");
+			logger.info("No existing TrackedInstance found.");
 			res = new TrackedInstance();
 			res.setClientId(travelId);
 			res.setDay(day);
@@ -341,7 +324,7 @@ public class GeolocationsProcessor {
 			}
 			String ftt = freeTracks.get(key);
 			if (ftt == null) {
-				logger.warn("No freetracking transport found, extracting from clientId: " + travelId);
+				logger.info("No freetracking transport found, extracting from clientId: " + travelId);
 				String[] cid = travelId.split("_");
 				if (cid != null && cid.length > 1) {
 					ftt = cid[0];

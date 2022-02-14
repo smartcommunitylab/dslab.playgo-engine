@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
+import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
@@ -63,7 +64,14 @@ public class CampaignManager {
 		return campaignRepository.findDefaultByTerritoryId(territoryId);
 	}
 	
-	public CampaignSubscription subscribePlayer(Player player, String campaignId) {
+	public CampaignSubscription subscribePlayer(Player player, String campaignId) throws Exception {
+		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+		if(campaign == null) {
+			throw new BadRequestException("campaign doesn't exist");
+		}
+		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
+			throw new BadRequestException("territory doesn't match");
+		}
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaignId);

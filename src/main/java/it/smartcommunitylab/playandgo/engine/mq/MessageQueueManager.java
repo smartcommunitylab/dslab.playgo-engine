@@ -1,5 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.mq;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,14 +39,16 @@ public class MessageQueueManager {
 	
 	@Value("${rabbitmq.password}")
 	private String rabbitMQPassword;	
-	
+		
 	private Channel validateTripChannel; 
 	private Channel validateCampaignTripChannel;
 	private Channel gamificationEngineChannel;
 	
+	private ManageValidateTripRequest manageValidateTripRequest;
+	
 	ObjectMapper mapper = new ObjectMapper();
 	
-	//@PostConstruct
+	@PostConstruct
 	public void init() throws Exception {
 		logger.info("Connecting to RabbitMQ");
 		ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -61,7 +65,6 @@ public class MessageQueueManager {
 		validateTripChannel.queueDeclare(validateTripRequest, true, false, false, null);
 		validateTripChannel.queueDeclare(validateTripResponse, true, false, false, null);
 		
-		
 		validateCampaignTripChannel = connection.createChannel();
 		validateCampaignTripChannel.exchangeDeclare(validateCampaignTripRequest, BuiltinExchangeType.DIRECT);
 		validateCampaignTripChannel.queueDeclare(validateCampaignTripResponse, true, false, false, null);
@@ -74,7 +77,10 @@ public class MessageQueueManager {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.debug("validateTripRequestCallback:" + json);
 			ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
-	    validateTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+			if(manageValidateTripRequest != null) {
+				manageValidateTripRequest.validateTripRequest(message);
+			}
+	    validateTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);			
 		};
 		validateTripChannel.basicConsume(validateTripRequest, false, validateTripRequestCallback, consumerTag -> { });
 		
@@ -93,6 +99,10 @@ public class MessageQueueManager {
 		gamificationEngineChannel.basicConsume(gamificationEngineResponse, false, gamificationEngineResponseCallback, consumerTag -> { });
 	}
 	
+	public void setManageValidateTripRequest(ManageValidateTripRequest manager) {
+		this.manageValidateTripRequest = manager;
+	}
+	
 	public void sendValidateTripRequest(ValidateTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
 		validateTripChannel.basicPublish("", validateTripRequest, null, msg.getBytes("UTF-8"));
@@ -107,7 +117,4 @@ public class MessageQueueManager {
 		gamificationEngineChannel.basicPublish("", gamificationEngineRequest, null, message.getBytes());
 	}
 	
-	
-
-
 }

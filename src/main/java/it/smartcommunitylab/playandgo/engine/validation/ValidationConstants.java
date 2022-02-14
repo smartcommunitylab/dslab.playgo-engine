@@ -113,11 +113,11 @@ public class ValidationConstants {
 		defaultValues.put(PARAM_WALK_AVG_SPEED_THRESHOLD, 8);
 		defaultValues.put(PARAM_WALK_GUARANTEED_AVG_SPEED_THRESHOLD, 5);
 		
-		defaultValues.put(PARAM_BIKE_SPEED_THRESHOLD, 34);
-		defaultValues.put(PARAM_BIKE_AVG_SPEED_THRESHOLD, 27);
-		defaultValues.put(PARAM_BIKE_GUARANTEED_AVG_SPEED_THRESHOLD, 18);
+		defaultValues.put(PARAM_BIKE_SPEED_THRESHOLD, 34d);
+		defaultValues.put(PARAM_BIKE_AVG_SPEED_THRESHOLD, 27d);
+		defaultValues.put(PARAM_BIKE_GUARANTEED_AVG_SPEED_THRESHOLD, 18d);
 		
-		defaultValues.put(PARAM_VALIDITY_THRESHOLD, 80);
+		defaultValues.put(PARAM_VALIDITY_THRESHOLD, 80d);
 		defaultValues.put(PARAM_ACCURACY_THRESHOLD, 150);
 		
 		defaultValues.put(PARAM_MIN_COVERAGE_THRESHOLD, 30);
@@ -126,11 +126,11 @@ public class ValidationConstants {
 		
 		defaultValues.put(PARAM_DISTANCE_THRESHOLD, 250);
 		defaultValues.put(DATA_HOLE_THRESHOLD, 10*60);
-		defaultValues.put(PARAM_BIKE_DISTANCE_THRESHOLD, 100);
-		defaultValues.put(PARAM_MAX_AVG_SPEED_THRESHOLD, 200);
+		defaultValues.put(PARAM_BIKE_DISTANCE_THRESHOLD, 100d);
+		defaultValues.put(PARAM_MAX_AVG_SPEED_THRESHOLD, 200d);
 		
 		defaultValues.put(PARAM_PENDING_COVERAGE_THRESHOLD, 60);
-		defaultValues.put(PARAM_COVERAGE_THRESHOLD, 80);
+		defaultValues.put(PARAM_COVERAGE_THRESHOLD, 80d);
 		defaultValues.put(PARAM_CERTIFIED_COVERAGE_THRESHOLD_VALID, 70);
 		defaultValues.put(PARAM_CERTIFIED_COVERAGE_THRESHOLD_PENDING, 50);
 		defaultValues.put(PARAM_GUARANTEED_COVERAGE_THRESHOLD_VALID, 90);
