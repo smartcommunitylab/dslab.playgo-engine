@@ -75,6 +75,7 @@ public class CampaignManager {
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaignId);
+		sub.setTerritoryId(player.getTerritoryId());
 		sub.setMail(player.getMail());
 		sub.setSendMail(player.getSendMail());
 		//TODO campaign data?

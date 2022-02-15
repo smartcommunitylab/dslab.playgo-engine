@@ -16,6 +16,7 @@ public class CampaignPlayerTrack {
 	private String campaignId;
 	private String campaignSubscriptionId;
 	private String trackedInstanceId;
+	private String territoryId;
 	
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
 	private Long score;
@@ -61,6 +62,12 @@ public class CampaignPlayerTrack {
 	}
 	public void setScore(Long score) {
 		this.score = score;
+	}
+	public String getTerritoryId() {
+		return territoryId;
+	}
+	public void setTerritoryId(String territoryId) {
+		this.territoryId = territoryId;
 	}
 
 }

@@ -6,6 +6,11 @@ import java.util.Map;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
+
 @Document(collection="campaigns")
 public class Campaign {
 	public static enum Type {
@@ -18,7 +23,11 @@ public class Campaign {
 	private String territoryId;
 	private String name;
 	private String description;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
 	private LocalDate dateFrom;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
 	private LocalDate dateTo;
 	private String gameId;
 	private Boolean active = Boolean.FALSE;

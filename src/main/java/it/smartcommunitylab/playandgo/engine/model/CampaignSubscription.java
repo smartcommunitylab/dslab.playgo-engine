@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
@@ -14,9 +15,10 @@ public class CampaignSubscription {
 	private String playerId;
 	@Indexed
 	private String campaignId;
+	private String territoryId;
 	private String mail;
 	private Boolean sendMail = Boolean.FALSE;
-	private Map<String, Object> campaignData;
+	private Map<String, Object> campaignData = new HashMap<>();
 	
 	public String getId() {
 		return id;
@@ -53,5 +55,11 @@ public class CampaignSubscription {
 	}
 	public void setSendMail(Boolean sendMail) {
 		this.sendMail = sendMail;
+	}
+	public String getTerritoryId() {
+		return territoryId;
+	}
+	public void setTerritoryId(String territoryId) {
+		this.territoryId = territoryId;
 	}
 }

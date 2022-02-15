@@ -16,5 +16,7 @@ public interface CampaignSubscriptionRepository extends MongoRepository<Campaign
 	
 	@Query ("{'playerId' : ?0}")
 	public List<CampaignSubscription> findByPlayerId(String playerId);
+	
+	public List<CampaignSubscription> findByPlayerIdAndTerritoryId(String playerId, String territoryId);
 
 }

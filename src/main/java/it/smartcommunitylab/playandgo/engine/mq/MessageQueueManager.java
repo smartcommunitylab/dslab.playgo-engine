@@ -1,5 +1,9 @@
 package it.smartcommunitylab.playandgo.engine.mq;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -44,7 +48,11 @@ public class MessageQueueManager {
 	private Channel validateCampaignTripChannel;
 	private Channel gamificationEngineChannel;
 	
+	private String validateCampaignTripRequestQueueName;
+	
 	private ManageValidateTripRequest manageValidateTripRequest;
+	
+	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -63,40 +71,34 @@ public class MessageQueueManager {
 		
 		validateTripChannel = connection.createChannel();
 		validateTripChannel.queueDeclare(validateTripRequest, true, false, false, null);
-		validateTripChannel.queueDeclare(validateTripResponse, true, false, false, null);
 		
 		validateCampaignTripChannel = connection.createChannel();
 		validateCampaignTripChannel.exchangeDeclare(validateCampaignTripRequest, BuiltinExchangeType.DIRECT);
-		validateCampaignTripChannel.queueDeclare(validateCampaignTripResponse, true, false, false, null);
-		
-		gamificationEngineChannel = connection.createChannel();
-		gamificationEngineChannel.queueDeclare(gamificationEngineRequest, true, false, false, null);
-		gamificationEngineChannel.queueDeclare(gamificationEngineResponse, true, false, false, null);
+		validateCampaignTripRequestQueueName = validateCampaignTripChannel.queueDeclare().getQueue();
 		
 		DeliverCallback validateTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.debug("validateTripRequestCallback:" + json);
 			ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
+			validateTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			if(manageValidateTripRequest != null) {
 				manageValidateTripRequest.validateTripRequest(message);
-			}
-	    validateTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);			
+			}			
 		};
-		validateTripChannel.basicConsume(validateTripRequest, false, validateTripRequestCallback, consumerTag -> { });
+		validateTripChannel.basicConsume(validateTripRequest, false, validateTripRequestCallback, consumerTag -> {});
 		
-		DeliverCallback validateTripResponseCallback = (consumerTag, delivery) -> {
-	    String message = new String(delivery.getBody(), "UTF-8");
-	    System.out.println(" [x] Received '" + message + "'");
-	    validateTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+		DeliverCallback validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
+			String json = new String(delivery.getBody(), "UTF-8");
+			logger.debug("validateCampaignTripRequestCallback:" + json);
+			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
+			validateCampaignTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+			String routingKey = delivery.getEnvelope().getRoutingKey();
+			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
+			if(manager != null) {
+				manager.validateTripRequest(message);
+			}
 		};
-		validateTripChannel.basicConsume(validateTripResponse, false, validateTripResponseCallback, consumerTag -> { });
-
-		DeliverCallback gamificationEngineResponseCallback = (consumerTag, delivery) -> {
-	    String message = new String(delivery.getBody(), "UTF-8");
-	    System.out.println(" [x] Received '" + message + "'");
-	    gamificationEngineChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-		};
-		gamificationEngineChannel.basicConsume(gamificationEngineResponse, false, gamificationEngineResponseCallback, consumerTag -> { });
+		validateCampaignTripChannel.basicConsume(validateCampaignTripRequestQueueName, false, validateCampaignTripRequestCallback, consumerTag -> {});
 	}
 	
 	public void setManageValidateTripRequest(ManageValidateTripRequest manager) {
@@ -108,13 +110,30 @@ public class MessageQueueManager {
 		validateTripChannel.basicPublish("", validateTripRequest, null, msg.getBytes("UTF-8"));
 	}
 	
-	public void sendValidateCampaignTripRequest(String message, String territory, String campaign) throws Exception {
-		String routingKey = territory + "." + campaign;
-		validateTripChannel.basicPublish(validateCampaignTripRequest, routingKey, null, message.getBytes("UTF-8"));
+	public String getValidateCampaignTripRequestRoutingKey(ValidateCampaignTripRequest message) {
+		return message.getTerritoryId() + "__" + message.getCampaignId();
 	}
 	
-	public void sendGamificationEngineRequest(String message) throws Exception {
-		gamificationEngineChannel.basicPublish("", gamificationEngineRequest, null, message.getBytes());
+	public String getValidateCampaignTripRequestRoutingKey(String territoryId, String campaignId) {
+		return territoryId + "__" + campaignId;
+	}
+	
+	public void setManageValidateCampaignTripRequest(ManageValidateCampaignTripRequest manager, String territoryId, String campaignId) {
+		String routingKey = getValidateCampaignTripRequestRoutingKey(territoryId, campaignId);
+		if(!manageValidateCampaignTripRequestMap.containsKey(routingKey)) {
+			 try {
+				validateCampaignTripChannel.queueBind(validateCampaignTripRequestQueueName, validateCampaignTripRequest, routingKey);
+				manageValidateCampaignTripRequestMap.put(routingKey, manager);
+			} catch (IOException e) {
+				logger.warn(String.format("setManageValidateCampaignTripRequest: error in queue bind - %s - %s", routingKey, e.getMessage()));
+			}
+		}		
+	}
+	
+	public void sendValidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
+		String routingKey = getValidateCampaignTripRequestRoutingKey(message);
+		String msg = mapper.writeValueAsString(message);
+		validateTripChannel.basicPublish(validateCampaignTripRequest, routingKey, null, msg.getBytes("UTF-8"));
 	}
 	
 }

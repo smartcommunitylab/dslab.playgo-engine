@@ -29,6 +29,7 @@ import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
@@ -79,6 +80,9 @@ public class ValidationService {
 			vr.setValidationStatus(TrackValidator.validateFreeBoat(geolocations, territory));
 			break;
 		}
+		if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
+			vr.setValid(true);
+		}		
 		return vr;
 	}
 	
@@ -96,7 +100,6 @@ public class ValidationService {
 
 		ValidationResult vr = new ValidationResult();
 		vr.setValidationStatus(TrackValidator.validateSharedPassenger(passengerTrip, driverTrip, territory));
-
 		return vr;
 	}
 	
