@@ -28,6 +28,7 @@ public class TerritoryController extends PlayAndGoController {
 	public void saveTerritory(
 			@RequestBody Territory territory,
 			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
 		territoryManager.saveTerritory(territory);
 	}
 	
@@ -47,6 +48,7 @@ public class TerritoryController extends PlayAndGoController {
 	public Territory deleteTerritory(
 			@PathVariable String territoryId,
 			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
 		return territoryManager.deleteTerritory(territoryId);
 	}
 }

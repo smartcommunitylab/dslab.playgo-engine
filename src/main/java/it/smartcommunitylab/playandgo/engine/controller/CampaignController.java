@@ -36,6 +36,7 @@ public class CampaignController extends PlayAndGoController {
 	public void saveCampaign(
 			@RequestBody Campaign campaign,
 			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
 		campaignManager.saveTerritory(campaign);
 	}
 	
@@ -60,6 +61,7 @@ public class CampaignController extends PlayAndGoController {
 	public Campaign deleteCampaign(
 			@PathVariable String campaignId,
 			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
 		return campaignManager.deleteCampaign(campaignId);
 	}
 	

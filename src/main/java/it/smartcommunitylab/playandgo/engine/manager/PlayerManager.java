@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
@@ -30,7 +31,7 @@ public class PlayerManager {
 	public Player registerPlayer(Player player) throws Exception {
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
 		if(playerDb != null) {
-			return updatePlayer(player);
+			throw new BadRequestException("player already exists");
 		} else {
 			playerDb = playerRepository.save(player);
 			//TODO subscribe default campaign?
@@ -42,8 +43,8 @@ public class PlayerManager {
 		}
 	}
 	
-	public Player updatePlayer(Player player) {
-		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
+	public Player updatePlayer(Player player, String playerId) {
+		Player playerDb = playerRepository.findById(playerId).orElse(null);
 		if(playerDb != null) {
 			playerDb.setLanguage(player.getLanguage());
 			playerDb.setName(player.getName());

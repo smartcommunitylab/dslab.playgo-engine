@@ -16,7 +16,10 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ErrorInfo;
 import it.smartcommunitylab.playandgo.engine.exception.UnauthorizedException;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
+import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
 
 public class PlayAndGoController {
 
@@ -25,12 +28,31 @@ public class PlayAndGoController {
 	@Autowired
 	private PlayerRepository playerRepository; 
 	
+	@Autowired
+	private PlayerRoleRepository playerRoleRepository;
+	
 	public Player getCurrentPlayer(HttpServletRequest request) throws UnauthorizedException {
 		Player player = playerRepository.findById("117").orElse(null);
 		if(player == null) {
 			throw new UnauthorizedException("user not found");
 		}
 		return player;
+	}
+	
+	public void checkAdminRole(HttpServletRequest request) throws UnauthorizedException {
+		Player player = getCurrentPlayer(request);
+		PlayerRole r = playerRoleRepository.findByPlayerIdAndRole(player.getPlayerId(), Role.admin);
+		if(r == null) {
+			throw new UnauthorizedException("role not found");
+		}
+	}
+	
+	public void checkRole(HttpServletRequest request, Role role, String entityId) throws UnauthorizedException {
+		Player player = getCurrentPlayer(request);
+		PlayerRole r = playerRoleRepository.findByPlayerIdAndRoleAndEntityId(player.getPlayerId(), role, entityId);
+		if(r == null) {
+			throw new UnauthorizedException("role not found");
+		}
 	}
 	
 	public void checkId(Long... ids) throws BadRequestException {
