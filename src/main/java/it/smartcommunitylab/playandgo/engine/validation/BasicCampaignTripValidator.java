@@ -77,7 +77,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 					if(campaign != null) {
 						if(Utils.isNotEmpty(campaign.getGameId())) {
-							gamificationEngineManager.sendFreetrackingAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+							gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
 						}
 					}
 				} catch (Exception e) {

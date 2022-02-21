@@ -28,7 +28,7 @@ public class GamificationEngineManager {
 	@Value("${gamification.password}")
 	private String gamificationPassword;
 	
-	public void sendFreetrackingAction(String playerId, String gameId, Map<String, Object> trackingData) {
+	public void sendSaveItineraryAction(String playerId, String gameId, Map<String, Object> trackingData) {
 		try {
 			ExecutionDataDTO ed = new ExecutionDataDTO();
 			ed.setGameId(gameId);

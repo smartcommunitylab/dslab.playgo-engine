@@ -44,6 +44,14 @@ public class GamificationMessageQueueManager {
 	@Value("${rabbitmq_ge.password}")
 	private String rabbitMQPassword;	
 		
+	@Value("${rabbitmq_ge.geExchangeName}")
+	private String geExchangeName;
+	
+	@Value("${rabbitmq_ge.geRoutingKeyPrefix}")
+	private String geRoutingKeyPrefix;	
+	
+	String geQueueName;
+	Channel channel;
 	ObjectMapper mapper = new ObjectMapper();
 	
 	@PostConstruct
@@ -58,5 +66,16 @@ public class GamificationMessageQueueManager {
 		connectionFactory.setAutomaticRecoveryEnabled(true);
 
 		Connection connection = connectionFactory.newConnection();
+		
+		channel = connection.createChannel();
+		channel.exchangeDeclare(geExchangeName, "direct");
+		
+		geQueueName = channel.queueDeclare().getQueue();
+	}
+	
+	public String addGameNotification(String gameId) throws Exception {
+		String routingKey = geRoutingKeyPrefix + "-" + gameId;
+		channel.queueBind(geQueueName, geExchangeName, routingKey);
+		return routingKey;
 	}
 }
