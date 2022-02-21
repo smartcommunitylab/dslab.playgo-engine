@@ -32,15 +32,27 @@ mail:
   from: ${MAIL_FROM:}
   url: ${MAIL_URL:}
 
-rabbitmq:
-  host: ${RABBITMQ_HOST:}
-  virtualhost: ${RABBITMQ_VIRTUALHOST:}
-  port: ${RABBITMQ_PORT:}
-  user: ${RABBITMQ_USER:}
-  password: ${RABBITMQ_PASSWORD:}
+gamification:
+  url: ${GAMIFICATION_URL:}
+  secretKey: ${GAMIFICATION_SECRETKEY:}
+  user: ${GAMIFICATION_USER:}
+  password: ${GAMIFICATION_PASSWORD:}
+
+rabbitmq_pg:
+  host: ${RABBITMQ_PG_HOST:}
+  port: ${RABBITMQ_PG_PORT:}
+  user: ${RABBITMQ_PG_USER:}
+  password: ${RABBITMQ_PG_PASSWORD:}
+  virtualhost: ${RABBITMQ_PG_VIRTUALHOST:}
+
+rabbitmq_ge:
+  host: ${RABBITMQ_GE_HOST:}
+  port: ${RABBITMQ_GE_PORT:}
+  user: ${RABBITMQ_GE_USER:}
+  password: ${RABBITMQ_GE_PASSWORD:}
+  virtualhost: ${RABBITMQ_GE_VIRTUALHOST:}
   geExchangeName: ${RABBITMQ_GE_EXCHANGE_NAME:}
   geRoutingKeyPrefix: ${RABBITMQ_GE_ROUTING_KEY_PREFIX:}
 
 validation:
   shapefolder: ${VALIDATION_SHAPE:}
-  

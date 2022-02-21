@@ -29,24 +29,23 @@ public class MessageQueueManager {
 	public static final String gamificationEngineRequest = "playgo-ge-request";
 	public static final String gamificationEngineResponse = "playgo-ge-response";
 	
-	@Value("${rabbitmq.host}")
+	@Value("${rabbitmq_pg.host}")
 	private String rabbitMQHost;	
 
-	@Value("${rabbitmq.virtualhost}")
+	@Value("${rabbitmq_pg.virtualhost}")
 	private String rabbitMQVirtualHost;		
 	
-	@Value("${rabbitmq.port}")
+	@Value("${rabbitmq_pg.port}")
 	private Integer rabbitMQPort;
 	
-	@Value("${rabbitmq.user}")
+	@Value("${rabbitmq_pg.user}")
 	private String rabbitMQUser;
 	
-	@Value("${rabbitmq.password}")
+	@Value("${rabbitmq_pg.password}")
 	private String rabbitMQPassword;	
 		
 	private Channel validateTripChannel; 
 	private Channel validateCampaignTripChannel;
-	private Channel gamificationEngineChannel;
 	
 	private String validateCampaignTripRequestQueueName;
 	

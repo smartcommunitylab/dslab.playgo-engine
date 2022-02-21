@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
@@ -83,7 +84,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				ValidationResult validationResult = validationService.validateFreeTracking(track.getGeolocationEvents(), 
 						track.getFreeTrackingTransport(), msg.getTerritoryId());
 				updateValidationResult(track, validationResult);
-				if(validationResult.isValid()) {
+				if(!TravelValidity.INVALID.equals(validationResult.getTravelValidity())) {
 					List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(msg.getPlayerId(), msg.getTerritoryId());
 					for(CampaignSubscription sub : list) {
 						CampaignPlayerTrack pTrack = new CampaignPlayerTrack();

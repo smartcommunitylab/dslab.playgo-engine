@@ -1,5 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,6 +23,8 @@ public class CampaignPlayerTrack {
 	
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
 	private Long score;
+	
+	private Map<String, Object> trackingData = new HashMap<>();	
 	
 	public String getId() {
 		return id;
@@ -68,6 +73,12 @@ public class CampaignPlayerTrack {
 	}
 	public void setTerritoryId(String territoryId) {
 		this.territoryId = territoryId;
+	}
+	public Map<String, Object> getTrackingData() {
+		return trackingData;
+	}
+	public void setTrackingData(Map<String, Object> trackingData) {
+		this.trackingData = trackingData;
 	}
 
 }

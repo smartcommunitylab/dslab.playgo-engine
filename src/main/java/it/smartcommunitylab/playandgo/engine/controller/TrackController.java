@@ -18,8 +18,8 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 @RestController
-public class GamificationController extends PlayAndGoController {
-	private static transient final Logger logger = LoggerFactory.getLogger(GamificationController.class);
+public class TrackController extends PlayAndGoController {
+	private static transient final Logger logger = LoggerFactory.getLogger(TrackController.class);
 	
 	@Autowired
 	TrackedInstanceManager trackedInstanceManager;
