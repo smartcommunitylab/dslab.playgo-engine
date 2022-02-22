@@ -8,6 +8,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,6 +35,10 @@ public class PlayAndGoController {
 	private PlayerRoleRepository playerRoleRepository;
 	
 	public Player getCurrentPlayer(HttpServletRequest request) throws UnauthorizedException {
+		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		Jwt principal = (Jwt) authentication.getPrincipal();
+		String subject = principal.getClaimAsString("sub");
+		
 		Player player = playerRepository.findById("117").orElse(null);
 		if(player == null) {
 			throw new UnauthorizedException("user not found");

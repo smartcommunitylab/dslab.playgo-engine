@@ -17,12 +17,12 @@ security:
   oauth2:
     resourceserver:
       jwt:
-        issuer-uri: 
-        client-id: 
-      opaque-token:
-        introspection-uri: ${AAC_INTROSPECTION_URI:}
+        issuer-uri: ${AAC_ISSUER_URI:}
         client-id: ${AAC_CLIENT_ID:}
-        client-secret: ${AAC_CLIENT_SECRET:}
+      opaque-token:
+        introspection-uri: 
+        client-id: 
+        client-secret: 
 
 mail:
   host: ${MAIL_HOST:}

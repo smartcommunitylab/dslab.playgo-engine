@@ -47,8 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		            "/swagger-resources/**",
 		            "/configuration/**",
 		            "/swagger-ui.html",
-		            "/webjars/**",
-		            "/api/**").permitAll()
+		            "/webjars/**").permitAll()
 		        .anyRequest().authenticated().and()
 		        .oauth2ResourceServer(oauth2 -> {
 		            if (useJwt()) {
