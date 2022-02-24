@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.manager;
+package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.util.Date;
 import java.util.Map;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylab.playandgo.engine.ge.ExecutionDataDTO;
 import it.smartcommunitylab.playandgo.engine.util.HTTPConnector;
 import it.smartcommunitylab.playandgo.engine.util.JsonUtils;
 

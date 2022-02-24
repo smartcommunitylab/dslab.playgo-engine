@@ -12,7 +12,9 @@ public class Territory {
 	private String territoryId;
 	private String name;
 	
-	public Map<String, Object> territoryData = new HashMap<>();
+	private Map<String, Object> territoryData = new HashMap<>();
+	
+	private String messagingAppId;	
 
 	public String getTerritoryId() {
 		return territoryId;
@@ -31,5 +33,11 @@ public class Territory {
 	}
 	public void setTerritoryData(Map<String, Object> territoryData) {
 		this.territoryData = territoryData;
+	}
+	public String getMessagingAppId() {
+		return messagingAppId;
+	}
+	public void setMessagingAppId(String messagingAppId) {
+		this.messagingAppId = messagingAppId;
 	}
 }

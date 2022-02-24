@@ -56,3 +56,9 @@ rabbitmq_ge:
 
 validation:
   shapefolder: ${VALIDATION_SHAPE:}
+
+notificationDir: ${NOTIFICATION_DIR:}
+
+gcm:
+  gcmSenderApiKey: ${GCM_SENDER_API_KEY:}
+  gcmSenderId: ${GCM_SENDER_ID:}  

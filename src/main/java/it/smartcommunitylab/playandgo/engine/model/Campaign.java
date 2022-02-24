@@ -14,7 +14,7 @@ import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
 @Document(collection="campaigns")
 public class Campaign {
 	public static enum Type {
-		company, city, school
+		company, city, school, personal
 	};
 
 	@Id
