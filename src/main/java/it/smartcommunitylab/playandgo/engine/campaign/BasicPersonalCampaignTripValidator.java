@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.validation;
+package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.text.ParseException;
 import java.util.Map;
@@ -24,10 +24,11 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepos
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
+import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
 
 @Component
-public class BasicCampaignTripValidator implements ManageValidateCampaignTripRequest {
-	private static Log logger = LogFactory.getLog(BasicCampaignTripValidator.class);
+public class BasicPersonalCampaignTripValidator implements ManageValidateCampaignTripRequest {
+	private static Log logger = LogFactory.getLog(BasicPersonalCampaignTripValidator.class);
 	
 	public static final String TRAVEL_ID = "travelId";
 	public static final String START_TIME = "startTime";

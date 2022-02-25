@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -54,6 +53,8 @@ public class GamificationMessageQueueManager {
 	Channel channel;
 	ObjectMapper mapper = new ObjectMapper();
 	
+	Map<String, ManageGameNotification> manageGameNotificationMap = new HashMap<>();
+	
 	@PostConstruct
 	public void init() throws Exception {
 		logger.info("Connecting to RabbitMQ");
@@ -71,11 +72,28 @@ public class GamificationMessageQueueManager {
 		channel.exchangeDeclare(geExchangeName, "direct");
 		
 		geQueueName = channel.queueDeclare().getQueue();
+		
+		DeliverCallback gameNotificationCallback = (consumerTag, delivery) -> {
+			String msg = new String(delivery.getBody(), "UTF-8");
+			channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+			String routingKey = delivery.getEnvelope().getRoutingKey();
+			ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
+			if(manager != null) {
+				manager.manageGameNotification(msg, routingKey);
+			}
+		};
+		channel.basicConsume(geQueueName, false, gameNotificationCallback, consumerTag -> {});
 	}
 	
-	public String addGameNotification(String gameId) throws Exception {
+	public void setManageGameNotification(ManageGameNotification manager, String gameId) {
 		String routingKey = geRoutingKeyPrefix + "-" + gameId;
-		channel.queueBind(geQueueName, geExchangeName, routingKey);
-		return routingKey;
+		if(!manageGameNotificationMap.containsKey(routingKey)) {
+			try {
+				channel.queueBind(geQueueName, geExchangeName, routingKey);
+				manageGameNotificationMap.put(routingKey, manager);
+			} catch (IOException e) {
+				logger.warn(String.format("setManageGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
+			}
+		}
 	}
 }

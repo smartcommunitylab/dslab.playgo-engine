@@ -30,7 +30,7 @@ import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
 
 @Component
-public class NotificationManager {
+public class PersonalCampaignNotificationManager {
 
 	@SuppressWarnings("rawtypes")
 	private static final List<Class> notificationClasses = Lists.newArrayList(new Class[] 
@@ -39,7 +39,7 @@ public class NotificationManager {
 	@SuppressWarnings("rawtypes")
 	private Map<String, Class> notificationClassesMap;
 	
-	private static transient final Logger logger = LoggerFactory.getLogger(NotificationManager.class);
+	private static transient final Logger logger = LoggerFactory.getLogger(PersonalCampaignNotificationManager.class);
 	
 	@Value("${notificationDir}")
 	private String notificationDir;
@@ -65,14 +65,14 @@ public class NotificationManager {
 		notificationClasses.forEach(x -> {
 			notificationClassesMap.put(x.getSimpleName(), x);
 		});
-		List<NotificationMessage> messages = mapper.readValue(new File(notificationDir + "/notifications.json"), new TypeReference<List<NotificationMessage>>() {
+		List<NotificationMessage> messages = mapper.readValue(new File(notificationDir + "/personal_notifications.json"), new TypeReference<List<NotificationMessage>>() {
 		});
 		notificationsMessages = messages.stream().collect(Collectors.toMap(NotificationMessage::getId, Function.identity()));
 	}
 	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void processNotification(String body) throws Exception {
+	public void processNotification(String body) throws Exception {
 		Map<String, Object> map = (Map<String, Object>) mapper.readValue(body, Map.class);
 		String type = (String) map.get("type");
 		Map obj = (Map) map.get("obj");
