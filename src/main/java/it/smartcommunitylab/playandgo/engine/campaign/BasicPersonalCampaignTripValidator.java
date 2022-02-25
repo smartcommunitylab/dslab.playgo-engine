@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -9,11 +10,13 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
@@ -56,7 +59,10 @@ public class BasicPersonalCampaignTripValidator implements ManageValidateCampaig
 	
 	@PostConstruct
 	public void init() {
-		queueManager.setManageValidateCampaignTripRequest(this, "TAA", "TAA.test1");
+		List<Campaign> list = campaignRepository.findByType(Type.personal, Sort.by(Sort.Direction.DESC, "dateFrom"));
+		list.forEach(c -> {
+			queueManager.setManageValidateCampaignTripRequest(this, c.getTerritoryId(), c.getCampaignId());
+		});
 	}
 
 	@Override

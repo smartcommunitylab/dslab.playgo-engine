@@ -1,6 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.mq;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +53,7 @@ public class GamificationMessageQueueManager {
 	ObjectMapper mapper = new ObjectMapper();
 	
 	Map<String, ManageGameNotification> manageGameNotificationMap = new HashMap<>();
+	Map<String, ManageGameStatus> manageGameStatusMap = new HashMap<>();
 	
 	@PostConstruct
 	public void init() throws Exception {
@@ -91,9 +91,22 @@ public class GamificationMessageQueueManager {
 			try {
 				channel.queueBind(geQueueName, geExchangeName, routingKey);
 				manageGameNotificationMap.put(routingKey, manager);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				logger.warn(String.format("setManageGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
 			}
 		}
 	}
+	
+	public void setManageGameStatus(ManageGameStatus manager, String gameId) {
+		String routingKey = geRoutingKeyPrefix + "-" + gameId;
+		if(!manageGameStatusMap.containsKey(routingKey)) {
+			try {
+				//channel.queueBind(geQueueName, geExchangeName, routingKey);
+				manageGameStatusMap.put(routingKey, manager);
+			} catch (Exception e) {
+				logger.warn(String.format("setManageGameStatus: error in queue bind - %s - %s", routingKey, e.getMessage()));
+			}
+		}
+	}
+
 }
