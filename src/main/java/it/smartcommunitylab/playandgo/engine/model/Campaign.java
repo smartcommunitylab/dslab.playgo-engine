@@ -32,7 +32,6 @@ public class Campaign {
 	private String gameId;
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;
-	private Boolean defaultForTerritory = Boolean.FALSE;
 	
 	private String webPageUrl;
 	private String privacyUrl;
@@ -178,17 +177,5 @@ public class Campaign {
 	public void setCommunications(Boolean communications) {
 		this.communications = communications;
 	}
-
-	public Boolean getDefaultForTerritory() {
-		return defaultForTerritory;
-	}
-
-	public void setDefaultForTerritory(Boolean defaultForTerritory) {
-		this.defaultForTerritory = defaultForTerritory;
-	}
-	
-	
-	
-	
 
 }

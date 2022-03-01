@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -69,7 +70,7 @@ public class GamificationMessageQueueManager {
 		Connection connection = connectionFactory.newConnection();
 		
 		channel = connection.createChannel();
-		channel.exchangeDeclare(geExchangeName, "direct");
+		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT);
 		
 		geQueueName = channel.queueDeclare().getQueue();
 		

@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -32,7 +32,7 @@ import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepositor
 
 @Component
 public class GeolocationsProcessor {
-	private static Log logger = LogFactory.getLog(GeolocationsProcessor.class);
+	private static Logger logger = LoggerFactory.getLogger(GeolocationsProcessor.class);
 	
 	@Autowired
 	private TrackedInstanceRepository trackedInstanceRepository;
