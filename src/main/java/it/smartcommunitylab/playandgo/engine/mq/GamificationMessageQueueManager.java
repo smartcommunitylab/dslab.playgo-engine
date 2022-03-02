@@ -70,7 +70,7 @@ public class GamificationMessageQueueManager {
 		Connection connection = connectionFactory.newConnection();
 		
 		channel = connection.createChannel();
-		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT);
+		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
 		
 		geQueueName = channel.queueDeclare().getQueue();
 		
