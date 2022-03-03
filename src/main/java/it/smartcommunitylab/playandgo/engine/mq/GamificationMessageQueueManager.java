@@ -49,12 +49,13 @@ public class GamificationMessageQueueManager {
 	@Value("${rabbitmq_ge.geRoutingKeyPrefix}")
 	private String geRoutingKeyPrefix;	
 	
-	String geQueueName;
 	Channel channel;
 	ObjectMapper mapper = new ObjectMapper();
 	
 	Map<String, ManageGameNotification> manageGameNotificationMap = new HashMap<>();
 	Map<String, ManageGameStatus> manageGameStatusMap = new HashMap<>();
+	
+	DeliverCallback gameNotificationCallback;
 	
 	@PostConstruct
 	public void init() throws Exception {
@@ -72,9 +73,7 @@ public class GamificationMessageQueueManager {
 		channel = connection.createChannel();
 		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
 		
-		geQueueName = channel.queueDeclare().getQueue();
-		
-		DeliverCallback gameNotificationCallback = (consumerTag, delivery) -> {
+		gameNotificationCallback = (consumerTag, delivery) -> {
 			String msg = new String(delivery.getBody(), "UTF-8");
 			channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			String routingKey = delivery.getEnvelope().getRoutingKey();
@@ -83,14 +82,16 @@ public class GamificationMessageQueueManager {
 				manager.manageGameNotification(msg, routingKey);
 			}
 		};
-		channel.basicConsume(geQueueName, false, gameNotificationCallback, consumerTag -> {});
 	}
 	
 	public void setManageGameNotification(ManageGameNotification manager, String gameId) {
 		String routingKey = geRoutingKeyPrefix + "-" + gameId;
 		if(!manageGameNotificationMap.containsKey(routingKey)) {
 			try {
-				channel.queueBind(geQueueName, geExchangeName, routingKey);
+				String queueName = "queue-" + gameId;
+				channel.queueDeclare(queueName, true, false, false, null);
+				channel.queueBind(queueName, geExchangeName, routingKey);
+				channel.basicConsume(queueName, true, gameNotificationCallback, consumerTag -> {});
 				manageGameNotificationMap.put(routingKey, manager);
 			} catch (Exception e) {
 				logger.warn(String.format("setManageGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));

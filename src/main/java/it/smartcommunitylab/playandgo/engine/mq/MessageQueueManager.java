@@ -47,11 +47,11 @@ public class MessageQueueManager {
 	private Channel validateTripChannel; 
 	private Channel validateCampaignTripChannel;
 	
-	private String validateCampaignTripRequestQueueName;
-	
 	private ManageValidateTripRequest manageValidateTripRequest;
 	
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
+	
+	DeliverCallback validateCampaignTripRequestCallback;
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -72,8 +72,7 @@ public class MessageQueueManager {
 		validateTripChannel.queueDeclare(validateTripRequest, true, false, false, null);
 		
 		validateCampaignTripChannel = connection.createChannel();
-		validateCampaignTripChannel.exchangeDeclare(validateCampaignTripRequest, BuiltinExchangeType.DIRECT);
-		validateCampaignTripRequestQueueName = validateCampaignTripChannel.queueDeclare().getQueue();
+		validateCampaignTripChannel.exchangeDeclare(validateCampaignTripRequest, BuiltinExchangeType.DIRECT, true);
 		
 		DeliverCallback validateTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
@@ -86,7 +85,7 @@ public class MessageQueueManager {
 		};
 		validateTripChannel.basicConsume(validateTripRequest, false, validateTripRequestCallback, consumerTag -> {});
 		
-		DeliverCallback validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
+		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.debug("validateCampaignTripRequestCallback:" + json);
 			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
@@ -97,7 +96,6 @@ public class MessageQueueManager {
 				manager.validateTripRequest(message);
 			}
 		};
-		validateCampaignTripChannel.basicConsume(validateCampaignTripRequestQueueName, false, validateCampaignTripRequestCallback, consumerTag -> {});
 	}
 	
 	public void setManageValidateTripRequest(ManageValidateTripRequest manager) {
@@ -119,9 +117,12 @@ public class MessageQueueManager {
 	
 	public void setManageValidateCampaignTripRequest(ManageValidateCampaignTripRequest manager, String territoryId, String campaignId) {
 		String routingKey = getValidateCampaignTripRequestRoutingKey(territoryId, campaignId);
+		String queueName = validateCampaignTripRequest + "__" + routingKey;
 		if(!manageValidateCampaignTripRequestMap.containsKey(routingKey)) {
-			 try {
-				validateCampaignTripChannel.queueBind(validateCampaignTripRequestQueueName, validateCampaignTripRequest, routingKey);
+			try {
+				validateCampaignTripChannel.queueDeclare(queueName, true, false, false, null); 
+				validateCampaignTripChannel.queueBind(queueName, validateCampaignTripRequest, routingKey);
+				validateCampaignTripChannel.basicConsume(queueName, true, validateCampaignTripRequestCallback, consumerTag -> {});
 				manageValidateCampaignTripRequestMap.put(routingKey, manager);
 			} catch (IOException e) {
 				logger.warn(String.format("setManageValidateCampaignTripRequest: error in queue bind - %s - %s", routingKey, e.getMessage()));

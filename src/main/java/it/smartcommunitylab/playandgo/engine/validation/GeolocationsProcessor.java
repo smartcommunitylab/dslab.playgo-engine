@@ -81,7 +81,7 @@ public class GeolocationsProcessor {
 				}
 			}
 		} else {
-			logger.error("Device of user " + userId + " is virtual: " + geolocationsEvent.getDevice());
+			logger.info("Device of user " + userId + " is virtual: " + geolocationsEvent.getDevice());
 		}
 		return instances;
 	}
@@ -100,7 +100,7 @@ public class GeolocationsProcessor {
 				Date dOk = lastOk.getTimestamp();
 				Date d1 = l1.getTimestamp();
 				if (d1 == null) {
-					logger.warn("Missing timestamp in location object: " + l1.toString());
+					logger.debug("Missing timestamp in location object: " + l1.toString());
 					continue;
 				}
 
@@ -127,7 +127,7 @@ public class GeolocationsProcessor {
 
 			Collections.sort(geolocationsEvent.getLocation());
 		} else {
-			logger.info("No geolocations found.");
+			logger.debug("No geolocations found.");
 		}
 	}
 
@@ -152,7 +152,7 @@ public class GeolocationsProcessor {
 			tsc.set(Calendar.YEAR, sc.get(Calendar.YEAR));
 			tsc.set(Calendar.MONTH, sc.get(Calendar.MONTH));
 			tsc.set(Calendar.DATE, sc.get(Calendar.DATE));
-			logger.info("Adjusting time point: " + l.getTimestamp().getTime());
+			logger.debug("Adjusting time point: " + l.getTimestamp().getTime());
 			l.setTimestamp(tsc.getTime());
 		}
 	}
@@ -184,7 +184,7 @@ public class GeolocationsProcessor {
 				}
 
 				if (location.getTimestamp() == null) {
-					logger.warn("Missing timestamp in location object: " + location.toString());
+					logger.debug("Missing timestamp in location object: " + location.toString());
 					continue;
 				}
 
@@ -194,7 +194,7 @@ public class GeolocationsProcessor {
 
 				// discard event older than 2 days
 				if (now - LOCATION_STORE_INTERVAL > location.getTimestamp().getTime()) {
-					logger.info("Skipped point at time " + location.getTimestamp().getTime());
+					logger.debug("Skipped point at time " + location.getTimestamp().getTime());
 					skippedOld++;
 //					continue;
 				}
@@ -220,16 +220,16 @@ public class GeolocationsProcessor {
 			
 			if (skippedOld > 0) {
 //				logger.warn("Timestamps too old, skipped " + skippedOld + " locations.");
-				logger.warn("Found " + skippedOld + " locations to old.");
+				logger.debug("Found " + skippedOld + " locations to old.");
 			}
 			if (skippedNoId > 0) {
-				logger.warn("Locations without idTrip, skipped " + skippedNoId + " locations.");
+				logger.debug("Locations without idTrip, skipped " + skippedNoId + " locations.");
 			}
 		}
 
 		logger.info("Group keys: " + geolocationsByItinerary.keySet());
 		if (geolocationsByItinerary.keySet() == null || geolocationsByItinerary.keySet().isEmpty()) {
-			logger.error("No geolocationsByItinerary set.");
+			logger.debug("No geolocationsByItinerary set.");
 		}
 	}
 	
@@ -311,7 +311,7 @@ public class GeolocationsProcessor {
 		//check existing track
 		TrackedInstance res = trackedInstanceRepository.findByDayAndUserIdAndClientId(day, userId, travelId);
 		if (res == null) {
-			logger.info("No existing TrackedInstance found.");
+			logger.debug("No existing TrackedInstance found.");
 			res = new TrackedInstance();
 			res.setClientId(travelId);
 			res.setDay(day);
@@ -319,17 +319,17 @@ public class GeolocationsProcessor {
 			res.setUserId(userId);
 			res.setId(ObjectId.get().toString());
 			if (travelId.contains("_temporary_")) {
-				logger.error("Orphan temporary, skipping clientId: " + travelId);
+				logger.debug("Orphan temporary, skipping clientId: " + travelId);
 				return null;
 			}
 			String ftt = freeTracks.get(key);
 			if (ftt == null) {
-				logger.info("No freetracking transport found, extracting from clientId: " + travelId);
+				logger.debug("No freetracking transport found, extracting from clientId: " + travelId);
 				String[] cid = travelId.split("_");
 				if (cid != null && cid.length > 1) {
 					ftt = cid[0];
 				} else {
-					logger.error("Cannot find transport type for " + key);
+					logger.debug("Cannot find transport type for " + key);
 				}
 			}
 			res.setFreeTrackingTransport(ftt);
@@ -337,18 +337,18 @@ public class GeolocationsProcessor {
 				res.setTime(timeSdf.format(new Date(freeTrackStarts.get(key))));
 			}
 			if (geolocationsByItinerary.get(key) != null) {
-				logger.info("Adding " + geolocationsByItinerary.get(key).size() + " geolocations to existing " + res.getGeolocationEvents().size() + ".");
+				logger.debug("Adding " + geolocationsByItinerary.get(key).size() + " geolocations to existing " + res.getGeolocationEvents().size() + ".");
 				res.getGeolocationEvents().addAll(geolocationsByItinerary.get(key));
 				String sharedId = res.getGeolocationEvents().stream().filter(e -> e.getSharedTravelId() != null).findFirst().map(e -> e.getSharedTravelId()).orElse(null);
 				res.setSharedTravelId(sharedId);
-				logger.info("Resulting events: " + res.getGeolocationEvents().size());
+				logger.debug("Resulting events: " + res.getGeolocationEvents().size());
 			}
 			// limit number of points to avoid failure of saving data
 			if (res.getGeolocationEvents() != null) {
 				int mul = 1; 
 				while (res.getGeolocationEvents().size() > (mul * MAX_LOCATIONS)) mul++;
 				if (mul > 1) {
-					logger.info("TOO MANY GEOLOCATION EVENTS, user: " + userId + ", travel: " + res.getId() + ", " + res.getGeolocationEvents().size() + " events.");
+					logger.debug("TOO MANY GEOLOCATION EVENTS, user: " + userId + ", travel: " + res.getId() + ", " + res.getGeolocationEvents().size() + " events.");
 					List<Geolocation> src = new LinkedList<>(res.getGeolocationEvents());
 					List<Geolocation> list = new LinkedList<>();
 					for (int i = 0; i < src.size(); i += mul) {
@@ -362,10 +362,10 @@ public class GeolocationsProcessor {
 			trackedInstanceRepository.save(res);
 		} else {
 			if (res.getComplete() != null && res.getComplete()) {
-				logger.info("Skipping complete trip " + res.getId());
+				logger.debug("Skipping complete trip " + res.getId());
 				return null;				
 			} else {
-				logger.info("Skipping already existing trip " + res.getId());
+				logger.debug("Skipping already existing trip " + res.getId());
 				return null;
 			}
 		}
