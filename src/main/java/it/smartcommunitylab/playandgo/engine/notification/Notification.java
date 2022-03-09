@@ -20,11 +20,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection="notifications")
 public class Notification {
 	
 	@Id
 	private String id;
+	
+	private String gameId;
+	private String playerId;
+	@Indexed
+	private String campaignId;
 	
 	private long version;
 	private long updateTime;
@@ -204,5 +212,29 @@ public class Notification {
 
 	public void setMessagingAppId(String messagingAppId) {
 		this.messagingAppId = messagingAppId;
+	}
+
+	public String getGameId() {
+		return gameId;
+	}
+
+	public void setGameId(String gameId) {
+		this.gameId = gameId;
+	}
+
+	public String getPlayerId() {
+		return playerId;
+	}
+
+	public void setPlayerId(String playerId) {
+		this.playerId = playerId;
+	}
+
+	public String getCampaignId() {
+		return campaignId;
+	}
+
+	public void setCampaignId(String campaignId) {
+		this.campaignId = campaignId;
 	}
 }

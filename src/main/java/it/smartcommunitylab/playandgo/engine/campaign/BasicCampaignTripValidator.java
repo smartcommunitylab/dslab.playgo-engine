@@ -30,6 +30,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	
 	public static final String TRAVEL_ID = "travelId";
 	public static final String START_TIME = "startTime";
+	public static final String TRACK_ID = "trackId";
 	
 	static FastDateFormat shortSdf = FastDateFormat.getInstance("yyyy/MM/dd");
 	static FastDateFormat fullSdf = FastDateFormat.getInstance("yyyy/MM/dd HH:mm");
@@ -64,6 +65,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					
 					playerTrack.setScoreStatus(ScoreStatus.COMPUTED);					
 					trackingData.put(TRAVEL_ID, track.getClientId());
+					trackingData.put(TRACK_ID, track.getId());
 					trackingData.put(START_TIME, getStartTime(track));
 					playerTrack.setTrackingData(trackingData);
 					campaignPlayerTrackRepository.save(playerTrack);

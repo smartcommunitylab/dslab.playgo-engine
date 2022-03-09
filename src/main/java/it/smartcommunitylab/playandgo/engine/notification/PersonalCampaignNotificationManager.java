@@ -23,8 +23,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
@@ -49,6 +51,9 @@ public class PersonalCampaignNotificationManager {
 	
 	@Autowired
 	TerritoryRepository territoryRepository;
+	
+	@Autowired
+	CampaignRepository campaignRepository;
 	
 	@Autowired
 	private CommunicationHelper notificatioHelper;
@@ -91,21 +96,26 @@ public class PersonalCampaignNotificationManager {
 			if (p != null) {
 				Territory territory = territoryRepository.findById(p.getTerritoryId()).orElse(null);
 				if(territory != null) {
-					Notification notification = null;
-					
-					try {
-						notification = buildNotification(p.getLanguage(), not);
-					} catch (Exception e) {
-						logger.error("Error building notification", e);
+					Campaign campaign = campaignRepository.findByGameId(not.getGameId());
+					if(campaign != null) {
+						Notification notification = null;
+						
+						try {
+							notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
+						} catch (Exception e) {
+							logger.error("Error building notification", e);
+						}
+						if (notification != null) {
+								try {
+									logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getMessagingAppId() + ")");
+									notificatioHelper.notify(notification, not.getPlayerId(), territory.getMessagingAppId());
+								} catch (Exception e) {
+									logger.error("Error sending notification", e);
+								}
+						}											
+					} else {
+						logger.error("Game " + not.getGameId() + " campaign not found");
 					}
-					if (notification != null) {
-							try {
-								logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getMessagingAppId() + ")");
-								notificatioHelper.notify(notification, not.getPlayerId(), territory.getMessagingAppId());
-							} catch (Exception e) {
-								logger.error("Error sending notification", e);
-							}
-					}					
 				} else {
 					logger.error("Player " + not.getPlayerId() + " territory not found");
 				}
@@ -115,7 +125,7 @@ public class PersonalCampaignNotificationManager {
 		}
 	}
 	
-	private Notification buildNotification(String lang, NotificationGe not) {
+	private Notification buildNotification(String campaignId, String gameId, String playerId, String lang, NotificationGe not) {
 		String type = not.getClass().getSimpleName();
 		Map<String, String> extraData = buildExtraData(not);
 		

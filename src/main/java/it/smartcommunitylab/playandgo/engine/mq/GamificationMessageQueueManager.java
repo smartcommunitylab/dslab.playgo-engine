@@ -75,7 +75,6 @@ public class GamificationMessageQueueManager {
 		
 		gameNotificationCallback = (consumerTag, delivery) -> {
 			String msg = new String(delivery.getBody(), "UTF-8");
-			channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			String routingKey = delivery.getEnvelope().getRoutingKey();
 			ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
 			if(manager != null) {

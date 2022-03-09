@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -29,6 +30,7 @@ public class Campaign {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@JsonDeserialize(using = LocalDateDeserializer.class)
 	private LocalDate dateTo;
+	@Indexed(unique=true)
 	private String gameId;
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;

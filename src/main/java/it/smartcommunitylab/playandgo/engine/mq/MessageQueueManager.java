@@ -78,18 +78,16 @@ public class MessageQueueManager {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.debug("validateTripRequestCallback:" + json);
 			ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
-			validateTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			if(manageValidateTripRequest != null) {
 				manageValidateTripRequest.validateTripRequest(message);
 			}			
 		};
-		validateTripChannel.basicConsume(validateTripRequest, false, validateTripRequestCallback, consumerTag -> {});
+		validateTripChannel.basicConsume(validateTripRequest, true, validateTripRequestCallback, consumerTag -> {});
 		
 		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.debug("validateCampaignTripRequestCallback:" + json);
 			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
-			validateCampaignTripChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 			String routingKey = delivery.getEnvelope().getRoutingKey();
 			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
 			if(manager != null) {

@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class CampaignSubscription {
 	private String territoryId;
 	private String mail;
 	private Boolean sendMail = Boolean.FALSE;
+	private LocalDate registrationDate;
 	private Map<String, Object> campaignData = new HashMap<>();
 	
 	public String getId() {
@@ -61,5 +63,11 @@ public class CampaignSubscription {
 	}
 	public void setTerritoryId(String territoryId) {
 		this.territoryId = territoryId;
+	}
+	public LocalDate getRegistrationDate() {
+		return registrationDate;
+	}
+	public void setRegistrationDate(LocalDate registrationDate) {
+		this.registrationDate = registrationDate;
 	}
 }

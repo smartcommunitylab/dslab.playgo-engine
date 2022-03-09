@@ -227,7 +227,7 @@ public class GeolocationsProcessor {
 			}
 		}
 
-		logger.info("Group keys: " + geolocationsByItinerary.keySet());
+		logger.debug("Group keys: " + geolocationsByItinerary.keySet());
 		if (geolocationsByItinerary.keySet() == null || geolocationsByItinerary.keySet().isEmpty()) {
 			logger.debug("No geolocationsByItinerary set.");
 		}
