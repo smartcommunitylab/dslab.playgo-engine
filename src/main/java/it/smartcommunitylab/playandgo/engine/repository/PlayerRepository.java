@@ -7,5 +7,5 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 
 @Repository
 public interface PlayerRepository extends MongoRepository<Player, String> {
-
+	public Player findByNicknameIgnoreCase(String nickname);
 }

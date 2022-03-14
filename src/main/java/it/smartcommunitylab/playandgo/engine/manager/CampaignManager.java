@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
@@ -61,7 +62,7 @@ public class CampaignManager {
 	}
 	
 	public Campaign getDefaultCampaignByTerritory(String territoryId) {
-		return campaignRepository.findDefaultByTerritoryId(territoryId);
+		return campaignRepository.findByTerritoryIdAndType(territoryId, Type.personal);
 	}
 	
 	public CampaignSubscription subscribePlayer(Player player, String campaignId) throws Exception {

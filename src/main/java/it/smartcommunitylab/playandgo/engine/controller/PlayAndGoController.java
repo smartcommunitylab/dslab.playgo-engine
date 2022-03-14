@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.reflections.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,12 +35,19 @@ public class PlayAndGoController {
 	@Autowired
 	private PlayerRoleRepository playerRoleRepository;
 	
-	public Player getCurrentPlayer(HttpServletRequest request) throws UnauthorizedException {
+	public String getCurrentSubject(HttpServletRequest request) throws UnauthorizedException {
 		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 		Jwt principal = (Jwt) authentication.getPrincipal();
 		String subject = principal.getClaimAsString("sub");
-		
-		Player player = playerRepository.findById("117").orElse(null);
+		if(Utils.isEmpty(subject)) {
+			throw new UnauthorizedException("subject not found");
+		}
+		return subject;
+	}
+	
+	public Player getCurrentPlayer(HttpServletRequest request) throws UnauthorizedException {
+		String subject = getCurrentSubject(request);		
+		Player player = playerRepository.findById(subject).orElse(null);
 		if(player == null) {
 			throw new UnauthorizedException("user not found");
 		}

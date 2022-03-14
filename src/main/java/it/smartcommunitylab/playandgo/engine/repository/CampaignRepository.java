@@ -19,6 +19,5 @@ public interface CampaignRepository extends MongoRepository<Campaign, String> {
 	
 	public List<Campaign> findByType(Type type, Sort sort);
 	
-	@Query ("{'defaultForTerritory': true, 'territoryId' : ?0}")
-	public Campaign findDefaultByTerritoryId(String territoryId);
+	public Campaign findByTerritoryIdAndType(String territoryId, Type type);
 }

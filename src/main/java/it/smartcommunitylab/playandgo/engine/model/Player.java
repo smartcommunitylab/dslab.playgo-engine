@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="players")
@@ -8,8 +9,7 @@ public class Player {
 	
 	@Id
 	private String playerId;
-	private String name;
-	private String surname;
+	@Indexed(unique=true)
 	private String nickname;
 	private String language;
 	private String mail;
@@ -30,22 +30,6 @@ public class Player {
 
 	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getSurname() {
-		return surname;
-	}
-
-	public void setSurname(String surname) {
-		this.surname = surname;
 	}
 
 	public String getNickname() {

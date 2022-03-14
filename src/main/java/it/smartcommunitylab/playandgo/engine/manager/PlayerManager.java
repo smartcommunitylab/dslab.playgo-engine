@@ -28,27 +28,29 @@ public class PlayerManager {
 		return null;
 	}
 	
-	public Player registerPlayer(Player player) throws Exception {
+	public Player registerPlayer(Player player) throws Exception {		
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
 		if(playerDb != null) {
 			throw new BadRequestException("player already exists");
-		} else {
-			playerDb = playerRepository.save(player);
-			//TODO subscribe default campaign?
-			Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
-			if(campaign != null) {
-				campaignManager.subscribePlayer(playerDb, campaign.getCampaignId());
-			}
-			return playerDb;
 		}
+		player.setNickname(player.getNickname().trim());
+		playerDb = playerRepository.findByNicknameIgnoreCase(player.getNickname());
+		if(playerDb != null) {
+			throw new BadRequestException("nickname already exists");
+		}
+		playerDb = playerRepository.save(player);
+		//TODO subscribe default campaign?
+		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
+		if(campaign != null) {
+			campaignManager.subscribePlayer(playerDb, campaign.getCampaignId());
+		}
+		return playerDb;
 	}
 	
 	public Player updatePlayer(Player player, String playerId) {
 		Player playerDb = playerRepository.findById(playerId).orElse(null);
 		if(playerDb != null) {
 			playerDb.setLanguage(player.getLanguage());
-			playerDb.setName(player.getName());
-			playerDb.setSurname(player.getSurname());
 			playerDb.setNickname(player.getNickname());
 			playerDb.setMail(player.getMail());
 			playerDb.setSendMail(player.getSendMail());
