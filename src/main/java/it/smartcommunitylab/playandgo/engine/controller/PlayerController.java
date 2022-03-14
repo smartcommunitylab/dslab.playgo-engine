@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
@@ -70,6 +71,13 @@ public class PlayerController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		Player currentPlayer = getCurrentPlayer(request);
 		return playerManager.updatePlayer(player, currentPlayer.getPlayerId());
+	}
+	
+	@GetMapping("/api/player/nick")
+	public Boolean checkNickname(
+			@RequestParam String nickname,
+			HttpServletRequest request) throws Exception {
+		return playerManager.findByNickname(nickname);
 	}
 
 }

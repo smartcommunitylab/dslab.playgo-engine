@@ -72,4 +72,12 @@ public class PlayerManager {
 		}
 		return player;
 	}
+	
+	public boolean findByNickname(String nickname) {
+		Player player = playerRepository.findByNicknameIgnoreCase(nickname);
+		if(player != null) {
+			return true;
+		}
+		return false;
+	}
 }
