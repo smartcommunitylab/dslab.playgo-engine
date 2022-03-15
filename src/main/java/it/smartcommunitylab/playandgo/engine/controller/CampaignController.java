@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,11 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
-import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
@@ -72,12 +71,13 @@ public class CampaignController extends PlayAndGoController {
 		return campaignManager.getPlayerCampaigns(player.getPlayerId());
 	}
 	
-	@PutMapping("/api/campaign/{campaignId}/subscribe")
+	@PostMapping("/api/campaign/{campaignId}/subscribe")
 	public CampaignSubscription subscribeCampaign(
 			@PathVariable String campaignId,
+			@RequestBody Map<String, Object> campaignData,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		return campaignManager.subscribePlayer(player, campaignId);
+		return campaignManager.subscribePlayer(player, campaignId, campaignData);
 	}
 	
 	@PutMapping("/api/campaign/{campaignId}/unsubscribe")

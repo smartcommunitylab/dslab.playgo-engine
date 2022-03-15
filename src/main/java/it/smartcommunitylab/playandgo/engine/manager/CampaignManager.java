@@ -1,7 +1,9 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +83,7 @@ public class CampaignManager {
 		return campaignRepository.findByTerritoryIdAndType(territoryId, Type.personal);
 	}
 	
-	public CampaignSubscription subscribePlayer(Player player, String campaignId) throws Exception {
+	public CampaignSubscription subscribePlayer(Player player, String campaignId, Map<String, Object> campaignData) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist");
@@ -89,13 +91,19 @@ public class CampaignManager {
 		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
 			throw new BadRequestException("territory doesn't match");
 		}
+		if(Type.company.equals(campaign.getType())) {
+			//TODO check campaign subscription endpoint
+		}
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaignId);
 		sub.setTerritoryId(player.getTerritoryId());
 		sub.setMail(player.getMail());
 		sub.setSendMail(player.getSendMail());
-		//TODO campaign data?
+		sub.setRegistrationDate(LocalDate.now());
+		if(campaignData != null) {
+			sub.setCampaignData(campaignData);
+		}
 		return campaignSubscriptionRepository.save(sub);
 	}
 	

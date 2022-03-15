@@ -21,13 +21,6 @@ import com.rabbitmq.client.DeliverCallback;
 public class GamificationMessageQueueManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(GamificationMessageQueueManager.class);
 	
-	public static final String validateTripRequest = "playgo-vt-request";
-	public static final String validateTripResponse = "playgo-vt-response";
-	public static final String validateCampaignTripRequest = "playgo-campaign-vt-request";
-	public static final String validateCampaignTripResponse = "playgo-campaign-vt-r";
-	public static final String gamificationEngineRequest = "playgo-ge-request";
-	public static final String gamificationEngineResponse = "playgo-ge-response";
-	
 	@Value("${rabbitmq_ge.host}")
 	private String rabbitMQHost;	
 

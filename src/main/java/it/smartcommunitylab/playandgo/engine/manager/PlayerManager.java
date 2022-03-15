@@ -42,7 +42,7 @@ public class PlayerManager {
 		//TODO subscribe default campaign?
 		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
 		if(campaign != null) {
-			campaignManager.subscribePlayer(playerDb, campaign.getCampaignId());
+			campaignManager.subscribePlayer(playerDb, campaign.getCampaignId(), null);
 		}
 		return playerDb;
 	}

@@ -49,6 +49,7 @@ public class MessageQueueManager {
 	
 	private ManageValidateTripRequest manageValidateTripRequest;
 	
+	
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
 	DeliverCallback validateCampaignTripRequestCallback;
