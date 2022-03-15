@@ -25,4 +25,14 @@ public class BasicPersonalCampaignGameNotification extends BasicCampaignGameNoti
 		});
 	}
 	
+	public void subcribeCampaing(Campaign c) {
+		gamificationMessageQueueManager.setManageGameNotification(this, c.getGameId());
+		logger.debug(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));		
+	}
+	
+	public void unsubcribeCampaing(Campaign c) {
+		gamificationMessageQueueManager.unsetManageGameNotification(c.getGameId());
+		logger.debug(String.format("campaign %s unsubscribe to game %s", c.getCampaignId(), c.getGameId()));
+	}
+	
 }

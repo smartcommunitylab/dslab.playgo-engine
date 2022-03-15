@@ -98,6 +98,17 @@ public class GamificationMessageQueueManager {
 		}
 	}
 	
+	public void unsetManageGameNotification(String gameId) {
+		String routingKey = geRoutingKeyPrefix + "-" + gameId;
+		String queueName = "queue-" + gameId;
+		try {
+			channel.queueUnbind(queueName, geExchangeName, routingKey);
+		} catch (Exception e) {
+			logger.warn(String.format("unsetManageGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
+		}
+		manageGameNotificationMap.remove(routingKey);
+	}
+	
 	public void setManageGameStatus(ManageGameStatus manager, String gameId) {
 		String routingKey = geRoutingKeyPrefix + "-" + gameId;
 		if(!manageGameStatusMap.containsKey(routingKey)) {
@@ -108,6 +119,11 @@ public class GamificationMessageQueueManager {
 				logger.warn(String.format("setManageGameStatus: error in queue bind - %s - %s", routingKey, e.getMessage()));
 			}
 		}
+	}
+	
+	public void unsetManageGameStatus(String gameId) {
+		String routingKey = geRoutingKeyPrefix + "-" + gameId;
+		manageGameStatusMap.remove(routingKey);		
 	}
 
 }

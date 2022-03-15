@@ -37,7 +37,7 @@ public class CampaignController extends PlayAndGoController {
 			@RequestBody Campaign campaign,
 			HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
-		campaignManager.saveTerritory(campaign);
+		campaignManager.saveCampaign(campaign);
 	}
 	
 	@GetMapping("/api/campaign/{campaignId}")
@@ -78,6 +78,14 @@ public class CampaignController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		return campaignManager.subscribePlayer(player, campaignId);
+	}
+	
+	@PutMapping("/api/campaign/{campaignId}/unsubscribe")
+	public CampaignSubscription unsubscribeCampaign(
+			@PathVariable String campaignId,
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		return campaignManager.unsubscribePlayer(player, campaignId);
 	}
 
 }

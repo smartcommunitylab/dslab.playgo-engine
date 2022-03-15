@@ -128,6 +128,19 @@ public class MessageQueueManager {
 		}		
 	}
 	
+	public void unsetManageValidateCampaignTripRequest(String territoryId, String campaignId) {
+		String routingKey = getValidateCampaignTripRequestRoutingKey(territoryId, campaignId);
+		if(manageValidateCampaignTripRequestMap.containsKey(routingKey)) {
+			String queueName = validateCampaignTripRequest + "__" + routingKey;
+			try {
+				validateCampaignTripChannel.queueUnbind(queueName, validateCampaignTripRequest, routingKey);
+			} catch (IOException e) {
+				logger.warn(String.format("unsetManageValidateCampaignTripRequest: error in queue bind - %s - %s", routingKey, e.getMessage()));
+			}
+			manageValidateCampaignTripRequestMap.remove(routingKey);
+		}	
+	}
+	
 	public void sendValidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
 		String routingKey = getValidateCampaignTripRequestRoutingKey(message);
 		String msg = mapper.writeValueAsString(message);
