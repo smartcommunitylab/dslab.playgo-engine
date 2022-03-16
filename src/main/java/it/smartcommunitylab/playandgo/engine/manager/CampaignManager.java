@@ -15,8 +15,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylab.playandgo.engine.campaign.BasicPersonalCampaignGameNotification;
-import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignTripValidator;
+import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
@@ -46,13 +47,26 @@ public class CampaignManager {
 	PlayerRepository playerRepository;
 	
 	@Autowired
-	PersonalCampaignTripValidator basicPersonalCampaignTripValidator;
-	
+	PersonalCampaignGameNotification personalCampaignGameNotification;
 	@Autowired
-	BasicPersonalCampaignGameNotification basicPersonalCampaignGameNotification;
+	CityCampaignGameNotification cityCampaignGameNotification;
+	@Autowired
+	SchoolCampaignGameNotification schoolCampaignGameNotification;
 	
-	public void saveCampaign(Campaign campaign) {
+	public void addCampaign(Campaign campaign) {
 		campaignRepository.save(campaign);
+		switch (campaign.getType()) {
+			case personal:
+				personalCampaignGameNotification.subcribeCampaing(campaign);
+				break;
+			case city:
+				cityCampaignGameNotification.subcribeCampaing(campaign);
+				break;
+			case school:
+				schoolCampaignGameNotification.subcribeCampaing(campaign);
+				break;
+			case company:
+		}
 	}
 	
 	public Campaign getCampaign(String campaignId) {

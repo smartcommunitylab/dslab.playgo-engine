@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,11 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class GamificationMessageQueueManager {
@@ -42,11 +48,13 @@ public class GamificationMessageQueueManager {
 	@Value("${rabbitmq_ge.geRoutingKeyPrefix}")
 	private String geRoutingKeyPrefix;	
 	
+	@Autowired
+	CampaignRepository campaignRepository;
+	
 	Channel channel;
 	ObjectMapper mapper = new ObjectMapper();
 	
 	Map<String, ManageGameNotification> manageGameNotificationMap = new HashMap<>();
-	Map<String, ManageGameStatus> manageGameStatusMap = new HashMap<>();
 	
 	DeliverCallback gameNotificationCallback;
 	
@@ -68,55 +76,41 @@ public class GamificationMessageQueueManager {
 		
 		gameNotificationCallback = (consumerTag, delivery) -> {
 			String msg = new String(delivery.getBody(), "UTF-8");
-			String routingKey = delivery.getEnvelope().getRoutingKey();
-			ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
-			if(manager != null) {
-				manager.manageGameNotification(msg, routingKey);
+			Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
+			String type = (String) map.get("type");
+			String gameId = (String) map.get("gameId");
+			if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
+				Campaign campaign = campaignRepository.findByGameId(gameId);
+				if(campaign != null) {
+					String routingKey = campaign.getType().toString(); 
+					ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
+					if(manager != null) {
+						manager.manageGameNotification(map, routingKey);
+					}					
+				} else {
+					logger.warn("campaign not found: " + gameId);
+				}
+			} else {
+				logger.warn("Bad notification content: " + msg);
 			}
 		};
 	}
 	
-	public void setManageGameNotification(ManageGameNotification manager, String gameId) {
+	public void setGameNotification(String gameId) {
 		String routingKey = geRoutingKeyPrefix + "-" + gameId;
-		if(!manageGameNotificationMap.containsKey(routingKey)) {
-			try {
-				String queueName = "queue-" + gameId;
-				channel.queueDeclare(queueName, true, false, false, null);
-				channel.queueBind(queueName, geExchangeName, routingKey);
-				channel.basicConsume(queueName, true, gameNotificationCallback, consumerTag -> {});
-				manageGameNotificationMap.put(routingKey, manager);
-			} catch (Exception e) {
-				logger.warn(String.format("setManageGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
-			}
-		}
-	}
-	
-	public void unsetManageGameNotification(String gameId) {
-		String routingKey = geRoutingKeyPrefix + "-" + gameId;
-		String queueName = "queue-" + gameId;
 		try {
-			channel.queueUnbind(queueName, geExchangeName, routingKey);
+			String queueName = "queue-" + gameId;
+			channel.queueDeclare(queueName, true, false, false, null);
+			channel.queueBind(queueName, geExchangeName, routingKey);
+			channel.basicConsume(queueName, true, gameNotificationCallback, consumerTag -> {});
 		} catch (Exception e) {
-			logger.warn(String.format("unsetManageGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
-		}
-		manageGameNotificationMap.remove(routingKey);
-	}
-	
-	public void setManageGameStatus(ManageGameStatus manager, String gameId) {
-		String routingKey = geRoutingKeyPrefix + "-" + gameId;
-		if(!manageGameStatusMap.containsKey(routingKey)) {
-			try {
-				//channel.queueBind(geQueueName, geExchangeName, routingKey);
-				manageGameStatusMap.put(routingKey, manager);
-			} catch (Exception e) {
-				logger.warn(String.format("setManageGameStatus: error in queue bind - %s - %s", routingKey, e.getMessage()));
-			}
+			logger.warn(String.format("setGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
 		}
 	}
 	
-	public void unsetManageGameStatus(String gameId) {
-		String routingKey = geRoutingKeyPrefix + "-" + gameId;
-		manageGameStatusMap.remove(routingKey);		
+	public void setManageGameNotification(ManageGameNotification manager, Type type) {
+		String routingKey = type.toString();
+		manageGameNotificationMap.put(routingKey, manager);
 	}
-
+	
 }

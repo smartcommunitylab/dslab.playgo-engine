@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.notification;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,12 +76,11 @@ public class PersonalCampaignNotificationManager {
 	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void processNotification(String body) throws Exception {
-		Map<String, Object> map = (Map<String, Object>) mapper.readValue(body, Map.class);
+	public void processNotification(Map<String, Object> map) throws Exception {
 		String type = (String) map.get("type");
 		Map obj = (Map) map.get("obj");
 		if (type == null || obj == null) {
-			logger.error("Bad notification content: " + body);
+			logger.error("Bad notification content: " + map);
 			return;
 		}
 

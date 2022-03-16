@@ -37,11 +37,11 @@ public class CampaignController extends PlayAndGoController {
 	TerritoryManager territoryManager;
 	
 	@PostMapping("/api/campaign")
-	public void saveCampaign(
+	public void addCampaign(
 			@RequestBody Campaign campaign,
 			HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
-		campaignManager.saveCampaign(campaign);
+		campaignManager.addCampaign(campaign);
 	}
 	
 	@GetMapping("/api/campaign/{campaignId}")
