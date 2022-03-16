@@ -7,17 +7,19 @@ public class ValidateCampaignTripRequest {
 	private String trackedInstanceId;
 	private String campaignPlayerTrackId;
 	private String territoryId;
+	private String campaignType;
 	
 	public ValidateCampaignTripRequest() {}
 	
 	public ValidateCampaignTripRequest(String playerId, String territoryId, String trackedInstanceId, 
-			String campaignId, String campaignSubscriptionId, String campaignPlayerTrackId) {
+			String campaignId, String campaignSubscriptionId, String campaignPlayerTrackId, String campaignType) {
 		this.playerId = playerId;
 		this.territoryId = territoryId;
 		this.trackedInstanceId = trackedInstanceId;
 		this.campaignId = campaignId;
 		this.campaignPlayerTrackId = campaignPlayerTrackId;
 		this.campaignSubscriptionId = campaignSubscriptionId;
+		this.campaignType = campaignType;
 	}
 	
 	public String getPlayerId() {
@@ -61,5 +63,13 @@ public class ValidateCampaignTripRequest {
 
 	public void setCampaignPlayerTrackId(String campaignPlayerTrackId) {
 		this.campaignPlayerTrackId = campaignPlayerTrackId;
+	}
+
+	public String getCampaignType() {
+		return campaignType;
+	}
+
+	public void setCampaignType(String campaignType) {
+		this.campaignType = campaignType;
 	}
 }	

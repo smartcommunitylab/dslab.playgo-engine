@@ -18,6 +18,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
+
 @Component
 public class MessageQueueManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(MessageQueueManager.class);
@@ -26,8 +28,6 @@ public class MessageQueueManager {
 	public static final String validateTripResponse = "playgo-vt-response";
 	public static final String validateCampaignTripRequest = "playgo-campaign-vt-request";
 	public static final String validateCampaignTripResponse = "playgo-campaign-vt-r";
-	public static final String gamificationEngineRequest = "playgo-ge-request";
-	public static final String gamificationEngineResponse = "playgo-ge-response";
 	
 	@Value("${rabbitmq_pg.host}")
 	private String rabbitMQHost;	
@@ -106,16 +106,8 @@ public class MessageQueueManager {
 		validateTripChannel.basicPublish("", validateTripRequest, null, msg.getBytes("UTF-8"));
 	}
 	
-	public String getValidateCampaignTripRequestRoutingKey(ValidateCampaignTripRequest message) {
-		return message.getTerritoryId() + "__" + message.getCampaignId();
-	}
-	
-	public String getValidateCampaignTripRequestRoutingKey(String territoryId, String campaignId) {
-		return territoryId + "__" + campaignId;
-	}
-	
-	public void setManageValidateCampaignTripRequest(ManageValidateCampaignTripRequest manager, String territoryId, String campaignId) {
-		String routingKey = getValidateCampaignTripRequestRoutingKey(territoryId, campaignId);
+	public void setManageValidateCampaignTripRequest(ManageValidateCampaignTripRequest manager, Campaign.Type type) {
+		String routingKey = type.toString();
 		String queueName = validateCampaignTripRequest + "__" + routingKey;
 		if(!manageValidateCampaignTripRequestMap.containsKey(routingKey)) {
 			try {
@@ -129,21 +121,8 @@ public class MessageQueueManager {
 		}		
 	}
 	
-	public void unsetManageValidateCampaignTripRequest(String territoryId, String campaignId) {
-		String routingKey = getValidateCampaignTripRequestRoutingKey(territoryId, campaignId);
-		if(manageValidateCampaignTripRequestMap.containsKey(routingKey)) {
-			String queueName = validateCampaignTripRequest + "__" + routingKey;
-			try {
-				validateCampaignTripChannel.queueUnbind(queueName, validateCampaignTripRequest, routingKey);
-			} catch (IOException e) {
-				logger.warn(String.format("unsetManageValidateCampaignTripRequest: error in queue bind - %s - %s", routingKey, e.getMessage()));
-			}
-			manageValidateCampaignTripRequestMap.remove(routingKey);
-		}	
-	}
-	
 	public void sendValidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
-		String routingKey = getValidateCampaignTripRequestRoutingKey(message);
+		String routingKey = message.getCampaignType();
 		String msg = mapper.writeValueAsString(message);
 		validateTripChannel.basicPublish(validateCampaignTripRequest, routingKey, null, msg.getBytes("UTF-8"));
 	}

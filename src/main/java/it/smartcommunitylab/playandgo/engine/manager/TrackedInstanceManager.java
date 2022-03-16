@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
@@ -21,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.validation.GeolocationsProcessor;
@@ -30,25 +32,26 @@ import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
 public class TrackedInstanceManager implements ManageValidateTripRequest {
 	private static Log logger = LogFactory.getLog(TrackedInstanceManager.class);
 	
-	private static final String TRACKEDINSTANCE = "trackedInstances";
-	
 	@Autowired
-	private MessageQueueManager queueManager;
+	MessageQueueManager queueManager;
 
 	@Autowired
-	private TrackedInstanceRepository trackedInstanceRepository;
+	TrackedInstanceRepository trackedInstanceRepository;
 	
 	@Autowired
-	private CampaignSubscriptionRepository campaignSubscriptionRepository;
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
-	private CampaignPlayerTrackRepository campaignPlayerTrackRepository;
+	CampaignPlayerTrackRepository campaignPlayerTrackRepository;
+	
+	@Autowired
+	CampaignRepository campaignRepository;
 
 	@Autowired
-	private GeolocationsProcessor geolocationsProcessor;
+	GeolocationsProcessor geolocationsProcessor;
 	
 	@Autowired
-	private ValidationService validationService;
+	ValidationService validationService;
 	
 	@PostConstruct
 	public void init() {
@@ -87,6 +90,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				if(!TravelValidity.INVALID.equals(validationResult.getTravelValidity())) {
 					List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(msg.getPlayerId(), msg.getTerritoryId());
 					for(CampaignSubscription sub : list) {
+						Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
 						CampaignPlayerTrack pTrack = new CampaignPlayerTrack();
 						pTrack.setPlayerId(msg.getPlayerId());
 						pTrack.setCampaignId(sub.getCampaignId());
@@ -95,7 +99,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 						pTrack.setTerritoryId(msg.getTerritoryId());
 						campaignPlayerTrackRepository.save(pTrack);
 						ValidateCampaignTripRequest request = new ValidateCampaignTripRequest(msg.getPlayerId(), 
-								msg.getTerritoryId(), track.getId(), sub.getCampaignId(), sub.getId(), pTrack.getId());
+								msg.getTerritoryId(), track.getId(), sub.getCampaignId(), sub.getId(), pTrack.getId(), campaign.getType().toString());
 						queueManager.sendValidateCampaignTripRequest(request);
 					}
 				}

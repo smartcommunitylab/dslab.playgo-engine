@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.campaign.BasicPersonalCampaignGameNotification;
-import it.smartcommunitylab.playandgo.engine.campaign.BasicPersonalCampaignTripValidator;
+import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignTripValidator;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
@@ -46,17 +46,13 @@ public class CampaignManager {
 	PlayerRepository playerRepository;
 	
 	@Autowired
-	BasicPersonalCampaignTripValidator basicPersonalCampaignTripValidator;
+	PersonalCampaignTripValidator basicPersonalCampaignTripValidator;
 	
 	@Autowired
 	BasicPersonalCampaignGameNotification basicPersonalCampaignGameNotification;
 	
 	public void saveCampaign(Campaign campaign) {
 		campaignRepository.save(campaign);
-		if(Type.personal.equals(campaign.getType())) {
-			basicPersonalCampaignTripValidator.subcribeCampaing(campaign);
-			basicPersonalCampaignGameNotification.subcribeCampaing(campaign);
-		}
 	}
 	
 	public Campaign getCampaign(String campaignId) {
@@ -75,10 +71,6 @@ public class CampaignManager {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign != null) {
 			campaignRepository.deleteById(campaignId);
-			if(Type.personal.equals(campaign.getType())) {
-				basicPersonalCampaignTripValidator.unsubcribeCampaing(campaign);
-				basicPersonalCampaignGameNotification.unsubcribeCampaing(campaign);
-			}
 		}
 		return campaign;
 	}
