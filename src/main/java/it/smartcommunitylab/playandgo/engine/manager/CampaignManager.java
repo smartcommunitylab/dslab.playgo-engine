@@ -25,6 +25,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 
 @Component
 public class CampaignManager {
@@ -40,6 +41,9 @@ public class CampaignManager {
 	
 	@Autowired
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
+	
+	@Autowired
+	PlayerRepository playerRepository;
 	
 	@Autowired
 	BasicPersonalCampaignTripValidator basicPersonalCampaignTripValidator;
@@ -140,5 +144,27 @@ public class CampaignManager {
 			}
 		}
 		return result;
+	}
+
+	public CampaignSubscription subscribePlayerByTerritory(String nickname, Campaign campaign,
+			Map<String, Object> campaignData) throws Exception {
+		Player player = playerRepository.findByNicknameIgnoreCase(nickname);
+		if(player == null) {
+			throw new BadRequestException("nickname doesn't exist");
+		}
+		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
+			throw new BadRequestException("territory doesn't match");
+		}
+		CampaignSubscription sub = new CampaignSubscription();
+		sub.setPlayerId(player.getPlayerId());
+		sub.setCampaignId(campaign.getCampaignId());
+		sub.setTerritoryId(player.getTerritoryId());
+		sub.setMail(player.getMail());
+		sub.setSendMail(player.getSendMail());
+		sub.setRegistrationDate(LocalDate.now());
+		if(campaignData != null) {
+			sub.setCampaignData(campaignData);
+		}
+		return campaignSubscriptionRepository.save(sub);
 	}
 }

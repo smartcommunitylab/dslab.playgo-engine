@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
+import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
+import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
@@ -29,7 +32,9 @@ public class CampaignController extends PlayAndGoController {
 	private static transient final Logger logger = LoggerFactory.getLogger(CampaignController.class);
 	
 	@Autowired
-	private CampaignManager campaignManager;
+	CampaignManager campaignManager;
+	@Autowired
+	TerritoryManager territoryManager;
 	
 	@PostMapping("/api/campaign")
 	public void saveCampaign(
@@ -87,5 +92,20 @@ public class CampaignController extends PlayAndGoController {
 		Player player = getCurrentPlayer(request);
 		return campaignManager.unsubscribePlayer(player, campaignId);
 	}
+	
+	@PostMapping("/api/campaign/{campaignId}/subscribe/territory")
+	public CampaignSubscription subscribeCampaignByTerritory(
+			@PathVariable String campaignId,
+			@RequestParam String nickname,
+			@RequestBody Map<String, Object> campaignData,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign doesn't exist");
+		}
+		checkRole(request, Role.territory, campaign.getTerritoryId());
+		return campaignManager.subscribePlayerByTerritory(nickname, campaign, campaignData);
+	}
+	
 
 }
