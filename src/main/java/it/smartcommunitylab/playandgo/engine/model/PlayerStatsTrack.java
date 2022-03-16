@@ -14,8 +14,8 @@ public class PlayerStatsTrack {
 	private Date startTime;
 	private Date endTime;
 	private String modeType;
-	private double distance;
-	private int greenLeaves;
+	private double distance; // meters
+	private long duration; // seconds
 	private int co2;
 	
 	public String getId() {
@@ -60,12 +60,6 @@ public class PlayerStatsTrack {
 	public void setDistance(double distance) {
 		this.distance = distance;
 	}
-	public int getGreenLeaves() {
-		return greenLeaves;
-	}
-	public void setGreenLeaves(int greenLeaves) {
-		this.greenLeaves = greenLeaves;
-	}
 	public int getCo2() {
 		return co2;
 	}
@@ -77,6 +71,12 @@ public class PlayerStatsTrack {
 	}
 	public void setTrackedInstanceId(String trackedInstanceId) {
 		this.trackedInstanceId = trackedInstanceId;
+	}
+	public long getDuration() {
+		return duration;
+	}
+	public void setDuration(long duration) {
+		this.duration = duration;
 	}
 	
 }

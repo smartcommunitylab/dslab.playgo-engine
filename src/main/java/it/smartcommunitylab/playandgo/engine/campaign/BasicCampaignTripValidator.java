@@ -1,6 +1,9 @@
 package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -14,12 +17,14 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
+import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTrack;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
@@ -48,10 +53,15 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	CampaignRepository campaignRepository;
 	
 	@Autowired
+	PlayerStatsTrackRepository playerStatsTrackRepository;
+	
+	@Autowired
 	ValidationService validationService;
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
+	
+	SimpleDateFormat sdf = new SimpleDateFormat("YYYY/MM/dd HH:mm");
 	
 	@Override
 	public void validateTripRequest(ValidateCampaignTripRequest msg) {
@@ -69,6 +79,23 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					trackingData.put(START_TIME, getStartTime(track));
 					playerTrack.setTrackingData(trackingData);
 					campaignPlayerTrackRepository.save(playerTrack);
+					
+					PlayerStatsTrack statsTrack = new PlayerStatsTrack();
+					statsTrack.setPlayerId(playerTrack.getPlayerId());
+					statsTrack.setCampaignId(playerTrack.getCampaignId());
+					statsTrack.setTrackedInstanceId(playerTrack.getTrackedInstanceId());
+					statsTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+					statsTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
+					statsTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
+					Date startTime = sdf.parse(track.getDay() + " " + track.getTime());
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(startTime);
+					calendar.add(Calendar.SECOND, (int) track.getValidationResult().getValidationStatus().getDuration());
+					Date endTime = calendar.getTime();
+					statsTrack.setStartTime(startTime);
+					statsTrack.setEndTime(endTime);
+					// TODO set co2
+					playerStatsTrackRepository.save(statsTrack);
 					
 					Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 					if(campaign != null) {
