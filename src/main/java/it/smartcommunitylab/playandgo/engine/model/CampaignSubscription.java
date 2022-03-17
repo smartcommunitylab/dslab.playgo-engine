@@ -8,6 +8,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
+
 @Document(collection="campaignSubscriptions")
 public class CampaignSubscription {
 	@Id
@@ -19,6 +24,8 @@ public class CampaignSubscription {
 	private String territoryId;
 	private String mail;
 	private Boolean sendMail = Boolean.FALSE;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
 	private LocalDate registrationDate;
 	private Map<String, Object> campaignData = new HashMap<>();
 	

@@ -79,7 +79,7 @@ public class CampaignController extends PlayAndGoController {
 	@PostMapping("/api/campaign/{campaignId}/subscribe")
 	public CampaignSubscription subscribeCampaign(
 			@PathVariable String campaignId,
-			@RequestBody Map<String, Object> campaignData,
+			@RequestBody(required = false) Map<String, Object> campaignData,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		return campaignManager.subscribePlayer(player, campaignId, campaignData);

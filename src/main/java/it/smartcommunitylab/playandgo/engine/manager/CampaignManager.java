@@ -118,7 +118,7 @@ public class CampaignManager {
 	}
 	
 	public CampaignSubscription unsubscribePlayer(Player player, String campaignId) throws Exception {
-		CampaignSubscription subscription = campaignSubscriptionRepository.findByPlayerId(campaignId, player.getPlayerId());
+		CampaignSubscription subscription = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
 		if(subscription != null) {
 			campaignSubscriptionRepository.deleteById(subscription.getId());
 		}
@@ -128,7 +128,7 @@ public class CampaignManager {
 	public void updateDefaultCampaignSuscription(Player player) {
 		Campaign campaign = getDefaultCampaignByTerritory(player.getTerritoryId());
 		if(campaign != null) {
-			CampaignSubscription sub = campaignSubscriptionRepository.findByPlayerId(campaign.getCampaignId(), player.getPlayerId());
+			CampaignSubscription sub = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), player.getPlayerId());
 			if(sub != null) {
 				Query query = new Query(new Criteria("id").is(sub.getId()));
 				Update update = new Update();
