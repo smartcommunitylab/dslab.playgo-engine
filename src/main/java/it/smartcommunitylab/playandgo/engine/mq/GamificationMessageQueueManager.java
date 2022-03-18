@@ -79,7 +79,11 @@ public class GamificationMessageQueueManager {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
 			String type = (String) map.get("type");
-			String gameId = (String) map.get("gameId");
+			String gameId = null;
+			Map<String, Object> obj = (Map<String, Object>) map.get("obj");
+			if(obj != null) {
+				gameId = (String) obj.get("gameId");
+			}
 			if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
 				Campaign campaign = campaignRepository.findByGameId(gameId);
 				if(campaign != null) {

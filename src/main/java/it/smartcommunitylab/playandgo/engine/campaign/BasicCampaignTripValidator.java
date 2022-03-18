@@ -73,11 +73,13 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(msg.getTerritoryId(), 
 							track.getGeolocationEvents(), track.getFreeTrackingTransport(), track.getValidationResult().getValidationStatus(), track.getOverriddenDistances());
 					
-					playerTrack.setScoreStatus(ScoreStatus.COMPUTED);					
 					trackingData.put(TRAVEL_ID, track.getClientId());
 					trackingData.put(TRACK_ID, track.getId());
 					trackingData.put(START_TIME, getStartTime(track));
+					
 					playerTrack.setTrackingData(trackingData);
+					playerTrack.setScoreStatus(ScoreStatus.SENT);
+					playerTrack.setValid(true);
 					campaignPlayerTrackRepository.save(playerTrack);
 					
 					PlayerStatsTrack statsTrack = new PlayerStatsTrack();
@@ -94,7 +96,6 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					Date endTime = calendar.getTime();
 					statsTrack.setStartTime(startTime);
 					statsTrack.setEndTime(endTime);
-					// TODO set co2
 					playerStatsTrackRepository.save(statsTrack);
 					
 					Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);

@@ -7,5 +7,6 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 
 @Repository
 public interface CampaignPlayerTrackRepository extends MongoRepository<CampaignPlayerTrack, String> {
-
+	
+	public CampaignPlayerTrack findByPlayerIdAndCampaignIdAndTrackedInstanceId(String playerId, String campaignId, String trackedInstanceId);
 }

@@ -15,6 +15,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
+import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateTripRequest;
@@ -97,6 +98,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 						pTrack.setCampaignSubscriptionId(sub.getId());
 						pTrack.setTrackedInstanceId(track.getId());
 						pTrack.setTerritoryId(msg.getTerritoryId());
+						pTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
 						campaignPlayerTrackRepository.save(pTrack);
 						ValidateCampaignTripRequest request = new ValidateCampaignTripRequest(msg.getPlayerId(), 
 								msg.getTerritoryId(), track.getId(), sub.getCampaignId(), sub.getId(), pTrack.getId(), campaign.getType().toString());

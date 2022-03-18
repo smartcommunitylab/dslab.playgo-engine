@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CampaignPlayerTrack {
 	public enum ScoreStatus {
 		UNASSIGNED, COMPUTED, SENT, ASSIGNED
-	}	
-
+	}
+	
 	@Id
 	private String id;
 	
@@ -21,10 +21,12 @@ public class CampaignPlayerTrack {
 	private String trackedInstanceId;
 	private String territoryId;
 	
+	private Boolean valid = Boolean.FALSE;
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
-	private Long score;
+	private Double score;
 	
-	private Map<String, Object> trackingData = new HashMap<>();	
+	private Map<String, Object> trackingData = new HashMap<>();
+	
 	
 	public String getId() {
 		return id;
@@ -62,12 +64,6 @@ public class CampaignPlayerTrack {
 	public void setScoreStatus(ScoreStatus scoreStatus) {
 		this.scoreStatus = scoreStatus;
 	}
-	public Long getScore() {
-		return score;
-	}
-	public void setScore(Long score) {
-		this.score = score;
-	}
 	public String getTerritoryId() {
 		return territoryId;
 	}
@@ -79,6 +75,18 @@ public class CampaignPlayerTrack {
 	}
 	public void setTrackingData(Map<String, Object> trackingData) {
 		this.trackingData = trackingData;
+	}
+	public Boolean getValid() {
+		return valid;
+	}
+	public void setValid(Boolean valid) {
+		this.valid = valid;
+	}
+	public Double getScore() {
+		return score;
+	}
+	public void setScore(Double score) {
+		this.score = score;
 	}
 
 }
