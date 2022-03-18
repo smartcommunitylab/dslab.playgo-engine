@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
 
 public class PlayerStatus {
@@ -19,6 +20,8 @@ public class PlayerStatus {
 	private int activityDays;
 	private int travels;
 	private List<TransportStats> transportStatsList = new ArrayList<>();
+	private Territory territory;
+	private double co2;
 	
 	public String getPlayerId() {
 		return playerId;
@@ -61,5 +64,17 @@ public class PlayerStatus {
 	}
 	public void setTransportStatsList(List<TransportStats> transportStatsList) {
 		this.transportStatsList = transportStatsList;
+	}
+	public Territory getTerritory() {
+		return territory;
+	}
+	public void setTerritory(Territory territory) {
+		this.territory = territory;
+	}
+	public double getCo2() {
+		return co2;
+	}
+	public void setCo2(double co2) {
+		this.co2 = co2;
 	}
 }

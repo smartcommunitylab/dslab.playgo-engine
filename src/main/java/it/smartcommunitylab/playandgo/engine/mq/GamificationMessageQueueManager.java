@@ -76,6 +76,7 @@ public class GamificationMessageQueueManager {
 		
 		gameNotificationCallback = (consumerTag, delivery) -> {
 			String msg = new String(delivery.getBody(), "UTF-8");
+			@SuppressWarnings("unchecked")
 			Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
 			String type = (String) map.get("type");
 			String gameId = (String) map.get("gameId");

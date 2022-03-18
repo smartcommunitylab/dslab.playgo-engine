@@ -26,8 +26,10 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTrack;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
 @Component
 public class PlayerReportManager {
@@ -43,6 +45,9 @@ public class PlayerReportManager {
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
+	TerritoryRepository territoryRepository;
+	
+	@Autowired
 	PlayerRepository playerRepository;
 	
 	public PlayerStatus getPlayerStatus(Player player) {
@@ -50,6 +55,10 @@ public class PlayerReportManager {
 		status.setPlayerId(player.getPlayerId());
 		status.setNickname(player.getNickname());
 		status.setMail(player.getMail());
+		Territory territory = territoryRepository.findById(player.getTerritoryId()).orElse(null);
+		if(territory != null) {
+			status.setTerritory(territory);
+		}
 		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
 		if(campaign != null) {
 			CampaignSubscription campaignSubscription = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), player.getPlayerId());
@@ -64,6 +73,9 @@ public class PlayerReportManager {
 			AggregationResults<TransportStats> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTrack.class, TransportStats.class);
 			status.setTransportStatsList(aggregationResults.getMappedResults());
 			
+			//co2
+			status.setCo2(getSavedCo2(status.getTransportStatsList()));
+			
 			//total travels
 			Query query = new Query(new Criteria("playerId").is(player.getPlayerId()).and("campaignId").is(campaign.getCampaignId()));
 			long count = mongoTemplate.count(query, PlayerStatsTrack.class);
@@ -77,6 +89,11 @@ public class PlayerReportManager {
 			status.setActivityDays(aggregationResults2.getMappedResults().size());
 		}
 		return status;
+	}
+	
+	private double getSavedCo2(List<TransportStats> transportStatsList) {
+		// TODO calculate co2
+		return 0.0;
 	}
 	
 	public List<CampaignPlacing> getCampaignPlacingByTransportMode(String campaignId, String modeType, Date dateFrom, Date dateTo) {
