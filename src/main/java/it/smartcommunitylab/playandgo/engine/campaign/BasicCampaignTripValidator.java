@@ -89,6 +89,8 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					statsTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
 					statsTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
 					statsTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
+					statsTrack.setCo2(getSavedCo2(track.getValidationResult().getValidationStatus().getModeType().toString(), 
+							track.getValidationResult().getValidationStatus().getDistance()));
 					Date startTime = sdf.parse(track.getDay() + " " + track.getTime());
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(startTime);
@@ -111,6 +113,11 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		}
 	}
 	
+	private int getSavedCo2(String modeType, double distance) {
+		// TODO calculate co2
+		return 0;
+	}
+
 	private long getStartTime(TrackedInstance trackedInstance) throws ParseException {
 		long time = 0;
 		if (trackedInstance.getGeolocationEvents() != null && !trackedInstance.getGeolocationEvents().isEmpty()) {

@@ -3,16 +3,21 @@ package it.smartcommunitylab.playandgo.engine.model;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 @Document(collection="playerStatsTracks")
 public class PlayerStatsTrack {
 	@Id
 	private String id;
+	@Indexed
 	private String playerId;
+	@Indexed
 	private String campaignId;
 	private String trackedInstanceId;
 	private Date startTime;
 	private Date endTime;
+	@Indexed
 	private String modeType;
 	private double distance; // meters
 	private long duration; // seconds

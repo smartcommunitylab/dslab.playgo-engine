@@ -6,7 +6,7 @@ public class CampaignPlacing {
 	@Id
 	private String playerId;
 	private String nickname;
-	private double totalDistance;
+	private double value;
 	private int position;
 	
 	public String getPlayerId() {
@@ -14,12 +14,6 @@ public class CampaignPlacing {
 	}
 	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
-	}
-	public double getTotalDistance() {
-		return totalDistance;
-	}
-	public void setTotalDistance(double totalDistance) {
-		this.totalDistance = totalDistance;
 	}
 	public String getNickname() {
 		return nickname;
@@ -32,6 +26,12 @@ public class CampaignPlacing {
 	}
 	public void setPosition(int position) {
 		this.position = position;
+	}
+	public double getValue() {
+		return value;
+	}
+	public void setValue(double value) {
+		this.value = value;
 	}
 	
 }
