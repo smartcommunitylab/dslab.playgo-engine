@@ -41,7 +41,7 @@ backend-container-build:
     name: $CI_COMMIT_REF_NAME
   script:
     - docker login -u $DHUB_USER -p $DHUB_PASS
-    - DOCKER_BUILDKIT=1 docker build -f Dockerfile -t $CONTAINER_IMAGE -t $CONTAINER_IMAGE_LATEST .
+    - DOCKER_BUILDKIT=1 docker build -f Dockerfile --build-arg VER=1.0 -t $CONTAINER_IMAGE -t $CONTAINER_IMAGE_LATEST .
     - docker push $CONTAINER_IMAGE
     - docker push $CONTAINER_IMAGE_LATEST
   only:
