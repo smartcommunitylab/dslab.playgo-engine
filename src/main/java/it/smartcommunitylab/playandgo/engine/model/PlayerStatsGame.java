@@ -2,7 +2,9 @@ package it.smartcommunitylab.playandgo.engine.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,8 +18,8 @@ public class PlayerStatsGame {
 	private Date updateTime;
 	private double score;
 	private double weeklyScore;
-	private int level;
-	private int pointToNextLevel;
+	private double previousWeeklyScore;
+	private Map<String, Object> level = new HashMap<>(); 
 	private List<Object> challenges = new ArrayList<>();
 	private List<Object> badges = new ArrayList<>();
 	
@@ -57,18 +59,6 @@ public class PlayerStatsGame {
 	public void setWeeklyScore(double weeklyScore) {
 		this.weeklyScore = weeklyScore;
 	}
-	public int getLevel() {
-		return level;
-	}
-	public void setLevel(int level) {
-		this.level = level;
-	}
-	public int getPointToNextLevel() {
-		return pointToNextLevel;
-	}
-	public void setPointToNextLevel(int pointToNextLevel) {
-		this.pointToNextLevel = pointToNextLevel;
-	}
 	public List<Object> getChallenges() {
 		return challenges;
 	}
@@ -80,6 +70,18 @@ public class PlayerStatsGame {
 	}
 	public void setBadges(List<Object> badges) {
 		this.badges = badges;
+	}
+	public double getPreviousWeeklyScore() {
+		return previousWeeklyScore;
+	}
+	public void setPreviousWeeklyScore(double previousWeeklyScore) {
+		this.previousWeeklyScore = previousWeeklyScore;
+	}
+	public Map<String, Object> getLevel() {
+		return level;
+	}
+	public void setLevel(Map<String, Object> level) {
+		this.level = level;
 	}
 	
 }

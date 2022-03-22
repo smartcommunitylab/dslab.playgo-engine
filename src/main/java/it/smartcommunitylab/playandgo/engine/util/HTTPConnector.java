@@ -31,6 +31,24 @@ import it.smartcommunitylab.playandgo.engine.exception.ConnectorException;
 
 public class HTTPConnector {
 	
+	public static String doBasicAuthenticationGet(String address, String accept, String contentType, String user, String password) throws Exception {
+		RestTemplate restTemplate = buildRestTemplate();
+
+		String s = user + ":" + password;
+		byte[] b = Base64.encodeBase64(s.getBytes());
+		String es = new String(b);
+		
+		ResponseEntity<String> res = restTemplate.exchange(address, HttpMethod.GET, new HttpEntity<Object>(null, createHeaders(
+				MapUtils.putAll(new TreeMap<String, String>(), new String[][] {{"Accept", accept}, {"Content-Type", contentType}, 
+					{"Authorization", "Basic " + es}}))), String.class);
+
+		if (!res.getStatusCode().is2xxSuccessful()) {
+			throw new ConnectorException("Failed : HTTP error code : " + res.getStatusCode(), res.getStatusCode().value());
+		}
+
+		return res.getBody();		
+	}
+	
 	public static String doBasicAuthenticationPost(String address, String req, String accept, String contentType, String user, String password) throws Exception {
 		RestTemplate restTemplate = buildRestTemplate();
 

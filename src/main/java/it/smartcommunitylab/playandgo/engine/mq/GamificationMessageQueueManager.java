@@ -52,6 +52,7 @@ public class GamificationMessageQueueManager {
 	CampaignRepository campaignRepository;
 	
 	Channel channel;
+	
 	ObjectMapper mapper = new ObjectMapper();
 	
 	Map<String, ManageGameNotification> manageGameNotificationMap = new HashMap<>();
@@ -80,6 +81,7 @@ public class GamificationMessageQueueManager {
 			Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
 			String type = (String) map.get("type");
 			String gameId = null;
+			@SuppressWarnings("unchecked")
 			Map<String, Object> obj = (Map<String, Object>) map.get("obj");
 			if(obj != null) {
 				gameId = (String) obj.get("gameId");

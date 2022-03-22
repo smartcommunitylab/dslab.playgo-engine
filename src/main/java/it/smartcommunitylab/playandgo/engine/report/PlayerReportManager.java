@@ -113,7 +113,7 @@ public class PlayerReportManager {
 		MatchOperation matchOperation = Aggregation.match(new Criteria("pst.campaignId").is(campaignId)
 				.and("pst.modeType").is(modeType)
 				.and("pst.startTime").gt(dateFrom).and("pst.endTime").lt(dateTo));
-		GroupOperation groupOperation = Aggregation.group("pst.playerId").sum("pst.distance").as("value");
+		GroupOperation groupOperation = Aggregation.group("playerId").sum("pst.distance").as("value");
 		SortOperation sortByPopDesc = Aggregation.sort(Sort.by(Direction.DESC, "value"));
 		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
 		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());

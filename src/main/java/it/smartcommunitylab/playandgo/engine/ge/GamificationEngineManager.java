@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import it.smartcommunitylab.playandgo.engine.util.HTTPConnector;
 import it.smartcommunitylab.playandgo.engine.util.JsonUtils;
 
@@ -26,6 +29,8 @@ public class GamificationEngineManager {
 	
 	@Value("${gamification.password}")
 	private String gamificationPassword;
+	
+	ObjectMapper mapper = new ObjectMapper();
 	
 	public void sendSaveItineraryAction(String playerId, String gameId, Map<String, Object> trackingData) {
 		try {
@@ -46,6 +51,19 @@ public class GamificationEngineManager {
 		} catch (Exception e) {
 			logger.error("Error sending gamification action: " + e.getMessage());
 		}		
+	}
+	
+	public JsonNode getPlayerStatus(String gameId, String playerId) {
+		try {
+			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId;
+			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+					gamificationUser, gamificationPassword);
+			JsonNode jsonNode = mapper.readTree(json);
+			return jsonNode;
+		} catch (Exception e) {
+			logger.error(String.format("getPlayerStatus error: %s - %s - %s", gameId, playerId, e.getMessage()));
+		}
+		return null;
 	}
 
 
