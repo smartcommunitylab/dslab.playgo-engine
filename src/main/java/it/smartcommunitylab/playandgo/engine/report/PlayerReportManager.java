@@ -109,10 +109,13 @@ public class PlayerReportManager {
 	
 	public Page<CampaignPlacing> getCampaignPlacingByTransportMode(String campaignId, String modeType, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		LookupOperation lookupOperation = Aggregation.lookup("playerStatsTracks", "_id", "playerId", "pst");
-		UnwindOperation unwindOperation = Aggregation.unwind("pst");
-		MatchOperation matchOperation = Aggregation.match(new Criteria("pst.campaignId").is(campaignId)
+		UnwindOperation unwindOperation = Aggregation.unwind("pst", true);
+		MatchOperation matchOperation = Aggregation.match(new Criteria().orOperator(
+				Criteria.where("pst.campaignId").is(campaignId)
 				.and("pst.modeType").is(modeType)
-				.and("pst.startTime").gt(dateFrom).and("pst.endTime").lt(dateTo));
+				.and("pst.startTime").gt(dateFrom).and("pst.endTime").lt(dateTo),
+				Criteria.where("pst").exists(false)
+		));
 		GroupOperation groupOperation = Aggregation.group("playerId").sum("pst.distance").as("value");
 		SortOperation sortByPopDesc = Aggregation.sort(Sort.by(Direction.DESC, "value"));
 		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
@@ -134,11 +137,12 @@ public class PlayerReportManager {
 	}
 	
 	public long countDistincPlayers() {
-		GroupOperation groupOperation = Aggregation.group("playerId");
-		CountOperation countOperation = Aggregation.count().as("total");
-		Aggregation aggregation = Aggregation.newAggregation(groupOperation, countOperation);
-		Document document = mongoTemplate.aggregate(aggregation, Player.class, Document.class).getUniqueMappedResult();
-		return document.getInteger("total");
+		return playerRepository.count();
+//		GroupOperation groupOperation = Aggregation.group("playerId");
+//		CountOperation countOperation = Aggregation.count().as("total");
+//		Aggregation aggregation = Aggregation.newAggregation(groupOperation, countOperation);
+//		Document document = mongoTemplate.aggregate(aggregation, Player.class, Document.class).getUniqueMappedResult();
+//		return document.getInteger("total");
 	}
 	
 	public CampaignPlacing getCampaignPlacingByPlayerAndTransportMode(String playerId, String campaignId, String modeType, Date dateFrom, Date dateTo) {
