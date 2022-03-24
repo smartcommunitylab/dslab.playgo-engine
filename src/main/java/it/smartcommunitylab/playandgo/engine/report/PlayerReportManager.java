@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.report;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -57,6 +58,8 @@ public class PlayerReportManager {
 	@Autowired
 	PlayerRepository playerRepository;
 	
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
 	public PlayerStatus getPlayerStatus(Player player) {
 		PlayerStatus status = new PlayerStatus();
 		status.setPlayerId(player.getPlayerId());
@@ -107,19 +110,38 @@ public class PlayerReportManager {
 	}
 	
 	public Page<CampaignPlacing> getCampaignPlacingByTransportMode(String campaignId, String modeType, Date dateFrom, Date dateTo, Pageable pageRequest) {
-		LookupOperation lookupOperation = Aggregation.lookup("playerStatsTracks", "_id", "playerId", "pst");
+		
+		String lookupQuery = "{$lookup: {"
+				+ " from: 'playerStatsTracks',"
+				+ " localField: '_id',"
+				+ " foreignField: 'playerId',"
+				+ " pipeline: [{"
+				+ "   $match: {"
+				+ "    campaignId: '" + campaignId + "',"
+				+ "    modeType: '" + modeType + "',"
+				+ "    startTime: {"
+				+ "      $gt: ISODate('" + sdf.format(dateFrom) + "'),"
+				+ "      $lt: ISODate('" + sdf.format(dateTo) + "')" 
+				+ "    }"
+				+ "   }"
+				+ " }],"
+				+ " as: 'pst'"
+				+ "}}";
+		
+		//LookupOperation lookupOperation = Aggregation.lookup("playerStatsTracks", "_id", "playerId", "pst");
+		CustomCampaignPlacingLookupAggregationOperation lookupOperation = new CustomCampaignPlacingLookupAggregationOperation(lookupQuery);
 		UnwindOperation unwindOperation = Aggregation.unwind("pst", true);
-		MatchOperation matchOperation = Aggregation.match(new Criteria().orOperator(
-				Criteria.where("pst.campaignId").is(campaignId)
-				.and("pst.modeType").is(modeType)
-				.and("pst.startTime").gt(dateFrom).and("pst.endTime").lt(dateTo),
-				Criteria.where("pst").exists(false)
-		));
+//		MatchOperation matchOperation = Aggregation.match(new Criteria().orOperator(
+//				Criteria.where("pst.campaignId").is(campaignId)
+//				.and("pst.modeType").is(modeType)
+//				.and("pst.startTime").gt(dateFrom).and("pst.endTime").lt(dateTo),
+//				Criteria.where("pst").exists(false)
+//		));
 		GroupOperation groupOperation = Aggregation.group("playerId").sum("pst.distance").as("value");
-		SortOperation sortByPopDesc = Aggregation.sort(Sort.by(Direction.DESC, "value"));
+		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "value"));
 		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
 		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
-		Aggregation aggregation = Aggregation.newAggregation(lookupOperation, unwindOperation, matchOperation, groupOperation, sortByPopDesc, 
+		Aggregation aggregation = Aggregation.newAggregation(lookupOperation, unwindOperation, groupOperation, sortOperation, 
 				skipOperation, limitOperation);
 		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, Player.class, CampaignPlacing.class);
 		List<CampaignPlacing> list = aggregationResults.getMappedResults();
@@ -137,11 +159,6 @@ public class PlayerReportManager {
 	
 	public long countDistincPlayers() {
 		return playerRepository.count();
-//		GroupOperation groupOperation = Aggregation.group("playerId");
-//		CountOperation countOperation = Aggregation.count().as("total");
-//		Aggregation aggregation = Aggregation.newAggregation(groupOperation, countOperation);
-//		Document document = mongoTemplate.aggregate(aggregation, Player.class, Document.class).getUniqueMappedResult();
-//		return document.getInteger("total");
 	}
 	
 	public CampaignPlacing getCampaignPlacingByPlayerAndTransportMode(String playerId, String campaignId, String modeType, Date dateFrom, Date dateTo) {
