@@ -1,5 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.config;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -11,10 +14,14 @@ import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.Contact;
+import springfox.documentation.service.HttpAuthenticationScheme;
+import springfox.documentation.service.SecurityReference;
+import springfox.documentation.service.SecurityScheme;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /*
  * extend WebMvcConfigurerAdapter and not use annotation @EnableMvc to permit correct static
@@ -22,7 +29,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableWebMvc
-@EnableSwagger2
 public class AppConfig implements WebMvcConfigurer {
 	
 	@Override
@@ -45,12 +51,35 @@ public class AppConfig implements WebMvcConfigurer {
 	
 	@Bean
 	public Docket api() {
-		return new Docket(DocumentationType.SWAGGER_2).groupName("api").select()
+		return new Docket(DocumentationType.OAS_30).select()
 				.apis(RequestHandlerSelectors.basePackage("it.smartcommunitylab.playandgo.engine.controller"))
-				.paths(PathSelectors.ant("/api/**"))
+				.paths(PathSelectors.ant("/**/api/**"))
 				.build()
-				.apiInfo(apiInfo());
+				.apiInfo(apiInfo())
+				.securitySchemes(Arrays.asList(securitySchema()))
+				.securityContexts(Arrays.asList(securityContext()));
 	}
+	
+	private SecurityScheme securitySchema() {
+		return HttpAuthenticationScheme.JWT_BEARER_BUILDER
+	            .name("JWT")
+	            .build();		
+	}
+	
+    private SecurityContext securityContext() {
+        return SecurityContext.builder()
+            .securityReferences(defaultAuth())
+            .build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope
+            = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return Arrays.asList(
+            new SecurityReference("JWT", authorizationScopes));
+    }
 	
 	private ApiInfo apiInfo() {
     return new ApiInfoBuilder()
