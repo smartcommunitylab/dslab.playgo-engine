@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LimitOperation;
-import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SkipOperation;
@@ -109,8 +108,7 @@ public class PlayerReportManager {
 		return co2;
 	}
 	
-	public Page<CampaignPlacing> getCampaignPlacingByTransportMode(String campaignId, String modeType, Date dateFrom, Date dateTo, Pageable pageRequest) {
-		
+	public Page<CampaignPlacing> getCampaignPlacingByTransportModeFull(String campaignId, String modeType, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		String lookupQuery = "{$lookup: {"
 				+ " from: 'playerStatsTracks',"
 				+ " localField: '_id',"
@@ -127,16 +125,8 @@ public class PlayerReportManager {
 				+ " }],"
 				+ " as: 'pst'"
 				+ "}}";
-		
-		//LookupOperation lookupOperation = Aggregation.lookup("playerStatsTracks", "_id", "playerId", "pst");
-		CustomCampaignPlacingLookupAggregationOperation lookupOperation = new CustomCampaignPlacingLookupAggregationOperation(lookupQuery);
+		CustomAggregationOperation lookupOperation = new CustomAggregationOperation(lookupQuery);
 		UnwindOperation unwindOperation = Aggregation.unwind("pst", true);
-//		MatchOperation matchOperation = Aggregation.match(new Criteria().orOperator(
-//				Criteria.where("pst.campaignId").is(campaignId)
-//				.and("pst.modeType").is(modeType)
-//				.and("pst.startTime").gt(dateFrom).and("pst.endTime").lt(dateTo),
-//				Criteria.where("pst").exists(false)
-//		));
 		GroupOperation groupOperation = Aggregation.group("playerId").sum("pst.distance").as("value");
 		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "value"));
 		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
@@ -157,6 +147,29 @@ public class PlayerReportManager {
 		return new PageImpl<>(list, pageRequest, countDistincPlayers());
 	}
 	
+	public Page<CampaignPlacing> getCampaignPlacingByTransportMode(String campaignId, String modeType, Date dateFrom, Date dateTo, Pageable pageRequest) {
+		MatchOperation matchOperation = Aggregation.match(new Criteria("campaignId").is(campaignId).and("modeType").is(modeType)
+				.andOperator(Criteria.where("startTime").gt(dateFrom), Criteria.where("startTime").lt(dateTo)));
+		GroupOperation groupOperation = Aggregation.group("playerId").sum("distance").as("value");
+		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "value"));
+		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
+		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, 
+				skipOperation, limitOperation);
+		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTrack.class, CampaignPlacing.class);
+		List<CampaignPlacing> list = aggregationResults.getMappedResults();
+		int index = 0;
+		for(CampaignPlacing cp : list) {
+			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
+			if(player != null) {
+				cp.setNickname(player.getNickname());
+			}
+			cp.setPosition(index + 1);
+			index++;
+		}
+		return new PageImpl<>(list, pageRequest, countDistincPlayers());
+	}
+	
 	public long countDistincPlayers() {
 		return playerRepository.count();
 	}
@@ -164,7 +177,7 @@ public class PlayerReportManager {
 	public CampaignPlacing getCampaignPlacingByPlayerAndTransportMode(String playerId, String campaignId, String modeType, Date dateFrom, Date dateTo) {
 		//get player score
 		MatchOperation matchOperation = Aggregation.match(new Criteria("campaignId").is(campaignId).and("modeType").is(modeType)
-				.and("playerId").is(playerId).and("startTime").gt(dateFrom).and("endTime").lt(dateTo));
+				.and("playerId").is(playerId).andOperator(Criteria.where("startTime").gt(dateFrom), Criteria.where("startTime").lt(dateTo)));
 		GroupOperation groupOperation = Aggregation.group("playerId").sum("distance").as("value");
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
 		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTrack.class, CampaignPlacing.class);
@@ -175,7 +188,7 @@ public class PlayerReportManager {
 		}
 		//get player position
 		MatchOperation matchModeAndTime = Aggregation.match(new Criteria("campaignId").is(campaignId).and("modeType").is(modeType)
-				.and("startTime").gt(dateFrom).and("endTime").lt(dateTo));
+				.and("startTime").gt(dateFrom).and("startTime").lt(dateTo));
 		GroupOperation groupByPlayer = Aggregation.group("playerId").sum("distance").as("value");
 		MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
 		Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);

@@ -4,10 +4,10 @@ import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperationContext;
 
-public class CustomCampaignPlacingLookupAggregationOperation implements AggregationOperation {
+public class CustomAggregationOperation implements AggregationOperation {
 	private String jsonOperation;
     
-	public CustomCampaignPlacingLookupAggregationOperation(String jsonOperation) {
+	public CustomAggregationOperation(String jsonOperation) {
         this.jsonOperation = jsonOperation;
     }
 	

@@ -15,6 +15,7 @@ public class PlayerStatsTrack {
 	@Indexed
 	private String campaignId;
 	private String trackedInstanceId;
+	@Indexed
 	private Date startTime;
 	private Date endTime;
 	@Indexed
