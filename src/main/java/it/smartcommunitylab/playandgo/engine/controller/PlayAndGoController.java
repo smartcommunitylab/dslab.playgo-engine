@@ -54,6 +54,12 @@ public class PlayAndGoController {
 		return player;
 	}
 	
+	public Player getCurrentPlayerOrNUll(HttpServletRequest request) throws UnauthorizedException {
+		String subject = getCurrentSubject(request);		
+		Player player = playerRepository.findById(subject).orElse(null);
+		return player;
+	}	
+	
 	public void checkAdminRole(HttpServletRequest request) throws UnauthorizedException {
 		Player player = getCurrentPlayer(request);
 		PlayerRole r = playerRoleRepository.findByPlayerIdAndRole(player.getPlayerId(), Role.admin);

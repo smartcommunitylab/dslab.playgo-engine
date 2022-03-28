@@ -62,7 +62,7 @@ public class PlayerController extends PlayAndGoController {
 	@GetMapping("/api/player/profile")
 	public Player getProfile(
 			HttpServletRequest request) throws Exception {
-		return getCurrentPlayer(request);
+		return getCurrentPlayerOrNUll(request);
 	}
 	
 	@PutMapping("/api/player/profile")
