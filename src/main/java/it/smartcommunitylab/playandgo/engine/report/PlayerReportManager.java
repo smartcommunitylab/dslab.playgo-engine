@@ -135,7 +135,7 @@ public class PlayerReportManager {
 				skipOperation, limitOperation);
 		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, Player.class, CampaignPlacing.class);
 		List<CampaignPlacing> list = aggregationResults.getMappedResults();
-		int index = 0;
+		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
 		for(CampaignPlacing cp : list) {
 			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
 			if(player != null) {
@@ -158,7 +158,7 @@ public class PlayerReportManager {
 				skipOperation, limitOperation);
 		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTrack.class, CampaignPlacing.class);
 		List<CampaignPlacing> list = aggregationResults.getMappedResults();
-		int index = 0;
+		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
 		for(CampaignPlacing cp : list) {
 			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
 			if(player != null) {
@@ -188,7 +188,7 @@ public class PlayerReportManager {
 		}
 		//get player position
 		MatchOperation matchModeAndTime = Aggregation.match(new Criteria("campaignId").is(campaignId).and("modeType").is(modeType)
-				.and("startTime").gt(dateFrom).and("startTime").lt(dateTo));
+				.andOperator(Criteria.where("startTime").gt(dateFrom), Criteria.where("startTime").lt(dateTo)));
 		GroupOperation groupByPlayer = Aggregation.group("playerId").sum("distance").as("value");
 		MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
 		Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
