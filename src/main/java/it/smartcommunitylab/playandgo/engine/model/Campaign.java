@@ -34,6 +34,7 @@ public class Campaign {
 	private String gameId;
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;
+	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
 	
 	private String webPageUrl;
 	private String privacyUrl;
@@ -178,6 +179,14 @@ public class Campaign {
 
 	public void setCommunications(Boolean communications) {
 		this.communications = communications;
+	}
+
+	public int getStartDayOfWeek() {
+		return startDayOfWeek;
+	}
+
+	public void setStartDayOfWeek(int startDayOfWeek) {
+		this.startDayOfWeek = startDayOfWeek;
 	}
 
 }

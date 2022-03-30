@@ -1,7 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,15 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
-import it.smartcommunitylab.playandgo.engine.report.PlayerReportManager;
+import it.smartcommunitylab.playandgo.engine.report.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
 public class ReportController extends PlayAndGoController {
 	private static transient final Logger logger = LoggerFactory.getLogger(ReportController.class);
 	
 	@Autowired
-	PlayerReportManager playerReportManager;
+	PlayerCampaignPlacingManager playerReportManager;
 	
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -39,14 +40,16 @@ public class ReportController extends PlayAndGoController {
 	@GetMapping("/api/report/campaign/placing/transport")
 	public Page<CampaignPlacing> getCampaingPlacingByTransportMode(
 			@RequestParam String campaignId,
-			@RequestParam String modeType,
-			@RequestParam String dateFrom,
-			@RequestParam String dateTo,
+			@RequestParam String scoreType,
+			@RequestParam boolean global,
+			@RequestParam(required = false) String weeklyDay,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
-		Date dateFromDate = sdf.parse(dateFrom);
-		Date dateToDate = sdf.parse(dateTo);
-		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportMode(campaignId, modeType, dateFromDate, dateToDate, pageRequest);
+		LocalDate weeklyDayDate = null;
+		if(Utils.isNotEmpty(weeklyDay)) {
+			weeklyDayDate = LocalDate.parse(weeklyDay);
+		}		
+		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportMode(campaignId, scoreType, global, weeklyDayDate, pageRequest);
 		return page;			
 	}
 	
@@ -54,13 +57,15 @@ public class ReportController extends PlayAndGoController {
 	public CampaignPlacing getPlayerCampaingPlacingByTransportMode(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
-			@RequestParam String modeType,
-			@RequestParam String dateFrom,
-			@RequestParam String dateTo,
+			@RequestParam String scoreType,
+			@RequestParam boolean global,
+			@RequestParam(required = false) String weeklyDay,
 			HttpServletRequest request) throws Exception {
-		Date dateFromDate = sdf.parse(dateFrom);
-		Date dateToDate = sdf.parse(dateTo);
-		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayerAndTransportMode(playerId, campaignId, modeType, dateFromDate, dateToDate);
+		LocalDate weeklyDayDate = null;
+		if(Utils.isNotEmpty(weeklyDay)) {
+			weeklyDayDate = LocalDate.parse(weeklyDay);
+		}
+		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayerAndTransportMode(playerId, campaignId, scoreType, global, weeklyDayDate);
 		return placing;
 	}
 	

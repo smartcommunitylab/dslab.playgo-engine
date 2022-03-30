@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
+import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
@@ -70,7 +70,7 @@ public class CampaignController extends PlayAndGoController {
 	}
 	
 	@GetMapping("/api/campaign/my")
-	public List<PlayerCampaignDTO> getMyCampaigns(
+	public List<PlayerCampaign> getMyCampaigns(
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		return campaignManager.getPlayerCampaigns(player.getPlayerId());

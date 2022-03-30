@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
@@ -39,6 +40,8 @@ public class TrackedInstance {
 
 	@Indexed
 	private String day;
+	
+	private Date startTime; 
 	
 	private ValidationResult validationResult;
 	
@@ -250,6 +253,14 @@ public class TrackedInstance {
 
 	public void setValidating(Boolean validating) {
 		this.validating = validating;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
 	}
 	
 }

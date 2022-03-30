@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
-import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaignDTO;
+import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
@@ -139,13 +139,13 @@ public class CampaignManager {
 		}
 	}
 	
-	public List<PlayerCampaignDTO> getPlayerCampaigns(String playerId) {
-		List<PlayerCampaignDTO> result = new ArrayList<>();
+	public List<PlayerCampaign> getPlayerCampaigns(String playerId) {
+		List<PlayerCampaign> result = new ArrayList<>();
 		List<CampaignSubscription> campaigns = campaignSubscriptionRepository.findByPlayerId(playerId);
 		for(CampaignSubscription sub : campaigns) {
 			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
 			if(campaign != null) {
-				PlayerCampaignDTO dto = new PlayerCampaignDTO(campaign, sub);
+				PlayerCampaign dto = new PlayerCampaign(campaign, sub);
 				result.add(dto);
 			}
 		}

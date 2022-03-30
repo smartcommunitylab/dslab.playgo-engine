@@ -100,21 +100,21 @@ public class PlayAndGoController {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public @ResponseBody ErrorInfo badRequest(HttpServletRequest req, Exception e) {
 		logger.error("Bad request: " + e.getMessage());
-		return new ErrorInfo(req.getRequestURL().toString(), e);
+		return new ErrorInfo(req.getRequestURL().toString(), null, e);
 	}	
 	
 	@ExceptionHandler(UnauthorizedException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public @ResponseBody ErrorInfo unauthorized(HttpServletRequest req, Exception e) {
 		logger.error("Unauthorized: " + e.getMessage());
-		return new ErrorInfo(req.getRequestURL().toString(), e);
+		return new ErrorInfo(req.getRequestURL().toString(), null, e);
 	}	
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public @ResponseBody ErrorInfo internalServerError(HttpServletRequest req, Exception e) {
 		logger.error("Internal Server Error", e);
-		return new ErrorInfo(req.getRequestURL().toString(), e);
+		return new ErrorInfo(req.getRequestURL().toString(), null, e);
 	}		
 	
 	

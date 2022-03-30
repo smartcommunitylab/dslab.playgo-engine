@@ -316,6 +316,7 @@ public class GeolocationsProcessor {
 			res.setClientId(travelId);
 			res.setDay(day);
 			res.setTime(time);
+			res.setStartTime(fullSdf.parse(day + " " + time));
 			res.setUserId(userId);
 			res.setId(ObjectId.get().toString());
 			if (travelId.contains("_temporary_")) {

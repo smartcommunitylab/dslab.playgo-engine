@@ -7,13 +7,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="playerStatsGames")
 public class PlayerStatsGame {
 	@Id
 	private String id;
+	@Indexed
 	private String playerId;
+	@Indexed
 	private String campaignId;
 	private Date updateTime;
 	private double score;

@@ -3,13 +3,13 @@ package it.smartcommunitylab.playandgo.engine.dto;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 
-public class PlayerCampaignDTO {
+public class PlayerCampaign {
 	private Campaign campaign;
 	private CampaignSubscription subscription;
 	
-	public PlayerCampaignDTO() {}
+	public PlayerCampaign() {}
 	
-	public PlayerCampaignDTO(Campaign campaign, CampaignSubscription subscription) {
+	public PlayerCampaign(Campaign campaign, CampaignSubscription subscription) {
 		this.campaign = campaign;
 		this.subscription = subscription;
 	}

@@ -17,14 +17,15 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTrack;
+import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
+import it.smartcommunitylab.playandgo.engine.report.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
-import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTrackRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
@@ -53,15 +54,18 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	CampaignRepository campaignRepository;
 	
 	@Autowired
-	PlayerStatsTrackRepository playerStatsTrackRepository;
+	PlayerStatsTransportRepository playerStatsTrackRepository;
 	
 	@Autowired
 	ValidationService validationService;
 	
 	@Autowired
+	PlayerCampaignPlacingManager playerReportManager;
+	
+	@Autowired
 	GamificationEngineManager gamificationEngineManager;
 	
-	SimpleDateFormat sdf = new SimpleDateFormat("YYYY/MM/dd HH:mm");
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 	
 	@Override
 	public void validateTripRequest(ValidateCampaignTripRequest msg) {
@@ -80,25 +84,21 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					playerTrack.setTrackingData(trackingData);
 					playerTrack.setScoreStatus(ScoreStatus.SENT);
 					playerTrack.setValid(true);
-					campaignPlayerTrackRepository.save(playerTrack);
-					
-					PlayerStatsTrack statsTrack = new PlayerStatsTrack();
-					statsTrack.setPlayerId(playerTrack.getPlayerId());
-					statsTrack.setCampaignId(playerTrack.getCampaignId());
-					statsTrack.setTrackedInstanceId(playerTrack.getTrackedInstanceId());
-					statsTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
-					statsTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
-					statsTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
-					statsTrack.setCo2(getSavedCo2(track.getValidationResult().getValidationStatus().getModeType().toString(), 
+					playerTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+					playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
+					playerTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
+					playerTrack.setCo2(getSavedCo2(track.getValidationResult().getValidationStatus().getModeType().toString(), 
 							track.getValidationResult().getValidationStatus().getDistance()));
 					Date startTime = sdf.parse(track.getDay() + " " + track.getTime());
 					Calendar calendar = Calendar.getInstance();
 					calendar.setTime(startTime);
 					calendar.add(Calendar.SECOND, (int) track.getValidationResult().getValidationStatus().getDuration());
 					Date endTime = calendar.getTime();
-					statsTrack.setStartTime(startTime);
-					statsTrack.setEndTime(endTime);
-					playerStatsTrackRepository.save(statsTrack);
+					playerTrack.setStartTime(startTime);
+					playerTrack.setEndTime(endTime);
+					campaignPlayerTrackRepository.save(playerTrack);
+					
+					playerReportManager.updatePlayerCampaignPlacings(playerTrack);
 					
 					Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 					if(campaign != null) {
