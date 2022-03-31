@@ -3,7 +3,6 @@ package it.smartcommunitylab.playandgo.engine.controller;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -73,10 +72,10 @@ public class DevController extends PlayAndGoController {
 				PlayerStatsTransport ps = new PlayerStatsTransport();
 				ps.setPlayerId(playerId);
 				ps.setCampaignId("TAA.test1");
-				String scoreType = modeTypes[RANDOM.nextInt(modeTypes.length)];
-				String trackId = playerId + "_" + scoreType + "_" + j;
-				ps.setScoreType(scoreType);
-				ps.setScore(rangeMin + (rangeMax - rangeMin) * RANDOM.nextDouble());
+				String modeType = modeTypes[RANDOM.nextInt(modeTypes.length)];
+				String trackId = playerId + "_" + modeType + "_" + j;
+				ps.setModeType(modeType);
+				ps.setDistance(rangeMin + (rangeMax - rangeMin) * RANDOM.nextDouble());
 				ps.setGlobal(false);
 				ps.setWeeklyDay(weeklyDay);
 				list.add(ps);
@@ -89,16 +88,7 @@ public class DevController extends PlayAndGoController {
 	@GetMapping("/api/dev/test/campaign/placing")
 	public void testCampaignPlacingByTransportMode(HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
-		Date dateFrom = sdf.parse("2022-01-01 00.00");
-		Date dateTo = sdf.parse("2023-01-01 00.00");
 		LocalDate weeklyDay = LocalDate.parse("2022-03-28");
-//		for(String modeType : modeTypes) {
-//			long startTime = System.currentTimeMillis();
-//			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportModeFull("TAA.test1", modeType, dateFrom, dateTo, PageRequest.of(5, 10));
-//			long endTime = System.currentTimeMillis();
-//			logger.info(String.format("query1 [%s]: %s - %s", modeType, page.getSize(), (endTime - startTime)));
-//		}
-		
 		for(String modeType : modeTypes) {
 			long startTime = System.currentTimeMillis();
 			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportMode("TAA.test1", modeType, false, weeklyDay, PageRequest.of(10, 10));

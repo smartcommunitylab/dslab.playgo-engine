@@ -18,7 +18,7 @@ public class PlayerStatus {
 	@JsonDeserialize(using = LocalDateDeserializer.class)	
 	private LocalDate registrationDate;
 	private int activityDays;
-	private int travels;
+	private long travels;
 	private List<TransportStats> transportStatsList = new ArrayList<>();
 	private Territory territory;
 	private double co2;
@@ -53,10 +53,10 @@ public class PlayerStatus {
 	public void setActivityDays(int activityDays) {
 		this.activityDays = activityDays;
 	}
-	public int getTravels() {
+	public long getTravels() {
 		return travels;
 	}
-	public void setTravels(int travels) {
+	public void setTravels(long travels) {
 		this.travels = travels;
 	}
 	public List<TransportStats> getTransportStatsList() {

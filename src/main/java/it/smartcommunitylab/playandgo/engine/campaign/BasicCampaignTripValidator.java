@@ -17,7 +17,6 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;

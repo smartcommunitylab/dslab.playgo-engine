@@ -34,7 +34,7 @@ public class CampaignPlayerTrack {
 	private String modeType;
 	private double distance; // meters
 	private long duration; // seconds
-	private int co2;	
+	private double co2;	
 	
 	private Map<String, Object> trackingData = new HashMap<>();
 	
@@ -129,10 +129,10 @@ public class CampaignPlayerTrack {
 	public void setDuration(long duration) {
 		this.duration = duration;
 	}
-	public int getCo2() {
+	public double getCo2() {
 		return co2;
 	}
-	public void setCo2(int co2) {
+	public void setCo2(double co2) {
 		this.co2 = co2;
 	}
 
