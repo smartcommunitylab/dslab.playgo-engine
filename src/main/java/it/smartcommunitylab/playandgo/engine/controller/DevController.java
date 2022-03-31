@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,8 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.smartcommunitylab.playandgo.engine.influxdb.InfluxDbManager;
-import it.smartcommunitylab.playandgo.engine.influxdb.PlayerStatsTrackMeasurement;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
@@ -49,9 +46,6 @@ public class DevController extends PlayAndGoController {
 	
 	@Autowired
 	PlayerCampaignPlacingManager playerReportManager;
-	
-	@Autowired
-	InfluxDbManager influxDbManager;
 	
 	static final Random RANDOM = new Random();
 	
@@ -92,31 +86,6 @@ public class DevController extends PlayAndGoController {
 		}
 	}
 	
-	@PostMapping("/api/dev/tracks/influxdb")
-	public void addTracksInfluxDb(HttpServletRequest request) throws Exception {
-		checkAdminRole(request);
-		Date fromDate = sdf.parse("2022-02-05 13.20");
-		Date toDate = sdf.parse("2022-02-05 13.35");
-		for(int i = 0; i < players; i++) {
-			String playerId = "p_" + i;
-			List<PlayerStatsTrackMeasurement> list = new ArrayList<>();
-			for(int j = 0; j < tracks; j++) {
-				PlayerStatsTrackMeasurement ps = new PlayerStatsTrackMeasurement();
-				ps.setPlayerId(playerId);
-				ps.setCampaignId("TAA.test1");
-				String modeType = modeTypes[RANDOM.nextInt(modeTypes.length)];
-				ps.setModeType(modeType);
-				String trackId = playerId + "_" + modeType + "_" + j;
-				ps.setTrackedInstanceId(trackId);
-				ps.setValue(rangeMin + (rangeMax - rangeMin) * RANDOM.nextDouble());
-				ps.setStartTime(Instant.ofEpochMilli(fromDate.getTime()));
-				list.add(ps);
-				logger.info("save track " + trackId);
-			}
-			influxDbManager.storeData(list);
-		}
-	}
-	
 	@GetMapping("/api/dev/test/campaign/placing")
 	public void testCampaignPlacingByTransportMode(HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
@@ -137,11 +106,5 @@ public class DevController extends PlayAndGoController {
 			logger.info(String.format("query2 [%s]: %s - %s", modeType, page.getSize(), (endTime - startTime)));
 		}
 		
-//		for(String modeType : modeTypes) {
-//			long startTime = System.currentTimeMillis();
-//			influxDbManager.queryData("TAA.test1", modeType, dateFrom, dateTo, PageRequest.of(0, 10));
-//			long endTime = System.currentTimeMillis();
-//			logger.info(String.format("query3 [%s]: %s - %s", modeType, "10", (endTime - startTime)));
-//		}
 	}
 }

@@ -3,6 +3,7 @@ package it.smartcommunitylab.playandgo.engine.manager;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +30,13 @@ import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
 import it.smartcommunitylab.playandgo.engine.dto.CampaignTripInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TripInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
@@ -50,6 +54,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepos
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
+import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
 import it.smartcommunitylab.playandgo.engine.validation.GeolocationsProcessor;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
 
@@ -105,7 +110,11 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			throw new BadRequestException("track not found");
 		}
 		TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);
-		//TODO get polyline
+		List<Geolocation> geo = Lists.newArrayList(track.getGeolocationEvents());
+		geo = GamificationHelper.optimize(geo);
+		Collections.sort(geo);
+		String poly = GamificationHelper.encodePoly(geo);
+		trackInfo.setPolyline(poly);
 		return trackInfo;
 	}
 	

@@ -15,7 +15,7 @@ public class TrackedInstanceInfo {
 	private double distance = 0.0; // meters
 	private TravelValidity validity;
 	private List<CampaignTripInfo> campaigns = new ArrayList<>();
-	private Object polyline;
+	private String polyline;
 	
 	public Date getStartTime() {
 		return startTime;
@@ -65,10 +65,10 @@ public class TrackedInstanceInfo {
 	public void setModeType(String modeType) {
 		this.modeType = modeType;
 	}
-	public Object getPolyline() {
+	public String getPolyline() {
 		return polyline;
 	}
-	public void setPolyline(Object polyline) {
+	public void setPolyline(String polyline) {
 		this.polyline = polyline;
 	}
 	
