@@ -6,6 +6,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
+
 @Document(collection="playerStatsTransports")
 public class PlayerStatsTransport {
 	@Id
@@ -18,6 +23,7 @@ public class PlayerStatsTransport {
 	private Boolean global = Boolean.FALSE; 
 	@Indexed
 	private String modeType;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@Indexed
 	private LocalDate weeklyDay;
 	private double distance = 0.0; //meters

@@ -18,4 +18,7 @@ public interface PlayerStatsTransportRepository extends MongoRepository<PlayerSt
 			String modeType, Boolean global, LocalDate weeklyDay);
 	
 	public List<PlayerStatsTransport> findByPlayerIdAndCampaignIdAndGlobal(String playerId, String campaignId, Boolean global);
+	
+	public List<PlayerStatsTransport> findByPlayerIdAndCampaignIdAndGlobalAndWeeklyDay(String playerId, String campaignId, 
+			Boolean global, LocalDate weeklyDay);
 }
