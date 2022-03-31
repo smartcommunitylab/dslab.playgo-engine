@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylab.playandgo.engine.dto.CampaignTripInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TripInfo;
+import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
@@ -85,6 +87,55 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	public void init() {
 		queueManager.setManageValidateTripRequest(this);
 	}
+	
+	public List<TrackedInstanceInfo> getTrackedInstanceInfoList(String playerId, Pageable pageRequest) {
+		PageRequest pageRequestNew = PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), Sort.by(Sort.Direction.DESC, "startTime"));
+		List<TrackedInstanceInfo> result = new ArrayList<>();
+		List<TrackedInstance> trackList = trackedInstanceRepository.findByUserId(playerId, pageRequestNew);
+		for(TrackedInstance track : trackList) {
+			TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);		
+			result.add(trackInfo);
+		}
+		return result;
+	}
+	
+	public TrackedInstanceInfo getTrackedInstanceInfo(String playerId, String trackedInstanceId) throws Exception {
+		TrackedInstance track = trackedInstanceRepository.findById(trackedInstanceId).orElse(null);
+		if(track == null) {
+			throw new BadRequestException("track not found");
+		}
+		TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);
+		//TODO get polyline
+		return trackInfo;
+	}
+	
+	private TrackedInstanceInfo getTrackedInstanceInfoFromTrack(TrackedInstance track, String playerId) {
+		TrackedInstanceInfo trackInfo = new TrackedInstanceInfo();
+		trackInfo.setTrackedInstanceId(track.getId());
+		trackInfo.setMultimodalId(track.getMultimodalId());
+		trackInfo.setStartTime(track.getStartTime());
+		trackInfo.setEndTime(getEndTime(track));
+		trackInfo.setValidity(track.getValidationResult().getTravelValidity());
+		trackInfo.setDistance(track.getValidationResult().getValidationStatus().getDistance());
+		trackInfo.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+		//campaigns info
+		Map<String, CampaignTripInfo> campaignInfoMap = new HashMap<>();
+		List<CampaignPlayerTrack> playerTrackList = campaignPlayerTrackRepository.findByPlayerIdAndTrackedInstanceId(playerId, track.getId());
+		for(CampaignPlayerTrack playerTrack : playerTrackList) {
+			CampaignTripInfo info = campaignInfoMap.get(playerTrack.getCampaignId());
+			if(info == null) {
+				info = new CampaignTripInfo();
+				Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
+				info.setCampaignId(campaign.getCampaignId());
+				info.setCampaignName(campaign.getName());
+				info.setValid(playerTrack.getValid());
+				campaignInfoMap.put(campaign.getCampaignId(), info);
+			}
+			info.setScore(info.getScore() + playerTrack.getScore());
+		}
+		trackInfo.getCampaigns().addAll(campaignInfoMap.values());
+		return trackInfo;
+	}	
 	
 	public List<TripInfo> getTripInfoList(Player player, Pageable pageRequest) {
 		List<TripInfo> result = new ArrayList<>();
@@ -159,8 +210,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 	}
 	
-	public List<TrackedInstance> getPlayerTrakedInstaces(String playerId) {
-		return trackedInstanceRepository.findByUserId(playerId, Sort.by(Sort.Direction.DESC, "day"));
+	public List<TrackedInstance> getPlayerTrakedInstaces(String playerId, Pageable pageRequest) {
+		PageRequest pageRequestNew = PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), Sort.by(Sort.Direction.DESC, "day"));
+		return trackedInstanceRepository.findByUserId(playerId, pageRequestNew);
 	}
 	
 	public TrackedInstance getTrackedInstance(String trackId) {

@@ -3,7 +3,8 @@ package it.smartcommunitylab.playandgo.engine.dto;
 public class CampaignTripInfo {
 	private String campaignId;
 	private String campaignName;
-	private Double score;
+	private Double score = 0.0;
+	private Boolean valid;
 	
 	public String getCampaignId() {
 		return campaignId;
@@ -22,5 +23,11 @@ public class CampaignTripInfo {
 	}
 	public void setScore(Double score) {
 		this.score = score;
+	}
+	public Boolean getValid() {
+		return valid;
+	}
+	public void setValid(Boolean valid) {
+		this.valid = valid;
 	}
 }

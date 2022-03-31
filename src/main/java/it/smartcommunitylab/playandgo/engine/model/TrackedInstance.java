@@ -22,6 +22,8 @@ public class TrackedInstance {
 	private String id;
 
 	private String clientId;
+	
+	@Indexed
 	private String userId;
 	
 	private String multimodalId;
@@ -41,6 +43,7 @@ public class TrackedInstance {
 	@Indexed
 	private String day;
 	
+	@Indexed
 	private Date startTime; 
 	
 	private ValidationResult validationResult;

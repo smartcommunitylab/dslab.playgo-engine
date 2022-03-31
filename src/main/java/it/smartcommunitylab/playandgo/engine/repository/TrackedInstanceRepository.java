@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -17,7 +18,7 @@ public interface TrackedInstanceRepository extends MongoRepository<TrackedInstan
 	public TrackedInstance findByItinerary(String userId, String clientId);
 	
 	@Query ("{'userId' : ?0}")
-	public List<TrackedInstance> findByUserId(String userId, Sort sort);
+	public List<TrackedInstance> findByUserId(String userId, Pageable pageRequest);
 	
 	public List<TrackedInstance> findByMultimodalId(String multimodalId, Sort sort);
 }
