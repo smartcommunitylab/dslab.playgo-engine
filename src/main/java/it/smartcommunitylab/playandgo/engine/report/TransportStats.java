@@ -8,6 +8,7 @@ public class TransportStats {
 	private double totalDistance;
 	private long totalDuration;
 	private double totalCo2;
+	private long totalTravel;
 	
 	public String getModeType() {
 		return modeType;
@@ -32,5 +33,11 @@ public class TransportStats {
 	}
 	public void setTotalCo2(double totalCo2) {
 		this.totalCo2 = totalCo2;
+	}
+	public long getTotalTravel() {
+		return totalTravel;
+	}
+	public void setTotalTravel(long totalTravel) {
+		this.totalTravel = totalTravel;
 	}
 }

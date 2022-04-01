@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LimitOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -46,6 +46,10 @@ import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 @Component
 public class PlayerCampaignPlacingManager {
 	private static Log logger = LogFactory.getLog(PlayerCampaignPlacingManager.class);
+	
+	public static enum GroupMode {
+		day, week, month
+	};
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -80,7 +84,8 @@ public class PlayerCampaignPlacingManager {
 			PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
 					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
 			if(globalByMode == null) {
-				globalByMode = addNewPlacing(pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE, null);
+				globalByMode = addNewPlacing(pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE, 
+						null, 0, 0, 0);
 			}
 			globalByMode.addDistance(pt.getDistance());
 			globalByMode.addDuration(pt.getDuration());
@@ -88,18 +93,21 @@ public class PlayerCampaignPlacingManager {
 			globalByMode.addTrack();
 			playerStatsTransportRepository.save(globalByMode);
 			
-			//transport weekly placing
-			LocalDate weeklyDay = getWeeklyDay(campaign.getStartDayOfWeek(), trackDay);
-			PlayerStatsTransport weeklyByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndWeeklyDay(
-					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, weeklyDay);
-			if(weeklyByMode == null) {
-				weeklyByMode = addNewPlacing(pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, weeklyDay);
+			//transport daily placing
+			int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
+			int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
+			int year = trackDay.get(ChronoField.YEAR);
+			PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
+					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, trackDay);
+			if(dayByMode == null) {
+				dayByMode = addNewPlacing(pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, 
+						trackDay, weekOfYear, monthOfYear, year);
 			}
-			weeklyByMode.addDistance(pt.getDistance());
-			weeklyByMode.addDuration(pt.getDuration());
-			weeklyByMode.addCo2(pt.getCo2());
-			weeklyByMode.addTrack();
-			playerStatsTransportRepository.save(weeklyByMode);			
+			dayByMode.addDistance(pt.getDistance());
+			dayByMode.addDuration(pt.getDuration());
+			dayByMode.addCo2(pt.getCo2());
+			dayByMode.addTrack();
+			playerStatsTransportRepository.save(dayByMode);			
 		}
 	}
 	
@@ -109,13 +117,17 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	private PlayerStatsTransport addNewPlacing(String playerId, String campaignId, String modeType, 
-			Boolean global, LocalDate weeklyDay) {
+			Boolean global, LocalDate day, int weekOfYear, int monthOfYear, int year) {
 		PlayerStatsTransport pst = new PlayerStatsTransport();
 		pst.setPlayerId(playerId);
 		pst.setCampaignId(campaignId);
 		pst.setModeType(modeType);
 		pst.setGlobal(global);
-		pst.setWeeklyDay(weeklyDay);
+		if(!global) {
+			pst.setDay(day);
+			pst.setWeekOfYear(year + "-" + weekOfYear);
+			pst.setMonthOfYear(year + "-" + monthOfYear);			
+		}
 		playerStatsTransportRepository.save(pst);
 		return pst;
 	}
@@ -151,7 +163,7 @@ public class PlayerCampaignPlacingManager {
 				ts.setTotalCo2(pst.getCo2());
 				transportStatsList.add(ts);
 				co2 += pst.getCo2();
-				tracks++;
+				tracks += pst.getTrackNumber();
 			}
 			status.getTransportStatsList().addAll(transportStatsList);
 			status.setCo2(co2);
@@ -161,8 +173,9 @@ public class PlayerCampaignPlacingManager {
 			MatchOperation matchOperation = Aggregation.match(new Criteria("playerId").is(player.getPlayerId())
 					.and("campaignId").is(campaign.getCampaignId()).and("valid").is(Boolean.TRUE));			
 			ProjectionOperation projectionOperation = Aggregation.project("startTime")
-					.and(DateOperators.DayOfYear.dayOfYear("startTime")).as("dayOfYear");
-			GroupOperation groupOperation = Aggregation.group("dayOfYear").count().as("total");
+					.and("startTime").extractYear().as("year")
+					.and("startTime").extractDayOfYear().as("dayOfYear");
+			GroupOperation groupOperation = Aggregation.group("year","dayOfYear").count().as("total");
 			Aggregation aggregation = Aggregation.newAggregation(matchOperation, projectionOperation, groupOperation);
 			AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, CampaignPlayerTrack.class, Document.class);
 			status.setActivityDays(aggregationResults.getMappedResults().size());
@@ -171,10 +184,10 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public Page<CampaignPlacing> getCampaignPlacingByTransportMode(String campaignId, String modeType, 
-			LocalDate weeklyDay, Pageable pageRequest) {
+			LocalDate dateFrom, LocalDate dateTo, Pageable pageRequest) {
 		Criteria criteria = new Criteria("campaignId").is(campaignId).and("modeType").is(modeType);
-		if(weeklyDay != null) {
-			criteria = criteria.and("weeklyDay").is(weeklyDay).and("global").is(Boolean.FALSE);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		} else {
 			criteria = criteria.and("global").is(Boolean.TRUE);
 		}
@@ -210,53 +223,101 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public CampaignPlacing getCampaignPlacingByPlayerAndTransportMode(String playerId, String campaignId, 
-			String modeType, LocalDate weeklyDay) {
-		//get player score
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and("modeType").is(modeType).and("playerId").is(playerId);
-		if(weeklyDay != null) {
-			criteria = criteria.and("weeklyDay").is(weeklyDay).and("global").is(Boolean.FALSE);
-		} else {
-			criteria = criteria.and("global").is(Boolean.TRUE);
-		}
-		MatchOperation matchOperation = Aggregation.match(criteria);
-		GroupOperation groupOperation = Aggregation.group("playerId").sum("distance").as("value");
-		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
-		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
-				PlayerStatsTransport.class, CampaignPlacing.class);
-		CampaignPlacing placing = aggregationResults.getMappedResults().get(0);
+			String modeType, LocalDate dateFrom, LocalDate dateTo) {
 		Player player = playerRepository.findById(playerId).orElse(null);
 		if(player != null) {
+			//get player score
+			Criteria criteria = new Criteria("campaignId").is(campaignId).and("modeType").is(modeType).and("playerId").is(playerId);
+			if((dateFrom != null) && (dateTo != null)) {
+				criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+			} else {
+				criteria = criteria.and("global").is(Boolean.TRUE);
+			}
+			MatchOperation matchOperation = Aggregation.match(criteria);
+			GroupOperation groupOperation = Aggregation.group("playerId").sum("distance").as("value");
+			Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+			AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
+					PlayerStatsTransport.class, CampaignPlacing.class);
+			
+			if(aggregationResults.getMappedResults().size() == 0) {
+				CampaignPlacing placing = new CampaignPlacing();
+				placing.setPlayerId(playerId);
+				placing.setNickname(player.getNickname());
+				return placing;
+			}
+			CampaignPlacing placing = aggregationResults.getMappedResults().get(0);
 			placing.setNickname(player.getNickname());
+			//get player position
+			Criteria criteriaPosition = new Criteria("campaignId").is(campaignId).and("modeType").is(modeType);
+			if((dateFrom != null) && (dateTo != null)) {
+				criteriaPosition = criteriaPosition.and("global").is(Boolean.FALSE)
+						.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+			} else {
+				criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
+			}
+			MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
+			GroupOperation groupByPlayer = Aggregation.group("playerId").sum("distance").as("value");
+			MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
+			Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
+			AggregationResults<CampaignPlacing> aggregationPositionResults = mongoTemplate.aggregate(aggregationPosition, 
+					PlayerStatsTransport.class, CampaignPlacing.class);
+			placing.setPosition(aggregationPositionResults.getMappedResults().size() + 1);
+			
+			return placing;
 		}
-		//get player position
-		Criteria criteriaPosition = new Criteria("campaignId").is(campaignId).and("modeType").is(modeType);
-		if(weeklyDay != null) {
-			criteriaPosition = criteriaPosition.and("weeklyDay").is(weeklyDay).and("global").is(Boolean.FALSE);
-		} else {
-			criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
-		}
-		MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
-		GroupOperation groupByPlayer = Aggregation.group("playerId").sum("distance").as("value");
-		MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
-		Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
-		AggregationResults<CampaignPlacing> aggregationPositionResults = mongoTemplate.aggregate(aggregationPosition, 
-				PlayerStatsTransport.class, CampaignPlacing.class);
-		placing.setPosition(aggregationPositionResults.getMappedResults().size() + 1);
-		
-		return placing;
+		return null;
 	}
 
-	public List<PlayerStatsTransport> getPlayerPersonalTransportStats(Player player, LocalDate weeklyDay) {
+	public List<TransportStats> getPlayerPersonalTransportStats(Player player, LocalDate dateFrom, LocalDate dateTo) {
 		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
-		List<PlayerStatsTransport> list = null;
-		if(weeklyDay == null) {
-		list = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndGlobal(player.getPlayerId(), 
-				campaign.getCampaignId(), Boolean.TRUE);
+		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId()).and("playerId").is(player.getPlayerId())
+				.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("modeType")
+				.sum("distance").as("totalDistance")
+				.sum("duration").as("totalDuration")
+				.sum("co2").as("totalCo2")
+				.sum("trackNumber").as("totalTravel");
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<TransportStats> results = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, TransportStats.class);
+		return results.getMappedResults();
+	}
+	
+	public List<PerformanceStats> getPlayerPerformance(Player player, String modeType, 
+			LocalDate dateFrom, LocalDate dateTo, String groupMode) {
+		List<PerformanceStats> result = new ArrayList<>();
+		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
+		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId()).and("playerId").is(player.getPlayerId())
+				.and("global").is(Boolean.FALSE).and("modeType").is(modeType)
+				.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		if(GroupMode.day.toString().equals(groupMode)) {
+			Aggregation aggregation = Aggregation.newAggregation(matchOperation);
+			AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+			for(Document doc : aggregationResults.getMappedResults()) {
+				PerformanceStats stats = new PerformanceStats();
+				stats.setGroupKey(doc.getString("day"));
+				stats.setDistance(doc.getDouble("distance"));
+				result.add(stats);
+			}
 		} else {
-			list = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndGlobalAndWeeklyDay(
-					player.getPlayerId(), campaign.getCampaignId(), Boolean.FALSE, weeklyDay);
+			String groupField = null;
+			if(GroupMode.week.toString().equals(groupMode)) {
+				groupField = "weekOfYear";
+			} else {
+				groupField = "monthOfYear";
+			}
+			GroupOperation groupOperation = Aggregation.group(groupField).sum("distance").as("distance");
+			Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+			AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+			for(Document doc : aggregationResults.getMappedResults()) {
+				PerformanceStats stats = new PerformanceStats();
+				stats.setGroupKey(doc.getString("_id"));
+				stats.setDistance(doc.getDouble("distance"));
+				result.add(stats);
+			}						
 		}
-		return list;
+		return result;
 	}
 	
 

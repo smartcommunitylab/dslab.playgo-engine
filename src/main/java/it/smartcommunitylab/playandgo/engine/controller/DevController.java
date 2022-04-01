@@ -64,7 +64,7 @@ public class DevController extends PlayAndGoController {
 	@PostMapping("/api/dev/tracks")
 	public void addTracks(HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
-		LocalDate weeklyDay = LocalDate.parse("2022-03-28");
+		LocalDate day = LocalDate.parse("2022-03-28");
 		for(int i = 0; i < players; i++) {
 			String playerId = "p_" + i;
 			List<PlayerStatsTransport> list = new ArrayList<>();
@@ -77,7 +77,7 @@ public class DevController extends PlayAndGoController {
 				ps.setModeType(modeType);
 				ps.setDistance(rangeMin + (rangeMax - rangeMin) * RANDOM.nextDouble());
 				ps.setGlobal(false);
-				ps.setWeeklyDay(weeklyDay);
+				ps.setDay(day);
 				list.add(ps);
 				logger.info("save track " + trackId);
 			}
@@ -88,10 +88,11 @@ public class DevController extends PlayAndGoController {
 	@GetMapping("/api/dev/test/campaign/placing")
 	public void testCampaignPlacingByTransportMode(HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
-		LocalDate weeklyDay = LocalDate.parse("2022-03-28");
+		LocalDate dateFrom = LocalDate.parse("2022-03-21");
+		LocalDate dateTo = LocalDate.parse("2022-03-31");
 		for(String modeType : modeTypes) {
 			long startTime = System.currentTimeMillis();
-			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportMode("TAA.test1", modeType, weeklyDay, PageRequest.of(10, 10));
+			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportMode("TAA.test1", modeType, dateFrom, dateTo, PageRequest.of(10, 10));
 			long endTime = System.currentTimeMillis();
 			logger.info(String.format("query2 [%s]: %s - %s", modeType, page.getSize(), (endTime - startTime)));
 		}

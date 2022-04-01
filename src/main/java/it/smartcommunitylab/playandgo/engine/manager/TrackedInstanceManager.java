@@ -39,6 +39,7 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
@@ -233,6 +234,15 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		trackedInstanceRepository.save(track);
 	}
 
+	public void updateValidationResultAsError(TrackedInstance track) {
+		ValidationResult vr = new ValidationResult();
+		ValidationStatus status = new ValidationStatus();
+		status.setValidationOutcome(TravelValidity.INVALID);
+		vr.setValidationStatus(status);
+		track.setValidationResult(vr);
+		trackedInstanceRepository.save(track);
+	}
+	
 	@Override
 	public void validateTripRequest(ValidateTripRequest msg) {
 		TrackedInstance track = getTrackedInstance(msg.getTrackedInstanceId());
@@ -260,6 +270,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				}
 			} catch (Exception e) {
 				logger.warn("validateTripRequest error:" + e.getMessage());
+				updateValidationResultAsError(track);
 			}			
 		}
 	}

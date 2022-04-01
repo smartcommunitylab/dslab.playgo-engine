@@ -25,11 +25,13 @@ public class PlayerStatsTransport {
 	private String modeType;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@Indexed
-	private LocalDate weeklyDay;
+	private LocalDate day;
 	private double distance = 0.0; //meters
 	private long duration = 0L; // seconds
 	private double co2 = 0.0;
 	private long trackNumber = 0L;
+	private String weekOfYear;
+	private String monthOfYear;
 	
 	public void addTrack() {
 		this.trackNumber++;
@@ -71,12 +73,6 @@ public class PlayerStatsTransport {
 	public void setGlobal(Boolean global) {
 		this.global = global;
 	}
-	public LocalDate getWeeklyDay() {
-		return weeklyDay;
-	}
-	public void setWeeklyDay(LocalDate weeklyDay) {
-		this.weeklyDay = weeklyDay;
-	}
 	public String getModeType() {
 		return modeType;
 	}
@@ -106,6 +102,30 @@ public class PlayerStatsTransport {
 	}
 	public void setTrackNumber(long trackNumber) {
 		this.trackNumber = trackNumber;
+	}
+
+	public LocalDate getDay() {
+		return day;
+	}
+
+	public void setDay(LocalDate day) {
+		this.day = day;
+	}
+
+	public String getWeekOfYear() {
+		return weekOfYear;
+	}
+
+	public void setWeekOfYear(String weekOfYear) {
+		this.weekOfYear = weekOfYear;
+	}
+
+	public String getMonthOfYear() {
+		return monthOfYear;
+	}
+
+	public void setMonthOfYear(String monthOfYear) {
+		this.monthOfYear = monthOfYear;
 	}
 	
 	
