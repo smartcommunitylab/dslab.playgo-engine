@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
-import it.smartcommunitylab.playandgo.engine.report.PerformanceStats;
 import it.smartcommunitylab.playandgo.engine.report.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.report.TransportStats;
@@ -84,27 +82,9 @@ public class ReportController extends PlayAndGoController {
 	}
 	
 	@GetMapping("/api/report/player/transport/stats")
-	public List<TransportStats> getPlayerPersonalTransportStats(
+	public List<TransportStats> getPlayerTransportStats(
 			@RequestParam String dateFrom,
 			@RequestParam String dateTo,
-			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
-		return playerReportManager.getPlayerPersonalTransportStats(player, dateFromDate, dateToDate);
-	}
-	
-	@GetMapping("/api/report/player/transport/performance")
-	public List<PerformanceStats> getPlayerPerformance(
-			@RequestParam String dateFrom,
-			@RequestParam String dateTo,
-			@RequestParam String modeType,
 			@RequestParam String groupMode,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
@@ -116,7 +96,7 @@ public class ReportController extends PlayAndGoController {
 		if(Utils.isNotEmpty(dateTo)) {
 			dateToDate = LocalDate.parse(dateTo);
 		}		
-		return playerReportManager.getPlayerPerformance(player, modeType, dateFromDate, dateToDate, groupMode);
+		return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate, groupMode);
 	}
 	
  }

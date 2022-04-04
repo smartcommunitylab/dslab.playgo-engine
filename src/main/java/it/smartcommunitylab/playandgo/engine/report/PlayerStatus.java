@@ -12,8 +12,6 @@ import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
 
 public class PlayerStatus {
 	private String playerId;
-	private String nickname;
-	private String mail;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@JsonDeserialize(using = LocalDateDeserializer.class)	
 	private LocalDate registrationDate;
@@ -28,18 +26,6 @@ public class PlayerStatus {
 	}
 	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
-	}
-	public String getNickname() {
-		return nickname;
-	}
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
-	public String getMail() {
-		return mail;
-	}
-	public void setMail(String mail) {
-		this.mail = mail;
 	}
 	public LocalDate getRegistrationDate() {
 		return registrationDate;

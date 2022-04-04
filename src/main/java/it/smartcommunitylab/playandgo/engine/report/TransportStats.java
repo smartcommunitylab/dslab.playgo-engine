@@ -1,21 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.report;
 
-import org.springframework.data.annotation.Id;
-
 public class TransportStats {
-	@Id
+	private String period;
 	private String modeType;
 	private double totalDistance;
 	private long totalDuration;
 	private double totalCo2;
 	private long totalTravel;
 	
-	public String getModeType() {
-		return modeType;
-	}
-	public void setModeType(String modeType) {
-		this.modeType = modeType;
-	}
 	public double getTotalDistance() {
 		return totalDistance;
 	}
@@ -39,5 +31,17 @@ public class TransportStats {
 	}
 	public void setTotalTravel(long totalTravel) {
 		this.totalTravel = totalTravel;
+	}
+	public String getPeriod() {
+		return period;
+	}
+	public void setPeriod(String period) {
+		this.period = period;
+	}
+	public String getModeType() {
+		return modeType;
+	}
+	public void setModeType(String modeType) {
+		this.modeType = modeType;
 	}
 }

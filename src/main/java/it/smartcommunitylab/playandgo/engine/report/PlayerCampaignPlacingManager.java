@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -135,8 +136,6 @@ public class PlayerCampaignPlacingManager {
 	public PlayerStatus getPlayerStatus(Player player) {
 		PlayerStatus status = new PlayerStatus();
 		status.setPlayerId(player.getPlayerId());
-		status.setNickname(player.getNickname());
-		status.setMail(player.getMail());
 		Territory territory = territoryRepository.findById(player.getTerritoryId()).orElse(null);
 		if(territory != null) {
 			status.setTerritory(territory);
@@ -268,54 +267,43 @@ public class PlayerCampaignPlacingManager {
 		return null;
 	}
 
-	public List<TransportStats> getPlayerPersonalTransportStats(Player player, LocalDate dateFrom, LocalDate dateTo) {
+	public List<TransportStats> getPlayerTransportStats(Player player, LocalDate dateFrom, LocalDate dateTo, 
+			String groupMode) {
+		List<TransportStats> result = new ArrayList<>();
 		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
-		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId()).and("playerId").is(player.getPlayerId())
-				.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId())
+				.and("playerId").is(player.getPlayerId()).and("global").is(Boolean.FALSE)
+				.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		MatchOperation matchOperation = Aggregation.match(criteria);
-		GroupOperation groupOperation = Aggregation.group("modeType")
+		String groupField = null;
+		if(GroupMode.day.toString().equals(groupMode)) {
+			groupField = "day";
+		} else if(GroupMode.week.toString().equals(groupMode)) {
+			groupField = "weekOfYear";
+		} else {
+			groupField = "monthOfYear";
+		}
+		GroupOperation groupOperation = Aggregation.group("modeType", groupField)
 				.sum("distance").as("totalDistance")
 				.sum("duration").as("totalDuration")
 				.sum("co2").as("totalCo2")
-				.sum("trackNumber").as("totalTravel");
+				.sum("trackNumber").as("totalTravel");			
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
-		AggregationResults<TransportStats> results = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, TransportStats.class);
-		return results.getMappedResults();
-	}
-	
-	public List<PerformanceStats> getPlayerPerformance(Player player, String modeType, 
-			LocalDate dateFrom, LocalDate dateTo, String groupMode) {
-		List<PerformanceStats> result = new ArrayList<>();
-		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
-		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId()).and("playerId").is(player.getPlayerId())
-				.and("global").is(Boolean.FALSE).and("modeType").is(modeType)
-				.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
-		MatchOperation matchOperation = Aggregation.match(criteria);
-		if(GroupMode.day.toString().equals(groupMode)) {
-			Aggregation aggregation = Aggregation.newAggregation(matchOperation);
-			AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
-			for(Document doc : aggregationResults.getMappedResults()) {
-				PerformanceStats stats = new PerformanceStats();
-				stats.setGroupKey(doc.getString("day"));
-				stats.setDistance(doc.getDouble("distance"));
-				result.add(stats);
-			}
-		} else {
-			String groupField = null;
-			if(GroupMode.week.toString().equals(groupMode)) {
-				groupField = "weekOfYear";
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			TransportStats stats = new TransportStats();
+			if(GroupMode.day.toString().equals(groupMode)) {
+				Date date = ((Document)doc.get("_id")).getDate(groupField);
+				stats.setPeriod(sdf.format(date));
 			} else {
-				groupField = "monthOfYear";
+				stats.setPeriod(((Document)doc.get("_id")).getString(groupField));
 			}
-			GroupOperation groupOperation = Aggregation.group(groupField).sum("distance").as("distance");
-			Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
-			AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
-			for(Document doc : aggregationResults.getMappedResults()) {
-				PerformanceStats stats = new PerformanceStats();
-				stats.setGroupKey(doc.getString("_id"));
-				stats.setDistance(doc.getDouble("distance"));
-				result.add(stats);
-			}						
+			stats.setModeType(((Document)doc.get("_id")).getString("modeType"));
+			stats.setTotalDistance(doc.getDouble("totalDistance"));
+			stats.setTotalDuration(doc.getLong("totalDuration"));
+			stats.setTotalCo2(doc.getDouble("totalCo2"));
+			stats.setTotalTravel(doc.getLong("totalTravel"));
+			result.add(stats);
 		}
 		return result;
 	}

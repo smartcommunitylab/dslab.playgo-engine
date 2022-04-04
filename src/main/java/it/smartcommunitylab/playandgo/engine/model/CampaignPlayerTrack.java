@@ -32,9 +32,9 @@ public class CampaignPlayerTrack {
 	private Date startTime;
 	private Date endTime;
 	private String modeType;
-	private double distance; // meters
-	private long duration; // seconds
-	private double co2;	
+	private double distance; //meters
+	private long duration; //seconds
+	private double co2;	//Kgr
 	
 	private Map<String, Object> trackingData = new HashMap<>();
 	
