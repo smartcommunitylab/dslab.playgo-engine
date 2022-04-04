@@ -127,7 +127,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		trackInfo.setEndTime(getEndTime(track));
 		trackInfo.setValidity(track.getValidationResult().getTravelValidity());
 		trackInfo.setDistance(track.getValidationResult().getValidationStatus().getDistance());
-		trackInfo.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+		if(track.getValidationResult().getValidationStatus().getModeType() != null) {
+			trackInfo.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+		}
 		//campaigns info
 		Map<String, CampaignTripInfo> campaignInfoMap = new HashMap<>();
 		List<CampaignPlayerTrack> playerTrackList = campaignPlayerTrackRepository.findByPlayerIdAndTrackedInstanceId(playerId, track.getId());
@@ -138,7 +140,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
 				info.setCampaignId(campaign.getCampaignId());
 				info.setCampaignName(campaign.getName());
-				info.setValid(playerTrack.getValid());
+				info.setValid(playerTrack.isValid());
 				campaignInfoMap.put(campaign.getCampaignId(), info);
 			}
 			info.setScore(info.getScore() + playerTrack.getScore());

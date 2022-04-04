@@ -109,22 +109,22 @@ public class ValidationConstants {
 	
 	private static final Map<String, Object> defaultValues = new HashMap<>();
 	static {
-		defaultValues.put(PARAM_WALK_SPEED_THRESHOLD, 7);
-		defaultValues.put(PARAM_WALK_AVG_SPEED_THRESHOLD, 8);
-		defaultValues.put(PARAM_WALK_GUARANTEED_AVG_SPEED_THRESHOLD, 5);
+		defaultValues.put(PARAM_WALK_SPEED_THRESHOLD, 7d);
+		defaultValues.put(PARAM_WALK_AVG_SPEED_THRESHOLD, 8d);
+		defaultValues.put(PARAM_WALK_GUARANTEED_AVG_SPEED_THRESHOLD, 5d);
 		
 		defaultValues.put(PARAM_BIKE_SPEED_THRESHOLD, 34d);
 		defaultValues.put(PARAM_BIKE_AVG_SPEED_THRESHOLD, 27d);
 		defaultValues.put(PARAM_BIKE_GUARANTEED_AVG_SPEED_THRESHOLD, 18d);
 		
 		defaultValues.put(PARAM_VALIDITY_THRESHOLD, 80d);
-		defaultValues.put(PARAM_ACCURACY_THRESHOLD, 150);
+		defaultValues.put(PARAM_ACCURACY_THRESHOLD, 150d);
 		
-		defaultValues.put(PARAM_MIN_COVERAGE_THRESHOLD, 30);
+		defaultValues.put(PARAM_MIN_COVERAGE_THRESHOLD, 30d);
 		
-		defaultValues.put(PARAM_SHARED_TRIP_DISTANCE_THRESHOLD, 1000);
+		defaultValues.put(PARAM_SHARED_TRIP_DISTANCE_THRESHOLD, 1000d);
 		
-		defaultValues.put(PARAM_DISTANCE_THRESHOLD, 250);
+		defaultValues.put(PARAM_DISTANCE_THRESHOLD, 250d);
 		defaultValues.put(DATA_HOLE_THRESHOLD, 10*60);
 		defaultValues.put(PARAM_BIKE_DISTANCE_THRESHOLD, 100d);
 		defaultValues.put(PARAM_MAX_AVG_SPEED_THRESHOLD, 200d);

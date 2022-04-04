@@ -25,9 +25,9 @@ public class CampaignPlayerTrack {
 	private String trackedInstanceId;
 	private String territoryId;
 	
-	private Boolean valid = Boolean.FALSE;
+	private boolean valid = false;
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
-	private Double score;
+	private double score;
 	
 	private Date startTime;
 	private Date endTime;
@@ -87,18 +87,6 @@ public class CampaignPlayerTrack {
 	public void setTrackingData(Map<String, Object> trackingData) {
 		this.trackingData = trackingData;
 	}
-	public Boolean getValid() {
-		return valid;
-	}
-	public void setValid(Boolean valid) {
-		this.valid = valid;
-	}
-	public Double getScore() {
-		return score;
-	}
-	public void setScore(Double score) {
-		this.score = score;
-	}
 	public Date getStartTime() {
 		return startTime;
 	}
@@ -134,6 +122,18 @@ public class CampaignPlayerTrack {
 	}
 	public void setCo2(double co2) {
 		this.co2 = co2;
+	}
+	public boolean isValid() {
+		return valid;
+	}
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
+	public double getScore() {
+		return score;
+	}
+	public void setScore(double score) {
+		this.score = score;
 	}
 
 }
