@@ -308,6 +308,81 @@ public class PlayerCampaignPlacingManager {
 		return result;
 	}
 	
+	public Page<CampaignPlacing> getCampaignPlacingByCo2(String campaignId, LocalDate dateFrom, LocalDate dateTo, 
+			Pageable pageRequest) {
+		Criteria criteria = new Criteria("campaignId").is(campaignId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		} else {
+			criteria = criteria.and("global").is(Boolean.TRUE);
+		}
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("playerId").sum("co2").as("value");
+		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "value"));
+		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
+		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, 
+				skipOperation, limitOperation);
+		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				PlayerStatsTransport.class, CampaignPlacing.class);
+		List<CampaignPlacing> list = aggregationResults.getMappedResults();
+		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
+		for(CampaignPlacing cp : list) {
+			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
+			if(player != null) {
+				cp.setNickname(player.getNickname());
+			}
+			cp.setPosition(index + 1);
+			index++;
+		}
+		return new PageImpl<>(list, pageRequest, countDistincPlayers(criteria));
+	}
+
+	public CampaignPlacing getCampaignPlacingByPlayerAndCo2(String playerId, String campaignId, 
+			LocalDate dateFrom, LocalDate dateTo) {
+		Player player = playerRepository.findById(playerId).orElse(null);
+		if(player != null) {
+			//get player score
+			Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+			if((dateFrom != null) && (dateTo != null)) {
+				criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+			} else {
+				criteria = criteria.and("global").is(Boolean.TRUE);
+			}
+			MatchOperation matchOperation = Aggregation.match(criteria);
+			GroupOperation groupOperation = Aggregation.group("playerId").sum("co2").as("value");
+			Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+			AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
+					PlayerStatsTransport.class, CampaignPlacing.class);
+			
+			if(aggregationResults.getMappedResults().size() == 0) {
+				CampaignPlacing placing = new CampaignPlacing();
+				placing.setPlayerId(playerId);
+				placing.setNickname(player.getNickname());
+				return placing;
+			}
+			CampaignPlacing placing = aggregationResults.getMappedResults().get(0);
+			placing.setNickname(player.getNickname());
+			//get player position
+			Criteria criteriaPosition = new Criteria("campaignId").is(campaignId);
+			if((dateFrom != null) && (dateTo != null)) {
+				criteriaPosition = criteriaPosition.and("global").is(Boolean.FALSE)
+						.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+			} else {
+				criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
+			}
+			MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
+			GroupOperation groupByPlayer = Aggregation.group("playerId").sum("co2").as("value");
+			MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
+			Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
+			AggregationResults<CampaignPlacing> aggregationPositionResults = mongoTemplate.aggregate(aggregationPosition, 
+					PlayerStatsTransport.class, CampaignPlacing.class);
+			placing.setPosition(aggregationPositionResults.getMappedResults().size() + 1);
+			
+			return placing;
+		}
+		return null;
+	}
 
 }
 

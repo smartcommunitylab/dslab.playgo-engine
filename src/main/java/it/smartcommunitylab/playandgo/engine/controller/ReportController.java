@@ -98,5 +98,45 @@ public class ReportController extends PlayAndGoController {
 		}		
 		return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate, groupMode);
 	}
-	
+
+	@GetMapping("/api/report/campaign/placing/co2")
+	public Page<CampaignPlacing> getCampaingPlacingByCo2(
+			@RequestParam String campaignId,
+			@RequestParam(required = false) String dateFrom,
+			@RequestParam(required = false) String dateTo,
+			Pageable pageRequest,
+			HttpServletRequest request) throws Exception {
+		LocalDate dateFromDate = null;
+		LocalDate dateToDate = null;
+		if(Utils.isNotEmpty(dateFrom)) {
+			dateFromDate = LocalDate.parse(dateFrom);
+		}		
+		if(Utils.isNotEmpty(dateTo)) {
+			dateToDate = LocalDate.parse(dateTo);
+		}		
+		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByCo2(campaignId,  
+				dateFromDate, dateToDate, pageRequest);
+		return page;			
+	}
+
+	@GetMapping("/api/report/campaign/placing/player/co2")
+	public CampaignPlacing getPlayerCampaingPlacingByCo2(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam(required = false) String dateFrom,
+			@RequestParam(required = false) String dateTo,
+			HttpServletRequest request) throws Exception {
+		LocalDate dateFromDate = null;
+		LocalDate dateToDate = null;
+		if(Utils.isNotEmpty(dateFrom)) {
+			dateFromDate = LocalDate.parse(dateFrom);
+		}		
+		if(Utils.isNotEmpty(dateTo)) {
+			dateToDate = LocalDate.parse(dateTo);
+		}		
+		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayerAndCo2(playerId, campaignId, 
+				dateFromDate, dateToDate);
+		return placing;
+	}
+
  }
