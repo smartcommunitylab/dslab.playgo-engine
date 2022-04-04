@@ -112,9 +112,13 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		}
 	}
 	
-	private int getSavedCo2(String modeType, double distance) {
-		// TODO calculate co2
-		return 0;
+	private double getSavedCo2(String modeType, double distance) {
+		if(modeType.equals("WALK")) {
+			return (distance / 1000.0) * 0.24293;
+		} else if(modeType.equals("BIKE")) {
+			return (distance / 1000.0) * 0.24293;
+		}
+		return 0.0;
 	}
 
 	private long getStartTime(TrackedInstance trackedInstance) throws ParseException {
