@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,8 @@ public class GamificationMessageQueueManager {
 	@Autowired
 	CampaignRepository campaignRepository;
 	
+	Connection connection;
+	
 	Channel channel;
 	
 	ObjectMapper mapper = new ObjectMapper();
@@ -70,7 +73,7 @@ public class GamificationMessageQueueManager {
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
 
-		Connection connection = connectionFactory.newConnection();
+		connection = connectionFactory.newConnection();
 		
 		channel = connection.createChannel();
 		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
@@ -101,6 +104,26 @@ public class GamificationMessageQueueManager {
 				logger.warn("Bad notification content: " + msg);
 			}
 		};
+	}
+	
+	@PreDestroy
+	public void destroy() {
+		if(channel != null) {
+			try {
+				channel.close();
+				logger.info("close channel");
+			} catch (Exception e) {
+				logger.warn("destroy:" + e.getMessage());
+			}
+		}
+		if(connection != null) {
+			try {
+				connection.close();
+				logger.info("close connection");
+			} catch (Exception e) {
+				logger.warn("destroy:" + e.getMessage());
+			}
+		}		
 	}
 	
 	public void setGameNotification(String gameId) {

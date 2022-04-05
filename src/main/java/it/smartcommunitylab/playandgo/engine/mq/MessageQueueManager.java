@@ -3,8 +3,10 @@ package it.smartcommunitylab.playandgo.engine.mq;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +45,13 @@ public class MessageQueueManager {
 	
 	@Value("${rabbitmq_pg.password}")
 	private String rabbitMQPassword;	
-		
+	
+	private Connection connection;
+	
 	private Channel validateTripChannel; 
 	private Channel validateCampaignTripChannel;
 	
 	private ManageValidateTripRequest manageValidateTripRequest;
-	
 	
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
@@ -67,7 +70,7 @@ public class MessageQueueManager {
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
 
-		Connection connection = connectionFactory.newConnection();
+		connection = connectionFactory.newConnection();
 		
 		validateTripChannel = connection.createChannel();
 		validateTripChannel.queueDeclare(validateTripRequest, true, false, false, null);
@@ -95,6 +98,34 @@ public class MessageQueueManager {
 				manager.validateTripRequest(message);
 			}
 		};
+	}
+	
+	@PreDestroy
+	public void destroy() {
+		if(validateTripChannel != null) {
+			try {
+				validateTripChannel.close();
+				logger.info("close validateTripChannel");
+			} catch (Exception e) {
+				logger.warn("destroy:" + e.getMessage());
+			}
+		}
+		if(validateCampaignTripChannel != null) {
+			try {
+				validateCampaignTripChannel.close();
+				logger.info("close validateCampaignTripChannel");
+			} catch (Exception e) {
+				logger.warn("destroy:" + e.getMessage());
+			}
+		}
+		if(connection != null) {
+			try {
+				connection.close();
+				logger.info("close connection");
+			} catch (Exception e) {
+				logger.warn("destroy:" + e.getMessage());
+			}
+		}
 	}
 	
 	public void setManageValidateTripRequest(ManageValidateTripRequest manager) {
