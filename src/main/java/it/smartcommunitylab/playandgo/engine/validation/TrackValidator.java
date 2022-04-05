@@ -66,7 +66,7 @@ public class TrackValidator {
 	 * @return
 	 */
 	public static ValidationStatus validateFreeTrain(Collection<Geolocation> track, Territory territory) {
-		MODE_TYPE mode = MODE_TYPE.TRAIN; 
+		MODE_TYPE mode = MODE_TYPE.train; 
 		double speedThreshold = 15, timeThreshold = 3*60*1000, minTrackThreshold = 1*60*1000; 
 		return validateFreePTMode(
 				track, 
@@ -97,7 +97,7 @@ public class TrackValidator {
 	 * @return
 	 */
 	public static ValidationStatus validateFreeBus(Collection<Geolocation> track, Territory territory) {
-		MODE_TYPE mode = MODE_TYPE.BUS; 
+		MODE_TYPE mode = MODE_TYPE.bus; 
 		double speedThreshold = 10, timeThreshold = 1*60*1000, minTrackThreshold = 30*1000; 
 		return validateFreePTMode(
 				track, 
@@ -127,7 +127,7 @@ public class TrackValidator {
 	 * @return
 	 */
 	public static ValidationStatus validateFreeBoat(Collection<Geolocation> track, Territory territory) {
-		MODE_TYPE mode = MODE_TYPE.BOAT; 
+		MODE_TYPE mode = MODE_TYPE.boat; 
 		double speedThreshold = 8, timeThreshold = 3*60*1000, minTrackThreshold = 1*60*1000; 
 		return validateFreePTMode(
 				track, 
@@ -156,7 +156,7 @@ public class TrackValidator {
 	 */
 	public static ValidationStatus validateFreeWalk(Collection<Geolocation> track, Territory territory) {
 	
-		MODE_TYPE mode = MODE_TYPE.WALK; 
+		MODE_TYPE mode = MODE_TYPE.walk; 
 		double speedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_WALK_SPEED_THRESHOLD), 
 				timeThreshold = 30 * 1000, minTrackThreshold = 60*1000, 
 				avgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_WALK_AVG_SPEED_THRESHOLD), 
@@ -175,7 +175,7 @@ public class TrackValidator {
 	 */
 	public static ValidationStatus validateFreeBike(Collection<Geolocation> track, Territory territory) {
 	
-		MODE_TYPE mode = MODE_TYPE.BIKE; 
+		MODE_TYPE mode = MODE_TYPE.bike; 
 		double speedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_SPEED_THRESHOLD), 
 				timeThreshold = 10 * 1000, minTrackThreshold = 60*1000, 
 				avgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_AVG_SPEED_THRESHOLD), 
@@ -648,17 +648,17 @@ public class TrackValidator {
 	public static MODE_TYPE toModeType(String key) {
 		switch(key) {
 		case "bus":
-			return MODE_TYPE.BUS;
+			return MODE_TYPE.bus;
 		case "train": 
-			return MODE_TYPE.TRAIN;
+			return MODE_TYPE.train;
 		case "boat": 
-			return MODE_TYPE.BOAT;
+			return MODE_TYPE.boat;
 		case "bike":
-			return MODE_TYPE.BIKE;
+			return MODE_TYPE.bike;
 		case "walk":
-			return MODE_TYPE.WALK;
+			return MODE_TYPE.walk;
 		default:
-			return MODE_TYPE.OTHER;
+			return MODE_TYPE.other;
 		}
 	}
 	private static final double getFragmentEffectiveAverage(List<Geolocation> points, int start, int end) {

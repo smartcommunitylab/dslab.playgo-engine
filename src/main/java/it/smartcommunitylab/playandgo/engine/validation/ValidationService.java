@@ -149,8 +149,8 @@ public class ValidationService {
 				if (overriddenDistances.containsKey("walk")) {
 					distance = overriddenDistances.get("walk") / 1000.0;
 					logger.info("Overridden walk distance: " + distance);
-				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.WALK)) {
-					distance = vs.getEffectiveDistances().get(MODE_TYPE.WALK) / 1000.0; 
+				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.walk)) {
+					distance = vs.getEffectiveDistances().get(MODE_TYPE.walk) / 1000.0; 
 				}
 				result.put("walkDistance", distance);
 			}
@@ -158,32 +158,32 @@ public class ValidationService {
 				if (overriddenDistances.containsKey("bike")) {
 					distance = overriddenDistances.get("bike") / 1000.0;
 					logger.info("Overridden bike distance: " + distance);
-				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.BIKE)) {				
-					distance = vs.getEffectiveDistances().get(MODE_TYPE.BIKE) / 1000.0;
+				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.bike)) {				
+					distance = vs.getEffectiveDistances().get(MODE_TYPE.bike) / 1000.0;
 				}
 				result.put("bikeDistance", distance);
 			} if ("bus".equals(ttype)) {
 				if (overriddenDistances.containsKey("bus")) {
 					distance = overriddenDistances.get("bus") / 1000.0;
 					logger.info("Overridden bus distance: " + distance);
-				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.BUS)) {				
-					distance = vs.getEffectiveDistances().get(MODE_TYPE.BUS) / 1000.0;
+				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.bus)) {				
+					distance = vs.getEffectiveDistances().get(MODE_TYPE.bus) / 1000.0;
 				}
 				result.put("busDistance", distance);
 			} if ("train".equals(ttype)) {
 				if (overriddenDistances.containsKey("train")) {
 					distance = overriddenDistances.get("train") / 1000.0;
 					logger.info("Overridden train distance: " + distance);
-				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.TRAIN)) {						
-					distance = vs.getEffectiveDistances().get(MODE_TYPE.TRAIN) / 1000.0;
+				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.train)) {						
+					distance = vs.getEffectiveDistances().get(MODE_TYPE.train) / 1000.0;
 				}
 				result.put("trainDistance", distance);
 			} if ("boat".equals(ttype)) {
 				if (overriddenDistances.containsKey("boat")) {
 					distance = overriddenDistances.get("boat") / 1000.0;
 					logger.info("Overridden boat distance: " + distance);
-				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.BOAT)) {						
-					distance = vs.getEffectiveDistances().get(MODE_TYPE.BOAT) / 1000.0;
+				} else if (vs.getEffectiveDistances().containsKey(MODE_TYPE.boat)) {						
+					distance = vs.getEffectiveDistances().get(MODE_TYPE.boat) / 1000.0;
 				}
 				result.put("boatDistance", distance);
 			}
@@ -209,8 +209,8 @@ public class ValidationService {
 		if (overriddenDistances == null) overriddenDistances = Collections.emptyMap();
 		if (overriddenDistances.containsKey("car")) {
 			distance = overriddenDistances.get("car") / 1000.0;
-		} else if (validationStatus.getEffectiveDistances().containsKey(MODE_TYPE.CAR)) {
-			distance = validationStatus.getEffectiveDistances().get(MODE_TYPE.CAR) / 1000.0; 
+		} else if (validationStatus.getEffectiveDistances().containsKey(MODE_TYPE.car)) {
+			distance = validationStatus.getEffectiveDistances().get(MODE_TYPE.car) / 1000.0; 
 		} else {
 			distance = validationStatus.getDistance() / 1000.0; 
 		}
@@ -234,8 +234,8 @@ public class ValidationService {
 		if (overriddenDistances == null) overriddenDistances = Collections.emptyMap();
 		if (overriddenDistances.containsKey("car")) {
 			distance = overriddenDistances.get("car") / 1000.0;
-		} else if (validationStatus.getEffectiveDistances().containsKey(MODE_TYPE.CAR)) {
-			distance = validationStatus.getEffectiveDistances().get(MODE_TYPE.CAR) / 1000.0; 
+		} else if (validationStatus.getEffectiveDistances().containsKey(MODE_TYPE.car)) {
+			distance = validationStatus.getEffectiveDistances().get(MODE_TYPE.car) / 1000.0; 
 		} else {
 			distance = validationStatus.getDistance() / 1000.0; 
 		}

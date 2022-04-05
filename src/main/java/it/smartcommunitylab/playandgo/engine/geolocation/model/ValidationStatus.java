@@ -43,7 +43,7 @@ public class ValidationStatus {
 	private static final SimpleDateFormat DT_FORMATTER = new SimpleDateFormat("HH:mm:ss");
 
 	public enum TRIP_TYPE {FREE, PLANNED, SHARED};
-	public enum MODE_TYPE {WALK, BIKE, BUS, TRAIN, MULTI, OTHER, CAR, BOAT};
+	public enum MODE_TYPE {walk, bike, bus, train, multi, other, car, boat};
 	
 	public enum ERROR_TYPE {TOO_SHORT, TOO_SLOW, TOO_FAST, OUT_OF_AREA, DOES_NOT_MATCH, DATA_HOLE, NO_DATA, SHARED_DOES_NOT_MATCH};
 	
@@ -179,7 +179,7 @@ public class ValidationStatus {
 		}
 		effectiveDistances = new HashMap<>();
 		effectiveDistances.put(modeType, fastDistance);
-		effectiveDistances.put(MODE_TYPE.OTHER, distance - fastDistance);
+		effectiveDistances.put(MODE_TYPE.other, distance - fastDistance);
 	}
 	
 	/**
@@ -211,7 +211,7 @@ public class ValidationStatus {
 		}
 		effectiveDistances = new HashMap<>();
 		effectiveDistances.put(modeType, slowDistance);
-		effectiveDistances.put(MODE_TYPE.OTHER, distance - slowDistance);
+		effectiveDistances.put(MODE_TYPE.other, distance - slowDistance);
 	}
 	
 	public void updatePlannedDistances(Itinerary itinerary) {
@@ -232,17 +232,17 @@ public class ValidationStatus {
 		case CARWITHPARKING:
 		case SHAREDCAR:
 		case SHAREDCAR_WITHOUT_STATION:
-			return MODE_TYPE.CAR;
+			return MODE_TYPE.car;
 		case TRAIN: 
-			return MODE_TYPE.TRAIN;
+			return MODE_TYPE.train;
 		case BICYCLE:
 		case SHAREDBIKE:
 		case SHAREDBIKE_WITHOUT_STATION:
-			return MODE_TYPE.BIKE;
+			return MODE_TYPE.bike;
 		case WALK:
-			return MODE_TYPE.WALK;
+			return MODE_TYPE.walk;
 		default:
-			return MODE_TYPE.BUS;
+			return MODE_TYPE.bus;
 		}
 	}
 	
