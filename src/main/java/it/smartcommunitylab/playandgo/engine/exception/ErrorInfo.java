@@ -11,4 +11,10 @@ public class ErrorInfo {
         //this.ex = ex.getClass().getCanonicalName() + " - " + ex.getLocalizedMessage();
         this.ex = ex.getLocalizedMessage();
     }
+    
+    public ErrorInfo(String url, PlayAndGoException ex) {
+    	this.url = url;
+    	this.code = ex.getCode();
+    	this.ex = ex.getLocalizedMessage();
+    }
 }

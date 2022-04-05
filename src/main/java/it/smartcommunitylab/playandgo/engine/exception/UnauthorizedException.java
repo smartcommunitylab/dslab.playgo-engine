@@ -1,13 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.exception;
 
-public class UnauthorizedException extends Exception {
+public class UnauthorizedException extends PlayAndGoException {
 
 	public UnauthorizedException() {
 		super();
 	}
-
-	public UnauthorizedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
+	
+	public UnauthorizedException(String message, String code) {
+		super(message, code);
 	}
 
 	public UnauthorizedException(String message, Throwable cause) {

@@ -1,15 +1,15 @@
 package it.smartcommunitylab.playandgo.engine.exception;
 
-public class BadRequestException extends Exception {
+public class BadRequestException extends PlayAndGoException {
 
 	public BadRequestException() {
 		super();
 	}
 
-	public BadRequestException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
+	public BadRequestException(String message, String code) {
+		super(message, code);
 	}
-
+	
 	public BadRequestException(String message, Throwable cause) {
 		super(message, cause);
 	}

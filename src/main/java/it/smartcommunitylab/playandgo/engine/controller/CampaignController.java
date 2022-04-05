@@ -25,6 +25,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
@@ -101,7 +102,7 @@ public class CampaignController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
-			throw new BadRequestException("campaign doesn't exist");
+			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
 		checkRole(request, Role.territory, campaign.getTerritoryId());
 		return campaignManager.subscribePlayerByTerritory(nickname, campaign, campaignData);

@@ -27,6 +27,7 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
 public class CampaignManager {
@@ -96,10 +97,10 @@ public class CampaignManager {
 	public CampaignSubscription subscribePlayer(Player player, String campaignId, Map<String, Object> campaignData) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
-			throw new BadRequestException("campaign doesn't exist");
+			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
 		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
-			throw new BadRequestException("territory doesn't match");
+			throw new BadRequestException("territory doesn't match", ErrorCode.TERRITORY_NOT_ALLOWED);
 		}
 		if(Type.company.equals(campaign.getType())) {
 			//TODO check campaign subscription endpoint
@@ -156,10 +157,10 @@ public class CampaignManager {
 			Map<String, Object> campaignData) throws Exception {
 		Player player = playerRepository.findByNicknameIgnoreCase(nickname);
 		if(player == null) {
-			throw new BadRequestException("nickname doesn't exist");
+			throw new BadRequestException("nickname doesn't exist", ErrorCode.PLAYER_NICK_NOT_FOUND);
 		}
 		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
-			throw new BadRequestException("territory doesn't match");
+			throw new BadRequestException("territory doesn't match", ErrorCode.TERRITORY_NOT_ALLOWED);
 		}
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());

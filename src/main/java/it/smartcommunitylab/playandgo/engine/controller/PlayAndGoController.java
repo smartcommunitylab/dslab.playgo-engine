@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ErrorInfo;
+import it.smartcommunitylab.playandgo.engine.exception.PlayAndGoException;
 import it.smartcommunitylab.playandgo.engine.exception.UnauthorizedException;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 public class PlayAndGoController {
@@ -40,7 +42,7 @@ public class PlayAndGoController {
 		Jwt principal = (Jwt) authentication.getPrincipal();
 		String subject = principal.getClaimAsString("sub");
 		if(Utils.isEmpty(subject)) {
-			throw new UnauthorizedException("subject not found");
+			throw new UnauthorizedException("subject not found", ErrorCode.SUBJECT_NOT_FOUND);
 		}
 		return subject;
 	}
@@ -49,7 +51,7 @@ public class PlayAndGoController {
 		String subject = getCurrentSubject(request);		
 		Player player = playerRepository.findById(subject).orElse(null);
 		if(player == null) {
-			throw new UnauthorizedException("user not found");
+			throw new UnauthorizedException("user not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
 		return player;
 	}
@@ -64,7 +66,7 @@ public class PlayAndGoController {
 		Player player = getCurrentPlayer(request);
 		PlayerRole r = playerRoleRepository.findByPlayerIdAndRole(player.getPlayerId(), Role.admin);
 		if(r == null) {
-			throw new UnauthorizedException("role not found");
+			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
 		}
 	}
 	
@@ -72,7 +74,7 @@ public class PlayAndGoController {
 		Player player = getCurrentPlayer(request);
 		PlayerRole r = playerRoleRepository.findByPlayerIdAndRoleAndEntityId(player.getPlayerId(), role, entityId);
 		if(r == null) {
-			throw new UnauthorizedException("role not found");
+			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
 		}
 	}
 	
@@ -98,24 +100,32 @@ public class PlayAndGoController {
 
 	@ExceptionHandler(BadRequestException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public @ResponseBody ErrorInfo badRequest(HttpServletRequest req, Exception e) {
+	public @ResponseBody ErrorInfo badRequest(HttpServletRequest req, PlayAndGoException e) {
 		logger.error("Bad request: " + e.getMessage());
-		return new ErrorInfo(req.getRequestURL().toString(), null, e);
+		return new ErrorInfo(req.getRequestURL().toString(), e);
 	}	
 	
 	@ExceptionHandler(UnauthorizedException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
-	public @ResponseBody ErrorInfo unauthorized(HttpServletRequest req, Exception e) {
+	public @ResponseBody ErrorInfo unauthorized(HttpServletRequest req, PlayAndGoException e) {
 		logger.error("Unauthorized: " + e.getMessage());
-		return new ErrorInfo(req.getRequestURL().toString(), null, e);
+		return new ErrorInfo(req.getRequestURL().toString(), e);
 	}	
+	
+	@ExceptionHandler(PlayAndGoException.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public @ResponseBody ErrorInfo genericError(HttpServletRequest req, PlayAndGoException e) {
+		logger.error("Internal Server Error PG", e);
+		return new ErrorInfo(req.getRequestURL().toString(), e);
+	}
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public @ResponseBody ErrorInfo internalServerError(HttpServletRequest req, Exception e) {
 		logger.error("Internal Server Error", e);
 		return new ErrorInfo(req.getRequestURL().toString(), null, e);
-	}		
+	}
+	
 	
 	
 }

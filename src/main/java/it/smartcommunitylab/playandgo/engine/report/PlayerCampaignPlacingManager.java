@@ -44,6 +44,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepo
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
 public class PlayerCampaignPlacingManager {
@@ -235,7 +236,7 @@ public class PlayerCampaignPlacingManager {
 			String groupMode, LocalDate dateFrom, LocalDate dateTo) throws Exception {
 		Player player = playerRepository.findById(playerId).orElse(null);
 		if(player == null) {
-			throw new BadRequestException("player not found");
+			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
 		//get player score
 		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);

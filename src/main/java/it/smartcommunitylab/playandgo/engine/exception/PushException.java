@@ -19,7 +19,7 @@ package it.smartcommunitylab.playandgo.engine.exception;
  * @author mirko perillo
  * 
  */
-public class PushException extends Exception {
+public class PushException extends PlayAndGoException {
 
 	private static final long serialVersionUID = -2988635674495224147L;
 

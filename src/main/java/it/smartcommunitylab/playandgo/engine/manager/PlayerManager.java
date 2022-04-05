@@ -9,6 +9,7 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
 public class PlayerManager {
@@ -31,12 +32,12 @@ public class PlayerManager {
 	public Player registerPlayer(Player player) throws Exception {		
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
 		if(playerDb != null) {
-			throw new BadRequestException("player already exists");
+			throw new BadRequestException("player already exists", ErrorCode.PLAYER_EXISTS);
 		}
 		player.setNickname(player.getNickname().trim());
 		playerDb = playerRepository.findByNicknameIgnoreCase(player.getNickname());
 		if(playerDb != null) {
-			throw new BadRequestException("nickname already exists");
+			throw new BadRequestException("nickname already exists", ErrorCode.PLAYER_NICK_EXISTS);
 		}
 		playerDb = playerRepository.save(player);
 		//TODO subscribe default campaign?

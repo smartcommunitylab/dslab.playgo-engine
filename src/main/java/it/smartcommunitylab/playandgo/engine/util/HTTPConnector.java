@@ -43,7 +43,7 @@ public class HTTPConnector {
 					{"Authorization", "Basic " + es}}))), String.class);
 
 		if (!res.getStatusCode().is2xxSuccessful()) {
-			throw new ConnectorException("Failed : HTTP error code : " + res.getStatusCode(), res.getStatusCode().value());
+			throw new ConnectorException("Failed : HTTP error code : " + res.getStatusCode(), ErrorCode.HTTP_ERROR);
 		}
 
 		return res.getBody();		
@@ -61,7 +61,7 @@ public class HTTPConnector {
 					{"Authorization", "Basic " + es}}))), String.class);
 
 		if (!res.getStatusCode().is2xxSuccessful()) {
-			throw new ConnectorException("Failed : HTTP error code : " + res.getStatusCode(), res.getStatusCode().value());
+			throw new ConnectorException("Failed : HTTP error code : " + res.getStatusCode(), ErrorCode.HTTP_ERROR);
 		}
 
 		return res.getBody();		
@@ -75,7 +75,7 @@ public class HTTPConnector {
 					{"Authorization", "Bearer " + token}}))), String.class);
 
 		if (!res.getStatusCode().is2xxSuccessful()) {
-			throw new ConnectorException("Failed : HTTP error code : " + res.getStatusCode(), res.getStatusCode().value());
+			throw new ConnectorException("Failed : HTTP error code : " + res.getStatusCode(), ErrorCode.HTTP_ERROR);
 		}
 
 		return res.getBody();		

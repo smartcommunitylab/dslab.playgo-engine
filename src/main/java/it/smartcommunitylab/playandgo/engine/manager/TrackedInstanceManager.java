@@ -55,6 +55,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepos
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
 import it.smartcommunitylab.playandgo.engine.validation.GeolocationsProcessor;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
@@ -108,7 +109,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	public TrackedInstanceInfo getTrackedInstanceInfo(String playerId, String trackedInstanceId) throws Exception {
 		TrackedInstance track = trackedInstanceRepository.findById(trackedInstanceId).orElse(null);
 		if(track == null) {
-			throw new BadRequestException("track not found");
+			throw new BadRequestException("track not found", ErrorCode.TRACK_NOT_FOUND);
 		}
 		TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);
 		List<Geolocation> geo = Lists.newArrayList(track.getGeolocationEvents());
