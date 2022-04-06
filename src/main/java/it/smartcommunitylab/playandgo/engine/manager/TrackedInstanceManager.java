@@ -15,6 +15,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -95,7 +97,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		queueManager.setManageValidateTripRequest(this);
 	}
 	
-	public List<TrackedInstanceInfo> getTrackedInstanceInfoList(String playerId, Pageable pageRequest) {
+	public Page<TrackedInstanceInfo> getTrackedInstanceInfoList(String playerId, Pageable pageRequest) {
 		PageRequest pageRequestNew = PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), Sort.by(Sort.Direction.DESC, "startTime"));
 		List<TrackedInstanceInfo> result = new ArrayList<>();
 		List<TrackedInstance> trackList = trackedInstanceRepository.findByUserId(playerId, pageRequestNew);
@@ -103,7 +105,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);		
 			result.add(trackInfo);
 		}
-		return result;
+		return new PageImpl<>(result, pageRequestNew, trackedInstanceRepository.countByUserId(playerId));
 	}
 	
 	public TrackedInstanceInfo getTrackedInstanceInfo(String playerId, String trackedInstanceId) throws Exception {

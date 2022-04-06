@@ -20,5 +20,7 @@ public interface TrackedInstanceRepository extends MongoRepository<TrackedInstan
 	@Query ("{'userId' : ?0}")
 	public List<TrackedInstance> findByUserId(String userId, Pageable pageRequest);
 	
+	public Long countByUserId(String userId);
+	
 	public List<TrackedInstance> findByMultimodalId(String multimodalId, Sort sort);
 }
