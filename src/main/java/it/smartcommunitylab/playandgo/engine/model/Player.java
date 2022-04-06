@@ -14,7 +14,6 @@ public class Player {
 	private String language;
 	private String mail;
 	private Boolean sendMail = Boolean.FALSE;
-	private Avatar avatar;
 	private String territoryId;
 //	private Map<String, Object> personalData;
 //	private boolean checkedRecommendation;
@@ -54,14 +53,6 @@ public class Player {
 
 	public void setLanguage(String language) {
 		this.language = language;
-	}
-
-	public Avatar getAvatar() {
-		return avatar;
-	}
-
-	public void setAvatar(Avatar avatar) {
-		this.avatar = avatar;
 	}
 
 	public String getTerritoryId() {

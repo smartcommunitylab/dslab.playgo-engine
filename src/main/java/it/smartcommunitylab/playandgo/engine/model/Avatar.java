@@ -1,9 +1,14 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
 import org.bson.types.Binary;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection="avatars")
 public class Avatar {
 	
+	@Id
 	private String id;
 	
 	private Binary avatarData;
@@ -12,8 +17,8 @@ public class Avatar {
 	private String contentType;
 	private String fileName;
 	
+	@Indexed
 	private String playerId;
-	private String gameId;
 
 	public String getId() {
 		return id;
@@ -61,14 +66,6 @@ public class Avatar {
 
 	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
-	}
-
-	public String getGameId() {
-		return gameId;
-	}
-
-	public void setGameId(String appId) {
-		this.gameId = appId;
 	}
 	
 }

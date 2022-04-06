@@ -12,5 +12,8 @@ public class ErrorCode {
 	public final static String TRACK_NOT_FOUND = "TRACK1";
 	public final static String SUBJECT_NOT_FOUND = "TOKEN1";
 	public final static String ROLE_NOT_FOUND = "TOKEN2";
+	public final static String IMAGE_TOO_BIG = "AVATAR1";
+	public final static String IMAGE_WRONG_FORMAT = "AVATAR2";
+	public final static String IMAGE_NOT_FOUND = "AVATAR3";
 	
 }
