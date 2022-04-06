@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.report;
+package it.smartcommunitylab.playandgo.engine.manager;
 
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -32,7 +32,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
-import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
@@ -40,6 +39,9 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
+import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
+import it.smartcommunitylab.playandgo.engine.report.TransportStats;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;

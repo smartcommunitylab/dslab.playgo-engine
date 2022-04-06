@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
+import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
@@ -21,7 +22,6 @@ import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
-import it.smartcommunitylab.playandgo.engine.report.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;

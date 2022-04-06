@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
-import it.smartcommunitylab.playandgo.engine.report.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.report.TransportStats;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
