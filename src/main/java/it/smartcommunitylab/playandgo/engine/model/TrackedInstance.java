@@ -26,6 +26,9 @@ public class TrackedInstance {
 	@Indexed
 	private String userId;
 	
+	@Indexed
+	private String territoryId;
+	
 	private String multimodalId;
 	private String sharedTravelId;
 	
@@ -89,6 +92,14 @@ public class TrackedInstance {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+	
+	public String getTerritoryId() {
+		return territoryId;
+	}
+
+	public void setTerritoryId(String territoryId) {
+		this.territoryId = territoryId;
 	}
 
 	public String getMultimodalId() {
