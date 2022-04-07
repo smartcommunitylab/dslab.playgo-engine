@@ -7,15 +7,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
 public class TerritoryManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(TerritoryManager.class);
 	
 	@Autowired
-	private TerritoryRepository territoryRepository;
+	TerritoryRepository territoryRepository;
+	
+	@Autowired
+	CampaignRepository campaignRepository;
 	
 	public void saveTerritory(Territory territory) {
 		territoryRepository.save(territory);
@@ -29,11 +35,16 @@ public class TerritoryManager {
 		return territoryRepository.findAll();
 	}
 	
-	public Territory deleteTerritory(String territoryId) {
+	public Territory deleteTerritory(String territoryId) throws Exception {
 		Territory territory = territoryRepository.findById(territoryId).orElse(null);
-		if(territory != null) {
-			territoryRepository.deleteById(territoryId);
+		if(territory == null) {
+			throw new BadRequestException("territory doesn't exist", ErrorCode.TERRITORY_NOT_FOUND);
 		}
+		Long count = campaignRepository.countByTerritoryId(territoryId);
+		if(count > 0) {
+			throw new BadRequestException("territory in use", ErrorCode.TERRITORY_IN_USE);
+		}
+		territoryRepository.deleteById(territoryId);
 		return territory;
 	}
 }

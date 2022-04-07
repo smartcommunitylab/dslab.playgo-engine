@@ -15,5 +15,7 @@ public interface CampaignSubscriptionRepository extends MongoRepository<Campaign
 	public List<CampaignSubscription> findByPlayerId(String playerId);
 	
 	public List<CampaignSubscription> findByPlayerIdAndTerritoryId(String playerId, String territoryId);
+	
+	public Long countByCampaignId(String campaignId);
 
 }

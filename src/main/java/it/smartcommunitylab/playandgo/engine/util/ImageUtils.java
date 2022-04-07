@@ -29,6 +29,10 @@ public class ImageUtils {
 			return compress(bsr, mediaType);
 		}		
 	
+		public static byte[] compressImage(BufferedImage bs, String mediaType) throws IOException {
+			return compress(bs, mediaType);
+		}
+		
 	   private static BufferedImage rescale(BufferedImage bi, int w, int h) throws IOException {
 	        int ow = bi.getWidth();
 	        int oh = bi.getHeight();

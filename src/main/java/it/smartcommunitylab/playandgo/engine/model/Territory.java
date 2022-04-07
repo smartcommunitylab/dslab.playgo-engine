@@ -11,6 +11,7 @@ public class Territory {
 	@Id
 	private String territoryId;
 	private String name;
+	private String description;
 	
 	private Map<String, Object> territoryData = new HashMap<>();
 	
@@ -39,5 +40,11 @@ public class Territory {
 	}
 	public void setMessagingAppId(String messagingAppId) {
 		this.messagingAppId = messagingAppId;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
@@ -23,6 +24,7 @@ import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.Logo;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -54,7 +56,7 @@ public class CampaignController extends PlayAndGoController {
 	
 	@GetMapping("/api/campaign")
 	public List<Campaign> getCampaigns(
-			@RequestParam(required=false) String territoryId,
+			@RequestParam String territoryId,
 			HttpServletRequest request) throws Exception {
 		if(Utils.isNotEmpty(territoryId)) {
 			return campaignManager.getCampaignsByTerritory(territoryId);
@@ -68,6 +70,15 @@ public class CampaignController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
 		return campaignManager.deleteCampaign(campaignId);
+	}
+	
+	@PostMapping("/api/campaign/{campaignId}/logo")
+	public Logo uploadCampaignLogo(
+			@PathVariable String campaignId,
+			@RequestParam("data") MultipartFile data,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		return campaignManager.uploadCampaignLogo(campaignId, data);
 	}
 	
 	@GetMapping("/api/campaign/my")

@@ -13,4 +13,6 @@ public interface CampaignPlayerTrackRepository extends MongoRepository<CampaignP
 	public CampaignPlayerTrack findByPlayerIdAndCampaignIdAndTrackedInstanceId(String playerId, String campaignId, String trackedInstanceId);
 	
 	public List<CampaignPlayerTrack> findByPlayerIdAndTrackedInstanceId(String playerId, String trackedInstanceId);
+	
+	public Long countByCampaignId(String campaignId);
 }

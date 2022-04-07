@@ -3,6 +3,7 @@ package it.smartcommunitylab.playandgo.engine.model;
 import java.time.LocalDate;
 import java.util.Map;
 
+import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,19 +31,14 @@ public class Campaign {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@JsonDeserialize(using = LocalDateDeserializer.class)
 	private LocalDate dateTo;
-	@Indexed(unique=true)
-	private String gameId;
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;
 	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
-	
-	private String webPageUrl;
-	private String privacyUrl;
-	private String rulesUrl;
-	private String logoUrl;
-	private String organization;
-	private String registrationUrl;
-	
+	@Indexed(unique=true)
+	private String gameId;
+	private String privacy;
+	private String rules;
+	private Logo logo;
 	private Map<String, Object> validationData;
 
 	public Type getType() {
@@ -101,54 +97,6 @@ public class Campaign {
 		this.gameId = gameId;
 	}
 
-	public String getWebPageUrl() {
-		return webPageUrl;
-	}
-
-	public void setWebPageUrl(String webPageUrl) {
-		this.webPageUrl = webPageUrl;
-	}
-
-	public String getPrivacyUrl() {
-		return privacyUrl;
-	}
-
-	public void setPrivacyUrl(String privacyUrl) {
-		this.privacyUrl = privacyUrl;
-	}
-
-	public String getRulesUrl() {
-		return rulesUrl;
-	}
-
-	public void setRulesUrl(String rulesUrl) {
-		this.rulesUrl = rulesUrl;
-	}
-
-	public String getLogoUrl() {
-		return logoUrl;
-	}
-
-	public void setLogoUrl(String logoUrl) {
-		this.logoUrl = logoUrl;
-	}
-
-	public String getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(String organization) {
-		this.organization = organization;
-	}
-
-	public String getRegistrationUrl() {
-		return registrationUrl;
-	}
-
-	public void setRegistrationUrl(String registrationUrl) {
-		this.registrationUrl = registrationUrl;
-	}
-
 	public Map<String, Object> getValidationData() {
 		return validationData;
 	}
@@ -187,6 +135,30 @@ public class Campaign {
 
 	public void setStartDayOfWeek(int startDayOfWeek) {
 		this.startDayOfWeek = startDayOfWeek;
+	}
+
+	public String getPrivacy() {
+		return privacy;
+	}
+
+	public void setPrivacy(String privacy) {
+		this.privacy = privacy;
+	}
+
+	public String getRules() {
+		return rules;
+	}
+
+	public void setRules(String rules) {
+		this.rules = rules;
+	}
+
+	public Logo getLogo() {
+		return logo;
+	}
+
+	public void setLogo(Logo logo) {
+		this.logo = logo;
 	}
 
 }

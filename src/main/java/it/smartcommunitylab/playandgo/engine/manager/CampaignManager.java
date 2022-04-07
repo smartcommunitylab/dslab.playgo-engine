@@ -13,7 +13,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignGameNotification;
@@ -23,7 +25,9 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.Logo;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
@@ -45,12 +49,17 @@ public class CampaignManager {
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
+	CampaignPlayerTrackRepository campaignPlayerTrackRepository;
+	
+	@Autowired
 	PlayerRepository playerRepository;
 	
 	@Autowired
 	PersonalCampaignGameNotification personalCampaignGameNotification;
+	
 	@Autowired
 	CityCampaignGameNotification cityCampaignGameNotification;
+	
 	@Autowired
 	SchoolCampaignGameNotification schoolCampaignGameNotification;
 	
@@ -82,11 +91,20 @@ public class CampaignManager {
 		return campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
 	}
 	
-	public Campaign deleteCampaign(String campaignId) {
+	public Campaign deleteCampaign(String campaignId) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
-		if(campaign != null) {
-			campaignRepository.deleteById(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
+		Long count = campaignSubscriptionRepository.countByCampaignId(campaignId);
+		if(count > 0) {
+			throw new BadRequestException("campaign in use", ErrorCode.CAMPAIGN_IN_USE);
+		}
+		count = campaignPlayerTrackRepository.countByCampaignId(campaignId);
+		if(count > 0) {
+			throw new BadRequestException("campaign in use", ErrorCode.CAMPAIGN_IN_USE);
+		}
+		campaignRepository.deleteById(campaignId);		
 		return campaign;
 	}
 	
@@ -173,5 +191,26 @@ public class CampaignManager {
 			sub.setCampaignData(campaignData);
 		}
 		return campaignSubscriptionRepository.save(sub);
+	}
+	
+	public Logo uploadCampaignLogo(String campaignId, MultipartFile data) throws Exception {
+		Campaign campaign = getCampaign(campaignId);
+		if(campaign == null) {
+			logger.warn("campaign not found");
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
+		}
+		MediaType mediaType = MediaType.parseMediaType(data.getContentType());
+		if (!mediaType.isCompatibleWith(MediaType.IMAGE_GIF) && !mediaType.isCompatibleWith(MediaType.IMAGE_JPEG) && !mediaType.isCompatibleWith(MediaType.IMAGE_PNG)) {
+			logger.warn("Image format not supported");
+			throw new BadRequestException("Image format not supported", ErrorCode.IMAGE_WRONG_FORMAT);
+		}
+		Logo logo = new Logo();
+		logo.setContentType(data.getContentType());
+		byte[] targetArray = new byte[data.getInputStream().available()];
+		data.getInputStream().read(targetArray);
+		logo.setImage(targetArray);
+		campaign.setLogo(logo);
+		campaignRepository.save(campaign);
+		return logo;
 	}
 }
