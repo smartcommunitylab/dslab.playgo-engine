@@ -47,6 +47,14 @@ public class CampaignController extends PlayAndGoController {
 		campaignManager.addCampaign(campaign);
 	}
 	
+	@PutMapping("/api/campaign")
+	public void updateCampaign(
+			@RequestBody Campaign campaign,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		campaignManager.updateCampaign(campaign);
+	}
+	
 	@GetMapping("/api/campaign/{campaignId}")
 	public Campaign getCampaign(
 			@PathVariable String campaignId,

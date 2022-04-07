@@ -10,4 +10,9 @@ public class StorageException extends PlayAndGoException {
 	public StorageException(String message) {
 		super(message);
 	}
+	
+	public StorageException(String message, String code) {
+		super(message, code);
+	}
+
 }

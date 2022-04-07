@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignGameNotifi
 import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.exception.StorageException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -63,20 +64,54 @@ public class CampaignManager {
 	@Autowired
 	SchoolCampaignGameNotification schoolCampaignGameNotification;
 	
-	public void addCampaign(Campaign campaign) {
-		campaignRepository.save(campaign);
+	public void addCampaign(Campaign campaign) throws Exception {
+		try {
+			campaignRepository.save(campaign);
+			switch (campaign.getType()) {
+				case personal:
+					personalCampaignGameNotification.subcribeCampaing(campaign);
+					break;
+				case city:
+					cityCampaignGameNotification.subcribeCampaing(campaign);
+					break;
+				case school:
+					schoolCampaignGameNotification.subcribeCampaing(campaign);
+					break;
+				case company:
+			}			
+		} catch (Exception e) {
+			throw new StorageException("territory save error", ErrorCode.ENTITY_SAVE_ERROR);
+		}
+	}
+	
+	public void updateCampaign(Campaign campaign) throws Exception {
+		Campaign campaignDb = getCampaign(campaign.getCampaignId());
+		if(campaignDb == null) {
+			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}
+		campaignDb.setName(campaign.getName());
+		campaignDb.setDescription(campaign.getDescription());
+		campaignDb.setDateFrom(campaign.getDateFrom());
+		campaignDb.setDateTo(campaign.getDateTo());
+		campaignDb.setActive(campaign.getActive());
+		campaignDb.setStartDayOfWeek(campaign.getStartDayOfWeek());
+		campaignDb.setPrivacy(campaign.getPrivacy());
+		campaignDb.setRules(campaign.getRules());
+		campaignDb.setGameId(campaign.getGameId());
+		campaignDb.setValidationData(campaign.getValidationData());
+		campaignRepository.save(campaignDb);
 		switch (campaign.getType()) {
 			case personal:
-				personalCampaignGameNotification.subcribeCampaing(campaign);
+				personalCampaignGameNotification.subcribeCampaing(campaignDb);
 				break;
 			case city:
-				cityCampaignGameNotification.subcribeCampaing(campaign);
+				cityCampaignGameNotification.subcribeCampaing(campaignDb);
 				break;
 			case school:
-				schoolCampaignGameNotification.subcribeCampaing(campaign);
+				schoolCampaignGameNotification.subcribeCampaing(campaignDb);
 				break;
 			case company:
-		}
+		}							
 	}
 	
 	public Campaign getCampaign(String campaignId) {

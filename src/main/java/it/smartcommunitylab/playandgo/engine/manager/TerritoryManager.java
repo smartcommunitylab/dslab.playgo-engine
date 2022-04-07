@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.exception.StorageException;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
@@ -23,8 +26,31 @@ public class TerritoryManager {
 	@Autowired
 	CampaignRepository campaignRepository;
 	
-	public void saveTerritory(Territory territory) {
-		territoryRepository.save(territory);
+	public void saveTerritory(Territory territory) throws Exception {
+		try {
+			territoryRepository.save(territory);
+			Campaign campaign = new Campaign();
+			campaign.setCampaignId(territory.getTerritoryId() + ".personal");
+			campaign.setTerritoryId(territory.getTerritoryId());
+			campaign.setType(Type.personal);
+			campaign.setName("Campaign " + territory.getName());
+			campaign.getValidationData().put("means", territory.getTerritoryData().get("means"));
+			//TODO compile other fields
+			campaignRepository.save(campaign);
+		} catch (Exception e) {
+			throw new StorageException("territory save error", ErrorCode.ENTITY_SAVE_ERROR);
+		}
+	}
+	
+	public void updateTerritory(Territory territory) throws Exception {
+		Territory territoryDb = getTerritory(territory.getTerritoryId());
+		if(territoryDb == null) {
+			throw new BadRequestException("territory doesn't exist", ErrorCode.TERRITORY_NOT_FOUND);
+		}
+		territoryDb.setName(territory.getName());
+		territoryDb.setDescription(territory.getDescription());
+		territoryDb.setTerritoryData(territory.getTerritoryData());
+		territoryRepository.save(territoryDb);
 	}
 	
 	public Territory getTerritory(String territoryId) {

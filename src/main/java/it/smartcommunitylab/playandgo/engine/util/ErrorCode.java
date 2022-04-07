@@ -17,5 +17,6 @@ public class ErrorCode {
 	public final static String IMAGE_TOO_BIG = "IMG1";
 	public final static String IMAGE_WRONG_FORMAT = "IMG2";
 	public final static String IMAGE_NOT_FOUND = "IMG3";
+	public final static String ENTITY_SAVE_ERROR = "E1";
 	
 }

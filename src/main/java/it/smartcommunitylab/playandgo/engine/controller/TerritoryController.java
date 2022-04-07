@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,6 +31,14 @@ public class TerritoryController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
 		territoryManager.saveTerritory(territory);
+	}
+	
+	@PutMapping("/api/territory")
+	public void updateTerritory(
+			@RequestBody Territory territory,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		territoryManager.updateTerritory(territory);
 	}
 	
 	@GetMapping("/api/territory/{territoryId}")

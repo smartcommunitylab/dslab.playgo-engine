@@ -16,6 +16,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.GamificationMessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ManageGameNotification;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class SchoolCampaignGameNotification implements ManageGameNotification {
@@ -38,8 +39,10 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	}
 	
 	public void subcribeCampaing(Campaign c) {
-		gamificationMessageQueueManager.setGameNotification(c.getGameId());
-		logger.debug(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));		
+		if(Utils.isNotEmpty(c.getGameId())) {
+			gamificationMessageQueueManager.setGameNotification(c.getGameId());
+			logger.debug(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
+		}
 	}
 	
 	@Override
