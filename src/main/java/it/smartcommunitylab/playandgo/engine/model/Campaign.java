@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
@@ -38,7 +39,7 @@ public class Campaign {
 	private String privacy;
 	private String rules;
 	private Logo logo;
-	private Map<String, Object> validationData;
+	private Map<String, Object> validationData = new HashMap<>();
 
 	public Type getType() {
 		return type;
