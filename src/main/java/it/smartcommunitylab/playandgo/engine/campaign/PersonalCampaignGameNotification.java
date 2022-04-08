@@ -41,8 +41,10 @@ public class PersonalCampaignGameNotification implements ManageGameNotification 
 		gamificationMessageQueueManager.setManageGameNotification(this, Type.personal);
 		List<Campaign> list = campaignRepository.findByType(Type.personal, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		list.forEach(c -> {
-			gamificationMessageQueueManager.setGameNotification(c.getGameId());
-			logger.debug(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));
+			if(Utils.isNotEmpty(c.getGameId())) {
+				gamificationMessageQueueManager.setGameNotification(c.getGameId());
+				logger.debug(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
+			}
 		});
 	}
 	
