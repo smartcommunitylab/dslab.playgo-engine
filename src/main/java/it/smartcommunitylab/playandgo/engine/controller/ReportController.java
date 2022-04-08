@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
+import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.report.TransportStats;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
@@ -81,24 +82,6 @@ public class ReportController extends PlayAndGoController {
 		return placing;
 	}
 	
-	@GetMapping("/api/report/player/transport/stats")
-	public List<TransportStats> getPlayerTransportStats(
-			@RequestParam String dateFrom,
-			@RequestParam String dateTo,
-			@RequestParam String groupMode,
-			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
-		return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate, groupMode);
-	}
-
 	@GetMapping("/api/report/campaign/placing/co2")
 	public Page<CampaignPlacing> getCampaingPlacingByCo2(
 			@RequestParam String campaignId,
@@ -137,6 +120,82 @@ public class ReportController extends PlayAndGoController {
 		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayerAndCo2(playerId, campaignId, 
 				dateFromDate, dateToDate);
 		return placing;
+	}
+	
+	@GetMapping("/api/report/campaign/placing/game")
+	public Page<CampaignPlacing> getCampaingPlacingByGame(
+			@RequestParam String campaignId,
+			@RequestParam(required = false) String dateFrom,
+			@RequestParam(required = false) String dateTo,
+			Pageable pageRequest,
+			HttpServletRequest request) throws Exception {
+		LocalDate dateFromDate = null;
+		LocalDate dateToDate = null;
+		if(Utils.isNotEmpty(dateFrom)) {
+			dateFromDate = LocalDate.parse(dateFrom);
+		}		
+		if(Utils.isNotEmpty(dateTo)) {
+			dateToDate = LocalDate.parse(dateTo);
+		}		
+		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByGame(campaignId,  
+				dateFromDate, dateToDate, pageRequest);
+		return page;			
+	}
+
+	@GetMapping("/api/report/campaign/placing/player/game")
+	public CampaignPlacing getPlayerCampaingPlacingByGame(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam(required = false) String dateFrom,
+			@RequestParam(required = false) String dateTo,
+			HttpServletRequest request) throws Exception {
+		LocalDate dateFromDate = null;
+		LocalDate dateToDate = null;
+		if(Utils.isNotEmpty(dateFrom)) {
+			dateFromDate = LocalDate.parse(dateFrom);
+		}		
+		if(Utils.isNotEmpty(dateTo)) {
+			dateToDate = LocalDate.parse(dateTo);
+		}		
+		CampaignPlacing placing = playerReportManager.getCampaignPlacingByGameAndPlayer(playerId, campaignId, 
+				dateFromDate, dateToDate);
+		return placing;
+	}
+
+	@GetMapping("/api/report/player/transport/stats")
+	public List<TransportStats> getPlayerTransportStats(
+			@RequestParam String dateFrom,
+			@RequestParam String dateTo,
+			@RequestParam String groupMode,
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		LocalDate dateFromDate = null;
+		LocalDate dateToDate = null;
+		if(Utils.isNotEmpty(dateFrom)) {
+			dateFromDate = LocalDate.parse(dateFrom);
+		}		
+		if(Utils.isNotEmpty(dateTo)) {
+			dateToDate = LocalDate.parse(dateTo);
+		}		
+		return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate, groupMode);
+	}
+	
+	@GetMapping("/api/report/player/game/stats")
+	public List<GameStats> getPlayerGameStats(
+			@RequestParam String dateFrom,
+			@RequestParam String dateTo,
+			@RequestParam String groupMode,
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		LocalDate dateFromDate = null;
+		LocalDate dateToDate = null;
+		if(Utils.isNotEmpty(dateFrom)) {
+			dateFromDate = LocalDate.parse(dateFrom);
+		}		
+		if(Utils.isNotEmpty(dateTo)) {
+			dateToDate = LocalDate.parse(dateTo);
+		}		
+		return playerReportManager.getPlayerGameStats(player, dateFromDate, dateToDate, groupMode);
 	}
 
  }

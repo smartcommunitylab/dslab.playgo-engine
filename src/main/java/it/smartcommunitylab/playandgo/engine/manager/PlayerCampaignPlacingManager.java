@@ -37,9 +37,11 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
+import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.report.TransportStats;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
@@ -186,7 +188,7 @@ public class PlayerCampaignPlacingManager {
 		return status;
 	}
 	
-	private long countDistincPlayers(Criteria criteria) {
+	private long countTransportDistincPlayers(Criteria criteria) {
 		MatchOperation matchOperation = Aggregation.match(criteria);
 		GroupOperation groupOperation = Aggregation.group("playerId");
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
@@ -231,7 +233,7 @@ public class PlayerCampaignPlacingManager {
 			cp.setPosition(index + 1);
 			index++;
 		}
-		return new PageImpl<>(list, pageRequest, countDistincPlayers(criteria));
+		return new PageImpl<>(list, pageRequest, countTransportDistincPlayers(criteria));
 	}
 	
 	private CampaignPlacing getCampaignPlacingByPlayer(String playerId, String campaignId, 
@@ -351,6 +353,120 @@ public class PlayerCampaignPlacingManager {
 			stats.setTotalDuration(doc.getLong("totalDuration"));
 			stats.setTotalCo2(doc.getDouble("totalCo2"));
 			stats.setTotalTravel(doc.getLong("totalTravel"));
+			result.add(stats);
+		}
+		return result;
+	}
+	
+	public Page<CampaignPlacing> getCampaignPlacingByGame(String campaignId,  
+			LocalDate dateFrom, LocalDate dateTo, Pageable pageRequest) {
+		Criteria criteria = new Criteria("campaignId").is(campaignId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		}
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("playerId").sum("score").as("value");
+		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "value"));
+		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
+		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, 
+				skipOperation, limitOperation);
+		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				PlayerStatsGame.class, CampaignPlacing.class);
+		List<CampaignPlacing> list = aggregationResults.getMappedResults();
+		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
+		for(CampaignPlacing cp : list) {
+			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
+			if(player != null) {
+				cp.setNickname(player.getNickname());
+			}
+			cp.setPosition(index + 1);
+			index++;
+		}
+		return new PageImpl<>(list, pageRequest, countGameDistincPlayers(criteria));
+	}
+	
+	public CampaignPlacing getCampaignPlacingByGameAndPlayer(String playerId, String campaignId,
+			LocalDate dateFrom, LocalDate dateTo) throws Exception {
+		Player player = playerRepository.findById(playerId).orElse(null);
+		if(player == null) {
+			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
+		}
+		//get player score
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		}		
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("playerId").sum("score").as("value");
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				PlayerStatsGame.class, CampaignPlacing.class);
+		
+		CampaignPlacing placing = null;
+		if(aggregationResults.getMappedResults().size() == 0) {
+			placing = new CampaignPlacing();
+			placing.setPlayerId(playerId);
+			placing.setNickname(player.getNickname());
+		} else {
+			placing = aggregationResults.getMappedResults().get(0);
+			placing.setNickname(player.getNickname());
+		}
+		
+		//get player position
+		Criteria criteriaPosition = new Criteria("campaignId").is(campaignId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteriaPosition = criteriaPosition.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		}				
+		MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
+		GroupOperation groupByPlayer = Aggregation.group("playerId").sum("score").as("value");
+		MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
+		Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
+		AggregationResults<CampaignPlacing> aggregationPositionResults = mongoTemplate.aggregate(aggregationPosition, 
+				PlayerStatsGame.class, CampaignPlacing.class);
+		placing.setPosition(aggregationPositionResults.getMappedResults().size() + 1);
+		
+		return placing;
+	}
+	
+	private long countGameDistincPlayers(Criteria criteria) {
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("playerId");
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				PlayerStatsGame.class, Document.class);
+		return aggregationResults.getMappedResults().size();
+	}
+	
+	public List<GameStats> getPlayerGameStats(Player player, LocalDate dateFrom, LocalDate dateTo, 
+			String groupMode) {
+		List<GameStats> result = new ArrayList<>();
+		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
+		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId())
+				.and("playerId").is(player.getPlayerId())
+				.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		String groupField = null;
+		if(GroupMode.day.toString().equals(groupMode)) {
+			groupField = "day";
+		} else if(GroupMode.week.toString().equals(groupMode)) {
+			groupField = "weekOfYear";
+		} else {
+			groupField = "monthOfYear";
+		}
+		GroupOperation groupOperation = Aggregation.group(groupField).sum("score").as("totalScore");
+		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "_id"));
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsGame.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			GameStats stats = new GameStats();
+			if(GroupMode.day.toString().equals(groupMode)) {
+				Date date = (doc.getDate("_id"));
+				stats.setPeriod(sdf.format(date));
+			} else {
+				stats.setPeriod(doc.getString("_id"));
+			}
+			stats.setTotalScore(doc.getDouble("totalScore"));
 			result.add(stats);
 		}
 		return result;
