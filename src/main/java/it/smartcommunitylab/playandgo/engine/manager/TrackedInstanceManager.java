@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.aggregation.SkipOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 
@@ -41,8 +42,8 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
-import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
@@ -60,6 +61,7 @@ import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepositor
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
 import it.smartcommunitylab.playandgo.engine.validation.GeolocationsProcessor;
+import it.smartcommunitylab.playandgo.engine.validation.ValidationConstants;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
 
 @Component
@@ -252,31 +254,112 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	public void validateTripRequest(ValidateTripRequest msg) {
 		TrackedInstance track = getTrackedInstance(msg.getTrackedInstanceId());
 		if(track != null) {
-			try {
-				ValidationResult validationResult = validationService.validateFreeTracking(track.getGeolocationEvents(), 
-						track.getFreeTrackingTransport(), msg.getTerritoryId());
-				updateValidationResult(track, validationResult);
-				if(!TravelValidity.INVALID.equals(validationResult.getTravelValidity())) {
-					List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(msg.getPlayerId(), msg.getTerritoryId());
-					for(CampaignSubscription sub : list) {
-						Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
-						CampaignPlayerTrack pTrack = new CampaignPlayerTrack();
-						pTrack.setPlayerId(msg.getPlayerId());
-						pTrack.setCampaignId(sub.getCampaignId());
-						pTrack.setCampaignSubscriptionId(sub.getId());
-						pTrack.setTrackedInstanceId(track.getId());
-						pTrack.setTerritoryId(msg.getTerritoryId());
-						pTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
-						campaignPlayerTrackRepository.save(pTrack);
-						ValidateCampaignTripRequest request = new ValidateCampaignTripRequest(msg.getPlayerId(), 
-								msg.getTerritoryId(), track.getId(), sub.getCampaignId(), sub.getId(), pTrack.getId(), campaign.getType().toString());
-						queueManager.sendValidateCampaignTripRequest(request);
+			if (!StringUtils.hasText(track.getSharedTravelId())) {
+				// free tracking
+				validateFreeTrackingTripRequest(msg, track);
+			} else {
+				// carsharing
+				validateSharedTravelRequest(msg, track);
+			}
+		}
+	}
+
+	/**
+	 * Validate free tracking: validate on territory, and in case of validity validate on campaigns
+	 * @param msg
+	 * @param track
+	 */
+	private void validateFreeTrackingTripRequest(ValidateTripRequest msg, TrackedInstance track) {
+		try {
+			ValidationResult validationResult = validationService.validateFreeTracking(track.getGeolocationEvents(), 
+					track.getFreeTrackingTransport(), msg.getTerritoryId());
+			updateValidationResult(track, validationResult);
+			if(!TravelValidity.INVALID.equals(validationResult.getTravelValidity())) {
+				storeAndValidateCampaigns(msg);
+			}
+		} catch (Exception e) {
+			logger.warn("validateTripRequest error:" + e.getMessage());
+			updateValidationResultAsError(track);
+		}			
+	}
+
+	/**
+	 * For each campaign subscribed and matching validate for campaign and store CampaignPlayerTrack
+	 * @param msg
+	 * @param track
+	 * @throws Exception
+	 */
+	private void storeAndValidateCampaigns(ValidateTripRequest msg) throws Exception {
+		List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(msg.getPlayerId(), msg.getTerritoryId());
+		for(CampaignSubscription sub : list) {
+			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
+			// skip non-active campaigns
+			if (!campaign.currentlyActive()) continue;
+			// keep existing track
+			CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), campaign.getCampaignId(), msg.getTrackedInstanceId());
+			if (pTrack == null) {
+				pTrack = new CampaignPlayerTrack();
+				pTrack.setPlayerId(msg.getPlayerId());
+				pTrack.setCampaignId(sub.getCampaignId());
+				pTrack.setCampaignSubscriptionId(sub.getId());
+				pTrack.setTrackedInstanceId(msg.getTrackedInstanceId());
+				pTrack.setTerritoryId(msg.getTerritoryId());
+				pTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
+				pTrack = campaignPlayerTrackRepository.save(pTrack);
+			}
+			ValidateCampaignTripRequest request = new ValidateCampaignTripRequest(msg.getPlayerId(), 
+					msg.getTerritoryId(), msg.getTrackedInstanceId(), sub.getCampaignId(), sub.getId(), pTrack.getId(), campaign.getType().toString());
+			queueManager.sendValidateCampaignTripRequest(request);
+		}
+	}
+
+	private void validateSharedTravelRequest(ValidateTripRequest msg, TrackedInstance track) {
+		String sharedId = track.getSharedTravelId();
+		try {
+			if (ValidationConstants.isDriver(sharedId)) {
+				String passengerTravelId = ValidationConstants.getPassengerTravelId(sharedId);
+				List<TrackedInstance> list = trackedInstanceRepository.findPassengerTrips(msg.getTerritoryId(), passengerTravelId, msg.getPlayerId());
+				if (!list.isEmpty()) {
+					for (TrackedInstance passengerTravel: list) {
+						validateSharedTripPair(passengerTravel, passengerTravel.getUserId(), track.getClientId(), msg.getTerritoryId(), track);
 					}
 				}
-			} catch (Exception e) {
-				logger.warn("validateTripRequest error:" + e.getMessage());
-				updateValidationResultAsError(track);
-			}			
+			} else {
+				String driverTravelId = ValidationConstants.getDriverTravelId(sharedId);
+				TrackedInstance driverTravel = trackedInstanceRepository.findDriverTrip(msg.getTerritoryId(), driverTravelId, msg.getPlayerId());
+				if (driverTravel != null) {
+					validateSharedTripPair(track, msg.getPlayerId(), track.getClientId(), msg.getTerritoryId(), driverTravel);
+				}
+			}
+		} catch (Exception e) {
+			logger.warn("validateTripRequest error:" + e.getMessage());
+			updateValidationResultAsError(track);
+		}	
+	}
+
+	private void validateSharedTripPair(TrackedInstance passengerTravel, String passengerId, String passengerTravelId, String territoryId, TrackedInstance driverTravel) throws Exception {
+		// validate passenger trip
+		ValidationResult vr = validationService.validateSharedTripPassenger(passengerTravel.getGeolocationEvents(), driverTravel.getGeolocationEvents(), territoryId);
+		passengerTravel.setValidationResult(vr);
+		updateValidationResult(passengerTravel, vr);
+		
+		// validated driver trip if not yet done
+		if (driverTravel.getValidationResult() == null || driverTravel.getValidationResult().getValidationStatus() == null || TravelValidity.PENDING.equals(driverTravel.getValidationResult().getValidationStatus().getValidationOutcome())) {
+			ValidationResult driverVr = validationService.validateSharedTripDriver(driverTravel.getGeolocationEvents(), territoryId);
+			driverTravel.setValidationResult(driverVr);
+			updateValidationResult(driverTravel, driverVr);
+		}
+		
+		// passenger trip is valid: points are assigned to both
+		if (vr != null && !TravelValidity.INVALID.equals(vr.getTravelValidity())) {
+			ValidateTripRequest driverRequest = new ValidateTripRequest(driverTravel.getUserId(), territoryId, driverTravel.getId());
+			storeAndValidateCampaigns(driverRequest);
+			
+			ValidateTripRequest passRequest = new ValidateTripRequest(passengerId, territoryId, passengerTravel.getId());
+			storeAndValidateCampaigns(passRequest);
+		} else {
+			logger.warn("Validation result null");
+			updateValidationResultAsError(passengerTravel);
 		}
 	}
 

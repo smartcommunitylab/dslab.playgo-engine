@@ -74,7 +74,7 @@ public class GeolocationsProcessor {
 			groupByItinerary(geolocationsEvent, userId, geolocationsByItinerary, freeTracks, freeTrackStarts);
 
 			for (String key : geolocationsByItinerary.keySet()) {
-				TrackedInstance ti = preSaveTrackedInstance(key, userId, deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts);
+				TrackedInstance ti = preSaveTrackedInstance(key, userId, deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts, territoryId);
 				if (ti != null) {
 					instances.add(ti);
 					logger.info("Saved geolocation events, user: " + userId + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
@@ -294,7 +294,7 @@ public class GeolocationsProcessor {
 	}
 
 	private TrackedInstance preSaveTrackedInstance(String key, String userId, String deviceInfo, Multimap<String, Geolocation> geolocationsByItinerary, Map<String, String> freeTracks,
-			Map<String, Long> freeTrackStarts) throws Exception {
+			Map<String, Long> freeTrackStarts, String territoryId) throws Exception {
 		String splitKey[] = key.split("@");
 		String travelId = splitKey[0];
 		String multimodalId = null;
@@ -360,6 +360,7 @@ public class GeolocationsProcessor {
 			}
 			res.setDeviceInfo(deviceInfo);		
 			res.setMultimodalId(multimodalId);
+			res.setTerritoryId(territoryId);
 			trackedInstanceRepository.save(res);
 		} else {
 			if (res.getComplete() != null && res.getComplete()) {

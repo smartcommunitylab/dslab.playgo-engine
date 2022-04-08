@@ -3,7 +3,6 @@ package it.smartcommunitylab.playandgo.engine.model;
 import java.time.LocalDate;
 import java.util.Map;
 
-import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -161,4 +160,9 @@ public class Campaign {
 		this.logo = logo;
 	}
 
+	public boolean currentlyActive() {
+		return !Boolean.FALSE.equals(getActive()) && 
+				(getDateFrom() == null || !getDateFrom().isAfter(LocalDate.now())) &&
+				(getDateTo() == null || !getDateTo().isBefore(LocalDate.now()));
+	}
 }
