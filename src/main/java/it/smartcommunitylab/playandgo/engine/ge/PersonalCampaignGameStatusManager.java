@@ -102,6 +102,19 @@ public class PersonalCampaignGameStatusManager {
 			if(pointConcept.path("name").asText().equals("green leaves")) {
 				statusGame.setScore(pointConcept.path("score").asDouble());
 				
+				//update generale
+				PlayerStatsGame statsGlobal = statsGameRepository.findGlobalByPlayerIdAndCampaignId(
+						statusGame.getPlayerId(), statusGame.getCampaignId());
+				if(statsGlobal == null) {
+					statsGlobal = new PlayerStatsGame();
+					statsGlobal.setPlayerId(statusGame.getPlayerId());
+					statsGlobal.setCampaignId(statusGame.getCampaignId());
+					statsGlobal.setGlobal(Boolean.TRUE);
+					statsGameRepository.save(statsGlobal);
+				}
+				statsGlobal.setScore(pointConcept.path("score").asDouble());
+				statsGameRepository.save(statsGlobal);
+				
 				//update weekly points
 				try {
 					JsonNode weekly = pointConcept.findPath("weekly");
@@ -112,12 +125,13 @@ public class PersonalCampaignGameStatusManager {
 					}
 					for(String weekDate : dates) {
 						LocalDate day = LocalDate.parse(weekDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-						PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDay(
-								statusGame.getPlayerId(), statusGame.getCampaignId(), day);
+						PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDayAndGlobal(
+								statusGame.getPlayerId(), statusGame.getCampaignId(), day, Boolean.FALSE);
 						if(statsGame == null) {
 							statsGame = new PlayerStatsGame();
 							statsGame.setPlayerId(statusGame.getPlayerId());
 							statsGame.setCampaignId(statusGame.getCampaignId());
+							statsGame.setGlobal(Boolean.FALSE);
 							statsGame.setDay(day);
 							int weekOfYear = day.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
 							int monthOfYear = day.get(ChronoField.MONTH_OF_YEAR);

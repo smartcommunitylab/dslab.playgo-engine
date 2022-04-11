@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
@@ -13,5 +14,9 @@ public interface PlayerStatsGameRepository extends MongoRepository<PlayerStatsGa
 	
 	public List<PlayerStatsGame> findByPlayerIdAndCampaignId(String playerId, String campaignId);
 	
-	public PlayerStatsGame findByPlayerIdAndCampaignIdAndDay(String playerId, String campaignId, LocalDate day);
+	public PlayerStatsGame findByPlayerIdAndCampaignIdAndDayAndGlobal(String playerId, String campaignId, LocalDate day, Boolean global);
+
+	@Query("{'playerId':?0, 'campaignId': ?1, 'global': true}")
+	public PlayerStatsGame findGlobalByPlayerIdAndCampaignId(String playerId, String campaignId);
+
 }

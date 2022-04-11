@@ -16,6 +16,8 @@ public class PlayerStatsGame {
 	private String campaignId;
 	@Indexed
 	private LocalDate day;
+	@Indexed
+	private Boolean global = Boolean.FALSE; 	
 	private double score;
 	private String weekOfYear;
 	private String monthOfYear;	
@@ -61,5 +63,11 @@ public class PlayerStatsGame {
 	}
 	public void setMonthOfYear(String monthOfYear) {
 		this.monthOfYear = monthOfYear;
+	}
+	public Boolean getGlobal() {
+		return global;
+	}
+	public void setGlobal(Boolean global) {
+		this.global = global;
 	}	
 }
