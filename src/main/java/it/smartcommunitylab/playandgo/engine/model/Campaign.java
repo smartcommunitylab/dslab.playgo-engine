@@ -34,7 +34,7 @@ public class Campaign {
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;
 	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
-	@Indexed(unique=true)
+	@Indexed
 	private String gameId;
 	private String privacy;
 	private String rules;
