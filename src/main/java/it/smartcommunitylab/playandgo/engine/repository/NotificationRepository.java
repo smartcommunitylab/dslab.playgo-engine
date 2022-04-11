@@ -16,6 +16,8 @@
 
 package it.smartcommunitylab.playandgo.engine.repository;
 
+import java.util.Collection;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -29,7 +31,10 @@ import it.smartcommunitylab.playandgo.engine.notification.Notification;
  */
 public interface NotificationRepository extends MongoRepository<Notification, String>{
 
-	@Query("{'content.type':?0, 'content.timestamp': {$gte: ?1}}")
-	Page<Notification> searchNotifications(String capp, Long since, Pageable pageRequest);
+	@Query("{playerId: {$in:[?0, null]}, territoryId: ?1,campaignId: {$in: ?2}, 'timestamp': {$gte: ?3}}")
+	Page<Notification> searchPlayerNotifications(String playerId, String territoryId, Collection<String> campaigns, Long since, Pageable pageRequest);
+
+	@Query("{playerId: null, territoryId: ?0,campaignId: ?1}")
+	Page<Notification> searchCampaignNotifications(String territoryId, String campaignId, Pageable pr);
 
 }

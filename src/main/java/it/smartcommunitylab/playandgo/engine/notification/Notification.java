@@ -29,25 +29,22 @@ public class Notification {
 	@Id
 	private String id;
 	
-	private String gameId;
+	@Indexed
 	private String playerId;
 	@Indexed
 	private String campaignId;
+	@Indexed
+	private String territoryId;
 	
 	private long version;
 	private long updateTime;
 	private String title;
 	private String description;
-	private String messagingAppId;
-	private String user;
 	private Map<String, Object> content;
 	private long timestamp;
 	private boolean starred;
 	private List<String> labelIds;
 	private List<String> channelIds;
-	private List<EntityObject> entities;
-
-	private NotificationAuthor author;
 
 	private boolean readed;
 
@@ -55,14 +52,6 @@ public class Notification {
 
 	public Notification() {
 		super();
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
 	}
 
 	public Map<String, Object> getContent() {
@@ -135,22 +124,6 @@ public class Notification {
 		this.labelIds = labelIds;
 	}
 
-	public List<EntityObject> getEntities() {
-		return entities;
-	}
-
-	public void setEntities(List<EntityObject> entities) {
-		this.entities = entities;
-	}
-
-	public NotificationAuthor getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(NotificationAuthor author) {
-		this.author = author;
-	}
-
 	public static String userCopyId(String id, String userId) {
 		return id + "_" + userId;
 	}
@@ -181,19 +154,18 @@ public class Notification {
 
 	public Notification copy(String userId) {
 		Notification notification = new Notification();
-		notification.setAuthor(author);
 		notification.setChannelIds(channelIds);
 		notification.setContent(content);
 		notification.setDescription(description);
-		notification.setEntities(entities);
 		notification.setLabelIds(labelIds);
 		notification.setReaded(readed);
 		notification.setStarred(starred);
 		notification.setTimestamp(timestamp);
 		notification.setUpdateTime(updateTime);
 		notification.setTitle(title);
-		notification.setMessagingAppId(messagingAppId);
-		notification.setUser(user);
+		notification.setPlayerId(playerId);
+		notification.setTerritoryId(territoryId);
+		notification.setCampaignId(campaignId);
 		notification.setId(userCopyId(getId(), userId));
 		return notification;
 	}
@@ -204,22 +176,6 @@ public class Notification {
 
 	public boolean markedDeleted() {
 		return markDeleted;
-	}
-
-	public String getMessagingAppId() {
-		return messagingAppId;
-	}
-
-	public void setMessagingAppId(String messagingAppId) {
-		this.messagingAppId = messagingAppId;
-	}
-
-	public String getGameId() {
-		return gameId;
-	}
-
-	public void setGameId(String gameId) {
-		this.gameId = gameId;
 	}
 
 	public String getPlayerId() {
@@ -237,4 +193,14 @@ public class Notification {
 	public void setCampaignId(String campaignId) {
 		this.campaignId = campaignId;
 	}
+
+	public String getTerritoryId() {
+		return territoryId;
+	}
+
+	public void setTerritoryId(String territoryId) {
+		this.territoryId = territoryId;
+	}
+	
+	
 }

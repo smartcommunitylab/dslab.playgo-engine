@@ -55,7 +55,7 @@ public class GoogleCloudMessengerManager implements PushServiceCloud {
 	 */
 	@Override
 	public void sendToCloud(Notification notification) throws NotFoundException, NoUserAccount, PushException {
-		if (notification.getUser() != null) {
+		if (notification.getPlayerId() != null) {
 			sendToCloudUser(notification);
 		} else if (notification.getChannelIds() != null && !notification.getChannelIds().isEmpty()) {
 			sendToCloudTopics(notification);
@@ -67,15 +67,11 @@ public class GoogleCloudMessengerManager implements PushServiceCloud {
 		
 		// in default case is the system messenger that send
 		FCMSender sender = null;
-		String senderAppName = notification.getAuthor().getMessagingAppId();
-
 		sender = new FCMSender(gcmSenderApiKey);
 
 		String registrationId = "";
 
-		logger.info("Sending message to user: "+senderAppName+" -> "+notification.getUser());
-
-		UserAccount listUserAccount = userAccountRepository.findByPlayerId(notification.getUser());
+		UserAccount listUserAccount = userAccountRepository.findByPlayerId(notification.getPlayerId());
 
 		if (listUserAccount != null && sender != null) {
 
@@ -92,13 +88,6 @@ public class GoogleCloudMessengerManager implements PushServiceCloud {
 						if (notification.getContent().get(key) != null) {
 							message.addData("content." + key, notification.getContent().get(key).toString());
 						}
-					}
-				}
-				if (notification.getEntities() != null && !notification.getEntities().isEmpty()) {
-					try {
-						message.addData("entities", mapper.writeValueAsString(notification.getEntities()));
-					} catch (Exception e) {
-						logger.warn("Failed to convert entities: " + e.getMessage());
 					}
 				}
 				
@@ -153,7 +142,7 @@ public class GoogleCloudMessengerManager implements PushServiceCloud {
 			}
 
 		} else {
-			throw new NoUserAccount("The user "+notification.getUser()+" is not register for receive push notification");
+			throw new NoUserAccount("The user "+notification.getPlayerId()+" is not register for receive push notification");
 		}
 	}
 
@@ -167,7 +156,7 @@ public class GoogleCloudMessengerManager implements PushServiceCloud {
 		Set<String> toRemove = new HashSet<String>();
 		for (int i = 0; i < results.size(); i++) {
 			Result res = results.get(i);
-			if (StringUtils.isEmpty(res.getMessageId())) {
+			if (!StringUtils.hasText(res.getMessageId())) {
 				toRemove.add(regIds.get(i));
 			}
 		}
@@ -196,13 +185,6 @@ public class GoogleCloudMessengerManager implements PushServiceCloud {
 					if (notification.getContent().get(key) != null) {
 						message.addData("content." + key, notification.getContent().get(key).toString());
 					}
-				}
-			}
-			if (notification.getEntities() != null && !notification.getEntities().isEmpty()) {
-				try {
-					message.addData("entities", mapper.writeValueAsString(notification.getEntities()));
-				} catch (Exception e) {
-					logger.warn("Failed to convert entities: " + e.getMessage());
 				}
 			}
 			

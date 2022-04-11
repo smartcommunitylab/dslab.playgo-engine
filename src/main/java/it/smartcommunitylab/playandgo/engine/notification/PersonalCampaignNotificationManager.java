@@ -105,8 +105,8 @@ public class PersonalCampaignNotificationManager {
 						}
 						if (notification != null) {
 								try {
-									logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getMessagingAppId() + ")");
-									notificatioHelper.notify(notification, not.getPlayerId(), territory.getMessagingAppId());
+									logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + ")");
+									notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
 								} catch (Exception e) {
 									logger.error("Error sending notification", e);
 								}

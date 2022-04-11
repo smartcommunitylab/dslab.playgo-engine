@@ -17,14 +17,18 @@
 package it.smartcommunitylab.playandgo.engine.notification;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import it.smartcommunitylab.playandgo.engine.exception.NotFoundException;
+import it.smartcommunitylab.playandgo.engine.exception.PushException;
 
 /**
  * @author raman
@@ -33,42 +37,47 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommunicationHelper {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
+
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
 	@Autowired
 	private CommunicationManager notificationManager;
 
-	public void notify(Notification n, String playerId, String messagingAppId) {
+	/**
+	 * Save notification entity and notify the user if needed. 
+	 * @param n
+	 * @param playerId, optional
+	 * @param territoryId, optional
+	 * @param campaignId, optional
+	 * @param push, whether to send a push notification to user
+	 * @throws PushException 
+	 * @throws NotFoundException 
+	 */
+	public Notification notify(Notification n, String playerId, String territoryId, String campaignId, boolean push) throws Exception {
 			long when = System.currentTimeMillis();
 			n.setTimestamp(when);
-			try {
-				NotificationAuthor author = new NotificationAuthor();
-				author.setPlayerId(playerId);
+			n.setTerritoryId(territoryId);
+			n.setCampaignId(campaignId);
+			n.setPlayerId(playerId);
 
-				n.setMessagingAppId(messagingAppId);
-				n.setAuthor(author);
-
-				if (StringUtils.isEmpty(playerId)) {
-					n.setId(null);
-					n.setUser(null);
-					n.addChannelId(messagingAppId);
-				} else {
-					n.setUser(playerId);
-				}
-				notificationManager.create(n);
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger .error("Failed to send notifications: "+e.getMessage(), e);
+			if (!StringUtils.hasText(playerId)) {
+				if (StringUtils.hasText(campaignId)) {
+					n.addChannelId(campaignId);
+				} 
+				else if (StringUtils.hasText(territoryId)) {
+					n.addChannelId(territoryId);
+				} 
 			}
+			return notificationManager.create(n, push);
 	}
 	
-	public void notifyAnnouncement(Announcement announcement, String messagingAppId) {
+	public Notification notifyAnnouncement(Announcement announcement, String territoryId, String campaignId) throws Exception {
 		Notification not = new Notification();
 		
 		not.setTitle(announcement.getTitle());
 		not.setDescription(announcement.getDescription());
 	
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		long from = -1;
 		long to = -1;
 		
@@ -88,8 +97,22 @@ public class CommunicationHelper {
 		}
 		content.put("from", from);
 		content.put("to", to);
+		content.put("notification", Boolean.TRUE.equals(announcement.getNotification()));
 		not.setContent(content);
 		
-		notify(not, null, messagingAppId);
+		Notification stored = notify(not, null, territoryId, campaignId, Boolean.TRUE.equals(announcement.getNotification()));
+		return stored;
+	}
+	
+	public Announcement toAnnouncement(Notification n) {
+		Announcement a = new Announcement();
+		a.setDescription(n.getDescription());
+		if (n.getContent().get("from") != null && !n.getContent().get("from").equals(-1l)) a.setFrom(sdf.format(new Date((long) n.getContent().get("from"))));
+		if (n.getContent().get("to") != null && !n.getContent().get("to").equals(-1l)) a.setTo(sdf.format(new Date((long) n.getContent().get("to"))));
+		a.setNotification((Boolean) n.getContent().get("notification"));
+		a.setTimestamp(n.getTimestamp());
+		a.setTitle(n.getTerritoryId());
+		a.setHtml((String) n.getContent().get("_html"));
+		return a;
 	}
 }
