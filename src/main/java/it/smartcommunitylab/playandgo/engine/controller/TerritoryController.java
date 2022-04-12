@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 
 @RestController
 public class TerritoryController extends PlayAndGoController {
@@ -37,7 +38,7 @@ public class TerritoryController extends PlayAndGoController {
 	public void updateTerritory(
 			@RequestBody Territory territory,
 			HttpServletRequest request) throws Exception {
-		checkAdminRole(request);
+		checkRole(request, Role.territory, territory.getTerritoryId());
 		territoryManager.updateTerritory(territory);
 	}
 	

@@ -43,7 +43,7 @@ public class CampaignController extends PlayAndGoController {
 	public void addCampaign(
 			@RequestBody Campaign campaign,
 			HttpServletRequest request) throws Exception {
-		checkAdminRole(request);
+		checkRole(request, Role.territory, campaign.getTerritoryId());
 		campaignManager.addCampaign(campaign);
 	}
 	
@@ -51,7 +51,7 @@ public class CampaignController extends PlayAndGoController {
 	public void updateCampaign(
 			@RequestBody Campaign campaign,
 			HttpServletRequest request) throws Exception {
-		checkAdminRole(request);
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
 		campaignManager.updateCampaign(campaign);
 	}
 	
@@ -76,7 +76,11 @@ public class CampaignController extends PlayAndGoController {
 	public Campaign deleteCampaign(
 			@PathVariable String campaignId,
 			HttpServletRequest request) throws Exception {
-		checkAdminRole(request);
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, Role.territory, campaign.getTerritoryId());
 		return campaignManager.deleteCampaign(campaignId);
 	}
 	
@@ -85,7 +89,11 @@ public class CampaignController extends PlayAndGoController {
 			@PathVariable String campaignId,
 			@RequestParam("data") MultipartFile data,
 			HttpServletRequest request) throws Exception {
-		checkAdminRole(request);
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
 		return campaignManager.uploadCampaignLogo(campaignId, data);
 	}
 	

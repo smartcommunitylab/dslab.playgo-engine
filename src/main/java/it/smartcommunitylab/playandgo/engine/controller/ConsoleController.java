@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
@@ -25,7 +26,7 @@ public class ConsoleController extends PlayAndGoController {
 	PlayerRoleRepository playerRoleRepository;
 	
 	@Autowired
-	CampaignRepository campaignRepository;
+	CampaignManager campaignManager;
 	
 	@PostMapping("/api/console/role/territory")
 	public void addTerritoryManager(
@@ -45,7 +46,7 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam String userName,
 			@RequestParam String campaignId,
 			HttpServletRequest request) throws Exception {
-		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
@@ -69,7 +70,7 @@ public class ConsoleController extends PlayAndGoController {
 	public List<PlayerRole> getCampaignManager(
 			@RequestParam String campaignId,
 			HttpServletRequest request) throws Exception {
-		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
