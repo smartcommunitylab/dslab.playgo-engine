@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection="roles")
 public class PlayerRole {
 	public static enum Role {
-		admin, territory
+		admin, territory, campaign
 	};
 
 	@Id
@@ -15,6 +15,8 @@ public class PlayerRole {
 	
 	@Indexed
 	private String playerId;
+	@Indexed
+	private String preferredUsername;
 	private Role role;
 	private String entityId;
 	
@@ -41,5 +43,11 @@ public class PlayerRole {
 	}
 	public void setEntityId(String entityId) {
 		this.entityId = entityId;
+	}
+	public String getPreferredUsername() {
+		return preferredUsername;
+	}
+	public void setPreferredUsername(String preferredUsername) {
+		this.preferredUsername = preferredUsername;
 	}
 }

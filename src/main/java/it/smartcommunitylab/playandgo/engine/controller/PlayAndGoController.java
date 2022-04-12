@@ -47,6 +47,16 @@ public class PlayAndGoController {
 		return subject;
 	}
 	
+	public String getCurrentPreferredUsername(HttpServletRequest request) throws UnauthorizedException {
+		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		Jwt principal = (Jwt) authentication.getPrincipal();
+		String subject = principal.getClaimAsString("preferred_username");
+		if(Utils.isEmpty(subject)) {
+			throw new UnauthorizedException("preferred_username not found", ErrorCode.SUBJECT_NOT_FOUND);
+		}
+		return subject;
+	}
+	
 	public Player getCurrentPlayer(HttpServletRequest request) throws UnauthorizedException {
 		String subject = getCurrentSubject(request);		
 		Player player = playerRepository.findById(subject).orElse(null);
@@ -63,20 +73,44 @@ public class PlayAndGoController {
 	}	
 	
 	public void checkAdminRole(HttpServletRequest request) throws UnauthorizedException {
-		Player player = getCurrentPlayer(request);
-		PlayerRole r = playerRoleRepository.findByPlayerIdAndRole(player.getPlayerId(), Role.admin);
+		String username = getCurrentPreferredUsername(request);
+		PlayerRole r = playerRoleRepository.findFirstByPreferredUsernameAndRole(username, Role.admin);
 		if(r == null) {
 			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
 		}
 	}
 	
 	public void checkRole(HttpServletRequest request, Role role, String entityId) throws UnauthorizedException {
-		Player player = getCurrentPlayer(request);
-		PlayerRole r = playerRoleRepository.findByPlayerIdAndRoleAndEntityId(player.getPlayerId(), role, entityId);
+		String username = getCurrentPreferredUsername(request);
+		PlayerRole r = playerRoleRepository.findFirstByPreferredUsernameAndRole(username, Role.admin);
 		if(r == null) {
-			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
+			r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(username, role, entityId);
+			if(r == null) {
+				throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
+			}
 		}
 	}
+	
+	public void checkRole(HttpServletRequest request, String terriotryId, String campaignId) throws UnauthorizedException {
+		String username = getCurrentPreferredUsername(request);
+		PlayerRole r = playerRoleRepository.findFirstByPreferredUsernameAndRole(username, Role.admin);
+		if(r != null) {
+			return;
+		}
+		if(Utils.isNotEmpty(terriotryId)) {
+			r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(username, Role.territory, terriotryId);
+			if(r != null) {
+				return;
+			}
+		}
+		if(Utils.isNotEmpty(campaignId)) {
+			r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(username, Role.campaign, campaignId);
+			if(r != null) {
+				return;
+			}
+		}
+		throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
+ 	}
 	
 	public void checkId(Long... ids) throws BadRequestException {
 		for (Long id : ids) {
