@@ -145,10 +145,12 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
 				info.setCampaignId(campaign.getCampaignId());
 				info.setCampaignName(campaign.getName());
+				info.setType(campaign.getType());
 				info.setValid(playerTrack.isValid());
+				info.setScoreStatus(playerTrack.getScoreStatus());
+				info.setScore(playerTrack.getScore());
 				campaignInfoMap.put(campaign.getCampaignId(), info);
 			}
-			info.setScore(info.getScore() + playerTrack.getScore());
 		}
 		trackInfo.getCampaigns().addAll(campaignInfoMap.values());
 		return trackInfo;
