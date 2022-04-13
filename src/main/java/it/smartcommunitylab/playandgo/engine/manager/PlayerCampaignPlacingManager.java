@@ -358,6 +358,35 @@ public class PlayerCampaignPlacingManager {
 		return result;
 	}
 	
+	public List<TransportStats> getPlayerTransportStats(Player player, LocalDate dateFrom, LocalDate dateTo) {
+		List<TransportStats> result = new ArrayList<>();
+		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());		
+		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId()).and("playerId").is(player.getPlayerId());
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		} else {
+			criteria = criteria.and("global").is(Boolean.TRUE);
+		}
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("modeType")
+				.sum("distance").as("totalDistance")
+				.sum("duration").as("totalDuration")
+				.sum("co2").as("totalCo2")
+				.sum("trackNumber").as("totalTravel");			
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			TransportStats stats = new TransportStats();
+			stats.setModeType(doc.getString("_id"));
+			stats.setTotalDistance(doc.getDouble("totalDistance"));
+			stats.setTotalDuration(doc.getLong("totalDuration"));
+			stats.setTotalCo2(doc.getDouble("totalCo2"));
+			stats.setTotalTravel(doc.getLong("totalTravel"));
+			result.add(stats);
+		}
+		return result;
+	}
+	
 	public Page<CampaignPlacing> getCampaignPlacingByGame(String campaignId,  
 			LocalDate dateFrom, LocalDate dateTo, Pageable pageRequest) {
 		Criteria criteria = new Criteria("campaignId").is(campaignId);

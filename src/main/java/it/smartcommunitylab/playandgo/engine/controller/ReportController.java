@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
+import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager.GroupMode;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
@@ -164,9 +165,9 @@ public class ReportController extends PlayAndGoController {
 
 	@GetMapping("/api/report/player/transport/stats")
 	public List<TransportStats> getPlayerTransportStats(
-			@RequestParam String dateFrom,
-			@RequestParam String dateTo,
-			@RequestParam String groupMode,
+			@RequestParam(required = false) String dateFrom,
+			@RequestParam(required = false) String dateTo,
+			@RequestParam(required = false) String groupMode,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		LocalDate dateFromDate = null;
@@ -177,7 +178,11 @@ public class ReportController extends PlayAndGoController {
 		if(Utils.isNotEmpty(dateTo)) {
 			dateToDate = LocalDate.parse(dateTo);
 		}		
-		return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate, groupMode);
+		if(Utils.isEmpty(groupMode)) {
+			return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate);
+		} else {
+			return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate, groupMode);
+		}
 	}
 	
 	@GetMapping("/api/report/player/game/stats")
