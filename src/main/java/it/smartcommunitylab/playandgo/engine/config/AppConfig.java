@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import io.swagger.annotations.ApiParam;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -55,6 +57,7 @@ public class AppConfig implements WebMvcConfigurer {
 				.apis(RequestHandlerSelectors.basePackage("it.smartcommunitylab.playandgo.engine.controller"))
 				.paths(PathSelectors.ant("/**/api/**"))
 				.build()
+				.directModelSubstitute(Pageable.class, SwaggerPageable.class)
 				.apiInfo(apiInfo())
 				.securitySchemes(Arrays.asList(securitySchema()))
 				.securityContexts(Arrays.asList(securityContext()));
@@ -89,6 +92,16 @@ public class AppConfig implements WebMvcConfigurer {
     		.licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
     		.contact(new Contact("SmartCommunityLab", "https://http://www.smartcommunitylab.it/", "info@smartcommunitylab.it"))
     		.build();
-	}  
+	}
+	
+	private static class SwaggerPageable {
+
+	    @ApiParam(value = "Number of records per page", example = "0")
+	    public int size;
+
+	    @ApiParam(value = "Results page you want to retrieve (0..N)", example = "0")
+	    public int page;
+
+	}	
 	
 }
