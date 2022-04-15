@@ -18,7 +18,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
@@ -54,6 +57,15 @@ public class CampaignManager {
 	
 	@Autowired
 	PlayerRepository playerRepository;
+	
+	@Autowired
+	PersonalCampaignSubscription personalCampaignSubscription;
+	
+	@Autowired
+	CityCampaignSubscription cityCampaignSubscription;
+	
+	@Autowired
+	CompanyCampaignSubscription companyCampaignSubscription;
 	
 	@Autowired
 	PersonalCampaignGameNotification personalCampaignGameNotification;
@@ -159,18 +171,17 @@ public class CampaignManager {
 		if(sub != null) {
 			throw new BadRequestException("player already joined", ErrorCode.CAMPAIGN_ALREADY_JOINED);
 		}
-		if(Type.company.equals(campaign.getType())) {
-			//TODO check campaign subscription endpoint
-		}
-		sub = new CampaignSubscription();
-		sub.setPlayerId(player.getPlayerId());
-		sub.setCampaignId(campaignId);
-		sub.setTerritoryId(player.getTerritoryId());
-		sub.setMail(player.getMail());
-		sub.setSendMail(player.getSendMail());
-		sub.setRegistrationDate(LocalDate.now());
-		if(campaignData != null) {
-			sub.setCampaignData(campaignData);
+		switch (campaign.getType()) {
+			case personal:
+				sub = personalCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+				break;
+			case company:
+				sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData); 
+				break;
+			case city:
+				sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+				break;
+			case school:
 		}
 		return campaignSubscriptionRepository.save(sub);
 	}
