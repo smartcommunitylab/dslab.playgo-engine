@@ -155,10 +155,14 @@ public class CampaignManager {
 		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
 			throw new BadRequestException("territory doesn't match", ErrorCode.TERRITORY_NOT_ALLOWED);
 		}
+		CampaignSubscription sub = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
+		if(sub != null) {
+			throw new BadRequestException("player already joined", ErrorCode.CAMPAIGN_ALREADY_JOINED);
+		}
 		if(Type.company.equals(campaign.getType())) {
 			//TODO check campaign subscription endpoint
 		}
-		CampaignSubscription sub = new CampaignSubscription();
+		sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaignId);
 		sub.setTerritoryId(player.getTerritoryId());

@@ -7,6 +7,7 @@ public class ErrorCode {
 	public final static String PLAYER_EXISTS = "P4";
 	public final static String CAMPAIGN_NOT_FOUND = "C1";
 	public final static String CAMPAIGN_IN_USE = "C2";
+	public final static String CAMPAIGN_ALREADY_JOINED = "C3";
 	public final static String TERRITORY_NOT_FOUND = "T1";
 	public final static String TERRITORY_NOT_ALLOWED = "T2";
 	public final static String TERRITORY_IN_USE = "T3";
