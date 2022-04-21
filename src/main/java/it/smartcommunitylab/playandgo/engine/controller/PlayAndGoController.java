@@ -135,28 +135,28 @@ public class PlayAndGoController {
 	@ExceptionHandler(BadRequestException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public @ResponseBody ErrorInfo badRequest(HttpServletRequest req, PlayAndGoException e) {
-		logger.error("Bad request: " + e.getMessage());
+		logger.error(String.format("Bad request: %s [%s]", req.getRequestURL().toString(), e.getMessage()));
 		return new ErrorInfo(req.getRequestURL().toString(), e);
 	}	
 	
 	@ExceptionHandler(UnauthorizedException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public @ResponseBody ErrorInfo unauthorized(HttpServletRequest req, PlayAndGoException e) {
-		logger.error("Unauthorized: " + e.getMessage());
+		logger.error(String.format("Unauthorized: %s [%s]", req.getRequestURL().toString(), e.getMessage()));
 		return new ErrorInfo(req.getRequestURL().toString(), e);
 	}	
 	
 	@ExceptionHandler(PlayAndGoException.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public @ResponseBody ErrorInfo genericError(HttpServletRequest req, PlayAndGoException e) {
-		logger.error("Internal Server Error PG", e);
+		logger.error(String.format("Internal Server Error PG: %s [%s]", req.getRequestURL().toString(), e.getMessage()));
 		return new ErrorInfo(req.getRequestURL().toString(), e);
 	}
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public @ResponseBody ErrorInfo internalServerError(HttpServletRequest req, Exception e) {
-		logger.error("Internal Server Error", e);
+		logger.error(String.format("Internal Server Error: %s [%s]", req.getRequestURL().toString(), e.getMessage()));
 		return new ErrorInfo(req.getRequestURL().toString(), null, e);
 	}
 	
