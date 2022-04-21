@@ -5,11 +5,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 
+@Component
 public class CompanyCampaignSubscription {
 	private static Logger logger = LoggerFactory.getLogger(CompanyCampaignSubscription.class);
 	
