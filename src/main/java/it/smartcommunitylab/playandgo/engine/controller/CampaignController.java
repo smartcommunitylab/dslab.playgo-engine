@@ -131,7 +131,7 @@ public class CampaignController extends PlayAndGoController {
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
-		checkRole(request, Role.territory, campaign.getTerritoryId());
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
 		return campaignManager.subscribePlayerByTerritory(nickname, campaign, campaignData);
 	}
 	
