@@ -337,8 +337,9 @@ public class PlayerCampaignPlacingManager {
 				.sum("distance").as("totalDistance")
 				.sum("duration").as("totalDuration")
 				.sum("co2").as("totalCo2")
-				.sum("trackNumber").as("totalTravel");			
-		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+				.sum("trackNumber").as("totalTravel");	
+		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, groupField, "modeType"));
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStats stats = new TransportStats();
