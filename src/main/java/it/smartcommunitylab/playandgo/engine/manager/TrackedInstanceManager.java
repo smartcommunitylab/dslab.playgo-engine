@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.SkipOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -99,10 +101,15 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		queueManager.setManageValidateTripRequest(this);
 	}
 	
-	public Page<TrackedInstanceInfo> getTrackedInstanceInfoList(String playerId, Pageable pageRequest) {
+	public Page<TrackedInstanceInfo> getTrackedInstanceInfoList(String playerId, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		PageRequest pageRequestNew = PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), Sort.by(Sort.Direction.DESC, "startTime"));
+		Criteria criteria = new Criteria("userId").is(playerId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
+		} 
+		Query query = new Query(criteria).with(Sort.by(Sort.Direction.DESC, "startTime")).with(pageRequestNew);
+		List<TrackedInstance> trackList = mongoTemplate.find(query, TrackedInstance.class);
 		List<TrackedInstanceInfo> result = new ArrayList<>();
-		List<TrackedInstance> trackList = trackedInstanceRepository.findByUserId(playerId, pageRequestNew);
 		for(TrackedInstance track : trackList) {
 			TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);		
 			result.add(trackInfo);
