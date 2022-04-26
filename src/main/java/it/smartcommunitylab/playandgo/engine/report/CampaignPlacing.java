@@ -2,12 +2,15 @@ package it.smartcommunitylab.playandgo.engine.report;
 
 import org.springframework.data.annotation.Id;
 
+import it.smartcommunitylab.playandgo.engine.model.Image;
+
 public class CampaignPlacing {
 	@Id
 	private String playerId;
 	private String nickname;
 	private double value;
 	private int position;
+	private Image avatar;
 	
 	public String getPlayerId() {
 		return playerId;
@@ -32,6 +35,12 @@ public class CampaignPlacing {
 	}
 	public void setValue(double value) {
 		this.value = value;
+	}
+	public Image getAvatar() {
+		return avatar;
+	}
+	public void setAvatar(Image avatar) {
+		this.avatar = avatar;
 	}
 	
 }

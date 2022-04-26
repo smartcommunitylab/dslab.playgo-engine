@@ -65,6 +65,9 @@ public class PlayerCampaignPlacingManager {
 	CampaignManager campaignManager;
 	
 	@Autowired
+	AvatarManager avatarManager;
+	
+	@Autowired
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
@@ -229,6 +232,7 @@ public class PlayerCampaignPlacingManager {
 			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
 			if(player != null) {
 				cp.setNickname(player.getNickname());
+				cp.setAvatar(avatarManager.getPlayerSmallAvatar(player.getPlayerId()));
 			}
 			cp.setPosition(index + 1);
 			index++;
@@ -411,6 +415,7 @@ public class PlayerCampaignPlacingManager {
 			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
 			if(player != null) {
 				cp.setNickname(player.getNickname());
+				cp.setAvatar(avatarManager.getPlayerSmallAvatar(player.getPlayerId()));
 			}
 			cp.setPosition(index + 1);
 			index++;

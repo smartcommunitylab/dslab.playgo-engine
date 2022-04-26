@@ -1,6 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
-public class Logo {
+public class Image {
 	private String contentType;
 	private byte[] image;
 	

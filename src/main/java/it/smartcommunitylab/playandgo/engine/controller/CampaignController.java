@@ -24,7 +24,7 @@ import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
-import it.smartcommunitylab.playandgo.engine.model.Logo;
+import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
@@ -87,7 +87,7 @@ public class CampaignController extends PlayAndGoController {
 	}
 	
 	@PostMapping("/api/campaign/{campaignId}/logo")
-	public Logo uploadCampaignLogo(
+	public Image uploadCampaignLogo(
 			@PathVariable String campaignId,
 			@RequestParam("data") MultipartFile data,
 			HttpServletRequest request) throws Exception {

@@ -29,7 +29,7 @@ import it.smartcommunitylab.playandgo.engine.exception.StorageException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
-import it.smartcommunitylab.playandgo.engine.model.Logo;
+import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
@@ -246,7 +246,7 @@ public class CampaignManager {
 		return campaignSubscriptionRepository.save(sub);
 	}
 	
-	public Logo uploadCampaignLogo(String campaignId, MultipartFile data) throws Exception {
+	public Image uploadCampaignLogo(String campaignId, MultipartFile data) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {
 			logger.warn("campaign not found");
@@ -257,7 +257,7 @@ public class CampaignManager {
 			logger.warn("Image format not supported");
 			throw new BadRequestException("Image format not supported", ErrorCode.IMAGE_WRONG_FORMAT);
 		}
-		Logo logo = new Logo();
+		Image logo = new Image();
 		logo.setContentType(data.getContentType());
 		byte[] targetArray = new byte[data.getInputStream().available()];
 		data.getInputStream().read(targetArray);

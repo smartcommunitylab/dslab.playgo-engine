@@ -38,7 +38,7 @@ public class Campaign {
 	private String gameId;
 	private String privacy;
 	private String rules;
-	private Logo logo;
+	private Image logo;
 	private Map<String, Object> validationData = new HashMap<>();
 
 	public Type getType() {
@@ -153,11 +153,11 @@ public class Campaign {
 		this.rules = rules;
 	}
 
-	public Logo getLogo() {
+	public Image getLogo() {
 		return logo;
 	}
 
-	public void setLogo(Logo logo) {
+	public void setLogo(Image logo) {
 		this.logo = logo;
 	}
 

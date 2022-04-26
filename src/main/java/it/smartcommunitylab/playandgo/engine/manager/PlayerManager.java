@@ -12,7 +12,7 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Avatar;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
-import it.smartcommunitylab.playandgo.engine.model.Logo;
+import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -101,16 +101,8 @@ public class PlayerManager {
 			PlayerInfo info = new PlayerInfo();
 			info.setPlayerId(p.getPlayerId());
 			info.setNickname(p.getNickname());
+			info.setAvatar(avatarManager.getPlayerSmallAvatar(p.getPlayerId()));
 			result.add(info);
-			Avatar avatar = avatarManager.getPlayerAvatar(p.getPlayerId());
-			if(avatar != null) {
-				if(avatar.getAvatarDataSmall() != null) {
-					Logo logo = new Logo();
-					logo.setContentType(avatar.getContentType());
-					logo.setImage(avatar.getAvatarDataSmall().getData());
-					info.setAvatar(logo);
-				}
-			}
 		}
 		return result;
 	}

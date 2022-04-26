@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.model.Avatar;
+import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.AvatarRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -31,6 +32,19 @@ public class AvatarManager {
 	
 	public Avatar getPlayerAvatar(String playerId) {
 		return avatarRepository.findByPlayerId(playerId);
+	}
+	
+	public Image getPlayerSmallAvatar(String playerId) {
+		Avatar avatar = avatarRepository.findByPlayerId(playerId);
+		if(avatar != null) {
+			if(avatar.getAvatarDataSmall() != null) {
+				Image image = new Image();
+				image.setContentType(avatar.getContentType());
+				image.setImage(avatar.getAvatarDataSmall().getData());
+				return image;
+			}
+		}
+		return null;
 	}
 	
 	public Avatar uploadPlayerAvatar(Player player, MultipartFile data) throws Exception {

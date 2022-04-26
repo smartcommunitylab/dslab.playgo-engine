@@ -1,11 +1,11 @@
 package it.smartcommunitylab.playandgo.engine.dto;
 
-import it.smartcommunitylab.playandgo.engine.model.Logo;
+import it.smartcommunitylab.playandgo.engine.model.Image;
 
 public class PlayerInfo {
 	private String playerId;
 	private String nickname;
-	private Logo avatar;
+	private Image avatar;
 	
 	public String getPlayerId() {
 		return playerId;
@@ -19,10 +19,10 @@ public class PlayerInfo {
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-	public Logo getAvatar() {
+	public Image getAvatar() {
 		return avatar;
 	}
-	public void setAvatar(Logo avatar) {
+	public void setAvatar(Image avatar) {
 		this.avatar = avatar;
 	}
 }
