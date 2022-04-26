@@ -26,6 +26,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Logo;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
@@ -65,9 +66,10 @@ public class CampaignController extends PlayAndGoController {
 	@GetMapping("/api/campaign")
 	public List<Campaign> getCampaigns(
 			@RequestParam String territoryId,
+			@RequestParam(required = false) Type type,
 			HttpServletRequest request) throws Exception {
 		if(Utils.isNotEmpty(territoryId)) {
-			return campaignManager.getCampaignsByTerritory(territoryId);
+			return campaignManager.getCampaignsByTerritory(territoryId, type);
 		}
 		return campaignManager.getCampaigns();
 	}

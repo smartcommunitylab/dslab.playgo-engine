@@ -134,8 +134,11 @@ public class CampaignManager {
 		return campaignRepository.findAll(Sort.by(Sort.Direction.DESC, "dateFrom"));
 	}
 	
-	public List<Campaign> getCampaignsByTerritory(String territoryId) {
-		return campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
+	public List<Campaign> getCampaignsByTerritory(String territoryId, Type type) {
+		if(type == null) {
+			return campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
+		}
+		return campaignRepository.findByTerritoryIdAndType(territoryId, type, Sort.by(Sort.Direction.DESC, "dateFrom"));
 	}
 	
 	public Campaign deleteCampaign(String campaignId) throws Exception {

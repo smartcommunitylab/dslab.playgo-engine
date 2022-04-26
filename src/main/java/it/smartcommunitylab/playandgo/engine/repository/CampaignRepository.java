@@ -17,6 +17,8 @@ public interface CampaignRepository extends MongoRepository<Campaign, String> {
 	
 	public List<Campaign> findByTerritoryId(String territoryId, Sort sort); 
 	
+	public List<Campaign> findByTerritoryIdAndType(String territoryId, Type type, Sort sort);
+	
 	public List<Campaign> findByType(Type type, Sort sort);
 	
 	public Campaign findByTerritoryIdAndType(String territoryId, Type type);
