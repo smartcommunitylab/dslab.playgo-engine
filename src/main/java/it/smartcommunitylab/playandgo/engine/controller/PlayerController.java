@@ -1,5 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
@@ -90,6 +93,13 @@ public class PlayerController extends PlayAndGoController {
 			@RequestParam String nickname,
 			HttpServletRequest request) throws Exception {
 		return playerManager.findByNickname(nickname);
+	}
+	
+	@GetMapping("/api/player/search")
+	public List<PlayerInfo> searchNickname(
+			@RequestParam String nickname,
+			HttpServletRequest request) throws Exception {
+		return playerManager.findByNicknameRegEx(nickname);
 	}
 	
 	@PostMapping("/api/player/avatar")

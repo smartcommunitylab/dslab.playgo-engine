@@ -1,12 +1,18 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.model.Avatar;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Logo;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -20,6 +26,9 @@ public class PlayerManager {
 	
 	@Autowired
 	private CampaignManager campaignManager;
+	
+	@Autowired
+	private AvatarManager avatarManager;
 	
 	public Player addPlayer(Player player) {
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
@@ -80,5 +89,29 @@ public class PlayerManager {
 			return true;
 		}
 		return false;
+	}
+	
+	public List<PlayerInfo> findByNicknameRegEx(String nickname) throws Exception {
+		if(nickname.length() < 3) {
+			throw new BadRequestException("nick too short", ErrorCode.PARAM_NOT_CORRECT);
+		}
+		List<Player> list = playerRepository.findByNicknameRegex(nickname);
+		List<PlayerInfo> result = new ArrayList<>();
+		for(Player p : list) {
+			PlayerInfo info = new PlayerInfo();
+			info.setPlayerId(p.getPlayerId());
+			info.setNickname(p.getNickname());
+			result.add(info);
+			Avatar avatar = avatarManager.getPlayerAvatar(p.getPlayerId());
+			if(avatar != null) {
+				if(avatar.getAvatarDataSmall() != null) {
+					Logo logo = new Logo();
+					logo.setContentType(avatar.getContentType());
+					logo.setImage(avatar.getAvatarDataSmall().getData());
+					info.setAvatar(logo);
+				}
+			}
+		}
+		return result;
 	}
 }
