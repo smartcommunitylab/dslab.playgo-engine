@@ -46,6 +46,7 @@ import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.report.TransportStats;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsGameRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -78,6 +79,9 @@ public class PlayerCampaignPlacingManager {
 	
 	@Autowired
 	PlayerStatsTransportRepository playerStatsTransportRepository;
+	
+	@Autowired
+	PlayerStatsGameRepository playerStatsGameRepository;
 	
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -511,6 +515,14 @@ public class PlayerCampaignPlacingManager {
 			result.add(stats);
 		}
 		return result;
+	}
+	
+	public double getPlayerGameTotalScore(String playerId, String campaignId) {
+		PlayerStatsGame statsGame = playerStatsGameRepository.findGlobalByPlayerIdAndCampaignId(playerId, campaignId);
+		if(statsGame != null) {
+			return statsGame.getScore();
+		}
+		return 0.0;
 	}
 	
 }
