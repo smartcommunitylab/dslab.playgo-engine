@@ -246,6 +246,22 @@ public class CampaignManager {
 		return campaignSubscriptionRepository.save(sub);
 	}
 	
+	public CampaignSubscription unsubscribePlayerByTerritory(String nickname, Campaign campaign) throws Exception {
+		Player player = playerRepository.findByNicknameIgnoreCase(nickname);
+		if(player == null) {
+			throw new BadRequestException("nickname doesn't exist", ErrorCode.PLAYER_NICK_NOT_FOUND);
+		}
+		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
+			throw new BadRequestException("territory doesn't match", ErrorCode.TERRITORY_NOT_ALLOWED);
+		}
+		CampaignSubscription subscription = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), 
+				player.getPlayerId());
+		if(subscription != null) {
+			campaignSubscriptionRepository.deleteById(subscription.getId());
+		}
+		return subscription;
+	}
+	
 	public Image uploadCampaignLogo(String campaignId, MultipartFile data) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {

@@ -123,19 +123,6 @@ public class CampaignController extends PlayAndGoController {
 		return campaignManager.unsubscribePlayer(player, campaignId);
 	}
 	
-	@PostMapping("/api/campaign/{campaignId}/subscribe/territory")
-	public CampaignSubscription subscribeCampaignByTerritory(
-			@PathVariable String campaignId,
-			@RequestParam String nickname,
-			@RequestBody Map<String, Object> campaignData,
-			HttpServletRequest request) throws Exception {
-		Campaign campaign = campaignManager.getCampaign(campaignId);
-		if(campaign == null) {
-			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
-		}
-		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
-		return campaignManager.subscribePlayerByTerritory(nickname, campaign, campaignData);
-	}
 	
 
 }
