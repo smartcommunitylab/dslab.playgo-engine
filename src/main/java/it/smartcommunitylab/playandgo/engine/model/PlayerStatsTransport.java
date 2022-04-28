@@ -18,6 +18,8 @@ public class PlayerStatsTransport {
 	@Indexed
 	private String playerId;
 	@Indexed
+	private String nickname;
+	@Indexed
 	private String campaignId;
 	@Indexed
 	private Boolean global = Boolean.FALSE; 
@@ -126,6 +128,14 @@ public class PlayerStatsTransport {
 
 	public void setMonthOfYear(String monthOfYear) {
 		this.monthOfYear = monthOfYear;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 	
 	

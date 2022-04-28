@@ -16,6 +16,7 @@ public class PlayerGameStatus {
 	private String id;
 	@Indexed
 	private String playerId;
+	private String nickname;
 	@Indexed
 	private String campaignId;
 	private Date updateTime;
@@ -71,6 +72,12 @@ public class PlayerGameStatus {
 	}
 	public void setLevel(Map<String, Object> level) {
 		this.level = level;
+	}
+	public String getNickname() {
+		return nickname;
+	}
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 	
 }

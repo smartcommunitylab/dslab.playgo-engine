@@ -6,8 +6,8 @@ import it.smartcommunitylab.playandgo.engine.model.Image;
 
 public class CampaignPlacing {
 	@Id
-	private String playerId;
 	private String nickname;
+	private String playerId;
 	private double value;
 	private int position;
 	private Image avatar;

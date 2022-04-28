@@ -13,6 +13,8 @@ public class PlayerStatsGame {
 	@Indexed
 	private String playerId;
 	@Indexed
+	private String nickname;	
+	@Indexed
 	private String campaignId;
 	@Indexed
 	private LocalDate day;
@@ -69,5 +71,11 @@ public class PlayerStatsGame {
 	}
 	public void setGlobal(Boolean global) {
 		this.global = global;
+	}
+	public String getNickname() {
+		return nickname;
+	}
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}	
 }

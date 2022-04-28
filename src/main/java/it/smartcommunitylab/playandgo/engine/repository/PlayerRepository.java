@@ -13,6 +13,8 @@ public interface PlayerRepository extends MongoRepository<Player, String> {
 	
 	public Player findByNicknameIgnoreCase(String nickname);
 	
+	public Player findByNickname(String nickname);
+	
 	@Query("{'nickname': {$regex: ?0, $options:'i'}}")
 	public List<Player> findByNicknameRegex(String nickname);
 }

@@ -94,12 +94,16 @@ public class PlayerCampaignPlacingManager {
 					return;
 				}
 			}
+			Player player = playerRepository.findById(pt.getPlayerId()).orElse(null);
+			if(player == null) {
+				return;
+			}
 			//transport global placing
 			PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
 					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
 			if(globalByMode == null) {
-				globalByMode = addNewPlacing(pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE, 
-						null, 0, 0, 0);
+				globalByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
+						Boolean.TRUE, null, 0, 0, 0);
 			}
 			globalByMode.addDistance(pt.getDistance());
 			globalByMode.addDuration(pt.getDuration());
@@ -114,8 +118,8 @@ public class PlayerCampaignPlacingManager {
 			PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
 					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, trackDay);
 			if(dayByMode == null) {
-				dayByMode = addNewPlacing(pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, 
-						trackDay, weekOfYear, monthOfYear, year);
+				dayByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
+						Boolean.FALSE, trackDay, weekOfYear, monthOfYear, year);
 			}
 			dayByMode.addDistance(pt.getDistance());
 			dayByMode.addDuration(pt.getDuration());
@@ -130,10 +134,11 @@ public class PlayerCampaignPlacingManager {
 		return dayOfWeek;
 	}
 	
-	private PlayerStatsTransport addNewPlacing(String playerId, String campaignId, String modeType, 
+	private PlayerStatsTransport addNewPlacing(String playerId, String nickname, String campaignId, String modeType, 
 			Boolean global, LocalDate day, int weekOfYear, int monthOfYear, int year) {
 		PlayerStatsTransport pst = new PlayerStatsTransport();
 		pst.setPlayerId(playerId);
+		pst.setNickname(nickname);
 		pst.setCampaignId(campaignId);
 		pst.setModeType(modeType);
 		pst.setGlobal(global);
@@ -222,8 +227,8 @@ public class PlayerCampaignPlacingManager {
 		} else {
 			sumField = "distance";
 		}
-		GroupOperation groupOperation = Aggregation.group("playerId").sum(sumField).as("value");
-		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "value"));
+		GroupOperation groupOperation = Aggregation.group("nickname").sum(sumField).as("value");
+		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "value").and(Direction.ASC, "nickname");
 		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
 		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, 
@@ -233,9 +238,9 @@ public class PlayerCampaignPlacingManager {
 		List<CampaignPlacing> list = aggregationResults.getMappedResults();
 		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
 		for(CampaignPlacing cp : list) {
-			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
+			Player player = playerRepository.findByNickname(cp.getNickname());
 			if(player != null) {
-				cp.setNickname(player.getNickname());
+				cp.setPlayerId(player.getPlayerId());
 				cp.setAvatar(avatarManager.getPlayerSmallAvatar(player.getPlayerId()));
 			}
 			cp.setPosition(index + 1);
@@ -251,7 +256,7 @@ public class PlayerCampaignPlacingManager {
 			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
 		//get player score
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("nickname").is(player.getNickname());
 		if(!groupMode.equalsIgnoreCase("co2")) {
 			criteria = criteria.and("modeType").is(groupMode);
 		}		
@@ -267,7 +272,7 @@ public class PlayerCampaignPlacingManager {
 		} else {
 			sumField = "distance";
 		}		
-		GroupOperation groupOperation = Aggregation.group("playerId").sum(sumField).as("value");
+		GroupOperation groupOperation = Aggregation.group("nickname").sum(sumField).as("value");
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
 		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
 				PlayerStatsTransport.class, CampaignPlacing.class);
@@ -279,7 +284,7 @@ public class PlayerCampaignPlacingManager {
 			placing.setNickname(player.getNickname());
 		} else {
 			placing = aggregationResults.getMappedResults().get(0);
-			placing.setNickname(player.getNickname());
+			placing.setPlayerId(player.getPlayerId());
 		}
 		
 		//get player position
@@ -294,7 +299,7 @@ public class PlayerCampaignPlacingManager {
 			criteria = criteria.and("global").is(Boolean.TRUE);
 		}
 		MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
-		GroupOperation groupByPlayer = Aggregation.group("playerId").sum(sumField).as("value");
+		GroupOperation groupByPlayer = Aggregation.group("nickname").sum(sumField).as("value");
 		MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
 		Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
 		AggregationResults<CampaignPlacing> aggregationPositionResults = mongoTemplate.aggregate(aggregationPosition, 
@@ -346,7 +351,7 @@ public class PlayerCampaignPlacingManager {
 				.sum("duration").as("totalDuration")
 				.sum("co2").as("totalCo2")
 				.sum("trackNumber").as("totalTravel");	
-		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, groupField, "modeType"));
+		SortOperation sortOperation = Aggregation.sort(Direction.DESC, groupField, "modeType");
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
@@ -405,8 +410,8 @@ public class PlayerCampaignPlacingManager {
 			criteria = criteria.and("global").is(Boolean.TRUE);
 		}
 		MatchOperation matchOperation = Aggregation.match(criteria);
-		GroupOperation groupOperation = Aggregation.group("playerId").sum("score").as("value");
-		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "value"));
+		GroupOperation groupOperation = Aggregation.group("nickname").sum("score").as("value");
+		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "value").and(Direction.ASC, "nickname");
 		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
 		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, 
@@ -416,9 +421,9 @@ public class PlayerCampaignPlacingManager {
 		List<CampaignPlacing> list = aggregationResults.getMappedResults();
 		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
 		for(CampaignPlacing cp : list) {
-			Player player = playerRepository.findById(cp.getPlayerId()).orElse(null);
+			Player player = playerRepository.findByNickname(cp.getNickname());
 			if(player != null) {
-				cp.setNickname(player.getNickname());
+				cp.setPlayerId(player.getPlayerId());
 				cp.setAvatar(avatarManager.getPlayerSmallAvatar(player.getPlayerId()));
 			}
 			cp.setPosition(index + 1);
@@ -434,14 +439,14 @@ public class PlayerCampaignPlacingManager {
 			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
 		//get player score
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("nickname").is(player.getNickname());
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		} else {
 			criteria = criteria.and("global").is(Boolean.TRUE);
 		}
 		MatchOperation matchOperation = Aggregation.match(criteria);
-		GroupOperation groupOperation = Aggregation.group("playerId").sum("score").as("value");
+		GroupOperation groupOperation = Aggregation.group("nickname").sum("score").as("value");
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
 		AggregationResults<CampaignPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
 				PlayerStatsGame.class, CampaignPlacing.class);
@@ -453,7 +458,7 @@ public class PlayerCampaignPlacingManager {
 			placing.setNickname(player.getNickname());
 		} else {
 			placing = aggregationResults.getMappedResults().get(0);
-			placing.setNickname(player.getNickname());
+			placing.setPlayerId(playerId);
 		}
 		
 		//get player position
@@ -464,7 +469,7 @@ public class PlayerCampaignPlacingManager {
 			criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
 		}
 		MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
-		GroupOperation groupByPlayer = Aggregation.group("playerId").sum("score").as("value");
+		GroupOperation groupByPlayer = Aggregation.group("nickname").sum("score").as("value");
 		MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
 		Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
 		AggregationResults<CampaignPlacing> aggregationPositionResults = mongoTemplate.aggregate(aggregationPosition, 

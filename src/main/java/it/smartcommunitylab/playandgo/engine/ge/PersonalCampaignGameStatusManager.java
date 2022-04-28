@@ -22,11 +22,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
+import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerGameStatusRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsGameRepository;
 
 @Component
@@ -38,6 +40,9 @@ public class PersonalCampaignGameStatusManager {
 	
 	@Autowired
 	CampaignRepository campaignRepository;
+	
+	@Autowired
+	PlayerRepository playerRepository;
 	
 	@Autowired
 	PlayerStatsGameRepository statsGameRepository;
@@ -79,8 +84,10 @@ public class PersonalCampaignGameStatusManager {
 					if(playerState != null) {
 						PlayerGameStatus gameStatus = playerGameStatusRepository.findByPlayerIdAndCampaignId(playerId, campaignId);
 						if(gameStatus == null) {
+							Player p = playerRepository.findById(playerId).orElse(null);
 							gameStatus = new PlayerGameStatus();
 							gameStatus.setPlayerId(playerId);
+							gameStatus.setNickname(p.getNickname());
 							gameStatus.setCampaignId(campaignId);
 							playerGameStatusRepository.save(gameStatus);
 						}
@@ -108,6 +115,7 @@ public class PersonalCampaignGameStatusManager {
 				if(statsGlobal == null) {
 					statsGlobal = new PlayerStatsGame();
 					statsGlobal.setPlayerId(statusGame.getPlayerId());
+					statsGlobal.setNickname(statusGame.getNickname());
 					statsGlobal.setCampaignId(statusGame.getCampaignId());
 					statsGlobal.setGlobal(Boolean.TRUE);
 					statsGameRepository.save(statsGlobal);
@@ -130,6 +138,7 @@ public class PersonalCampaignGameStatusManager {
 						if(statsGame == null) {
 							statsGame = new PlayerStatsGame();
 							statsGame.setPlayerId(statusGame.getPlayerId());
+							statsGame.setNickname(statusGame.getNickname());
 							statsGame.setCampaignId(statusGame.getCampaignId());
 							statsGame.setGlobal(Boolean.FALSE);
 							statsGame.setDay(day);
