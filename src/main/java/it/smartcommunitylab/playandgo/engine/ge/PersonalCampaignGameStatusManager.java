@@ -1,6 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.ge;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
@@ -63,34 +65,64 @@ public class PersonalCampaignGameStatusManager {
 				String gameId = (String) obj.get("gameId");
 				String playerId = (String) obj.get("playerId");
 				double delta = (double) obj.get("delta");
+				long startTime = 0;
 				String trackId = null;
 				@SuppressWarnings("unchecked")
 				Map<String, Object> dataPayLoad = (Map<String, Object>) obj.get("dataPayLoad");
 				if(dataPayLoad != null) {
 					trackId = (String) dataPayLoad.get("trackId");
+					startTime = (long) dataPayLoad.get("startTime");
 				}
 				Campaign campaign = campaignRepository.findByGameId(gameId);
 				if(campaign != null) {
 					String campaignId = campaign.getCampaignId();
 					
-					CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, campaignId, trackId);
+					CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, 
+							campaignId, trackId);
 					if(playerTrack != null) {
 						playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 						playerTrack.setScore(delta);
 						campaignPlayerTrackRepository.save(playerTrack);
 					}
 					
+					PlayerGameStatus gameStatus = playerGameStatusRepository.findByPlayerIdAndCampaignId(playerId, campaignId);
+					if(gameStatus == null) {
+						Player p = playerRepository.findById(playerId).orElse(null);
+						gameStatus = new PlayerGameStatus();
+						gameStatus.setPlayerId(playerId);
+						gameStatus.setNickname(p.getNickname());
+						gameStatus.setCampaignId(campaignId);
+						playerGameStatusRepository.save(gameStatus);
+					}
+					
+					//update daily points
+					try {
+						LocalDate day = Instant.ofEpochMilli(startTime).atZone(ZoneId.systemDefault()).toLocalDate();
+						PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDayAndGlobal(playerId, campaignId, 
+								day, Boolean.FALSE);
+						if(statsGame == null) {
+							statsGame = new PlayerStatsGame();
+							statsGame.setPlayerId(gameStatus.getPlayerId());
+							statsGame.setNickname(gameStatus.getNickname());
+							statsGame.setCampaignId(gameStatus.getCampaignId());
+							statsGame.setGlobal(Boolean.FALSE);
+							statsGame.setDay(day);
+							int weekOfYear = day.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
+							int monthOfYear = day.get(ChronoField.MONTH_OF_YEAR);
+							int year = day.get(ChronoField.YEAR);
+							statsGame.setWeekOfYear(year + "-" + weekOfYear);
+							statsGame.setMonthOfYear(year + "-" + monthOfYear);
+							statsGameRepository.save(statsGame);
+						}
+						statsGame.setScore(statsGame.getScore() + delta);
+						statsGameRepository.save(statsGame);
+					} catch (Exception e) {
+						logger.warn("updatePlayerState error:" + e.getMessage());
+					}
+					
+					//update global status 
 					JsonNode playerState = gamificationEngineManager.getPlayerStatus(gameId, playerId);
 					if(playerState != null) {
-						PlayerGameStatus gameStatus = playerGameStatusRepository.findByPlayerIdAndCampaignId(playerId, campaignId);
-						if(gameStatus == null) {
-							Player p = playerRepository.findById(playerId).orElse(null);
-							gameStatus = new PlayerGameStatus();
-							gameStatus.setPlayerId(playerId);
-							gameStatus.setNickname(p.getNickname());
-							gameStatus.setCampaignId(campaignId);
-							playerGameStatusRepository.save(gameStatus);
-						}
 						updatePlayerState(playerState, gameStatus);
 						gameStatus.setUpdateTime(new Date());
 						playerGameStatusRepository.save(gameStatus);
@@ -102,76 +134,43 @@ public class PersonalCampaignGameStatusManager {
 		}
 	}
 	
-	private void updatePlayerState(JsonNode root, PlayerGameStatus statusGame) throws Exception {
+	private void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus) throws Exception {
 		//score
 		JsonNode concepts = root.findPath("PointConcept");
 		for(JsonNode pointConcept : concepts) {
 			if(pointConcept.path("name").asText().equals("green leaves")) {
-				statusGame.setScore(pointConcept.path("score").asDouble());
+				gameStatus.setScore(pointConcept.path("score").asDouble());
 				
 				//update generale
 				PlayerStatsGame statsGlobal = statsGameRepository.findGlobalByPlayerIdAndCampaignId(
-						statusGame.getPlayerId(), statusGame.getCampaignId());
+						gameStatus.getPlayerId(), gameStatus.getCampaignId());
 				if(statsGlobal == null) {
 					statsGlobal = new PlayerStatsGame();
-					statsGlobal.setPlayerId(statusGame.getPlayerId());
-					statsGlobal.setNickname(statusGame.getNickname());
-					statsGlobal.setCampaignId(statusGame.getCampaignId());
+					statsGlobal.setPlayerId(gameStatus.getPlayerId());
+					statsGlobal.setNickname(gameStatus.getNickname());
+					statsGlobal.setCampaignId(gameStatus.getCampaignId());
 					statsGlobal.setGlobal(Boolean.TRUE);
 					statsGameRepository.save(statsGlobal);
 				}
 				statsGlobal.setScore(pointConcept.path("score").asDouble());
 				statsGameRepository.save(statsGlobal);
 				
-				//update weekly points
-				try {
-					JsonNode weekly = pointConcept.findPath("weekly");
-					JsonNode instances  = weekly.path("instances");
-					List<String> dates = new ArrayList<>();
-					for(Iterator<String> fields = instances.fieldNames(); fields.hasNext();) {
-						dates.add(fields.next());
-					}
-					for(String weekDate : dates) {
-						LocalDate day = LocalDate.parse(weekDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-						PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDayAndGlobal(
-								statusGame.getPlayerId(), statusGame.getCampaignId(), day, Boolean.FALSE);
-						if(statsGame == null) {
-							statsGame = new PlayerStatsGame();
-							statsGame.setPlayerId(statusGame.getPlayerId());
-							statsGame.setNickname(statusGame.getNickname());
-							statsGame.setCampaignId(statusGame.getCampaignId());
-							statsGame.setGlobal(Boolean.FALSE);
-							statsGame.setDay(day);
-							int weekOfYear = day.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-							int monthOfYear = day.get(ChronoField.MONTH_OF_YEAR);
-							int year = day.get(ChronoField.YEAR);
-							statsGame.setWeekOfYear(year + "-" + weekOfYear);
-							statsGame.setMonthOfYear(year + "-" + monthOfYear);
-							statsGameRepository.save(statsGame);
-						}
-						statsGame.setScore(instances.path(weekDate).path("score").asDouble());
-						statsGameRepository.save(statsGame);
-					}
-					
-				} catch (Exception e) {
-					logger.warn("updatePlayerState error:" + e.getMessage());
-				}
 			}
 		}
 		//level
-		statusGame.getLevel().clear();
+		gameStatus.getLevel().clear();
 		JsonNode levels = root.path("levels");
 		for(JsonNode level : levels) {
 			if(level.path("pointConcept").asText().equals("green leaves")) {
-				statusGame.getLevel().put("levelName", level.path("levelName").asText());
-				statusGame.getLevel().put("levelValue", level.path("levelValue").asText());
-				statusGame.getLevel().put("startLevelScore", level.path("startLevelScore").asDouble());
-				statusGame.getLevel().put("endLevelScore", level.path("endLevelScore").asDouble());
-				statusGame.getLevel().put("toNextLevel", level.path("toNextLevel").asDouble());
+				gameStatus.getLevel().put("levelName", level.path("levelName").asText());
+				gameStatus.getLevel().put("levelValue", level.path("levelValue").asText());
+				gameStatus.getLevel().put("startLevelScore", level.path("startLevelScore").asDouble());
+				gameStatus.getLevel().put("endLevelScore", level.path("endLevelScore").asDouble());
+				gameStatus.getLevel().put("toNextLevel", level.path("toNextLevel").asDouble());
 			}
 		}
 		//badges
-		statusGame.getBadges().clear();
+		gameStatus.getBadges().clear();
 		JsonNode badges = root.findPath("BadgeCollectionConcept");
 		for(JsonNode badge : badges) {
 			Map<String, Object> badgeMap = new HashMap<>();
@@ -182,14 +181,14 @@ public class PersonalCampaignGameStatusManager {
 				badgeEarned.add(b.asText());
 			}
 			badgeMap.put("badgeEarned", badgeEarned);
-			statusGame.getBadges().add(badgeMap);
+			gameStatus.getBadges().add(badgeMap);
 		}
 		//challenges
-		statusGame.getChallenges().clear();
+		gameStatus.getChallenges().clear();
 		JsonNode challenges = root.findPath("ChallengeConcept");
 		for(JsonNode challenge : challenges) {
 			Map<String, Object> map = mapper.convertValue(challenge, new TypeReference<Map<String, Object>>(){});
-			statusGame.getChallenges().add(map);
+			gameStatus.getChallenges().add(map);
 		}
 	}
 }

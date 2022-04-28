@@ -40,7 +40,7 @@ public class GamificationEngineManager {
 			ed.setActionId(SAVE_ITINERARY);
 			ed.setData(trackingData);
 			
-			Long time = (Long)trackingData.remove(START_TIME);
+			Long time = (Long)trackingData.get(START_TIME);
 			ed.setExecutionMoment(new Date(time));			
 
 			String content = JsonUtils.toJSON(ed);
