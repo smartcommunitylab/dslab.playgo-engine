@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +16,6 @@ import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
-import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
@@ -41,6 +41,19 @@ public class ConsoleController extends PlayAndGoController {
 		playerRoleRepository.save(r);
 	}
 	
+	@DeleteMapping("/api/console/role/territory")
+	public void removeTerritoryManager(
+			@RequestParam String userName,
+			@RequestParam String territoryId,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		PlayerRole r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(userName, 
+				Role.territory, territoryId);
+		if(r != null) {
+			playerRoleRepository.delete(r);
+		}
+	}	
+	
 	@PostMapping("/api/console/role/campaign")
 	public void addCampaignManager(
 			@RequestParam String userName,
@@ -56,6 +69,23 @@ public class ConsoleController extends PlayAndGoController {
 		r.setEntityId(campaignId);
 		r.setRole(Role.campaign);
 		playerRoleRepository.save(r);
+	}
+	
+	@DeleteMapping("/api/console/role/campaign")
+	public void removeCampaignManager(
+			@RequestParam String userName,
+			@RequestParam String campaignId,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}
+		checkRole(request, Role.territory, campaignId);
+		PlayerRole r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(userName, 
+				Role.campaign, campaignId);
+		if(r != null) {
+			playerRoleRepository.delete(r);
+		}
 	}
 	
 	@GetMapping("/api/console/role/territory")
@@ -77,6 +107,5 @@ public class ConsoleController extends PlayAndGoController {
 		checkRole(request, Role.territory, campaign.getTerritoryId());
 		return playerRoleRepository.findByRoleAndEntityId(Role.campaign, campaignId);
 	}
-
 
 }
