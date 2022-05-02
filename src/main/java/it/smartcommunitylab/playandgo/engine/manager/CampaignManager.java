@@ -192,7 +192,13 @@ public class CampaignManager {
 	public CampaignSubscription unsubscribePlayer(Player player, String campaignId) throws Exception {
 		CampaignSubscription subscription = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
 		if(subscription != null) {
-			campaignSubscriptionRepository.deleteById(subscription.getId());
+			Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+			if(campaign != null) {
+				if(Type.personal.equals(campaign.getType()) || Type.school.equals(campaign.getType())) {
+					throw new BadRequestException("operation not allowed", ErrorCode.OPERATION_NOT_ALLOWED);
+				}
+				campaignSubscriptionRepository.deleteById(subscription.getId());
+			}
 		}
 		return subscription;
 	}

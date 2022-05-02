@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.ge.PersonalCampaignGameStatusManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.GamificationMessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ManageGameNotification;
+import it.smartcommunitylab.playandgo.engine.notification.PersonalCampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
@@ -27,6 +29,12 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 	
 	@Autowired
 	GamificationMessageQueueManager gamificationMessageQueueManager;
+	
+	@Autowired
+	PersonalCampaignNotificationManager notificationManager;
+
+	@Autowired
+	PersonalCampaignGameStatusManager gameStatusManager;
 
 	@PostConstruct
 	public void init() {
@@ -49,8 +57,16 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 	
 	@Override
 	public void manageGameNotification(Map<String, Object> msg, String routingKey) {
-		// TODO manage game notification
-		
+		String type = (String) msg.get("type");
+		if(type.endsWith("GameNotification")) {
+			gameStatusManager.updatePlayerGameStatus(msg);
+		} else {
+			try {
+				notificationManager.processNotification(msg);
+			} catch (Exception e) {
+				logger.error(String.format("manageGameNotification error:%s - %s", routingKey, e.getMessage()));
+			}					
+		}
 	}
 	
 }
