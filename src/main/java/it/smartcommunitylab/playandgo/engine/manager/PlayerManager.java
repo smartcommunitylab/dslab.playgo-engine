@@ -6,6 +6,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
@@ -16,6 +20,7 @@ import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class PlayerManager {
@@ -105,5 +110,12 @@ public class PlayerManager {
 			result.add(info);
 		}
 		return result;
+	}
+	
+	public Page<Player> searchPlayers(String territoryId, String text, Pageable pageRequest) {
+		if(Utils.isNotEmpty(text)) {
+			return playerRepository.findByTerritoryIdAndText(territoryId, text, pageRequest);
+		}
+		return playerRepository.findByTerritoryId(territoryId, pageRequest);
 	}
 }

@@ -1,19 +1,26 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
+import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
@@ -24,6 +31,9 @@ public class ConsoleController extends PlayAndGoController {
 	
 	@Autowired
 	PlayerRoleRepository playerRoleRepository;
+	
+	@Autowired
+	PlayerManager playerManager;
 	
 	@Autowired
 	CampaignManager campaignManager;
@@ -80,7 +90,7 @@ public class ConsoleController extends PlayAndGoController {
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
-		checkRole(request, Role.territory, campaignId);
+		checkRole(request, Role.territory, campaign.getTerritoryId());
 		PlayerRole r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(userName, 
 				Role.campaign, campaignId);
 		if(r != null) {
@@ -107,5 +117,31 @@ public class ConsoleController extends PlayAndGoController {
 		checkRole(request, Role.territory, campaign.getTerritoryId());
 		return playerRoleRepository.findByRoleAndEntityId(Role.campaign, campaignId);
 	}
+	
+	@GetMapping("/api/console/role/my")
+	public List<PlayerRole> getMyRoles(HttpServletRequest request) throws Exception {
+		String playerId = getCurrentSubject(request);
+		return playerRoleRepository.findByPlayerId(playerId);
+	}
+	
+	@GetMapping("/api/console/player/search")
+	public Page<PlayerInfoConsole> searchPlayersByTerritory(
+			@RequestParam String territoryId,
+			@RequestParam(required = false) String text,
+			Pageable pageRequest,
+			HttpServletRequest request) throws Exception {
+		checkRole(request, Role.territory, territoryId);
+		Page<Player> page = playerManager.searchPlayers(territoryId, text, pageRequest);
+		List<PlayerInfoConsole> result = new ArrayList<>(); 
+		for(Player p : page.getContent()) {
+			PlayerInfoConsole info = new PlayerInfoConsole();
+			info.setPlayer(p);
+			info.setCampaigns(campaignManager.getPlayerCampaigns(p.getPlayerId(), territoryId));
+			result.add(info);
+		}
+		return new PageImpl<PlayerInfoConsole>(result, pageRequest, page.getTotalElements());
+	}
+	
+	
 
 }

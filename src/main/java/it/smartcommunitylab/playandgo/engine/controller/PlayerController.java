@@ -53,6 +53,8 @@ public class PlayerController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		String subject = getCurrentSubject(request);
 		player.setPlayerId(subject);
+		player.setGivenName(getGivenName(request));
+		player.setFamilyName(getFamilyName(request));
 		return playerManager.registerPlayer(player);
 	}
 	

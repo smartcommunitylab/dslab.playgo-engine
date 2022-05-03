@@ -47,6 +47,18 @@ public class PlayAndGoController {
 		return subject;
 	}
 	
+	public String getGivenName(HttpServletRequest request) {
+		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		Jwt principal = (Jwt) authentication.getPrincipal();
+		return principal.getClaimAsString("given_name");		
+	}
+	
+	public String getFamilyName(HttpServletRequest request) {
+		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		Jwt principal = (Jwt) authentication.getPrincipal();
+		return principal.getClaimAsString("family_name");		
+	}
+	
 	public String getCurrentPreferredUsername(HttpServletRequest request) throws UnauthorizedException {
 		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 		Jwt principal = (Jwt) authentication.getPrincipal();

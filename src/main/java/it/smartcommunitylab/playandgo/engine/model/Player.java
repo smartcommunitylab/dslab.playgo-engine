@@ -14,7 +14,10 @@ public class Player {
 	private String language;
 	private String mail;
 	private Boolean sendMail = Boolean.FALSE;
+	@Indexed
 	private String territoryId;
+	private String givenName;
+	private String familyName;
 //	private Map<String, Object> personalData;
 //	private boolean checkedRecommendation;
 //	private List<Event> eventsCheckIn;
@@ -69,6 +72,22 @@ public class Player {
 
 	public void setSendMail(Boolean sendMail) {
 		this.sendMail = sendMail;
+	}
+
+	public String getGivenName() {
+		return givenName;
+	}
+
+	public void setGivenName(String givenName) {
+		this.givenName = givenName;
+	}
+
+	public String getFamilyName() {
+		return familyName;
+	}
+
+	public void setFamilyName(String familyName) {
+		this.familyName = familyName;
 	}
 
 	
