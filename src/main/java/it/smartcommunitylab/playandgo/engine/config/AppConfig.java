@@ -102,7 +102,7 @@ public class AppConfig implements WebMvcConfigurer {
 	    @ApiParam(required = true, value = "Results page you want to retrieve (0..N)", example = "0")
 	    public int page;
 	    
-	    @ApiParam(required = false, value = "Sorting option <field>,<[asc,desc]>", example = "nickname,desc")
+	    @ApiParam(required = false, value = "Sorting option: field,[asc,desc]", example = "nickname,desc")
 	    public String sort;
 
 	}	
