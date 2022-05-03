@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.BsonInt32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -230,6 +231,19 @@ public class CampaignManager {
 		return result;
 	}
 
+	public List<PlayerCampaign> getPlayerCampaigns(String playerId, String territoryId) {
+		List<PlayerCampaign> result = new ArrayList<>();
+		List<CampaignSubscription> campaigns = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(playerId, territoryId);
+		for(CampaignSubscription sub : campaigns) {
+			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
+			if(campaign != null) {
+				PlayerCampaign dto = new PlayerCampaign(campaign, sub);
+				result.add(dto);
+			}
+		}
+		return result;
+	}
+	
 	public CampaignSubscription subscribePlayerByTerritory(String nickname, Campaign campaign,
 			Map<String, Object> campaignData) throws Exception {
 		Player player = playerRepository.findByNicknameIgnoreCase(nickname);

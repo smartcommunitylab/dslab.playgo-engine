@@ -1,11 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
@@ -121,15 +124,22 @@ public class ConsoleController extends PlayAndGoController {
 		return playerRoleRepository.findByPlayerId(playerId);
 	}
 	
-	
 	@GetMapping("/api/console/player/search")
-	public Page<Player> searchPlayersByTerritory(
+	public Page<PlayerInfoConsole> searchPlayersByTerritory(
 			@RequestParam String territoryId,
 			@RequestParam(required = false) String text,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
-		return playerManager.searchPlayers(territoryId, text, pageRequest);
+		Page<Player> page = playerManager.searchPlayers(territoryId, text, pageRequest);
+		List<PlayerInfoConsole> result = new ArrayList<>(); 
+		for(Player p : page.getContent()) {
+			PlayerInfoConsole info = new PlayerInfoConsole();
+			info.setPlayer(p);
+			info.setCampaigns(campaignManager.getPlayerCampaigns(p.getPlayerId(), territoryId));
+			result.add(info);
+		}
+		return new PageImpl<PlayerInfoConsole>(result, pageRequest, page.getTotalElements());
 	}
 	
 	
