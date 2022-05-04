@@ -23,10 +23,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
+import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation.AddFieldsOperationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LimitOperation;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.SkipOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
@@ -51,6 +55,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
@@ -62,6 +67,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepo
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 import it.smartcommunitylab.playandgo.engine.validation.GeolocationsProcessor;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationConstants;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
@@ -371,5 +377,55 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			updateValidationResultAsError(passengerTravel);
 		}
 	}
+	
+	public Page<TrackedInstance> searchTrackedInstance(String territoryId, String trackedInstanceId, String playerId, String modeType, 
+			String campaignId, String validationStatus, Date dateFrom, Date dateTo, Pageable pageRequest) {
+		List<AggregationOperation> operations = new ArrayList<>();
+		Criteria criteria = new Criteria("territoryId").is(territoryId);
+		if(Utils.isNotEmpty(trackedInstanceId)) {
+			criteria = criteria.and("id").is(trackedInstanceId);
+		}
+		if(Utils.isNotEmpty(playerId)) {
+			criteria = criteria.and("userId").is(playerId);
+		}
+		if(Utils.isNotEmpty(modeType)) {
+			criteria = criteria.and("validationResult.validationStatus.modeType").is(modeType);
+		}
+		if(Utils.isNotEmpty(validationStatus)) {
+			criteria = criteria.and("validationResult.validationStatus.validationOutcome").is(validationStatus);	
+		}
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
+		}
+		if(Utils.isNotEmpty(campaignId)) {
+			AddFieldsOperation addFields = AddFieldsOperation.addField("trackId").withValueOfExpression("{ \"$toString\": \"$_id\" }").build();
+			LookupOperation lookup = Aggregation.lookup("campaignPlayerTracks", "trackId", "trackedInstanceId", "campaignPlayerTracks");
+			criteria = criteria.and("campaignPlayerTracks.campaignId").is(campaignId);
+			operations.add(addFields);
+			operations.add(lookup);
+		}
+		MatchOperation match = Aggregation.match(criteria);
+		operations.add(match);
+		SortOperation sort = Aggregation.sort(pageRequest.getSort());
+		SkipOperation skip = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
+		LimitOperation limit = Aggregation.limit(pageRequest.getPageSize());
+		List<AggregationOperation> operationsPaged = new ArrayList<>();
+		operationsPaged.addAll(operations);
+		operationsPaged.add(sort);
+		operationsPaged.add(skip);
+		operationsPaged.add(limit);
+		Aggregation aggregation = Aggregation.newAggregation(operations);
+		AggregationResults<TrackedInstance> trips = mongoTemplate.aggregate(aggregation, TrackedInstance.class, TrackedInstance.class);
+		return new PageImpl<>(trips.getMappedResults(), pageRequest, countRecords(operations, "trackedInstances"));
+	}
+	
+	private long countRecords(List<AggregationOperation> operations, String collectionName) {
+		Aggregation aggregation = Aggregation.newAggregation(operations);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				collectionName, Document.class);
+		return aggregationResults.getMappedResults().size();
+	}
+	
+	
 
 }
