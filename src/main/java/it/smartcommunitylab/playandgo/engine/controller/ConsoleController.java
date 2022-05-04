@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +20,11 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
+import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
+import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -37,6 +40,9 @@ public class ConsoleController extends PlayAndGoController {
 	
 	@Autowired
 	CampaignManager campaignManager;
+	
+	@Autowired
+	TrackedInstanceManager trackedInstanceManager;
 	
 	@PostMapping("/api/console/role/territory")
 	public void addTerritoryManager(
@@ -140,6 +146,23 @@ public class ConsoleController extends PlayAndGoController {
 			result.add(info);
 		}
 		return new PageImpl<PlayerInfoConsole>(result, pageRequest, page.getTotalElements());
+	}
+	
+	@GetMapping("/api/console/track/search")
+	public Page<TrackedInstance> searchTrackedInstance(
+			@RequestParam String territoryId,
+			@RequestParam(required = false) String trackId,
+			@RequestParam(required = false) String playerId,
+			@RequestParam(required = false) String modeType,
+			@RequestParam(required = false) Date dateFrom,
+			@RequestParam(required = false) Date dateTo,
+			@RequestParam(required = false) String campaignId,
+			@RequestParam(required = false) String status,
+			Pageable pageRequest,
+			HttpServletRequest request) throws Exception {
+		checkRole(request, Role.territory, territoryId);
+		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, playerId, modeType, campaignId, status, 
+				dateFrom, dateTo, pageRequest);
 	}
 	
 	
