@@ -296,7 +296,7 @@ public class PlayerCampaignPlacingManager {
 			criteriaPosition = criteriaPosition.and("global").is(Boolean.FALSE)
 					.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		} else {
-			criteria = criteria.and("global").is(Boolean.TRUE);
+			criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
 		}
 		MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
 		GroupOperation groupByPlayer = Aggregation.group("nickname").sum(sumField).as("value");
