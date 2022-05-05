@@ -40,9 +40,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.dto.CampaignTripInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
+import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
 import it.smartcommunitylab.playandgo.engine.dto.TripInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
@@ -69,6 +71,7 @@ import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 import it.smartcommunitylab.playandgo.engine.validation.GeolocationsProcessor;
+import it.smartcommunitylab.playandgo.engine.validation.PTDataHelper;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationConstants;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
 
@@ -129,12 +132,15 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			throw new BadRequestException("track not found", ErrorCode.TRACK_NOT_FOUND);
 		}
 		TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);
-		List<Geolocation> geo = Lists.newArrayList(track.getGeolocationEvents());
+		trackInfo.setPolyline(getPolyline(Lists.newArrayList(track.getGeolocationEvents())));
+		return trackInfo;
+	}
+	
+	private String getPolyline(List<Geolocation> geo) {
 		geo = GamificationHelper.optimize(geo);
 		Collections.sort(geo);
 		String poly = GamificationHelper.encodePoly(geo);
-		trackInfo.setPolyline(poly);
-		return trackInfo;
+		return poly;
 	}
 	
 	private TrackedInstanceInfo getTrackedInstanceInfoFromTrack(TrackedInstance track, String playerId) {
@@ -426,6 +432,19 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		return aggregationResults.getMappedResults().size();
 	}
 	
+	public TrackedInstancePoly getTrackPolylines(String territoryId, String trackedInstanceId) throws Exception {
+		TrackedInstance trackedInstance = trackedInstanceRepository.findById(trackedInstanceId).orElse(null);
+		if(trackedInstance == null) {
+			throw new BadRequestException("track not found", ErrorCode.TRACK_NOT_FOUND);
+		}
+		if(!trackedInstance.getTerritoryId().equals(territoryId)) {
+			throw new BadRequestException("territory not corrisponding", ErrorCode.TERRITORY_NOT_ALLOWED);
+		}
+		TrackedInstancePoly ti = new TrackedInstancePoly();
+		ti.setTrackedInstance(trackedInstance);
+		ti.setTrackPolyline(getPolyline(Lists.newArrayList(trackedInstance.getGeolocationEvents())));
+		ti.setRoutesPolylines(PTDataHelper.getPolylines(trackedInstance, trackedInstance.getTerritoryId()));
+		return ti;
+	}
 	
-
 }

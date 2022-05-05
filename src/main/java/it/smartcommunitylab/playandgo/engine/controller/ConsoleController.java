@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
+import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
@@ -165,6 +166,13 @@ public class ConsoleController extends PlayAndGoController {
 				dateFrom, dateTo, pageRequest);
 	}
 	
-	
+	@GetMapping("/api/console/track/detail")
+	public TrackedInstancePoly getTrackedInstanceDetail(
+			@RequestParam String territoryId,
+			@RequestParam String trackId,
+			HttpServletRequest request) throws Exception {
+		checkRole(request, Role.territory, territoryId);
+		return trackedInstanceManager.getTrackPolylines(territoryId, trackId);
+	}
 
 }
