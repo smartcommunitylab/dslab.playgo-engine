@@ -204,6 +204,11 @@ public class CampaignManager {
 		return subscription;
 	}
 	
+	public void unsubscribePlayer(String playerId) {
+		List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerId(playerId);
+		campaignSubscriptionRepository.deleteAll(list);
+	}
+	
 	public void updateDefaultCampaignSuscription(Player player) {
 		Campaign campaign = getDefaultCampaignByTerritory(player.getTerritoryId());
 		if(campaign != null) {

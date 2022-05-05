@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
+import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
 import it.smartcommunitylab.playandgo.engine.model.Avatar;
 import it.smartcommunitylab.playandgo.engine.model.Player;
@@ -38,6 +40,9 @@ public class PlayerController extends PlayAndGoController {
 	
 	@Autowired
 	AvatarManager avatarManager;
+	
+	@Autowired
+	CampaignManager campaignManager;
 	
 	@PostMapping("/api/player")
 	public Player addPlayer(
@@ -73,6 +78,7 @@ public class PlayerController extends PlayAndGoController {
 		checkAdminRole(request);
 		Player player = playerManager.deletePlayer(playerId);
 		//TODO delete other data
+		campaignManager.unsubscribePlayer(playerId);
 		return player;
 	}
 	

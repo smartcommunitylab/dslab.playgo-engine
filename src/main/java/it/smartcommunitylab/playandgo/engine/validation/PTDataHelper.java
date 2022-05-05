@@ -112,29 +112,23 @@ public class PTDataHelper {
 		return _instance.BUS_DESCRIPTORS.get(territoryId).filterShapes(geolocations);
 	}	
 	
-	public static void setPolylines(TrackedInstance instance, String territoryId) throws Exception {
+	public static Map<String, Object> getPolylines(TrackedInstance instance, String territoryId) throws Exception {
 		if (instance.getGeolocationEvents() == null || instance.getGeolocationEvents().size() < 2 || instance.getFreeTrackingTransport() == null) {
-			return;
+			return null;
 		}
-		
 		Map<String, Object> polys = Maps.newTreeMap();
-		
 		switch(instance.getFreeTrackingTransport()) {
 		case "bus": 
 			polys.put("bus", _instance.BUS_DESCRIPTORS.get(territoryId).filteredPolylines(instance.getGeolocationEvents()));
-			instance.setRoutesPolylines(polys);
 			break;
 		case "train": 
 			polys.put("train", _instance.TRAIN_POLYLINES_MAP.get(territoryId));
-			instance.setRoutesPolylines(polys);
 			break;
 		case "boat": 
 			polys.put("boat", _instance.BOAT_POLYLINES_MAP.get(territoryId));
-			instance.setRoutesPolylines(polys);
 			break;
 		}
-		
-
+		return polys;
 	}	
 	
 	private void initValidationData(String territoryId) throws Exception{
