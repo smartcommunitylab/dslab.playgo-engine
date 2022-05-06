@@ -420,7 +420,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		operationsPaged.add(sort);
 		operationsPaged.add(skip);
 		operationsPaged.add(limit);
-		Aggregation aggregation = Aggregation.newAggregation(operations);
+		Aggregation aggregation = Aggregation.newAggregation(operationsPaged);
 		AggregationResults<TrackedInstance> trips = mongoTemplate.aggregate(aggregation, TrackedInstance.class, TrackedInstance.class);
 		return new PageImpl<>(trips.getMappedResults(), pageRequest, countRecords(operations, "trackedInstances"));
 	}
