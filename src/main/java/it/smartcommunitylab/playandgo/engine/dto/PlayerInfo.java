@@ -5,6 +5,7 @@ import it.smartcommunitylab.playandgo.engine.model.Image;
 public class PlayerInfo {
 	private String playerId;
 	private String nickname;
+	private String email;
 	private Image avatar;
 	
 	public String getPlayerId() {
@@ -24,5 +25,11 @@ public class PlayerInfo {
 	}
 	public void setAvatar(Image avatar) {
 		this.avatar = avatar;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }
