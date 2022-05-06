@@ -43,6 +43,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.dto.CampaignTripInfo;
+import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
+import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
 import it.smartcommunitylab.playandgo.engine.dto.TripInfo;
@@ -66,6 +68,7 @@ import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
@@ -87,6 +90,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 
 	@Autowired
 	TrackedInstanceRepository trackedInstanceRepository;
+	
+	@Autowired
+	PlayerRepository playerRepository;
 	
 	@Autowired
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
@@ -384,7 +390,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 	}
 	
-	public Page<TrackedInstance> searchTrackedInstance(String territoryId, String trackedInstanceId, String playerId, String modeType, 
+	public Page<TrackedInstanceConsole> searchTrackedInstance(String territoryId, String trackedInstanceId, String playerId, String modeType, 
 			String campaignId, String validationStatus, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		List<AggregationOperation> operations = new ArrayList<>();
 		Criteria criteria = new Criteria("territoryId").is(territoryId);
@@ -417,12 +423,21 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		LimitOperation limit = Aggregation.limit(pageRequest.getPageSize());
 		List<AggregationOperation> operationsPaged = new ArrayList<>();
 		operationsPaged.addAll(operations);
-		operationsPaged.add(sort);
+		if(!pageRequest.getSort().equals(Sort.unsorted())) {
+			operationsPaged.add(sort);
+		}
 		operationsPaged.add(skip);
 		operationsPaged.add(limit);
 		Aggregation aggregation = Aggregation.newAggregation(operationsPaged);
 		AggregationResults<TrackedInstance> trips = mongoTemplate.aggregate(aggregation, TrackedInstance.class, TrackedInstance.class);
-		return new PageImpl<>(trips.getMappedResults(), pageRequest, countRecords(operations, "trackedInstances"));
+		List<TrackedInstanceConsole> result = new ArrayList<>();
+		for(TrackedInstance t : trips.getMappedResults()) {
+			TrackedInstanceConsole tc = new TrackedInstanceConsole();
+			tc.setTrackedInstance(t);
+			tc.setPlayerInfo(getPlayerInfo(t.getUserId()));
+			result.add(tc);
+		}
+		return new PageImpl<>(result, pageRequest, countRecords(operations, "trackedInstances"));
 	}
 	
 	private long countRecords(List<AggregationOperation> operations, String collectionName) {
@@ -430,6 +445,17 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
 				collectionName, Document.class);
 		return aggregationResults.getMappedResults().size();
+	}
+	
+	private PlayerInfo getPlayerInfo(String playerId) {
+		PlayerInfo pi = new PlayerInfo();
+		Player p = playerRepository.findById(playerId).orElse(null);
+		if(p != null) {
+			pi.setNickname(p.getNickname());
+			pi.setPlayerId(p.getPlayerId());
+			pi.setEmail(p.getMail());
+		}
+		return pi;
 	}
 	
 	public TrackedInstancePoly getTrackPolylines(String territoryId, String trackedInstanceId) throws Exception {
@@ -444,6 +470,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		ti.setTrackedInstance(trackedInstance);
 		ti.setTrackPolyline(getPolyline(Lists.newArrayList(trackedInstance.getGeolocationEvents())));
 		ti.setRoutesPolylines(PTDataHelper.getPolylines(trackedInstance, trackedInstance.getTerritoryId()));
+		ti.setPlayerInfo(getPlayerInfo(trackedInstance.getUserId()));
 		return ti;
 	}
 	

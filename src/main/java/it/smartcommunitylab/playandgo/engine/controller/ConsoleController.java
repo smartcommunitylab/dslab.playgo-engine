@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
+import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
@@ -150,7 +151,7 @@ public class ConsoleController extends PlayAndGoController {
 	}
 	
 	@GetMapping("/api/console/track/search")
-	public Page<TrackedInstance> searchTrackedInstance(
+	public Page<TrackedInstanceConsole> searchTrackedInstance(
 			@RequestParam String territoryId,
 			@RequestParam(required = false) String trackId,
 			@RequestParam(required = false) String playerId,
