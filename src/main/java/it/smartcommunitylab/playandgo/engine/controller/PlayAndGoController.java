@@ -8,9 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,108 +17,53 @@ import it.smartcommunitylab.playandgo.engine.exception.ErrorInfo;
 import it.smartcommunitylab.playandgo.engine.exception.PlayAndGoException;
 import it.smartcommunitylab.playandgo.engine.exception.UnauthorizedException;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
-import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
-import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
-import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
-import it.smartcommunitylab.playandgo.engine.util.Utils;
+import it.smartcommunitylab.playandgo.engine.security.SecurityHelper;
 
 public class PlayAndGoController {
 
 	static Log logger = LogFactory.getLog(PlayAndGoController.class);
 	
 	@Autowired
-	private PlayerRepository playerRepository; 
-	
-	@Autowired
-	private PlayerRoleRepository playerRoleRepository;
+	private SecurityHelper securityHelper;
 	
 	public String getCurrentSubject(HttpServletRequest request) throws UnauthorizedException {
-		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		Jwt principal = (Jwt) authentication.getPrincipal();
-		String subject = principal.getClaimAsString("sub");
-		if(Utils.isEmpty(subject)) {
-			throw new UnauthorizedException("subject not found", ErrorCode.SUBJECT_NOT_FOUND);
-		}
-		return subject;
+		return securityHelper.getCurrentSubject();
 	}
 	
 	public String getGivenName(HttpServletRequest request) {
-		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		Jwt principal = (Jwt) authentication.getPrincipal();
-		return principal.getClaimAsString("given_name");		
+		return securityHelper.getGivenName();		
 	}
 	
 	public String getFamilyName(HttpServletRequest request) {
-		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		Jwt principal = (Jwt) authentication.getPrincipal();
-		return principal.getClaimAsString("family_name");		
+		return securityHelper.getFamilyName();		
 	}
 	
 	public String getCurrentPreferredUsername(HttpServletRequest request) throws UnauthorizedException {
-		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		Jwt principal = (Jwt) authentication.getPrincipal();
-		String subject = principal.getClaimAsString("preferred_username");
-		if(Utils.isEmpty(subject)) {
-			throw new UnauthorizedException("preferred_username not found", ErrorCode.SUBJECT_NOT_FOUND);
-		}
-		return subject;
+		return securityHelper.getCurrentPreferredUsername();
 	}
 	
 	public Player getCurrentPlayer(HttpServletRequest request) throws UnauthorizedException {
-		String subject = getCurrentSubject(request);		
-		Player player = playerRepository.findById(subject).orElse(null);
-		if(player == null) {
-			throw new UnauthorizedException("user not found", ErrorCode.PLAYER_NOT_FOUND);
-		}
-		return player;
+		return securityHelper.getCurrentPlayer();
 	}
 	
 	public Player getCurrentPlayerOrNUll(HttpServletRequest request) throws UnauthorizedException {
-		String subject = getCurrentSubject(request);		
-		Player player = playerRepository.findById(subject).orElse(null);
-		return player;
+		return securityHelper.getCurrentPlayerOrNUll();
 	}	
 	
 	public void checkAdminRole(HttpServletRequest request) throws UnauthorizedException {
-		String username = getCurrentPreferredUsername(request);
-		PlayerRole r = playerRoleRepository.findFirstByPreferredUsernameAndRole(username, Role.admin);
-		if(r == null) {
-			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
-		}
+		securityHelper.checkAdminRole();
+	}
+	public void checkAPIRole(HttpServletRequest request) throws UnauthorizedException {
+		securityHelper.checkAPIRole();
 	}
 	
 	public void checkRole(HttpServletRequest request, Role role, String entityId) throws UnauthorizedException {
-		String username = getCurrentPreferredUsername(request);
-		PlayerRole r = playerRoleRepository.findFirstByPreferredUsernameAndRole(username, Role.admin);
-		if(r == null) {
-			r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(username, role, entityId);
-			if(r == null) {
-				throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
-			}
-		}
+		securityHelper.checkRole(role, entityId);
 	}
 	
 	public void checkRole(HttpServletRequest request, String terriotryId, String campaignId) throws UnauthorizedException {
-		String username = getCurrentPreferredUsername(request);
-		PlayerRole r = playerRoleRepository.findFirstByPreferredUsernameAndRole(username, Role.admin);
-		if(r != null) {
-			return;
-		}
-		if(Utils.isNotEmpty(terriotryId)) {
-			r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(username, Role.territory, terriotryId);
-			if(r != null) {
-				return;
-			}
-		}
-		if(Utils.isNotEmpty(campaignId)) {
-			r = playerRoleRepository.findByPreferredUsernameAndRoleAndEntityId(username, Role.campaign, campaignId);
-			if(r != null) {
-				return;
-			}
-		}
-		throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
+		securityHelper.checkRole(terriotryId, campaignId);
  	}
 	
 	public void checkId(Long... ids) throws BadRequestException {

@@ -44,8 +44,7 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam String nickname,
 			@RequestBody Map<String, Object> campaignData,
 			HttpServletRequest request) throws Exception {
-		//TODO check integration token
-		checkAdminRole(request);
+		checkAPIRole(request);
 		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
@@ -59,8 +58,7 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam String nickname,
 			@RequestBody Map<String, Object> campaignData,
 			HttpServletRequest request) throws Exception {
-		//TODO check integration token
-		checkAdminRole(request);
+		checkAPIRole(request);
 		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
@@ -73,8 +71,7 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestBody List<String> nicknames,
 			HttpServletRequest request) throws Exception {
-		//TODO check integration token
-		checkAdminRole(request);
+		checkAPIRole(request);
 		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);

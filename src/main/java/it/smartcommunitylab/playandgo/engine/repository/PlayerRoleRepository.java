@@ -12,6 +12,8 @@ import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 public interface PlayerRoleRepository extends MongoRepository<PlayerRole, String> {
 	public List<PlayerRole> findByPlayerId(String playerId);
 	public List<PlayerRole> findByRoleAndEntityId(Role role, String entityId);
+	public List<PlayerRole> findByPreferredUsername(String preferredUsername, Role role);
+	
 	public PlayerRole findFirstByPlayerIdAndRole(String playerId, Role role);
 	public PlayerRole findByPlayerIdAndRoleAndEntityId(String playerId, Role role, String entityId);
 	public PlayerRole findFirstByPreferredUsernameAndRole(String preferredUsername, Role role);
