@@ -78,7 +78,7 @@ public class SecurityHelper {
 	public String getCurrentSubject() throws UnauthorizedException {
 		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 		Jwt principal = (Jwt) authentication.getPrincipal();
-		String subject = principal.getClaimAsString("sub");
+		String subject = principal.getSubject();
 		if(Utils.isEmpty(subject)) {
 			throw new UnauthorizedException("subject not found", ErrorCode.SUBJECT_NOT_FOUND);
 		}
@@ -130,8 +130,14 @@ public class SecurityHelper {
 		}
 	}
 	public void checkAPIRole() throws UnauthorizedException {
-		String subject = getCurrentSubject();
-		PlayerRole r = readRoleByUsernamenAndRole(subject, Role.admin);
+		JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		Jwt principal = (Jwt) authentication.getPrincipal();
+		String identity = principal.getClaimAsString("preferred_username");
+		if(Utils.isEmpty(identity)) {
+			identity = principal.getSubject();
+		}
+		
+		PlayerRole r = readRoleByUsernamenAndRole(identity, Role.admin);
 		if(r == null) {
 			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
 		}
