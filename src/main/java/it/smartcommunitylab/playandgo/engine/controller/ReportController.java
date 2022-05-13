@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
-import it.smartcommunitylab.playandgo.engine.report.TransportStats;
+import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
@@ -41,11 +42,12 @@ public class ReportController extends PlayAndGoController {
 	}
 	
 	@GetMapping("/api/report/campaign/placing/transport")
-	public Page<CampaignPlacing> getCampaingPlacingByTransportMode(
+	public Page<CampaignPlacing> getCampaingPlacingByTransportStats(
 			@RequestParam String campaignId,
-			@RequestParam String modeType,
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,
+			@RequestParam String metric,
+			@RequestParam(required = false) String mean,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		LocalDate dateFromDate = null;
@@ -56,7 +58,7 @@ public class ReportController extends PlayAndGoController {
 		if(Utils.isNotEmpty(dateTo)) {
 			dateToDate = LocalDate.parse(dateTo);
 		}		
-		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportMode(campaignId, modeType, 
+		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing(campaignId, metric, mean, 
 				dateFromDate, dateToDate, pageRequest);
 		return page;			
 	}
@@ -65,9 +67,10 @@ public class ReportController extends PlayAndGoController {
 	public CampaignPlacing getPlayerCampaingPlacingByTransportMode(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
-			@RequestParam String modeType,
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,
+			@RequestParam String metric,
+			@RequestParam(required = false) String mean,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		LocalDate dateFromDate = null;
 		LocalDate dateToDate = null;
@@ -77,56 +80,16 @@ public class ReportController extends PlayAndGoController {
 		if(Utils.isNotEmpty(dateTo)) {
 			dateToDate = LocalDate.parse(dateTo);
 		}		
-		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayerAndTransportMode(playerId, campaignId, 
-				modeType, dateFromDate, dateToDate);
-		return placing;
-	}
-	
-	@GetMapping("/api/report/campaign/placing/co2")
-	public Page<CampaignPlacing> getCampaingPlacingByCo2(
-			@RequestParam String campaignId,
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,
-			Pageable pageRequest,
-			HttpServletRequest request) throws Exception {
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
-		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByCo2(campaignId,  
-				dateFromDate, dateToDate, pageRequest);
-		return page;			
-	}
-
-	@GetMapping("/api/report/campaign/placing/player/co2")
-	public CampaignPlacing getPlayerCampaingPlacingByCo2(
-			@RequestParam String campaignId,
-			@RequestParam String playerId,
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,
-			HttpServletRequest request) throws Exception {
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
-		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayerAndCo2(playerId, campaignId, 
-				dateFromDate, dateToDate);
+		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayer(playerId, campaignId, 
+				metric, mean, dateFromDate, dateToDate);
 		return placing;
 	}
 	
 	@GetMapping("/api/report/campaign/placing/game")
 	public Page<CampaignPlacing> getCampaingPlacingByGame(
 			@RequestParam String campaignId,
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		LocalDate dateFromDate = null;
@@ -146,8 +109,8 @@ public class ReportController extends PlayAndGoController {
 	public CampaignPlacing getPlayerCampaingPlacingByGame(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		LocalDate dateFromDate = null;
 		LocalDate dateToDate = null;
@@ -163,10 +126,13 @@ public class ReportController extends PlayAndGoController {
 	}
 
 	@GetMapping("/api/report/player/transport/stats")
-	public List<TransportStats> getPlayerTransportStats(
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,
+	public List<TransportStat> getPlayerTransportStats(
+			@RequestParam String campaignId,
+			@RequestParam String metric,
 			@RequestParam(required = false) String groupMode,
+			@RequestParam(required = false) String mean,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		LocalDate dateFromDate = null;
@@ -178,16 +144,18 @@ public class ReportController extends PlayAndGoController {
 			dateToDate = LocalDate.parse(dateTo);
 		}		
 		if(Utils.isEmpty(groupMode)) {
-			return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate);
+			return playerReportManager.getPlayerTransportStats(player.getPlayerId(), campaignId, metric, 
+					mean, dateFromDate, dateToDate);
 		} else {
-			return playerReportManager.getPlayerTransportStats(player, dateFromDate, dateToDate, groupMode);
+			return playerReportManager.getPlayerTransportStats(player.getPlayerId(), campaignId, groupMode, metric, 
+					mean, dateFromDate, dateToDate);
 		}
 	}
 	
 	@GetMapping("/api/report/player/game/stats")
 	public List<GameStats> getPlayerGameStats(
-			@RequestParam String dateFrom,
-			@RequestParam String dateTo,
+			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			@RequestParam String groupMode,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);

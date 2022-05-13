@@ -92,7 +92,7 @@ public class DevController extends PlayAndGoController {
 		LocalDate dateTo = LocalDate.parse("2022-03-31");
 		for(String modeType : modeTypes) {
 			long startTime = System.currentTimeMillis();
-			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByTransportMode("TAA.test1", modeType, dateFrom, dateTo, PageRequest.of(10, 10));
+			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing("TAA.test1", "distance", modeType, dateFrom, dateTo, PageRequest.of(10, 10));
 			long endTime = System.currentTimeMillis();
 			logger.info(String.format("query2 [%s]: %s - %s", modeType, page.getSize(), (endTime - startTime)));
 		}
