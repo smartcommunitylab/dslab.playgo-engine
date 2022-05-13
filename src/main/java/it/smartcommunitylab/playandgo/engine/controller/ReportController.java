@@ -154,9 +154,10 @@ public class ReportController extends PlayAndGoController {
 	
 	@GetMapping("/api/report/player/game/stats")
 	public List<GameStats> getPlayerGameStats(
+			@RequestParam String campaignId,
+			@RequestParam String groupMode,
 			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
-			@RequestParam String groupMode,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		LocalDate dateFromDate = null;
@@ -167,7 +168,7 @@ public class ReportController extends PlayAndGoController {
 		if(Utils.isNotEmpty(dateTo)) {
 			dateToDate = LocalDate.parse(dateTo);
 		}		
-		return playerReportManager.getPlayerGameStats(player, dateFromDate, dateToDate, groupMode);
+		return playerReportManager.getPlayerGameStats(player.getPlayerId(), groupMode, campaignId, dateFromDate, dateToDate);
 	}
 
  }

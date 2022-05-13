@@ -494,13 +494,12 @@ public class PlayerCampaignPlacingManager {
 		return aggregationResults.getMappedResults().size();
 	}
 	
-	public List<GameStats> getPlayerGameStats(Player player, LocalDate dateFrom, LocalDate dateTo, 
-			String groupMode) {
+	public List<GameStats> getPlayerGameStats(String playerId, String campaignId, String groupMode, 
+			LocalDate dateFrom, LocalDate dateTo) {
 		List<GameStats> result = new ArrayList<>();
-		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
-		Criteria criteria = new Criteria("campaignId").is(campaign.getCampaignId())
-				.and("playerId").is(player.getPlayerId()).and("global").is(Boolean.FALSE)
-				.andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId)
+				.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		MatchOperation matchOperation = Aggregation.match(criteria);
 		String groupField = null;
 		if(GroupMode.day.toString().equals(groupMode)) {
