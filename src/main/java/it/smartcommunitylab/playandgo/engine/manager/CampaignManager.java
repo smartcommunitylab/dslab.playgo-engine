@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.BsonInt32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignSubscription;
-import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
@@ -69,9 +67,6 @@ public class CampaignManager {
 	CompanyCampaignSubscription companyCampaignSubscription;
 	
 	@Autowired
-	PersonalCampaignGameNotification personalCampaignGameNotification;
-	
-	@Autowired
 	CityCampaignGameNotification cityCampaignGameNotification;
 	
 	@Autowired
@@ -82,7 +77,6 @@ public class CampaignManager {
 			campaignRepository.save(campaign);
 			switch (campaign.getType()) {
 				case personal:
-					personalCampaignGameNotification.subcribeCampaing(campaign);
 					break;
 				case city:
 					cityCampaignGameNotification.subcribeCampaing(campaign);
@@ -115,7 +109,6 @@ public class CampaignManager {
 		campaignRepository.save(campaignDb);
 		switch (campaign.getType()) {
 			case personal:
-				personalCampaignGameNotification.subcribeCampaing(campaignDb);
 				break;
 			case city:
 				cityCampaignGameNotification.subcribeCampaing(campaignDb);

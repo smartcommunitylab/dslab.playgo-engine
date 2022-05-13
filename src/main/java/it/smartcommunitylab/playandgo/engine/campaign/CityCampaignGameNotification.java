@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylab.playandgo.engine.ge.PersonalCampaignGameStatusManager;
+import it.smartcommunitylab.playandgo.engine.ge.CityCampaignGameStatusManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.GamificationMessageQueueManager;
@@ -34,7 +34,7 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 	PersonalCampaignNotificationManager notificationManager;
 
 	@Autowired
-	PersonalCampaignGameStatusManager gameStatusManager;
+	CityCampaignGameStatusManager gameStatusManager;
 
 	@PostConstruct
 	public void init() {

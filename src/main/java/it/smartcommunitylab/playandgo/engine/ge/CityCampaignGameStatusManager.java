@@ -34,8 +34,8 @@ import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsGameRepository;
 
 @Component
-public class PersonalCampaignGameStatusManager {
-	private static transient final Logger logger = LoggerFactory.getLogger(PersonalCampaignGameStatusManager.class);
+public class CityCampaignGameStatusManager {
+	private static transient final Logger logger = LoggerFactory.getLogger(CityCampaignGameStatusManager.class);
 	
 	@Autowired
 	CampaignPlayerTrackRepository campaignPlayerTrackRepository;

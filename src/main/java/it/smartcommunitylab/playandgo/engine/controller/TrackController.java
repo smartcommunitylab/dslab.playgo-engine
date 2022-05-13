@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
@@ -42,8 +43,8 @@ public class TrackController extends PlayAndGoController {
 	
 	@GetMapping("/api/track/player")
 	public Page<TrackedInstanceInfo> getTrackedInstanceInfoList(
-			@RequestParam(required = false) String dateFrom,
-			@RequestParam(required = false) String dateTo,				
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd HH:mm:SSS") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd HH:mm:SSS") String dateTo,				
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
