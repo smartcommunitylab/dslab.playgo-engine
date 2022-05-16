@@ -23,10 +23,10 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
@@ -73,6 +73,14 @@ public class CampaignController extends PlayAndGoController {
 		}
 		return campaignManager.getCampaigns();
 	}
+	
+	@GetMapping("/publicapi/campaign")
+	public List<Campaign> getPublicCampaigns(
+			@RequestParam(required = false) String territoryId,
+			@RequestParam(required = false) Type type) throws Exception {
+		return campaignManager.getActiveCampaigns(territoryId, type);
+	}
+	
 	
 	@DeleteMapping("/api/campaign/{campaignId}")
 	public Campaign deleteCampaign(

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +134,21 @@ public class CampaignManager {
 			return campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		}
 		return campaignRepository.findByTerritoryIdAndType(territoryId, type, Sort.by(Sort.Direction.DESC, "dateFrom"));
+	}
+	
+	public List<Campaign> getActiveCampaigns(String territoryId, Type type) {
+		List<Campaign> list = null;
+		Sort sort = Sort.by(Sort.Direction.DESC, "dateFrom");
+		if (territoryId != null && type != null) {
+			list = campaignRepository.findByTerritoryIdAndType(territoryId, type, sort);
+		} else if (territoryId != null) {
+			list = campaignRepository.findByTerritoryId(territoryId, sort);
+		} else if (type != null){
+			list =campaignRepository.findByType(type, sort);
+		} else {
+			list = campaignRepository.findAll(sort); 
+		}
+		return list.stream().filter(c -> Boolean.TRUE.equals(c.getActive()) && c.getDateTo().isAfter(LocalDate.now())).collect(Collectors.toList());
 	}
 	
 	public Campaign deleteCampaign(String campaignId) throws Exception {
