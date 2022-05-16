@@ -124,7 +124,7 @@ public class SecurityHelper {
 	
 	public void checkAdminRole() throws UnauthorizedException {
 		String username = getCurrentPreferredUsername();
-		PlayerRole r = readRoleByUsernamenAndRole(username, Role.admin);
+		PlayerRole r = readRoleByUsernameAndRole(username, Role.admin);
 		if(r == null) {
 			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
 		}
@@ -137,7 +137,7 @@ public class SecurityHelper {
 			identity = principal.getSubject();
 		}
 		
-		PlayerRole r = readRoleByUsernamenAndRole(identity, Role.admin);
+		PlayerRole r = readRoleByUsernameAndRole(identity, Role.admin);
 		if(r == null) {
 			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
 		}
@@ -145,9 +145,9 @@ public class SecurityHelper {
 	
 	public void checkRole(Role role, String entityId) throws UnauthorizedException {
 		String username = getCurrentPreferredUsername();
-		PlayerRole r = readRoleByUsernamenAndRole(username, Role.admin);
+		PlayerRole r = readRoleByUsernameAndRole(username, Role.admin);
 		if(r == null) {
-			r = readRoleByUsernamenAndRoleAndEntity(username, role, entityId);
+			r = readRoleByUsernameAndRoleAndEntity(username, role, entityId);
 			if(r == null) {
 				throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
 			}
@@ -156,18 +156,18 @@ public class SecurityHelper {
 	
 	public void checkRole(String terriotryId, String campaignId) throws UnauthorizedException {
 		String username = getCurrentPreferredUsername();
-		PlayerRole r = readRoleByUsernamenAndRole(username, Role.admin);
+		PlayerRole r = readRoleByUsernameAndRole(username, Role.admin);
 		if(r != null) {
 			return;
 		}
 		if(Utils.isNotEmpty(terriotryId)) {
-			r = readRoleByUsernamenAndRoleAndEntity(username, Role.territory, terriotryId);
+			r = readRoleByUsernameAndRoleAndEntity(username, Role.territory, terriotryId);
 			if(r != null) {
 				return;
 			}
 		}
 		if(Utils.isNotEmpty(campaignId)) {
-			r = readRoleByUsernamenAndRoleAndEntity(username, Role.campaign, campaignId);
+			r = readRoleByUsernameAndRoleAndEntity(username, Role.campaign, campaignId);
 			if(r != null) {
 				return;
 			}
@@ -184,7 +184,7 @@ public class SecurityHelper {
 		// return playerRepository.findById(subject).orElse(null);
 	}
 	
-	private PlayerRole readRoleByUsernamenAndRole(String username, Role role) {
+	private PlayerRole readRoleByUsernameAndRole(String username, Role role) {
 		try {
 			return roleCache.get(username).stream().filter(r -> role.equals(r.getRole())).findAny().orElse(null);
 		} catch (ExecutionException e) {
@@ -192,13 +192,17 @@ public class SecurityHelper {
 		}
 		// playerRoleRepository.findFirstByPreferredUsernameAndRole(username, role)
 	}
-	private PlayerRole readRoleByUsernamenAndRoleAndEntity(String username, Role role, String entityId) {
+	private PlayerRole readRoleByUsernameAndRoleAndEntity(String username, Role role, String entityId) {
 		try {
 			return roleCache.get(username).stream().filter(r -> role.equals(r.getRole()) && entityId.equals(r.getEntityId())).findAny().orElse(null);
 		} catch (ExecutionException e) {
 			return null;
 		}
 		// playerRoleRepository.findFirstByPreferredUsernameAndRole(username, role)
+	}
+
+	public void invalidateUserRoleCache(String username) {
+		roleCache.invalidate(username);
 	}
 	
 }

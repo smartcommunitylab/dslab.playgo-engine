@@ -57,6 +57,7 @@ public class ConsoleController extends PlayAndGoController {
 		r.setEntityId(territoryId);
 		r.setRole(Role.territory);
 		playerRoleRepository.save(r);
+		invalidateUserRoleCache(userName);
 	}
 	
 	@DeleteMapping("/api/console/role/territory")
@@ -69,6 +70,7 @@ public class ConsoleController extends PlayAndGoController {
 				Role.territory, territoryId);
 		if(r != null) {
 			playerRoleRepository.delete(r);
+			invalidateUserRoleCache(userName);
 		}
 	}	
 	
@@ -87,6 +89,7 @@ public class ConsoleController extends PlayAndGoController {
 		r.setEntityId(campaignId);
 		r.setRole(Role.campaign);
 		playerRoleRepository.save(r);
+		invalidateUserRoleCache(userName);
 	}
 	
 	@DeleteMapping("/api/console/role/campaign")
@@ -103,6 +106,7 @@ public class ConsoleController extends PlayAndGoController {
 				Role.campaign, campaignId);
 		if(r != null) {
 			playerRoleRepository.delete(r);
+			invalidateUserRoleCache(userName);
 		}
 	}
 	

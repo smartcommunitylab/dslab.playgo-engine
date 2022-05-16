@@ -66,6 +66,10 @@ public class PlayAndGoController {
 		securityHelper.checkRole(terriotryId, campaignId);
  	}
 	
+	public void invalidateUserRoleCache(String username) {
+		securityHelper.invalidateUserRoleCache(username);
+	}
+	
 	public void checkId(Long... ids) throws BadRequestException {
 		for (Long id : ids) {
 			if (id == null) {
