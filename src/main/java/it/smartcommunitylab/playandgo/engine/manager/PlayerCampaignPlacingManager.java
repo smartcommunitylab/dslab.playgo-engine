@@ -535,5 +535,58 @@ public class PlayerCampaignPlacingManager {
 		return 0.0;
 	}
 	
+	public List<TransportStat> getPlayerTransportRecord(String playerId, String campaignId, String groupMode, 
+			String metric, String mean) {
+		List<TransportStat> result = new ArrayList<>();
+		
+		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId)
+				.and("global").is(Boolean.FALSE);
+		if(Utils.isNotEmpty(mean)) {
+			criteria = criteria.and("modeType").is(mean);
+		}
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		
+		String groupField = null;
+		if(GroupMode.day.toString().equals(groupMode)) {
+			groupField = "day";
+		} else if(GroupMode.week.toString().equals(groupMode)) {
+			groupField = "weekOfYear";
+		} else {
+			groupField = "monthOfYear";
+		}
+		String sumField = null;
+		if(metric.equalsIgnoreCase("co2")) {
+			sumField = "co2";
+		} else if(metric.equalsIgnoreCase("tracks")) { 
+			sumField = "trackNumber";
+		} else {
+			sumField = "distance";
+		}		
+		GroupOperation groupOperation = Aggregation.group(groupField).sum(sumField).as("value");
+		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "value");
+		LimitOperation limitOperation = Aggregation.limit(1);
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, limitOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			TransportStat stat = new TransportStat();
+			if(GroupMode.day.toString().equals(groupMode)) {
+				Date date = doc.getDate("_id");
+				stat.setPeriod(sdf.format(date));
+			} else {
+				stat.setPeriod(doc.getString("_id"));
+			}
+			if(metric.equalsIgnoreCase("tracks")) {
+				Long l = doc.getLong("value");
+				stat.setValue(l.doubleValue());
+			} else {
+				stat.setValue(doc.getDouble("value"));
+			}
+			result.add(stat);
+		}
+		return result;
+	}
+
+	
 }
 

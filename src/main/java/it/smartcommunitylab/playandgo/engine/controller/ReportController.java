@@ -171,4 +171,14 @@ public class ReportController extends PlayAndGoController {
 		return playerReportManager.getPlayerGameStats(player.getPlayerId(), groupMode, campaignId, dateFromDate, dateToDate);
 	}
 
+	@GetMapping("/api/report/player/transport/record")
+	public List<TransportStat> getPlayerTransportRecord(
+			@RequestParam String campaignId,
+			@RequestParam String metric,
+			@RequestParam String groupMode,
+			@RequestParam(required = false) String mean,
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		return playerReportManager.getPlayerTransportRecord(player.getPlayerId(), campaignId, groupMode, metric, mean);
+	}
  }
