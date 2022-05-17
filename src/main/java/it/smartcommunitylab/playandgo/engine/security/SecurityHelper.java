@@ -62,7 +62,11 @@ public class SecurityHelper {
 			.build(new CacheLoader<String, List<PlayerRole>>() {
 				@Override
 				public List<PlayerRole> load(String key) throws Exception {
-					return playerRoleRepository.findByPlayerId(key);
+					List<PlayerRole> list = playerRoleRepository.findByPreferredUsername(key);
+					if(list.isEmpty()) {
+						list = playerRoleRepository.findByPlayerId(key);
+					}
+					return list; 
 				}
 	});
 	LoadingCache<String, Player> playerCache = 
