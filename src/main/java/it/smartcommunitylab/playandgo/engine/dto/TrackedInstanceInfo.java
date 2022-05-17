@@ -8,6 +8,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.
 
 public class TrackedInstanceInfo {
 	private String trackedInstanceId;
+	private String clientId;
 	private String multimodalId;
 	private Date startTime;
 	private Date endTime;
@@ -70,6 +71,12 @@ public class TrackedInstanceInfo {
 	}
 	public void setPolyline(String polyline) {
 		this.polyline = polyline;
+	}
+	public String getClientId() {
+		return clientId;
+	}
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
 	}
 	
 }

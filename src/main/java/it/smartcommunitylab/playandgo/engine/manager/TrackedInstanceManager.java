@@ -1,7 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -24,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
-import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation.AddFieldsOperationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -40,7 +37,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.dto.CampaignTripInfo;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
@@ -59,7 +55,6 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
@@ -109,8 +104,6 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	@Autowired
 	ValidationService validationService;
 	
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-	
 	@PostConstruct
 	public void init() {
 		queueManager.setManageValidateTripRequest(this);
@@ -152,6 +145,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	private TrackedInstanceInfo getTrackedInstanceInfoFromTrack(TrackedInstance track, String playerId) {
 		TrackedInstanceInfo trackInfo = new TrackedInstanceInfo();
 		trackInfo.setTrackedInstanceId(track.getId());
+		trackInfo.setClientId(track.getClientId());
 		trackInfo.setMultimodalId(track.getMultimodalId());
 		trackInfo.setStartTime(track.getStartTime());
 		trackInfo.setEndTime(getEndTime(track));
