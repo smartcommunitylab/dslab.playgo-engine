@@ -10,12 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
@@ -160,8 +164,12 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam(required = false) String trackId,
 			@RequestParam(required = false) String playerId,
 			@RequestParam(required = false) String modeType,
-			@RequestParam(required = false) Date dateFrom,
-			@RequestParam(required = false) Date dateTo,
+			@RequestParam(required = false) 
+			@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+			@ApiParam(value = "yyyy-MM-dd HH:mm:ss") Date dateFrom,
+			@RequestParam(required = false) 
+			@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")			
+			@ApiParam(value = "yyyy-MM-dd HH:mm:ss") Date dateTo,
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
 			Pageable pageRequest,
