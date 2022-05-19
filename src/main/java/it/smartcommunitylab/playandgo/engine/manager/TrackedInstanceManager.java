@@ -119,18 +119,46 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		List<TrackedInstance> trackList = mongoTemplate.find(query, TrackedInstance.class);
 		List<TrackedInstanceInfo> result = new ArrayList<>();
 		for(TrackedInstance track : trackList) {
-			TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);		
+			TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId, null);		
 			result.add(trackInfo);
 		}
 		return new PageImpl<>(result, pageRequestNew, trackedInstanceRepository.countByUserId(playerId));
 	}
-	
+
+	public Page<TrackedInstanceInfo> getTrackedInstanceInfoList(String playerId, String campaignId, 
+			Date dateFrom, Date dateTo, Pageable pageRequest) {
+		PageRequest pageRequestNew = PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), Sort.by(Sort.Direction.DESC, "startTime"));
+		Criteria criteria = new Criteria("playerId").is(playerId).and("campaignId").is(campaignId).and("valid").is(true);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
+		} 
+		Query query = new Query(criteria).with(pageRequestNew);
+		List<CampaignPlayerTrack> trackList = mongoTemplate.find(query, CampaignPlayerTrack.class);
+		List<TrackedInstanceInfo> result = new ArrayList<>();
+		for(CampaignPlayerTrack track : trackList) {
+			TrackedInstance trackedInstance = trackedInstanceRepository.findById(track.getTrackedInstanceId()).orElse(null);
+			TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(trackedInstance, playerId, campaignId);
+			result.add(trackInfo);
+		}
+		return new PageImpl<>(result, pageRequestNew, trackedInstanceRepository.countByUserId(playerId));
+	}
+
 	public TrackedInstanceInfo getTrackedInstanceInfo(String playerId, String trackedInstanceId) throws Exception {
 		TrackedInstance track = trackedInstanceRepository.findById(trackedInstanceId).orElse(null);
 		if(track == null) {
 			throw new BadRequestException("track not found", ErrorCode.TRACK_NOT_FOUND);
 		}
-		TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId);
+		TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId, null);
+		trackInfo.setPolyline(getPolyline(Lists.newArrayList(track.getGeolocationEvents())));
+		return trackInfo;
+	}
+	
+	public TrackedInstanceInfo getTrackedInstanceInfo(String playerId, String trackedInstanceId, String campaignId) throws Exception {
+		TrackedInstance track = trackedInstanceRepository.findById(trackedInstanceId).orElse(null);
+		if(track == null) {
+			throw new BadRequestException("track not found", ErrorCode.TRACK_NOT_FOUND);
+		}
+		TrackedInstanceInfo trackInfo = getTrackedInstanceInfoFromTrack(track, playerId, campaignId);
 		trackInfo.setPolyline(getPolyline(Lists.newArrayList(track.getGeolocationEvents())));
 		return trackInfo;
 	}
@@ -142,7 +170,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		return poly;
 	}
 	
-	private TrackedInstanceInfo getTrackedInstanceInfoFromTrack(TrackedInstance track, String playerId) {
+	private TrackedInstanceInfo getTrackedInstanceInfoFromTrack(TrackedInstance track, String playerId, String campaignId) {
 		TrackedInstanceInfo trackInfo = new TrackedInstanceInfo();
 		trackInfo.setTrackedInstanceId(track.getId());
 		trackInfo.setClientId(track.getClientId());
@@ -158,6 +186,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		Map<String, CampaignTripInfo> campaignInfoMap = new HashMap<>();
 		List<CampaignPlayerTrack> playerTrackList = campaignPlayerTrackRepository.findByPlayerIdAndTrackedInstanceId(playerId, track.getId());
 		for(CampaignPlayerTrack playerTrack : playerTrackList) {
+			if((campaignId != null) && !playerTrack.getCampaignId().equals(campaignId)) {
+				continue;
+			}
 			CampaignTripInfo info = campaignInfoMap.get(playerTrack.getCampaignId());
 			if(info == null) {
 				info = new CampaignTripInfo();

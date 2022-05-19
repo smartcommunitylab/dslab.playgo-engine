@@ -1,6 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,8 +31,6 @@ public class TrackController extends PlayAndGoController {
 	@Autowired
 	TrackedInstanceManager trackedInstanceManager;
 	
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:SSS");
-	
 	@PostMapping("/api/track/player/geolocations")
 	public void storeGeolocationEvent(
 			@RequestBody(required = false) GeolocationsEvent geolocationsEvent,
@@ -50,18 +47,28 @@ public class TrackController extends PlayAndGoController {
 			@RequestParam(required = false) 
 			@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 			@ApiParam(value = "yyyy-MM-dd HH:mm:ss") Date dateTo,
+			@RequestParam(required = false) String campaignId,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		return trackedInstanceManager.getTrackedInstanceInfoList(player.getPlayerId(), dateFrom, dateTo, pageRequest);
+		if(Utils.isNotEmpty(campaignId)) {
+			return trackedInstanceManager.getTrackedInstanceInfoList(player.getPlayerId(), campaignId, dateFrom, dateTo, pageRequest);
+		} else {
+			return trackedInstanceManager.getTrackedInstanceInfoList(player.getPlayerId(), dateFrom, dateTo, pageRequest);
+		}
 	}
 	
 	@GetMapping("/api/track/player/{trackedInstanceId}")
 	public TrackedInstanceInfo getTrackedInstanceInfo(
-			@PathVariable String trackedInstanceId,		
+			@PathVariable String trackedInstanceId,	
+			@RequestParam(required = false) String campaignId,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		return trackedInstanceManager.getTrackedInstanceInfo(player.getPlayerId(), trackedInstanceId);
+		if(Utils.isNotEmpty(campaignId)) {
+			return trackedInstanceManager.getTrackedInstanceInfo(player.getPlayerId(), trackedInstanceId, campaignId);
+		} else {
+			return trackedInstanceManager.getTrackedInstanceInfo(player.getPlayerId(), trackedInstanceId);
+		}
 	}
 	
 	
