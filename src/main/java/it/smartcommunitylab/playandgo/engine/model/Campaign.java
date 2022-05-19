@@ -1,7 +1,9 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
@@ -36,9 +38,10 @@ public class Campaign {
 	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
 	@Indexed
 	private String gameId;
-	private String privacy;
-	private String rules;
+	private List<CampaignDetail> details = new ArrayList<>(); 
 	private Image logo;
+	private Image banner;
+	
 	private Map<String, Object> validationData = new HashMap<>();
 
 	public Type getType() {
@@ -137,22 +140,6 @@ public class Campaign {
 		this.startDayOfWeek = startDayOfWeek;
 	}
 
-	public String getPrivacy() {
-		return privacy;
-	}
-
-	public void setPrivacy(String privacy) {
-		this.privacy = privacy;
-	}
-
-	public String getRules() {
-		return rules;
-	}
-
-	public void setRules(String rules) {
-		this.rules = rules;
-	}
-
 	public Image getLogo() {
 		return logo;
 	}
@@ -165,5 +152,21 @@ public class Campaign {
 		return !Boolean.FALSE.equals(getActive()) && 
 				(getDateFrom() == null || !getDateFrom().isAfter(LocalDate.now())) &&
 				(getDateTo() == null || !getDateTo().isBefore(LocalDate.now()));
+	}
+
+	public Image getBanner() {
+		return banner;
+	}
+
+	public void setBanner(Image banner) {
+		this.banner = banner;
+	}
+
+	public List<CampaignDetail> getDetails() {
+		return details;
+	}
+
+	public void setDetails(List<CampaignDetail> details) {
+		this.details = details;
 	}
 }

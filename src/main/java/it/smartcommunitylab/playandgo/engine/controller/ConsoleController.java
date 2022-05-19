@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
@@ -30,7 +28,6 @@ import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
-import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -187,5 +184,6 @@ public class ConsoleController extends PlayAndGoController {
 		checkRole(request, Role.territory, territoryId);
 		return trackedInstanceManager.getTrackPolylines(territoryId, trackId);
 	}
+	
 
 }

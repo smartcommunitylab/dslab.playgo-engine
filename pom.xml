@@ -119,6 +119,14 @@
 			<artifactId>amqp-client</artifactId>
 		</dependency>
 
+		<!-- Amazon S3 -->	
+		<dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>1.12.222</version>
+    </dependency>
+    
+    <!-- Smartplanner -->
 		<dependency>
 			<groupId>it.sayservice.platform.smartplanner</groupId>
 			<artifactId>smartplanner-beans</artifactId>

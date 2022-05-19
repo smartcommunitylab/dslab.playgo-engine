@@ -107,6 +107,19 @@ public class CampaignController extends PlayAndGoController {
 		return campaignManager.uploadCampaignLogo(campaignId, data);
 	}
 	
+	@PostMapping("/api/campaign/{campaignId}/banner")
+	public Image uploadCampaignBanner(
+			@PathVariable String campaignId,
+			@RequestParam("data") MultipartFile data,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		return campaignManager.uploadCampaignBanner(campaignId, data);
+	}
+	
 	@GetMapping("/api/campaign/my")
 	public List<PlayerCampaign> getMyCampaigns(
 			HttpServletRequest request) throws Exception {

@@ -25,6 +25,7 @@ import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignSubscripti
 import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.exception.StorageException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
@@ -42,6 +43,8 @@ public class CampaignManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(CampaignManager.class);
 	
 	private static final String CAMPAIGNSUB = "campaignSubscriptions";
+	
+	public static enum ImageType {logo, banner}; 
 	
 	@Autowired
 	MongoTemplate template;
@@ -73,6 +76,9 @@ public class CampaignManager {
 	@Autowired
 	SchoolCampaignGameNotification schoolCampaignGameNotification;
 	
+	@Autowired
+	StorageManager storageManager;
+	
 	public void addCampaign(Campaign campaign) throws Exception {
 		try {
 			campaignRepository.save(campaign);
@@ -103,8 +109,7 @@ public class CampaignManager {
 		campaignDb.setDateTo(campaign.getDateTo());
 		campaignDb.setActive(campaign.getActive());
 		campaignDb.setStartDayOfWeek(campaign.getStartDayOfWeek());
-		campaignDb.setPrivacy(campaign.getPrivacy());
-		campaignDb.setRules(campaign.getRules());
+		campaignDb.setDetails(campaign.getDetails());
 		campaignDb.setGameId(campaign.getGameId());
 		campaignDb.setValidationData(campaign.getValidationData());
 		campaignRepository.save(campaignDb);
@@ -297,6 +302,14 @@ public class CampaignManager {
 	}
 	
 	public Image uploadCampaignLogo(String campaignId, MultipartFile data) throws Exception {
+		return uploadCampaignImage(campaignId, ImageType.logo, data);
+	}
+	
+	public Image uploadCampaignBanner(String campaignId, MultipartFile data) throws Exception {
+		return uploadCampaignImage(campaignId, ImageType.banner, data);
+	}
+	
+	private Image uploadCampaignImage(String campaignId, ImageType type, MultipartFile data) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {
 			logger.warn("campaign not found");
@@ -307,13 +320,24 @@ public class CampaignManager {
 			logger.warn("Image format not supported");
 			throw new BadRequestException("Image format not supported", ErrorCode.IMAGE_WRONG_FORMAT);
 		}
-		Image logo = new Image();
-		logo.setContentType(data.getContentType());
 		byte[] targetArray = new byte[data.getInputStream().available()];
 		data.getInputStream().read(targetArray);
-		logo.setImage(targetArray);
-		campaign.setLogo(logo);
-		campaignRepository.save(campaign);
-		return logo;
+		String imageName = "campaign-" + type + "-" + campaignId;
+		try {
+			String url = storageManager.uploadImage(imageName, data.getContentType(), targetArray);
+			Image image = new Image();
+			image.setContentType(data.getContentType());
+			image.setUrl(url);
+			if(type.equals(ImageType.logo)) {
+				campaign.setLogo(image);
+			} else {
+				campaign.setBanner(image);
+			}
+			campaignRepository.save(campaign);
+			return image;			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ServiceException("Error storing image", ErrorCode.IMAGE_STORE_ERROR);
+		}
 	}
 }
