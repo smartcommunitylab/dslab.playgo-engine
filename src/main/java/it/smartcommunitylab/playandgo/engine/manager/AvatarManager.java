@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.model.Avatar;
 import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
@@ -30,6 +31,9 @@ public class AvatarManager {
 	@Autowired
 	AvatarRepository avatarRepository;
 	
+	@Autowired
+	StorageManager storageManager;
+	
 	public Avatar getPlayerAvatar(String playerId) {
 		return avatarRepository.findByPlayerId(playerId);
 	}
@@ -37,12 +41,10 @@ public class AvatarManager {
 	public Image getPlayerSmallAvatar(String playerId) {
 		Avatar avatar = avatarRepository.findByPlayerId(playerId);
 		if(avatar != null) {
-			if(avatar.getAvatarDataSmall() != null) {
-				Image image = new Image();
-				image.setContentType(avatar.getContentType());
-				image.setImage(avatar.getAvatarDataSmall().getData());
-				return image;
-			}
+			Image image = new Image();
+			image.setContentType(avatar.getContentType());
+			image.setUrl(avatar.getAvatarSmallUrl());
+			return image;
 		}
 		return null;
 	}
@@ -65,13 +67,17 @@ public class AvatarManager {
 		BufferedImage bs = ImageIO.read(data.getInputStream());
 		byte cb[] = ImageUtils.compressImage(bs, data.getContentType(), DIMENSION);
 		byte cbs[] = ImageUtils.compressImage(bs, data.getContentType(), DIMENSION_SMALL);
-		Binary bb = new Binary(cb);
-		Binary bbs = new Binary(cbs);
-		avatar.setAvatarData(bb);
-		avatar.setAvatarDataSmall(bbs);
-		avatar.setContentType(data.getContentType());
-		avatar.setFileName(data.getOriginalFilename());
-		avatarRepository.save(avatar);
+		String avatarImage = "avatar-" + player.getPlayerId();
+		String avatarSmallImage = "avatar-small-" + player.getPlayerId();
+		try {
+			String avatarUrl = storageManager.uploadImage(avatarImage, data.getContentType(), cb);
+			avatar.setAvatarUrl(avatarUrl);
+			String avatarSmallUrl = storageManager.uploadImage(avatarSmallImage, data.getContentType(), cbs);
+			avatar.setAvatarSmallUrl(avatarSmallUrl);
+			avatarRepository.save(avatar);
+		} catch (Exception e) {
+			throw new ServiceException("Error storing image", ErrorCode.IMAGE_STORE_ERROR);
+		}
 		return avatar;
 	}
 	

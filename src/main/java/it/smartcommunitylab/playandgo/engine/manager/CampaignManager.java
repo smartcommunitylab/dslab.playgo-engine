@@ -336,7 +336,6 @@ public class CampaignManager {
 			campaignRepository.save(campaign);
 			return image;			
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ServiceException("Error storing image", ErrorCode.IMAGE_STORE_ERROR);
 		}
 	}

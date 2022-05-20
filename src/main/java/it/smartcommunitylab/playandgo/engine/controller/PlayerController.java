@@ -3,14 +3,10 @@ package it.smartcommunitylab.playandgo.engine.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
@@ -118,34 +113,15 @@ public class PlayerController extends PlayAndGoController {
 		return avatarManager.uploadPlayerAvatar(player, data);
 	}
 	
-	@GetMapping("/api/player/avatar/small")
-	public ResponseEntity<?> getPlayerAvatarDataSmall(
-			HttpServletResponse response,
+	@GetMapping("/api/player/avatar/")
+	public Avatar getPlayerAvatar(
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		Avatar avatar = avatarManager.getPlayerAvatar(player.getPlayerId());
-		if(avatar != null) {
-			response.setHeader(HttpHeaders.CACHE_CONTROL, "max-age=86400");
-			response.setHeader(HttpHeaders.CONTENT_TYPE, avatar.getContentType());
-			response.setIntHeader(HttpHeaders.CONTENT_LENGTH, avatar.getAvatarDataSmall().getData().length);
-			return ResponseEntity.ok().contentType(MediaType.parseMediaType(avatar.getContentType())).body(avatar.getAvatarDataSmall().getData());		
+		if(avatar == null) {
+			throw new BadRequestException("avatar not found", ErrorCode.IMAGE_NOT_FOUND);
 		}
-		throw new BadRequestException("avatar not found", ErrorCode.IMAGE_NOT_FOUND);
-	}
-
-	@GetMapping("/api/player/avatar")
-	public ResponseEntity<?> getPlayerAvatarData(
-			HttpServletResponse response,
-			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
-		Avatar avatar = avatarManager.getPlayerAvatar(player.getPlayerId());
-		if(avatar != null) {
-			response.setHeader(HttpHeaders.CACHE_CONTROL, "max-age=86400");
-			response.setHeader(HttpHeaders.CONTENT_TYPE, avatar.getContentType());
-			response.setIntHeader(HttpHeaders.CONTENT_LENGTH, avatar.getAvatarData().getData().length);
-			return ResponseEntity.ok().contentType(MediaType.parseMediaType(avatar.getContentType())).body(avatar.getAvatarData().getData());		
-		}
-		throw new BadRequestException("avatar not found", ErrorCode.IMAGE_NOT_FOUND);
+		return avatar;
 	}
 
 }

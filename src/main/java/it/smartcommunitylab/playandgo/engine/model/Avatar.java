@@ -17,6 +17,9 @@ public class Avatar {
 	private String contentType;
 	private String fileName;
 	
+	private String avatarSmallUrl;
+	private String avatarUrl;
+	
 	@Indexed
 	private String playerId;
 
@@ -66,6 +69,22 @@ public class Avatar {
 
 	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
+	}
+
+	public String getAvatarSmallUrl() {
+		return avatarSmallUrl;
+	}
+
+	public void setAvatarSmallUrl(String avatarSmallUrl) {
+		this.avatarSmallUrl = avatarSmallUrl;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
 	}
 	
 }
