@@ -113,7 +113,7 @@ public class PlayerController extends PlayAndGoController {
 		return avatarManager.uploadPlayerAvatar(player, data);
 	}
 	
-	@GetMapping("/api/player/avatar/")
+	@GetMapping("/api/player/avatar")
 	public Avatar getPlayerAvatar(
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
