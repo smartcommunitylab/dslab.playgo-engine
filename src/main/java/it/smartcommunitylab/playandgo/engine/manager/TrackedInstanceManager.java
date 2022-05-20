@@ -128,7 +128,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	public Page<TrackedInstanceInfo> getTrackedInstanceInfoList(String playerId, String campaignId, 
 			Date dateFrom, Date dateTo, Pageable pageRequest) {
 		PageRequest pageRequestNew = PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), Sort.by(Sort.Direction.DESC, "startTime"));
-		Criteria criteria = new Criteria("playerId").is(playerId).and("campaignId").is(campaignId).and("valid").is(true);
+		Criteria criteria = new Criteria("playerId").is(playerId).and("campaignId").is(campaignId);
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
 		} 
