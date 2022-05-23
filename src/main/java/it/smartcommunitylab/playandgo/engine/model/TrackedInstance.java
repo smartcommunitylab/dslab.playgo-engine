@@ -61,10 +61,6 @@ public class TrackedInstance {
 	
 	private Boolean suspect;
 	
-//	private Map<String, String> busPolylines;
-//	private List<String> trainPolylines;
-	private Map<String, Object> routesPolylines;
-	
 	public TrackedInstance() {
 		geolocationEvents = Sets.newConcurrentHashSet();
 		validationResult = new ValidationResult();
@@ -240,14 +236,6 @@ public class TrackedInstance {
 		this.suspect = suspect;
 	}
 
-	public Map<String, Object> getRoutesPolylines() {
-		return routesPolylines;
-	}
-
-	public void setRoutesPolylines(Map<String, Object> routesPolylines) {
-		this.routesPolylines = routesPolylines;
-	}
-	
 	@Override
 	public String toString() {
 		return id;

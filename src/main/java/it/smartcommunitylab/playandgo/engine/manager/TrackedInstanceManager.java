@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LimitOperation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SkipOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -443,6 +444,8 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 		MatchOperation match = Aggregation.match(criteria);
 		operations.add(match);
+		ProjectionOperation project = Aggregation.project().andExclude("geolocationEvents", "deviceInfo");
+		operations.add(project);
 		SortOperation sort = Aggregation.sort(pageRequest.getSort());
 		SkipOperation skip = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
 		LimitOperation limit = Aggregation.limit(pageRequest.getPageSize());
