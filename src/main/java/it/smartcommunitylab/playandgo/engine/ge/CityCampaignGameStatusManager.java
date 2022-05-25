@@ -81,7 +81,7 @@ public class CityCampaignGameStatusManager {
 							campaignId, trackId);
 					if(playerTrack != null) {
 						playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
-						playerTrack.setScore(delta);
+						playerTrack.setScore(playerTrack.getScore() + delta);
 						campaignPlayerTrackRepository.save(playerTrack);
 					}
 					

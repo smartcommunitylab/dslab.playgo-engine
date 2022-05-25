@@ -493,8 +493,9 @@ public class TrackValidator {
 		// split track into pieces. For train consider 15km/h threshold
 		TrackSplit trackSplit = TrackSplit.fastSplit(points, speedThreshold, timeThreshold, minTrackThreshold);
 		if (trackSplit.getFastIntervals().isEmpty()) {
-			status.setValidationOutcome(TravelValidity.PENDING);
-			status.setError(ERROR_TYPE.TOO_SLOW);
+			status.setValidationOutcome(TravelValidity.VALID);
+			//status.setError(ERROR_TYPE.TOO_SLOW);
+			status.setToCheck(true);
 			// for consistency, put the whole distance
 			status.getEffectiveDistances().put(mode, status.getDistance());
 			return status;
@@ -534,11 +535,13 @@ public class TrackValidator {
 				} else if (certified && 100.0 * coveredDistance / transportDistance >= cctv) {
 					status.setValidationOutcome(TravelValidity.VALID);				
 				} else if (certified && 100.0 * coveredDistance / transportDistance >= cctp) {
-					status.setValidationOutcome(TravelValidity.PENDING);				
+					status.setToCheck(true);
+					status.setValidationOutcome(TravelValidity.VALID);				
 				} else if (!certified && 100.0 * coveredDistance / transportDistance >= gctv) {
 					status.setValidationOutcome(TravelValidity.VALID);				
 				} else if (!certified && 100.0 * coveredDistance / transportDistance >= gctp) {
-					status.setValidationOutcome(TravelValidity.PENDING);				
+					status.setToCheck(true);
+					status.setValidationOutcome(TravelValidity.VALID);				
 				} else {
 					status.setValidationOutcome(TravelValidity.INVALID);				
 				}
@@ -633,8 +636,11 @@ public class TrackValidator {
 				return status;
 			}
 		}
-		status.setValidationOutcome(status.getAverageSpeed() <= guaranteedAvgSpeedThreshold ? TravelValidity.VALID: TravelValidity.PENDING);
-		
+		if(status.getAverageSpeed() <= guaranteedAvgSpeedThreshold) {
+			status.setToCheck(true);
+		}
+		//status.setValidationOutcome(status.getAverageSpeed() <= guaranteedAvgSpeedThreshold ? TravelValidity.VALID: TravelValidity.PENDING);
+		status.setValidationOutcome(TravelValidity.VALID);
 		return status;
 	}
 

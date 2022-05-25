@@ -85,6 +85,8 @@ public class ValidationStatus {
 	
 	private String polyline;
 	
+	private boolean toCheck;
+	
 	/**
 	 * Compute percentage of points with high accuracy
 	 * @param points
@@ -535,6 +537,16 @@ public class ValidationStatus {
 			this.match = match;
 		}
 		
+	}
+
+
+
+
+	public boolean isToCheck() {
+		return toCheck;
+	}
+	public void setToCheck(boolean toCheck) {
+		this.toCheck = toCheck;
 	}
 
 }
