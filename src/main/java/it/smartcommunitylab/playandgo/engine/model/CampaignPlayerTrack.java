@@ -26,6 +26,7 @@ public class CampaignPlayerTrack {
 	private String territoryId;
 	
 	private boolean valid = false;
+	private String errorCode;
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
 	private double score;
 	
@@ -134,6 +135,12 @@ public class CampaignPlayerTrack {
 	}
 	public void setScore(double score) {
 		this.score = score;
+	}
+	public String getErrorCode() {
+		return errorCode;
+	}
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
 	}
 
 }

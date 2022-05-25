@@ -10,6 +10,7 @@ public class CampaignTripInfo {
 	private double score = 0.0;
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
 	private boolean valid;
+	private String errorCode;
 	
 	public String getCampaignId() {
 		return campaignId;
@@ -46,5 +47,11 @@ public class CampaignTripInfo {
 	}
 	public void setScoreStatus(ScoreStatus scoreStatus) {
 		this.scoreStatus = scoreStatus;
+	}
+	public String getErrorCode() {
+		return errorCode;
+	}
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
 	}
 }

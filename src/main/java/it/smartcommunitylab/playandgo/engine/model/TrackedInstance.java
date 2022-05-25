@@ -52,6 +52,7 @@ public class TrackedInstance {
 	private ValidationResult validationResult;
 	
 	private TravelValidity changedValidity;
+	private String note;
 	private Boolean approved;
 	private Boolean toCheck;
 	
@@ -263,6 +264,14 @@ public class TrackedInstance {
 
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 	
 }

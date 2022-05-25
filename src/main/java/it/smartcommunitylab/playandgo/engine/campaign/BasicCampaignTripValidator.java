@@ -135,19 +135,18 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		trackingData.put(TRAVEL_ID, track.getClientId());
 		trackingData.put(TRACK_ID, track.getId());
 		trackingData.put(START_TIME, getStartTime(track));
-		
 		playerTrack.setTrackingData(trackingData);
+		
 		playerTrack.setScoreStatus(ScoreStatus.SENT);
 		playerTrack.setValid(true);
-		playerTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+		playerTrack.setModeType((track.getValidationResult().getValidationStatus().getModeType().toString()));
 		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
 		playerTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
-		playerTrack.setCo2(getSavedCo2(track.getValidationResult().getValidationStatus().getModeType().toString(), 
-				track.getValidationResult().getValidationStatus().getDistance()));
+		playerTrack.setCo2(getSavedCo2(playerTrack.getModeType(), playerTrack.getDistance()));
 		Date startTime = sdf.parse(track.getDay() + " " + track.getTime());
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(startTime);
-		calendar.add(Calendar.SECOND, (int) track.getValidationResult().getValidationStatus().getDuration());
+		calendar.add(Calendar.SECOND, (int) playerTrack.getDuration());
 		Date endTime = calendar.getTime();
 		playerTrack.setStartTime(startTime);
 		playerTrack.setEndTime(endTime);
@@ -158,10 +157,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 			return (distance / 1000.0) * 0.24293;
 		} else if(modeType.equalsIgnoreCase("BIKE")) {
 			return (distance / 1000.0) * 0.24293;
-		} else if (modeType.equalsIgnoreCase("CAR")) {
-			// TODO revise?
-			return getSavedCo2("WALK", distance);
-		}
+		} 
 		return 0.0;
 	}
 
@@ -177,6 +173,22 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 			time = shortSdf.parse(trackedInstance.getDay()).getTime();
 		}
 		return time;
+	}
+
+	@Override
+	public void invalidateTripRequest(ValidateCampaignTripRequest msg) {
+		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
+		if(playerTrack != null) {
+			playerTrack.setValid(false);
+			TrackedInstance track = trackedInstanceRepository.findById(msg.getTrackedInstanceId()).orElse(null);
+			if(track != null) {
+				playerTrack.setErrorCode(track.getValidationResult().getValidationStatus().getError().toString());
+			}
+			campaignPlayerTrackRepository.save(playerTrack);
+			playerReportManager.removePlayerCampaignPlacings(playerTrack);
+			//TODO send action to GamificationEngine?
+		}
+		
 	}
 
 }

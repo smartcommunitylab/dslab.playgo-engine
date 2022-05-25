@@ -131,6 +131,31 @@ public class PlayerCampaignPlacingManager {
 		}
 	}
 	
+	public void removePlayerCampaignPlacings(CampaignPlayerTrack pt) {
+		//transport global placing
+		PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
+				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
+		if(globalByMode != null) {
+			globalByMode.subDistance(pt.getDistance());
+			globalByMode.subDuration(pt.getDuration());
+			globalByMode.subCo2(pt.getCo2());
+			globalByMode.subTrack();
+			playerStatsTransportRepository.save(globalByMode);
+		}
+		
+		//transport daily placing
+		LocalDate trackDay = pt.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
+				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, trackDay);
+		if(dayByMode != null) {
+			dayByMode.subDistance(pt.getDistance());
+			dayByMode.subDuration(pt.getDuration());
+			dayByMode.subCo2(pt.getCo2());
+			dayByMode.subTrack();
+			playerStatsTransportRepository.save(dayByMode);					
+		}
+	}
+	
 	private LocalDate getWeeklyDay(int startDayOfWeek, LocalDate trackDay) {
 		LocalDate dayOfWeek = trackDay.with(TemporalAdjusters.previousOrSame(DayOfWeek.of(startDayOfWeek)));
 		return dayOfWeek;

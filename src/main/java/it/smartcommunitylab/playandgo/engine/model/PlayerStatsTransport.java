@@ -39,16 +39,32 @@ public class PlayerStatsTransport {
 		this.trackNumber++;
 	}
 	
+	public void subTrack() {
+		this.trackNumber--;
+	}
+	
 	public void addDistance(double distance) {
 		this.distance += distance;
+	}
+	
+	public void subDistance(double distance) {
+		this.distance -= distance;
 	}
 	
 	public void addDuration(long duration) {
 		this.duration += duration;
 	}
 	
+	public void subDuration(long duration) {
+		this.duration -= duration;
+	}
+	
 	public void addCo2(double co2) {
 		this.co2 += co2;
+	}
+	
+	public void subCo2(double co2) {
+		this.co2 -= co2;
 	}
 	
 	public String getId() {

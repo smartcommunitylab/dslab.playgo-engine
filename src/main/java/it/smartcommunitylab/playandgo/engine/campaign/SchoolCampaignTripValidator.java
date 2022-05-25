@@ -29,4 +29,10 @@ public class SchoolCampaignTripValidator implements ManageValidateCampaignTripRe
 		// TODO check company validation trip endpoint 		
 	}
 
+	@Override
+	public void invalidateTripRequest(ValidateCampaignTripRequest message) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

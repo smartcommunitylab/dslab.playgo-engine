@@ -1,9 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.mq;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -27,9 +24,10 @@ public class MessageQueueManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(MessageQueueManager.class);
 	
 	public static final String validateTripRequest = "playgo-vt-request";
-	public static final String validateTripResponse = "playgo-vt-response";
+	//public static final String validateTripResponse = "playgo-vt-response";
 	public static final String validateCampaignTripRequest = "playgo-campaign-vt-request";
-	public static final String validateCampaignTripResponse = "playgo-campaign-vt-r";
+	public static final String invalidateCampaignTripRequest = "playgo-campaign-invt-request";
+	//public static final String validateCampaignTripResponse = "playgo-campaign-vt-r";
 	
 	@Value("${rabbitmq_pg.host}")
 	private String rabbitMQHost;	
@@ -56,6 +54,7 @@ public class MessageQueueManager {
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
 	DeliverCallback validateCampaignTripRequestCallback;
+	DeliverCallback invalidateCampaignTripRequestCallback;
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -73,10 +72,7 @@ public class MessageQueueManager {
 		connection = connectionFactory.newConnection();
 		
 		validateTripChannel = connection.createChannel();
-		validateTripChannel.queueDeclare(validateTripRequest, true, false, false, null);
-		
-		validateCampaignTripChannel = connection.createChannel();
-		validateCampaignTripChannel.exchangeDeclare(validateCampaignTripRequest, BuiltinExchangeType.DIRECT, true);
+		validateTripChannel.queueDeclare(validateTripRequest, true, false, false, null);		
 		
 		DeliverCallback validateTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
@@ -87,17 +83,35 @@ public class MessageQueueManager {
 			}			
 		};
 		validateTripChannel.basicConsume(validateTripRequest, true, validateTripRequestCallback, consumerTag -> {});
-		
+
+		validateCampaignTripChannel = connection.createChannel();
+		validateCampaignTripChannel.queueDeclare(validateCampaignTripRequest, true, false, false, null);
+		validateCampaignTripChannel.queueDeclare(invalidateCampaignTripRequest, true, false, false, null);
+
 		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.debug("validateCampaignTripRequestCallback:" + json);
 			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
-			String routingKey = delivery.getEnvelope().getRoutingKey();
+			String routingKey = message.getCampaignType();
 			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
 			if(manager != null) {
 				manager.validateTripRequest(message);
 			}
 		};
+		validateCampaignTripChannel.basicConsume(validateCampaignTripRequest, true, validateCampaignTripRequestCallback, consumerTag -> {});
+		
+		invalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
+			String json = new String(delivery.getBody(), "UTF-8");
+			logger.debug("invalidateCampaignTripRequestCallback:" + json);
+			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
+			String routingKey = message.getCampaignType();
+			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
+			if(manager != null) {
+				manager.invalidateTripRequest(message);
+			}
+		};
+		validateCampaignTripChannel.basicConsume(invalidateCampaignTripRequest, true, invalidateCampaignTripRequestCallback, consumerTag -> {});
+		
 	}
 	
 	@PreDestroy
@@ -138,24 +152,17 @@ public class MessageQueueManager {
 	}
 	
 	public void setManageValidateCampaignTripRequest(ManageValidateCampaignTripRequest manager, Campaign.Type type) {
-		String routingKey = type.toString();
-		String queueName = validateCampaignTripRequest + "__" + routingKey;
-		if(!manageValidateCampaignTripRequestMap.containsKey(routingKey)) {
-			try {
-				validateCampaignTripChannel.queueDeclare(queueName, true, false, false, null); 
-				validateCampaignTripChannel.queueBind(queueName, validateCampaignTripRequest, routingKey);
-				validateCampaignTripChannel.basicConsume(queueName, true, validateCampaignTripRequestCallback, consumerTag -> {});
-				manageValidateCampaignTripRequestMap.put(routingKey, manager);
-			} catch (IOException e) {
-				logger.warn(String.format("setManageValidateCampaignTripRequest: error in queue bind - %s - %s", routingKey, e.getMessage()));
-			}
-		}		
+		manageValidateCampaignTripRequestMap.put(type.toString(), manager);
 	}
 	
 	public void sendValidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
-		String routingKey = message.getCampaignType();
 		String msg = mapper.writeValueAsString(message);
-		validateTripChannel.basicPublish(validateCampaignTripRequest, routingKey, null, msg.getBytes("UTF-8"));
+		validateTripChannel.basicPublish("", validateCampaignTripRequest, null, msg.getBytes("UTF-8"));
 	}
-	
+
+	public void sendInvalidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
+		String msg = mapper.writeValueAsString(message);
+		validateTripChannel.basicPublish("", invalidateCampaignTripRequest, null, msg.getBytes("UTF-8"));
+	}
+
 }

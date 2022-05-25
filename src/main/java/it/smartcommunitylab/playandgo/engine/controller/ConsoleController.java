@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
@@ -185,5 +186,19 @@ public class ConsoleController extends PlayAndGoController {
 		return trackedInstanceManager.getTrackPolylines(territoryId, trackId);
 	}
 	
+	@GetMapping("/api/console/track/update")
+	public void updateValidationResult(
+			@RequestParam String trackId,
+			@RequestParam String validity,
+			@RequestParam(required = false) String modeType,
+			@RequestParam(required = false) Double distance,
+			@RequestParam(required = false) Long duration,
+			@RequestParam(required = false) String errorType,
+			@RequestParam(required = false) String note,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		TravelValidity changedValidity = TravelValidity.valueOf(validity);
+		trackedInstanceManager.updateValidationResult(trackId, changedValidity, modeType, distance, duration, errorType, note);
+	}
 
 }
