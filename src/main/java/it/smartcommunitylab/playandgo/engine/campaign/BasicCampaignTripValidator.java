@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStat
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
+import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
@@ -187,6 +188,24 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 			campaignPlayerTrackRepository.save(playerTrack);
 			playerReportManager.removePlayerCampaignPlacings(playerTrack);
 			//TODO send action to GamificationEngine?
+		}
+		
+	}
+
+	@Override
+	public void updateTripRequest(UpdateCampaignTripRequest msg) {
+		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
+		if(playerTrack != null) {
+			playerTrack.setDistance(playerTrack.getDistance() + msg.getDeltaDistance());
+			double co2 = getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance()));
+			if(msg.getDeltaDistance() > 0) {
+				playerTrack.setCo2(playerTrack.getCo2() + co2);
+			} else if(msg.getDeltaDistance() < 0) {
+				playerTrack.setCo2(playerTrack.getCo2() - co2);
+			}
+			campaignPlayerTrackRepository.save(playerTrack);
+			playerReportManager.updatePlayerCampaignPlacings(playerTrack, msg.getDeltaDistance(), co2);
+			//TODO send action to GamificationEngine? 
 		}
 		
 	}

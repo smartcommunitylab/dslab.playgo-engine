@@ -58,6 +58,7 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
+import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
@@ -385,6 +386,21 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 	}
 
+	/**
+	 * For each campaign subscribed send an update distance message for the specific track
+	 */	
+	private void updateCampaigns(ValidateTripRequest msg, double deltaDistance) throws Exception {
+		List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(msg.getPlayerId(), msg.getTerritoryId());
+		for(CampaignSubscription sub : list) {
+			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
+			CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), campaign.getCampaignId(), msg.getTrackedInstanceId());
+			if(pTrack != null) {
+				UpdateCampaignTripRequest request = new UpdateCampaignTripRequest(campaign.getType().toString(), pTrack.getId(), deltaDistance);
+				queueManager.sendUpdateCampaignTripRequest(request);
+			}
+		}
+	}
+	
 	private void validateSharedTravelRequest(ValidateTripRequest msg, TrackedInstance track) {
 		String sharedId = track.getSharedTravelId();
 		try {
@@ -536,6 +552,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		trackedInstanceRepository.save(track);			
 		if(TravelValidity.VALID.equals(changedValidity)) {
 			if(TravelValidity.INVALID.equals(track.getValidationResult().getTravelValidity())) {
+				// INVALID -> VALID
 				track.getValidationResult().getValidationStatus().setValidationOutcome(TravelValidity.VALID);
 				track.getValidationResult().getValidationStatus().setModeType(MODE_TYPE.valueOf(modeType));
 				track.getValidationResult().getValidationStatus().setDistance(distance);
@@ -548,11 +565,20 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				msg.setPlayerId(track.getUserId());
 				msg.setTrackedInstanceId(track.getId());
 				storeAndValidateCampaigns(msg);
+			} else if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
+				//update distance for a already validated track
+				double delta = distance - track.getValidationResult().getValidationStatus().getDistance();
+				track.getValidationResult().getValidationStatus().setDistance(distance);
+				trackedInstanceRepository.save(track);
+				ValidateTripRequest msg = new ValidateTripRequest();
+				msg.setTerritoryId(track.getTerritoryId());
+				msg.setPlayerId(track.getUserId());
+				msg.setTrackedInstanceId(track.getId());
+				updateCampaigns(msg, delta);
 			}
-			//TODO update distance for a already validated track
-		}
-		if(TravelValidity.INVALID.equals(changedValidity)) {
+		} else if(TravelValidity.INVALID.equals(changedValidity)) {
 			if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
+				// VALID -> INVALID
 				track.getValidationResult().getValidationStatus().setValidationOutcome(TravelValidity.INVALID);
 				track.getValidationResult().setValid(false);
 				track.getValidationResult().getValidationStatus().setError(ERROR_TYPE.valueOf(errorType));

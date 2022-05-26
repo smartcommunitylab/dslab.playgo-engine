@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
+import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 
 @Component
@@ -31,6 +32,12 @@ public class SchoolCampaignTripValidator implements ManageValidateCampaignTripRe
 
 	@Override
 	public void invalidateTripRequest(ValidateCampaignTripRequest message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateTripRequest(UpdateCampaignTripRequest message) {
 		// TODO Auto-generated method stub
 		
 	}
