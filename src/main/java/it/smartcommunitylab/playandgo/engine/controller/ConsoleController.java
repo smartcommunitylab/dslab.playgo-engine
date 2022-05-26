@@ -134,8 +134,8 @@ public class ConsoleController extends PlayAndGoController {
 	
 	@GetMapping("/api/console/role/my")
 	public List<PlayerRole> getMyRoles(HttpServletRequest request) throws Exception {
-		String playerId = getCurrentSubject(request);
-		return playerRoleRepository.findByPlayerId(playerId);
+		String playerId = getCurrentPreferredUsername(request);
+		return playerRoleRepository.findByPreferredUsername(playerId);
 	}
 	
 	@GetMapping("/api/console/player/search")
