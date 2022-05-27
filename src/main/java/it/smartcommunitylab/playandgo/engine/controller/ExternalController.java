@@ -9,12 +9,17 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
@@ -85,6 +90,24 @@ public class ExternalController extends PlayAndGoController {
 		return result;
 	}
 	
-	
+	@GetMapping("/api/ext/territory/players")
+	public Page<PlayerInfo> searchPlayers(@RequestParam(required = false) String txt, @RequestParam String territory, Pageable pageRequest) {
+		if (StringUtils.hasText(txt)) {
+			return playerRepository.findByTerritoryIdAndNicknameText(territory, txt, pageRequest).map(p -> toPlayerInfo(p));
+		} else {
+			return playerRepository.findByTerritoryId(territory, pageRequest).map(p -> toPlayerInfo(p));			
+		}
+	}
+
+	/**
+	 * @param p
+	 * @return
+	 */
+	private PlayerInfo toPlayerInfo(Player p) {
+		PlayerInfo info = new PlayerInfo();
+		info.setNickname(p.getNickname());
+		info.setPlayerId(p.getPlayerId());
+		return info;
+	}
 	
 }

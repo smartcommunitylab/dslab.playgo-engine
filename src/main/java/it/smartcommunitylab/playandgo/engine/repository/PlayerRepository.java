@@ -24,5 +24,8 @@ public interface PlayerRepository extends MongoRepository<Player, String> {
 	
 	@Query("{'territoryId': ?0, '$or': [{'nickname': {$regex: ?1, $options:'i'}}, {'playerId': {$regex: ?1, $options:'i'}}, {'mail': {$regex: ?1, $options:'i'}}, {'givenName': {$regex: ?1, $options:'i'}}, {'familyName': {$regex: ?1, $options:'i'}}]}")
 	public Page<Player> findByTerritoryIdAndText(String territoryId, String text, Pageable pageRequest);
-	
+
+	@Query("{'territoryId': ?0, 'nickname': {$regex: ?1, $options:'i'}}")
+	public Page<Player> findByTerritoryIdAndNicknameText(String territoryId, String text, Pageable pageRequest);
+
 }
