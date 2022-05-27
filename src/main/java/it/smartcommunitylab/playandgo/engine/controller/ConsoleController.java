@@ -32,6 +32,7 @@ import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
 public class ConsoleController extends PlayAndGoController {
@@ -163,18 +164,22 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam(required = false) String playerId,
 			@RequestParam(required = false) String modeType,
 			@RequestParam(required = false) 
-			@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-			@ApiParam(value = "yyyy-MM-dd HH:mm:ss") Date dateFrom,
+			@ApiParam(value = "UTC millis") Long dateFrom,
 			@RequestParam(required = false) 
-			@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")			
-			@ApiParam(value = "yyyy-MM-dd HH:mm:ss") Date dateTo,
+			@ApiParam(value = "UTC millis") Long dateTo,
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
+		Date dDateFrom = null;
+		Date dDateTo = null;
+		if((dateFrom != null) && (dateTo != null)) {
+			dDateFrom = Utils.getUTCDate(dateFrom);
+			dDateTo = Utils.getUTCDate(dateTo);
+		}
 		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, playerId, modeType, campaignId, status, 
-				dateFrom, dateTo, pageRequest);
+				dDateFrom, dDateTo, pageRequest);
 	}
 	
 	@GetMapping("/api/console/track/detail")
