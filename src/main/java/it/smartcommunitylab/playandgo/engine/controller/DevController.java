@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -64,7 +63,6 @@ public class DevController extends PlayAndGoController {
 	@PostMapping("/api/dev/tracks")
 	public void addTracks(HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
-		LocalDate day = LocalDate.parse("2022-03-28");
 		for(int i = 0; i < players; i++) {
 			String playerId = "p_" + i;
 			List<PlayerStatsTransport> list = new ArrayList<>();
@@ -77,7 +75,7 @@ public class DevController extends PlayAndGoController {
 				ps.setModeType(modeType);
 				ps.setDistance(rangeMin + (rangeMax - rangeMin) * RANDOM.nextDouble());
 				ps.setGlobal(false);
-				ps.setDay(day);
+				ps.setDay("2022-03-28");
 				list.add(ps);
 				logger.info("save track " + trackId);
 			}
@@ -88,11 +86,9 @@ public class DevController extends PlayAndGoController {
 	@GetMapping("/api/dev/test/campaign/placing")
 	public void testCampaignPlacingByTransportMode(HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
-		LocalDate dateFrom = LocalDate.parse("2022-03-21");
-		LocalDate dateTo = LocalDate.parse("2022-03-31");
 		for(String modeType : modeTypes) {
 			long startTime = System.currentTimeMillis();
-			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing("TAA.test1", "distance", modeType, dateFrom, dateTo, PageRequest.of(10, 10));
+			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing("TAA.test1", "distance", modeType, "2022-03-21", "2022-03-31", PageRequest.of(10, 10));
 			long endTime = System.currentTimeMillis();
 			logger.info(String.format("query2 [%s]: %s - %s", modeType, page.getSize(), (endTime - startTime)));
 		}

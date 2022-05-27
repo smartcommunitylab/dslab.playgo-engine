@@ -39,13 +39,8 @@ public class TrackedInstance {
 	private Boolean complete = Boolean.FALSE;
 	private Boolean validating = Boolean.FALSE;
 	
-	private String time;
-	
 	private String deviceInfo;
 
-	@Indexed
-	private String day;
-	
 	@Indexed
 	private Date startTime; 
 	
@@ -131,14 +126,6 @@ public class TrackedInstance {
 		this.complete = complete;
 	}
 
-	public String getDay() {
-		return day;
-	}
-
-	public void setDay(String day) {
-		this.day = day;
-	}
-
 	public ValidationResult getValidationResult() {
 		return validationResult;
 	}
@@ -159,20 +146,6 @@ public class TrackedInstance {
 	 */
 	public void setDeviceInfo(String deviceInfo) {
 		this.deviceInfo = deviceInfo;
-	}
-
-	/**
-	 * @return the time
-	 */
-	public String getTime() {
-		return time;
-	}
-
-	/**
-	 * @param time the time to set
-	 */
-	public void setTime(String time) {
-		this.time = time;
 	}
 
 	/**
@@ -258,6 +231,14 @@ public class TrackedInstance {
 		this.validating = validating;
 	}
 
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+
 	public Date getStartTime() {
 		return startTime;
 	}
@@ -266,12 +247,5 @@ public class TrackedInstance {
 		this.startTime = startTime;
 	}
 
-	public String getNote() {
-		return note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
-	}
 	
 }

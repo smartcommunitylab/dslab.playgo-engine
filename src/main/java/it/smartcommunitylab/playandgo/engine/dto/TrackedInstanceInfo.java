@@ -18,18 +18,6 @@ public class TrackedInstanceInfo {
 	private List<CampaignTripInfo> campaigns = new ArrayList<>();
 	private String polyline;
 	
-	public Date getStartTime() {
-		return startTime;
-	}
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-	public Date getEndTime() {
-		return endTime;
-	}
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
 	public TravelValidity getValidity() {
 		return validity;
 	}
@@ -74,6 +62,18 @@ public class TrackedInstanceInfo {
 	}
 	public String getClientId() {
 		return clientId;
+	}
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+	public Date getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
 	}
 	public void setClientId(String clientId) {
 		this.clientId = clientId;

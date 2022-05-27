@@ -1,7 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -153,7 +153,8 @@ public class CampaignManager {
 		} else {
 			list = campaignRepository.findAll(sort); 
 		}
-		return list.stream().filter(c -> Boolean.TRUE.equals(c.getActive()) && c.getDateTo().isAfter(LocalDate.now())).collect(Collectors.toList());
+		Date now = new Date();
+		return list.stream().filter(c -> Boolean.TRUE.equals(c.getActive()) && c.getDateTo().after(now)).collect(Collectors.toList());
 	}
 	
 	public Campaign deleteCampaign(String campaignId) throws Exception {
@@ -278,7 +279,7 @@ public class CampaignManager {
 		sub.setTerritoryId(player.getTerritoryId());
 		sub.setMail(player.getMail());
 		sub.setSendMail(player.getSendMail());
-		sub.setRegistrationDate(LocalDate.now());
+		sub.setRegistrationDate(new Date());
 		if(campaignData != null) {
 			sub.setCampaignData(campaignData);
 		}

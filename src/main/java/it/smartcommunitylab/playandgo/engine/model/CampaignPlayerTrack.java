@@ -88,18 +88,6 @@ public class CampaignPlayerTrack {
 	public void setTrackingData(Map<String, Object> trackingData) {
 		this.trackingData = trackingData;
 	}
-	public Date getStartTime() {
-		return startTime;
-	}
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-	public Date getEndTime() {
-		return endTime;
-	}
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
 	public String getModeType() {
 		return modeType;
 	}
@@ -141,6 +129,18 @@ public class CampaignPlayerTrack {
 	}
 	public void setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
+	}
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+	public Date getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
 	}
 
 }

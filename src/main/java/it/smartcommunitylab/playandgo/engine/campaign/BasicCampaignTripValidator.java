@@ -1,12 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
-import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
@@ -40,8 +35,8 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	public static final String START_TIME = "startTime";
 	public static final String TRACK_ID = "trackId";
 	
-	static FastDateFormat shortSdf = FastDateFormat.getInstance("yyyy/MM/dd");
-	static FastDateFormat fullSdf = FastDateFormat.getInstance("yyyy/MM/dd HH:mm");
+	//static FastDateFormat shortSdf = FastDateFormat.getInstance("yyyy/MM/dd");
+	//static FastDateFormat fullSdf = FastDateFormat.getInstance("yyyy/MM/dd HH:mm");
 
 	@Autowired
 	MessageQueueManager queueManager;
@@ -67,7 +62,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
 	
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+	//SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 	
 	@Override
 	public void validateTripRequest(ValidateCampaignTripRequest msg) {
@@ -135,7 +130,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 			Map<String, Object> trackingData) throws ParseException {
 		trackingData.put(TRAVEL_ID, track.getClientId());
 		trackingData.put(TRACK_ID, track.getId());
-		trackingData.put(START_TIME, getStartTime(track));
+		trackingData.put(START_TIME, track.getStartTime().getTime());
 		playerTrack.setTrackingData(trackingData);
 		
 		playerTrack.setScoreStatus(ScoreStatus.SENT);
@@ -144,13 +139,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
 		playerTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
 		playerTrack.setCo2(getSavedCo2(playerTrack.getModeType(), playerTrack.getDistance()));
-		Date startTime = sdf.parse(track.getDay() + " " + track.getTime());
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(startTime);
-		calendar.add(Calendar.SECOND, (int) playerTrack.getDuration());
-		Date endTime = calendar.getTime();
-		playerTrack.setStartTime(startTime);
-		playerTrack.setEndTime(endTime);
+		
+		playerTrack.setStartTime(track.getStartTime());
+		playerTrack.setEndTime(Utils.getEndTime(track));
 	}
 	
 	private double getSavedCo2(String modeType, double distance) {
@@ -162,19 +153,19 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		return 0.0;
 	}
 
-	private long getStartTime(TrackedInstance trackedInstance) throws ParseException {
-		long time = 0;
-		if (trackedInstance.getGeolocationEvents() != null && !trackedInstance.getGeolocationEvents().isEmpty()) {
-			Geolocation event = trackedInstance.getGeolocationEvents().stream().sorted().findFirst().get();
-			time = event.getRecorded_at().getTime();
-		} else if (trackedInstance.getDay() != null && trackedInstance.getTime() != null) {
-			String dt = trackedInstance.getDay() + " " + trackedInstance.getTime();
-			time = fullSdf.parse(dt).getTime();
-		} else if (trackedInstance.getDay() != null) {
-			time = shortSdf.parse(trackedInstance.getDay()).getTime();
-		}
-		return time;
-	}
+//	private long getStartTime(TrackedInstance trackedInstance) throws ParseException {
+//		long time = 0;
+//		if (trackedInstance.getGeolocationEvents() != null && !trackedInstance.getGeolocationEvents().isEmpty()) {
+//			Geolocation event = trackedInstance.getGeolocationEvents().stream().sorted().findFirst().get();
+//			time = event.getRecorded_at().getTime();
+//		} else if (trackedInstance.getDay() != null && trackedInstance.getTime() != null) {
+//			String dt = trackedInstance.getDay() + " " + trackedInstance.getTime();
+//			time = fullSdf.parse(dt).getTime();
+//		} else if (trackedInstance.getDay() != null) {
+//			time = shortSdf.parse(trackedInstance.getDay()).getTime();
+//		}
+//		return time;
+//	}
 
 	@Override
 	public void invalidateTripRequest(ValidateCampaignTripRequest msg) {
@@ -189,7 +180,6 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 			playerReportManager.removePlayerCampaignPlacings(playerTrack);
 			//TODO send action to GamificationEngine?
 		}
-		
 	}
 
 	@Override
@@ -207,7 +197,6 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 			playerReportManager.updatePlayerCampaignPlacings(playerTrack, msg.getDeltaDistance(), co2);
 			//TODO send action to GamificationEngine? 
 		}
-		
 	}
 
 }

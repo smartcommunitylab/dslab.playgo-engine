@@ -1,7 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,11 +9,6 @@ import java.util.Map;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
 
 @Document(collection="campaigns")
 public class Campaign {
@@ -27,12 +22,8 @@ public class Campaign {
 	private String territoryId;
 	private String name;
 	private String description;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-	@JsonDeserialize(using = LocalDateDeserializer.class)
-	private LocalDate dateFrom;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-	@JsonDeserialize(using = LocalDateDeserializer.class)
-	private LocalDate dateTo;
+	private Date dateFrom;
+	private Date dateTo;
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;
 	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
@@ -74,22 +65,6 @@ public class Campaign {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public LocalDate getDateFrom() {
-		return dateFrom;
-	}
-
-	public void setDateFrom(LocalDate dateFrom) {
-		this.dateFrom = dateFrom;
-	}
-
-	public LocalDate getDateTo() {
-		return dateTo;
-	}
-
-	public void setDateTo(LocalDate dateTo) {
-		this.dateTo = dateTo;
 	}
 
 	public String getGameId() {
@@ -149,9 +124,10 @@ public class Campaign {
 	}
 
 	public boolean currentlyActive() {
+		Date now = new Date();
 		return !Boolean.FALSE.equals(getActive()) && 
-				(getDateFrom() == null || !getDateFrom().isAfter(LocalDate.now())) &&
-				(getDateTo() == null || !getDateTo().isBefore(LocalDate.now()));
+				(getDateFrom() == null || !getDateFrom().after(now)) &&
+				(getDateTo() == null || !getDateTo().before(now));
 	}
 
 	public Image getBanner() {
@@ -169,4 +145,21 @@ public class Campaign {
 	public void setDetails(List<CampaignDetail> details) {
 		this.details = details;
 	}
+
+	public Date getDateFrom() {
+		return dateFrom;
+	}
+
+	public void setDateFrom(Date dateFrom) {
+		this.dateFrom = dateFrom;
+	}
+
+	public Date getDateTo() {
+		return dateTo;
+	}
+
+	public void setDateTo(Date dateTo) {
+		this.dateTo = dateTo;
+	}
+
 }

@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,16 +49,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
 		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing(campaignId, metric, mean, 
-				dateFromDate, dateToDate, pageRequest);
+				dateFrom, dateTo, pageRequest);
 		return page;			
 	}
 	
@@ -72,16 +63,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
 		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayer(playerId, campaignId, 
-				metric, mean, dateFromDate, dateToDate);
+				metric, mean, dateFrom, dateTo);
 		return placing;
 	}
 	
@@ -92,16 +75,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
 		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByGame(campaignId,  
-				dateFromDate, dateToDate, pageRequest);
+				dateFrom, dateTo, pageRequest);
 		return page;			
 	}
 
@@ -112,16 +87,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
 		CampaignPlacing placing = playerReportManager.getCampaignPlacingByGameAndPlayer(playerId, campaignId, 
-				dateFromDate, dateToDate);
+				dateFrom, dateTo);
 		return placing;
 	}
 
@@ -135,20 +102,12 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
 		if(Utils.isEmpty(groupMode)) {
 			return playerReportManager.getPlayerTransportStats(player.getPlayerId(), campaignId, metric, 
-					mean, dateFromDate, dateToDate);
+					mean, dateFrom, dateTo);
 		} else {
 			return playerReportManager.getPlayerTransportStats(player.getPlayerId(), campaignId, groupMode, metric, 
-					mean, dateFromDate, dateToDate);
+					mean, dateFrom, dateTo);
 		}
 	}
 	
@@ -160,15 +119,7 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		LocalDate dateFromDate = null;
-		LocalDate dateToDate = null;
-		if(Utils.isNotEmpty(dateFrom)) {
-			dateFromDate = LocalDate.parse(dateFrom);
-		}		
-		if(Utils.isNotEmpty(dateTo)) {
-			dateToDate = LocalDate.parse(dateTo);
-		}		
-		return playerReportManager.getPlayerGameStats(player.getPlayerId(), groupMode, campaignId, dateFromDate, dateToDate);
+		return playerReportManager.getPlayerGameStats(player.getPlayerId(), groupMode, campaignId, dateFrom, dateTo);
 	}
 
 	@GetMapping("/api/report/player/transport/record")

@@ -29,6 +29,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Location;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class GeolocationsProcessor {
@@ -305,18 +306,13 @@ public class GeolocationsProcessor {
 			multimodalId = splitId[1];
 		}
 
-		String day = shortSdf.format(freeTrackStarts.get(key));
-		String time = timeSdf.format(freeTrackStarts.get(key));
-		
 		//check existing track
-		TrackedInstance res = trackedInstanceRepository.findByDayAndUserIdAndClientId(day, userId, travelId);
+		TrackedInstance res = trackedInstanceRepository.findByUserIdAndClientId(userId, travelId);
 		if (res == null) {
 			logger.debug("No existing TrackedInstance found.");
 			res = new TrackedInstance();
 			res.setClientId(travelId);
-			res.setDay(day);
-			res.setTime(time);
-			res.setStartTime(fullSdf.parse(day + " " + time));
+			res.setStartTime(Utils.getUTCDate(freeTrackStarts.get(key)));
 			res.setUserId(userId);
 			res.setId(ObjectId.get().toString());
 			if (travelId.contains("_temporary_")) {
@@ -334,9 +330,6 @@ public class GeolocationsProcessor {
 				}
 			}
 			res.setFreeTrackingTransport(ftt);
-			if (freeTrackStarts.containsKey(key)) {
-				res.setTime(timeSdf.format(new Date(freeTrackStarts.get(key))));
-			}
 			if (geolocationsByItinerary.get(key) != null) {
 				logger.debug("Adding " + geolocationsByItinerary.get(key).size() + " geolocations to existing " + res.getGeolocationEvents().size() + ".");
 				res.getGeolocationEvents().addAll(geolocationsByItinerary.get(key));

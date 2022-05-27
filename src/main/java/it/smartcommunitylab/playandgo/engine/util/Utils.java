@@ -1,9 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.util;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TimeZone;
 import java.util.UUID;
+
+import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
 
@@ -39,4 +43,17 @@ public class Utils {
 	    }
 	    return null;
 	}
+	
+	public static Date getUTCDate(long milli) {
+		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		calendar.setTimeInMillis(milli);
+		return calendar.getTime();
+	}
+	
+	public static Date getEndTime(TrackedInstance t) {
+		long starTime = t.getStartTime().getTime();
+		long endTime = starTime + (t.getValidationResult().getValidationStatus().getDuration() * 1000);
+		return new Date(endTime);
+	}
+	
 }

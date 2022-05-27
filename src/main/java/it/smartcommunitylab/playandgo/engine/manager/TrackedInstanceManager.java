@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -177,7 +176,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		trackInfo.setClientId(track.getClientId());
 		trackInfo.setMultimodalId(track.getMultimodalId());
 		trackInfo.setStartTime(track.getStartTime());
-		trackInfo.setEndTime(getEndTime(track));
+		trackInfo.setEndTime(Utils.getEndTime(track));
 		trackInfo.setValidity(track.getValidationResult().getTravelValidity());
 		trackInfo.setDistance(track.getValidationResult().getValidationStatus().getDistance());
 		if(track.getValidationResult().getValidationStatus().getModeType() != null) {
@@ -267,14 +266,6 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 		return result;
 	}**/
-	
-	private Date getEndTime(TrackedInstance track) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(track.getStartTime());
-		calendar.add(Calendar.SECOND, (int) track.getValidationResult().getValidationStatus().getDuration());
-		Date endTime = calendar.getTime();
-		return endTime;
-	}
 	
 	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String playerId, String territoryId) throws Exception {
 		List<TrackedInstance> list = geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, playerId, territoryId);

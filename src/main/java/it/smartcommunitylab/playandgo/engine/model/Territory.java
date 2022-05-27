@@ -12,6 +12,7 @@ public class Territory {
 	private String territoryId;
 	private String name;
 	private String description;
+	private String timezone;
 	
 	private Map<String, Object> territoryData = new HashMap<>();
 	
@@ -38,5 +39,11 @@ public class Territory {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getTimezone() {
+		return timezone;
+	}
+	public void setTimezone(String timezone) {
+		this.timezone = timezone;
 	}
 }

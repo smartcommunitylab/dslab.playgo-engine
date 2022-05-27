@@ -1,6 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.campaign;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class CompanyCampaignSubscription {
 		sub.setTerritoryId(player.getTerritoryId());
 		sub.setMail(player.getMail());
 		sub.setSendMail(player.getSendMail());
-		sub.setRegistrationDate(LocalDate.now());
+		sub.setRegistrationDate(new Date());
 		if(campaignData != null) {
 			sub.setCampaignData(campaignData);
 		}

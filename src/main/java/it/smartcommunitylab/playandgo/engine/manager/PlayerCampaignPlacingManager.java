@@ -1,13 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -85,14 +85,24 @@ public class PlayerCampaignPlacingManager {
 	@Autowired
 	PlayerStatsGameRepository playerStatsGameRepository;
 	
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");   
+	
+	private ZonedDateTime getTrackDay(Campaign campaign, CampaignPlayerTrack pt) {		
+		ZoneId zoneId = null;
+		Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+		if(territory == null) {
+			zoneId = ZoneId.systemDefault();
+		} else {
+			zoneId = ZoneId.of(territory.getTimezone());
+		}
+		return ZonedDateTime.ofInstant(pt.getStartTime().toInstant(), zoneId);
+	}
 	
 	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt) {
 		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
 		if(campaign != null) {
-			LocalDate trackDay = pt.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			if(!campaign.getType().equals(Type.personal)) {
-				if(trackDay.isBefore(campaign.getDateFrom()) || trackDay.isAfter(campaign.getDateTo())) {
+				if(pt.getStartTime().before(campaign.getDateFrom()) || pt.getStartTime().after(campaign.getDateTo())) {
 					return;
 				}
 			}
@@ -114,14 +124,16 @@ public class PlayerCampaignPlacingManager {
 			playerStatsTransportRepository.save(globalByMode);
 			
 			//transport daily placing
+			ZonedDateTime trackDay = getTrackDay(campaign, pt);
+			String day = trackDay.format(dtf);
 			int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
 			int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
 			int year = trackDay.get(ChronoField.YEAR);
 			PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
-					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, trackDay);
+					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, day);
 			if(dayByMode == null) {
 				dayByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
-						Boolean.FALSE, trackDay, weekOfYear, monthOfYear, year);
+						Boolean.FALSE, day, weekOfYear, monthOfYear, year);
 			}
 			dayByMode.addDistance(pt.getDistance());
 			dayByMode.addDuration(pt.getDuration());
@@ -144,9 +156,11 @@ public class PlayerCampaignPlacingManager {
 		}
 		
 		//transport daily placing
-		LocalDate trackDay = pt.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
+		ZonedDateTime trackDay = getTrackDay(campaign, pt);
+		String day = trackDay.format(dtf);
 		PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
-				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, trackDay);
+				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, day);
 		if(dayByMode != null) {
 			dayByMode.subDistance(pt.getDistance());
 			dayByMode.subDuration(pt.getDuration());
@@ -172,9 +186,11 @@ public class PlayerCampaignPlacingManager {
 		}
 		
 		//transport daily placing
-		LocalDate trackDay = pt.getStartTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
+		ZonedDateTime trackDay = getTrackDay(campaign, pt);
+		String day = trackDay.format(dtf);
 		PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
-				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, trackDay);
+				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, day);
 		if(dayByMode != null) {
 			if(deltaDistance > 0) {
 				dayByMode.addDistance(deltaDistance);
@@ -193,7 +209,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	private PlayerStatsTransport addNewPlacing(String playerId, String nickname, String campaignId, String modeType, 
-			Boolean global, LocalDate day, int weekOfYear, int monthOfYear, int year) {
+			Boolean global, String day, int weekOfYear, int monthOfYear, int year) {
 		PlayerStatsTransport pst = new PlayerStatsTransport();
 		pst.setPlayerId(playerId);
 		pst.setNickname(nickname);
@@ -268,7 +284,7 @@ public class PlayerCampaignPlacingManager {
 	}
 
 	public Page<CampaignPlacing> getCampaignPlacing(String campaignId, String metric, String mean,  
-			LocalDate dateFrom, LocalDate dateTo, Pageable pageRequest) {
+			String dateFrom, String dateTo, Pageable pageRequest) {
 		Criteria criteria = new Criteria("campaignId").is(campaignId);
 		if(Utils.isNotEmpty(mean)) {
 			criteria = criteria.and("modeType").is(mean);
@@ -310,7 +326,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public CampaignPlacing getCampaignPlacingByPlayer(String playerId, String campaignId, 
-			String metric, String mean, LocalDate dateFrom, LocalDate dateTo) throws Exception {
+			String metric, String mean, String dateFrom, String dateTo) throws Exception {
 		Player player = playerRepository.findById(playerId).orElse(null);
 		if(player == null) {
 			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
@@ -372,7 +388,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String groupMode, String metric,
-			String mean, LocalDate dateFrom, LocalDate dateTo) {
+			String mean, String dateFrom, String dateTo) {
 		List<TransportStat> result = new ArrayList<>();
 		
 		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
@@ -405,12 +421,7 @@ public class PlayerCampaignPlacingManager {
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
-			if(GroupMode.day.toString().equals(groupMode)) {
-				Date date = doc.getDate("_id");
-				stat.setPeriod(sdf.format(date));
-			} else {
-				stat.setPeriod(doc.getString("_id"));
-			}
+			stat.setPeriod(doc.getString("_id"));
 			if(metric.equalsIgnoreCase("tracks")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
@@ -423,7 +434,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String metric, String mean, 
-			LocalDate dateFrom, LocalDate dateTo) {
+			String dateFrom, String dateTo) {
 		List<TransportStat> result = new ArrayList<>();
 		
 		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());		
@@ -464,7 +475,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public Page<CampaignPlacing> getCampaignPlacingByGame(String campaignId,  
-			LocalDate dateFrom, LocalDate dateTo, Pageable pageRequest) {
+			String dateFrom, String dateTo, Pageable pageRequest) {
 		Criteria criteria = new Criteria("campaignId").is(campaignId);
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
@@ -495,7 +506,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public CampaignPlacing getCampaignPlacingByGameAndPlayer(String playerId, String campaignId,
-			LocalDate dateFrom, LocalDate dateTo) throws Exception {
+			String dateFrom, String dateTo) throws Exception {
 		Player player = playerRepository.findById(playerId).orElse(null);
 		if(player == null) {
 			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
@@ -551,7 +562,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public List<GameStats> getPlayerGameStats(String playerId, String campaignId, String groupMode, 
-			LocalDate dateFrom, LocalDate dateTo) {
+			String dateFrom, String dateTo) {
 		List<GameStats> result = new ArrayList<>();
 		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
 		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId)
@@ -571,12 +582,7 @@ public class PlayerCampaignPlacingManager {
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsGame.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
 			GameStats stats = new GameStats();
-			if(GroupMode.day.toString().equals(groupMode)) {
-				Date date = (doc.getDate("_id"));
-				stats.setPeriod(sdf.format(date));
-			} else {
-				stats.setPeriod(doc.getString("_id"));
-			}
+			stats.setPeriod(doc.getString("_id"));
 			stats.setTotalScore(doc.getDouble("totalScore"));
 			result.add(stats);
 		}
@@ -626,12 +632,7 @@ public class PlayerCampaignPlacingManager {
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
-			if(GroupMode.day.toString().equals(groupMode)) {
-				Date date = doc.getDate("_id");
-				stat.setPeriod(sdf.format(date));
-			} else {
-				stat.setPeriod(doc.getString("_id"));
-			}
+			stat.setPeriod(doc.getString("_id"));
 			if(metric.equalsIgnoreCase("tracks")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());

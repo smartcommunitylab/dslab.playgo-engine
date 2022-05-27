@@ -1,15 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
-import java.time.LocalDate;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import it.smartcommunitylab.playandgo.engine.util.LocalDateDeserializer;
 
 @Document(collection="playerStatsTransports")
 public class PlayerStatsTransport {
@@ -25,15 +18,14 @@ public class PlayerStatsTransport {
 	private Boolean global = Boolean.FALSE; 
 	@Indexed
 	private String modeType;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@Indexed
-	private LocalDate day;
+	private String day;
+	private String weekOfYear;
+	private String monthOfYear;
 	private double distance = 0.0; //meters
 	private long duration = 0L; // seconds
 	private double co2 = 0.0;
 	private long trackNumber = 0L;
-	private String weekOfYear;
-	private String monthOfYear;
 	
 	public void addTrack() {
 		this.trackNumber++;
@@ -122,14 +114,6 @@ public class PlayerStatsTransport {
 		this.trackNumber = trackNumber;
 	}
 
-	public LocalDate getDay() {
-		return day;
-	}
-
-	public void setDay(LocalDate day) {
-		this.day = day;
-	}
-
 	public String getWeekOfYear() {
 		return weekOfYear;
 	}
@@ -152,6 +136,14 @@ public class PlayerStatsTransport {
 
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+
+	public String getDay() {
+		return day;
+	}
+
+	public void setDay(String day) {
+		this.day = day;
 	}
 	
 	

@@ -1,6 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -15,10 +14,10 @@ public interface PlayerStatsTransportRepository extends MongoRepository<PlayerSt
 			String modeType, Boolean global);
 	
 	public PlayerStatsTransport findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(String playerId, String campaignId, 
-			String modeType, Boolean global, LocalDate day);
+			String modeType, Boolean global, String day);
 	
 	public List<PlayerStatsTransport> findByPlayerIdAndCampaignIdAndGlobal(String playerId, String campaignId, Boolean global);
 	
 	public List<PlayerStatsTransport> findByPlayerIdAndCampaignIdAndGlobalAndDay(String playerId, String campaignId, 
-			Boolean global, LocalDate day);
+			Boolean global, String day);
 }
