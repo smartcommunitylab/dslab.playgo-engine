@@ -1,15 +1,21 @@
 package it.smartcommunitylab.playandgo.engine.notification;
 
+import java.util.List;
 
 public class Announcement implements Comparable<Announcement> {
 
+	public enum CHANNEL {email, push, news};
+	
 	private String title;
 	private String description;
 	private String html;
 	private String from;
 	private String to;
-	private Boolean notification;
 	private Long timestamp;
+	
+	private List<CHANNEL> channels;
+	private List<String> players;
+	
 
 	public String getTitle() {
 		return title;
@@ -51,14 +57,6 @@ public class Announcement implements Comparable<Announcement> {
 		this.to = to;
 	}
 
-	public Boolean getNotification() {
-		return notification;
-	}
-
-	public void setNotification(Boolean notification) {
-		this.notification = notification;
-	}
-
 	public Long getTimestamp() {
 		return timestamp;
 	}
@@ -67,6 +65,26 @@ public class Announcement implements Comparable<Announcement> {
 		this.timestamp = timestamp;
 	}
 
+	public List<CHANNEL> getChannels() {
+		return channels;
+	}
+
+	public void setChannels(List<CHANNEL> channels) {
+		this.channels = channels;
+	}
+
+	public List<String> getPlayers() {
+		return players;
+	}
+
+	public void setPlayers(List<String> players) {
+		this.players = players;
+	}
+
+	public boolean has(CHANNEL channel) {
+		return getChannels() != null && getChannels().contains(channel);  
+	}
+	
 	@Override
 	public int compareTo(Announcement o) {
 		return (int)(o.timestamp - timestamp);
