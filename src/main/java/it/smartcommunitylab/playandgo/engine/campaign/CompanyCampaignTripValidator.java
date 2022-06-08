@@ -127,18 +127,27 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 
 	@Override
 	public void updateTripRequest(UpdateCampaignTripRequest msg) {
-		// TODO Auto-generated method stub
 		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
 		TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
 		if((playerTrack != null) && (track != null)) {
-			double delta = track.getValidationResult().getValidationStatus().getDistance() - playerTrack.getDistance();
-			if(delta > 0) {
+			if(msg.getDeltaDistance() > 0) {
 				try {
 					TrackResult trackResult = pgAziendaleManager.updateTrack(playerTrack.getCampaignId(), 
-							playerTrack.getPlayerId(), track.getId(), delta);
+							playerTrack.getPlayerId(), track.getId(), msg.getDeltaDistance());
+					if(trackResult.getValid()) {
+						LegResult legResult = trackResult.getLegs().get(0);
+						double deltaDistance = legResult.getValidDistance() - playerTrack.getDistance();
+						if(deltaDistance > 0) {
+							double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), deltaDistance); 
+							playerTrack.setDistance(legResult.getValidDistance());
+							playerTrack.setCo2(playerTrack.getCo2() + deltaCo2);
+							campaignPlayerTrackRepository.save(playerTrack);
+							playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);							
+						}
+					}
 				} catch (ServiceException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.warn("updateTripRequest error:" + e.getMessage());
+					//TODO gestione errore
 				}
 			}
 		}
