@@ -213,6 +213,9 @@ public class CampaignManager {
 				if(Type.personal.equals(campaign.getType()) || Type.school.equals(campaign.getType())) {
 					throw new BadRequestException("operation not allowed", ErrorCode.OPERATION_NOT_ALLOWED);
 				}
+				if(Type.company.equals(campaign.getType())) {
+					companyCampaignSubscription.unsubscribeCampaign(player, campaign);
+				}
 				campaignSubscriptionRepository.deleteById(subscription.getId());
 			}
 		}
