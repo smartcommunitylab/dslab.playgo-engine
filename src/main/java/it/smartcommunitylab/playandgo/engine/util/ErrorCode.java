@@ -22,5 +22,7 @@ public class ErrorCode {
 	public final static String ENTITY_SAVE_ERROR = "E1";
 	public final static String PARAM_NOT_CORRECT = "E2";
 	public final static String OPERATION_NOT_ALLOWED = "E3";
+	public final static String EXT_SERVICE_AUTH = "S1";
+	public final static String EXT_SERVICE_INVOCATION = "S2";
 	
 }

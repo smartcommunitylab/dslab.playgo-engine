@@ -56,4 +56,13 @@ public class Utils {
 		return new Date(endTime);
 	}
 	
+	public static double getSavedCo2(String modeType, double distance) {
+		if(modeType.equalsIgnoreCase("WALK")) {
+			return (distance / 1000.0) * 0.24293;
+		} else if(modeType.equalsIgnoreCase("BIKE")) {
+			return (distance / 1000.0) * 0.24293;
+		} 
+		return 0.0;
+	}
+	
 }

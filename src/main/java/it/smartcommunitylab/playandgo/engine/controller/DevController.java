@@ -14,11 +14,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignTripValidator;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
+import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
+import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
@@ -45,7 +49,49 @@ public class DevController extends PlayAndGoController {
 	@Autowired
 	PlayerCampaignPlacingManager playerReportManager;
 	
+	@Autowired
+	PgAziendaleManager aziendaleManager;
+	
+	@Autowired
+	CompanyCampaignTripValidator companyCampaignTripValidator;
+	
 	static final Random RANDOM = new Random();
+	
+	@GetMapping("/api/dev/azienda/subscribe")
+	public void subscribeAziendale(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam String companyKey,
+			@RequestParam String code,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		aziendaleManager.subscribeCampaign(campaignId, playerId, companyKey, code);
+	}
+	
+	@GetMapping("/api/dev/azienda/unsubscribe")
+	public void unsubscribeAziendale(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		aziendaleManager.unsubscribeCampaign(campaignId, playerId);
+	}
+	
+	@GetMapping("/api/dev/azienda/validate")
+	public void validateAziendale(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam String trackedInstanceId,
+			@RequestParam String campaignPlayerTrackId,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		ValidateCampaignTripRequest msg = new ValidateCampaignTripRequest();
+		msg.setCampaignId(campaignId);
+		msg.setPlayerId(playerId);
+		msg.setTrackedInstanceId(trackedInstanceId);
+		msg.setCampaignPlayerTrackId(campaignPlayerTrackId);
+		companyCampaignTripValidator.validateTripRequest(msg);
+	}
 	
 	@PostMapping("/api/dev/players")
 	public void addPlayers(HttpServletRequest request) throws Exception {

@@ -135,23 +135,15 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		
 		playerTrack.setScoreStatus(ScoreStatus.SENT);
 		playerTrack.setValid(true);
-		playerTrack.setModeType((track.getValidationResult().getValidationStatus().getModeType().toString()));
+		playerTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
 		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
 		playerTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
-		playerTrack.setCo2(getSavedCo2(playerTrack.getModeType(), playerTrack.getDistance()));
+		playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), playerTrack.getDistance()));
 		
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));
 	}
 	
-	private double getSavedCo2(String modeType, double distance) {
-		if(modeType.equalsIgnoreCase("WALK")) {
-			return (distance / 1000.0) * 0.24293;
-		} else if(modeType.equalsIgnoreCase("BIKE")) {
-			return (distance / 1000.0) * 0.24293;
-		} 
-		return 0.0;
-	}
 
 //	private long getStartTime(TrackedInstance trackedInstance) throws ParseException {
 //		long time = 0;
@@ -187,7 +179,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
 		if(playerTrack != null) {
 			playerTrack.setDistance(playerTrack.getDistance() + msg.getDeltaDistance());
-			double co2 = getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance()));
+			double co2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance()));
 			if(msg.getDeltaDistance() > 0) {
 				playerTrack.setCo2(playerTrack.getCo2() + co2);
 			} else if(msg.getDeltaDistance() < 0) {

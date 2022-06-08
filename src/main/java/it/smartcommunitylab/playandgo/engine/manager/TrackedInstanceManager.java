@@ -470,7 +470,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 		MatchOperation match = Aggregation.match(criteria);
 		operations.add(match);
-		ProjectionOperation project = Aggregation.project().andExclude("geolocationEvents", "deviceInfo");
+		ProjectionOperation project = Aggregation.project().andExclude("geolocationEvents");
 		operations.add(project);
 		SortOperation sort = Aggregation.sort(pageRequest.getSort());
 		SkipOperation skip = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
