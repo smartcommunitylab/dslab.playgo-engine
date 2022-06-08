@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -50,6 +51,9 @@ public class SecurityHelper {
 
 	static Log logger = LogFactory.getLog(SecurityHelper.class);
 	
+    @Value("${security.oauth2.resourceserver.jwt.client-id}")
+    private String jwtAudience;
+
 	@Autowired
 	private PlayerRepository playerRepository; 
 	
@@ -138,6 +142,7 @@ public class SecurityHelper {
 		Jwt principal = (Jwt) authentication.getPrincipal();
 		String identity = principal.getClaimAsString("preferred_username");
 		if(Utils.isEmpty(identity)) {
+			if (principal.getAudience().contains(jwtAudience)) return;
 			identity = principal.getSubject();
 		}
 		

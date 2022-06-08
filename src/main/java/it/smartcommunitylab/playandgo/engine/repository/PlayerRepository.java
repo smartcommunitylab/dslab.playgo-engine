@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -28,4 +29,5 @@ public interface PlayerRepository extends MongoRepository<Player, String> {
 	@Query("{'territoryId': ?0, 'nickname': {$regex: ?1, $options:'i'}}")
 	public Page<Player> findByTerritoryIdAndNicknameText(String territoryId, String text, Pageable pageRequest);
 
+	public List<Player> findByTerritoryIdAndPlayerIdIn(String territoryId, Collection<String> ids);
 }

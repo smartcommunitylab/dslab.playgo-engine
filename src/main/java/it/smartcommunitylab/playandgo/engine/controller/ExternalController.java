@@ -60,7 +60,6 @@ public class ExternalController extends PlayAndGoController {
 	public CampaignSubscription unsubscribeCampaignByTerritory(
 			@RequestParam String campaignId,
 			@RequestParam String nickname,
-			@RequestBody Map<String, Object> campaignData,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		Campaign campaign = campaignManager.getCampaign(campaignId);

@@ -1,11 +1,15 @@
 package it.smartcommunitylab.playandgo.engine.config;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -33,11 +37,30 @@ import springfox.documentation.spring.web.plugins.Docket;
 @EnableWebMvc
 public class AppConfig implements WebMvcConfigurer {
 	
-	@Override
-  public void addCorsMappings(CorsRegistry registry) {
-      registry.addMapping("/**").allowedMethods("*");
-  }
+	@Value("${mail.host}")
+	private String host;
+	@Value("${mail.port}")
+	private String port;
+	@Value("${mail.user}")
+	private String username;
+	@Value("${mail.password}")
+	private String password;	
 
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/**").allowedMethods("*");
+	}
+
+	@Bean
+	public JavaMailSender getJavaMailSender() throws IOException {
+		JavaMailSenderImpl sender = new JavaMailSenderImpl();
+		sender.setHost(host);
+		sender.setPort(Integer.parseInt(port));
+		sender.setUsername(username);
+		sender.setPassword(password);
+		return sender;
+	}	
+	
 	@Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry
