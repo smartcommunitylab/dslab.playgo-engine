@@ -14,6 +14,7 @@ import it.smartcommunitylab.playandgo.engine.manager.azienda.LegResult;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackData;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackResult;
+import it.smartcommunitylab.playandgo.engine.manager.ext.CampaignMsgManager;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
@@ -44,6 +45,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	
 	@Autowired
 	PlayerCampaignPlacingManager playerReportManager;
+	
+	@Autowired
+	CampaignMsgManager campaignMsgManager;
 
 	@PostConstruct
 	public void init() {
@@ -67,10 +71,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 					}
 				} catch (ServiceException e) {
 					logger.warn("validateTripRequest error:" + e.getMessage());
-					//TODO gestione errore
-//					playerTrack.setValid(false);
-//					playerTrack.setErrorCode(e.getCode());
-//					campaignPlayerTrackRepository.save(playerTrack);
+					campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
 				}
 			}			
 		}	
@@ -117,7 +118,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 						playerTrack.getPlayerId(), playerTrack.getTrackedInstanceId());
 			} catch (ServiceException e) {
 				logger.warn("invalidateTripRequest error:" + e.getMessage());
-				//TODO gestione errore
+				campaignMsgManager.addInvalidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
 			}
 			TrackedInstance track = trackedInstanceRepository.findById(msg.getTrackedInstanceId()).orElse(null);
 			errorPlayerTrack(playerTrack, track.getValidationResult().getValidationStatus().getError().toString());
@@ -147,11 +148,10 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 					}
 				} catch (ServiceException e) {
 					logger.warn("updateTripRequest error:" + e.getMessage());
-					//TODO gestione errore
+					campaignMsgManager.addUpdateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
 				}
 			}
-		}
-		
+		}	
 	}
 
 }
