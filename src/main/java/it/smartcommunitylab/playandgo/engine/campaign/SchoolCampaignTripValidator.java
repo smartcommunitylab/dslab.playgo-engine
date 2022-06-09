@@ -8,13 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
-import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
-import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
-import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 
 @Component
-public class SchoolCampaignTripValidator implements ManageValidateCampaignTripRequest {
+public class SchoolCampaignTripValidator extends BasicCampaignTripValidator {
 	private static Logger logger = LoggerFactory.getLogger(SchoolCampaignTripValidator.class);
 	
 	@Autowired
@@ -25,21 +22,4 @@ public class SchoolCampaignTripValidator implements ManageValidateCampaignTripRe
 		queueManager.setManageValidateCampaignTripRequest(this, Type.school);
 	}
 	
-	@Override
-	public void validateTripRequest(ValidateCampaignTripRequest message) {
-		// TODO check company validation trip endpoint 		
-	}
-
-	@Override
-	public void invalidateTripRequest(ValidateCampaignTripRequest message) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void updateTripRequest(UpdateCampaignTripRequest message) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
