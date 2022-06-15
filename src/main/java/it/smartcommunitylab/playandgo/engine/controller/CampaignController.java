@@ -37,6 +37,7 @@ public class CampaignController extends PlayAndGoController {
 	
 	@Autowired
 	CampaignManager campaignManager;
+	
 	@Autowired
 	TerritoryManager territoryManager;
 	
@@ -144,6 +145,32 @@ public class CampaignController extends PlayAndGoController {
 		return campaignManager.unsubscribePlayer(player, campaignId);
 	}
 	
+	@PostMapping("/api/campaign/{campaignId}/survey")
+	public Map<String, String> addSurvey(
+			@PathVariable String campaignId,
+			@RequestParam String name,
+			@RequestParam String link,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		return campaignManager.addSurvey(campaignId, name, link);
+	}
+	
+	@DeleteMapping("/api/campaign/{campaignId}/survey")
+	public Map<String, String> deleteSurvey(
+			@PathVariable String campaignId,
+			@RequestParam String name,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		return campaignManager.deleteSurvey(campaignId, name);
+	}
 	
 
 }

@@ -42,6 +42,8 @@ gamification:
   secretKey: ${GAMIFICATION_SECRETKEY:}
   user: ${GAMIFICATION_USER:}
   password: ${GAMIFICATION_PASSWORD:}
+  secretKey1: ${GAMIFICATION_SK1:}
+  secretKey2: ${GAMIFICATION_SK2:}
 
 rabbitmq_pg:
   host: ${RABBITMQ_PG_HOST:}

@@ -7,5 +7,5 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerSurvey;
 
 @Repository
 public interface CampaignPlayerSurveyRepository extends MongoRepository<CampaignPlayerSurvey, String> {
-
+	public CampaignPlayerSurvey findByPlayerIdAndGameIdAndSurveyName(String playerId, String gameId, String surveyName);
 }

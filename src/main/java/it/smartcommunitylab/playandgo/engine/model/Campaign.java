@@ -34,6 +34,11 @@ public class Campaign {
 	private Image banner;
 	
 	private Map<String, Object> validationData = new HashMap<>();
+	
+	/**
+	 * <name, link>
+	 */
+	private Map<String, String> surveys = new HashMap<>();
 
 	public Type getType() {
 		return type;
@@ -160,6 +165,14 @@ public class Campaign {
 
 	public void setDateTo(Date dateTo) {
 		this.dateTo = dateTo;
+	}
+
+	public Map<String, String> getSurveys() {
+		return surveys;
+	}
+
+	public void setSurveys(Map<String, String> surveys) {
+		this.surveys = surveys;
 	}
 
 }

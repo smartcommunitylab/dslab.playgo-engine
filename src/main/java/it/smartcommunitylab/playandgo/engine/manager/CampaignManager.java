@@ -37,6 +37,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class CampaignManager {
@@ -139,6 +140,10 @@ public class CampaignManager {
 			return campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		}
 		return campaignRepository.findByTerritoryIdAndType(territoryId, type, Sort.by(Sort.Direction.DESC, "dateFrom"));
+	}
+	
+	public Campaign getCampaignByGameId(String gameId) {
+		return campaignRepository.findByGameId(gameId);
 	}
 	
 	public List<Campaign> getActiveCampaigns(String territoryId, Type type) {
@@ -343,4 +348,35 @@ public class CampaignManager {
 			throw new ServiceException("Error storing image", ErrorCode.IMAGE_STORE_ERROR);
 		}
 	}
+	
+	public Map<String, String> addSurvey(String campaignId, String name, String link) throws Exception {
+		Campaign campaign = getCampaign(campaignId);
+		if(campaign == null) {
+			logger.warn("campaign not found");
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
+		}
+		if(Utils.isNotEmpty(link) && Utils.isNotEmpty(name)) {
+			if(!campaign.getSurveys().containsKey(name)) {
+				campaign.getSurveys().put(name, link);
+			}
+		}
+		return campaign.getSurveys();
+	}
+	
+	public Map<String, String> deleteSurvey(String campaignId, String name) throws Exception {
+		Campaign campaign = getCampaign(campaignId);
+		if(campaign == null) {
+			logger.warn("campaign not found");
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
+		}
+		if(Utils.isNotEmpty(name)) {
+			campaign.getSurveys().remove(name);
+		}
+		return campaign.getSurveys();
+	}
+	
+	public List<CampaignSubscription> getCampaignSubscriptions(String campaignId) {
+		return campaignSubscriptionRepository.findByCampaignId(campaignId);
+	}
+	
 }

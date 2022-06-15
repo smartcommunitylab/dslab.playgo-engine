@@ -1,7 +1,11 @@
 package it.smartcommunitylab.playandgo.engine.ge;
 
+import java.security.InvalidKeyException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.smartcommunitylab.playandgo.engine.util.EncryptDecrypt;
 import it.smartcommunitylab.playandgo.engine.util.HTTPConnector;
 import it.smartcommunitylab.playandgo.engine.util.JsonUtils;
 
@@ -29,9 +34,42 @@ public class GamificationEngineManager {
 	
 	@Value("${gamification.password}")
 	private String gamificationPassword;
+
+	@Value("${gamification.secretKey1}")
+	private String secretKey1;
 	
+	@Value("${gamification.secretKey2}")
+	private String secretKey2;
+
 	ObjectMapper mapper = new ObjectMapper();
 	
+	EncryptDecrypt cryptUtils;
+	
+	@PostConstruct
+	public void init() throws Exception {
+		cryptUtils = new EncryptDecrypt(secretKey1, secretKey2);
+	}
+
+	/**
+	 * @param playerId
+	 * @return identity corresponding to the string
+	 * @throws Exception 
+	 */
+	public PlayerIdentity decryptIdentity(String value) throws Exception {
+		String decrypted = cryptUtils.decrypt(value);
+		String[] parts = decrypted.split(":");
+		if (parts == null || parts.length != 2) throw new InvalidKeyException("Invalid identity content: "+decrypted);
+		PlayerIdentity identity = new PlayerIdentity();
+		identity.setPlayerId(parts[0]);
+		identity.setGameId(parts[1]);
+		return identity;
+	}
+	
+	public String encryptIdentity(String playerId, String gameId) throws Exception {
+		String id = cryptUtils.encrypt(playerId + ":" + gameId);
+		return id;
+	}
+
 	public void sendSaveItineraryAction(String playerId, String gameId, Map<String, Object> trackingData) {
 		try {
 			ExecutionDataDTO ed = new ExecutionDataDTO();
@@ -45,11 +83,10 @@ public class GamificationEngineManager {
 
 			String content = JsonUtils.toJSON(ed);
 			
-			logger.debug("Sending to " + gamificationUrl + "/gengine/execute (" + SAVE_ITINERARY + ") = " + trackingData);
 			HTTPConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 		} catch (Exception e) {
-			logger.error("Error sending gamification action: " + e.getMessage());
+			logger.error(String.format("sendSaveItineraryAction error: %s - %s - %s", gameId, playerId, e.getMessage()));
 		}		
 	}
 	
@@ -64,6 +101,43 @@ public class GamificationEngineManager {
 			logger.error(String.format("getPlayerStatus error: %s - %s - %s", gameId, playerId, e.getMessage()));
 		}
 		return null;
+	}
+	
+	public void assignSurveyChallenges(String playerId, String gameId, String surveyName, long start, long end, Map<String, Object> data) {
+		try {
+			ChallengeAssignmentDTO challenge = new ChallengeAssignmentDTO();
+			challenge.setStart(start);
+			challenge.setEnd(end);
+			challenge.setModelName("survey");
+			challenge.setData(data);
+			challenge.setInstanceName(surveyName + "_survey_" + System.currentTimeMillis() + "_" + playerId + "_" + gameId);
+			
+			String content = JsonUtils.toJSON(challenge);
+			
+			String url = gamificationUrl + "/gengine/game/" + gameId + "/player/" + playerId + "/challenges";
+			HTTPConnector.doBasicAuthenticationPost(url, content, "application/json", "application/json", 
+					gamificationUser, gamificationPassword);			
+		} catch (Exception e) {
+			logger.error(String.format("assignSurveyChallenges error: %s - %s - %s", gameId, playerId, e.getMessage()));
+		}
+	}
+	
+	public boolean sendSurvey(String playerId, String gameId, String surveyName) {
+		ExecutionDataDTO ed = new ExecutionDataDTO();
+		ed.setGameId(gameId);
+		ed.setPlayerId(playerId);
+		ed.setActionId("survey_complete");
+		ed.setData(Collections.singletonMap("surveyType", surveyName));
+
+		String content = JsonUtils.toJSON(ed);
+		try {
+			HTTPConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
+					"application/json", gamificationUser, gamificationPassword);
+			return true;
+		} catch (Exception e) {
+			logger.error(String.format("sendSurvey error: %s - %s - %s", gameId, playerId, e.getMessage()));
+		}
+		return false;
 	}
 
 

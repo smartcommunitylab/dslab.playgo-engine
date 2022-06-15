@@ -1,6 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
-import java.util.Map;
+import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,9 +12,10 @@ public class CampaignPlayerSurvey {
 	
 	private String playerId;
 	private String campaignId;
-	private String campaignSubscriptionId;
-	
-	private Map<String,Map<String,Object>> surveys;
+	private String gameId;
+	private String surveyName;
+	private String surveyLink;
+	private Date timestamp;
 
 	public String getId() {
 		return id;
@@ -40,19 +41,35 @@ public class CampaignPlayerSurvey {
 		this.campaignId = campaignId;
 	}
 
-	public String getCampaignSubscriptionId() {
-		return campaignSubscriptionId;
+	public String getGameId() {
+		return gameId;
 	}
 
-	public void setCampaignSubscriptionId(String campaignSubscriptionId) {
-		this.campaignSubscriptionId = campaignSubscriptionId;
+	public void setGameId(String gameId) {
+		this.gameId = gameId;
 	}
 
-	public Map<String, Map<String, Object>> getSurveys() {
-		return surveys;
+	public String getSurveyName() {
+		return surveyName;
 	}
 
-	public void setSurveys(Map<String, Map<String, Object>> surveys) {
-		this.surveys = surveys;
+	public void setSurveyName(String surveyName) {
+		this.surveyName = surveyName;
+	}
+
+	public String getSurveyLink() {
+		return surveyLink;
+	}
+
+	public void setSurveyLink(String surveyLink) {
+		this.surveyLink = surveyLink;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
 	}
 }
