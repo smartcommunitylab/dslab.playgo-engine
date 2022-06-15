@@ -200,6 +200,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				if(!info.isValid()) {
 					info.setErrorCode(playerTrack.getErrorCode());	
 				}
+				info.setDistance(playerTrack.getDistance());
 				info.setScoreStatus(playerTrack.getScoreStatus());
 				info.setScore(playerTrack.getScore());
 				campaignInfoMap.put(campaign.getCampaignId(), info);

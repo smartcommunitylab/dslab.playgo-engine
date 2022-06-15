@@ -8,6 +8,7 @@ public class CampaignTripInfo {
 	private String campaignName;
 	private Type type;
 	private double score = 0.0;
+	private double distance = 0.0;
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
 	private boolean valid;
 	private String errorCode;
@@ -53,5 +54,11 @@ public class CampaignTripInfo {
 	}
 	public void setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
+	}
+	public double getDistance() {
+		return distance;
+	}
+	public void setDistance(double distance) {
+		this.distance = distance;
 	}
 }
