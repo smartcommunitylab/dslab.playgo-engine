@@ -13,11 +13,12 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.PlayerIdentity;
-import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerSurvey;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerSurveyRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
@@ -29,13 +30,17 @@ public class SurveyManager {
 	GamificationEngineManager gamificationManager;
 	
 	@Autowired
-	CampaignManager campaignManager;
+	CampaignRepository campaignRepository;
+
+	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
+	
 
 	@Autowired
 	CampaignPlayerSurveyRepository surveyRepository;
 	
 	public void assignSurveyChallenges(String campaignId, List<String> playerIds, SurveyRequest sr) throws Exception {
-		Campaign campaign = campaignManager.getCampaign(campaignId);
+		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
 		}
@@ -49,7 +54,7 @@ public class SurveyManager {
 		
 		if(playerIds == null || playerIds.size() == 0) {
 			playerIds = new ArrayList<>();
-			List<CampaignSubscription> campaignSubscriptions = campaignManager.getCampaignSubscriptions(campaignId);
+			List<CampaignSubscription> campaignSubscriptions = campaignSubscriptionRepository.findByCampaignId(campaignId);
 			for(CampaignSubscription cs : campaignSubscriptions) {
 				playerIds.add(cs.getPlayerId());
 			}
@@ -69,7 +74,7 @@ public class SurveyManager {
 			String playerId = identity.getPlayerId();
 			String gameId = identity.getGameId();
 			if(Utils.isNotEmpty(playerId) && Utils.isNotEmpty(gameId)) {
-				Campaign campaign = campaignManager.getCampaignByGameId(gameId);
+				Campaign campaign = campaignRepository.findByGameId(gameId);
 				if(campaign == null) {
 					return false;
 				}
@@ -117,7 +122,7 @@ public class SurveyManager {
 			String playerId = identity.getPlayerId();
 			String gameId = identity.getGameId();
 			if(Utils.isNotEmpty(playerId) && Utils.isNotEmpty(gameId)) {
-				Campaign campaign = campaignManager.getCampaignByGameId(gameId);
+				Campaign campaign = campaignRepository.findByGameId(gameId);
 				if(campaign != null) {
 					CampaignPlayerSurvey survey = surveyRepository.findByPlayerIdAndGameIdAndSurveyName(playerId, gameId, surveyName);
 					if(survey != null) {
