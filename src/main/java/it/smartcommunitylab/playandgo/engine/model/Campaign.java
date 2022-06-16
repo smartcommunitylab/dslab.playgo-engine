@@ -10,11 +10,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
+
 @Document(collection="campaigns")
 public class Campaign {
 	public static enum Type {
 		company, city, school, personal
 	};
+	
+	public static String defaultSurveyKey = "defaultSurvey";
 
 	@Id
 	private String campaignId;
@@ -35,11 +39,34 @@ public class Campaign {
 	
 	private Map<String, Object> validationData = new HashMap<>();
 	
+	private Map<String, Object> specificData = new HashMap<>();
+	
 	/**
 	 * <name, link>
 	 */
 	private Map<String, String> surveys = new HashMap<>();
 
+	public boolean hasDefaultSurvey() {
+		return specificData.containsKey(defaultSurveyKey);
+	}
+	
+	public SurveyRequest getDefaultSurvey() {
+		if(hasDefaultSurvey()) {
+			return (SurveyRequest) specificData.get(defaultSurveyKey);
+		}
+		return null;
+	}
+	
+	public Map<String, String> getAllSurveys() {
+		Map<String, String> allSurveys = new HashMap<>();
+		allSurveys.putAll(surveys);
+		if(hasDefaultSurvey()) {
+			SurveyRequest sr = (SurveyRequest) specificData.get(defaultSurveyKey);
+			allSurveys.put(sr.getSurveyName(), sr.getSurveyLink());
+		}
+		return allSurveys;
+	}
+	
 	public Type getType() {
 		return type;
 	}
@@ -173,6 +200,14 @@ public class Campaign {
 
 	public void setSurveys(Map<String, String> surveys) {
 		this.surveys = surveys;
+	}
+
+	public Map<String, Object> getSpecificData() {
+		return specificData;
+	}
+
+	public void setSpecificData(Map<String, Object> specificData) {
+		this.specificData = specificData;
 	}
 
 }

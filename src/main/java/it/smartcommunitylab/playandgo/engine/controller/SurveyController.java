@@ -19,7 +19,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
-import it.smartcommunitylab.playandgo.engine.manager.survey.ChallengeRequestDTO;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyInfo;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
@@ -39,14 +39,14 @@ public class SurveyController extends PlayAndGoController {
 	public void assignSurveyChallenges(
 			@RequestParam String campaignId,
 			@RequestParam(required=false) List<String> playerIds,
-			@RequestBody ChallengeRequestDTO dto,
+			@RequestBody SurveyRequest sr,
 			HttpServletRequest request) throws Exception {
 		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}	
 		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
-		surveyManager.assignSurveyChallenges(campaignId, playerIds, dto);
+		surveyManager.assignSurveyChallenges(campaignId, playerIds, sr);
 	}
 	
 	@PostMapping("/api/survey/compile/{surveyName}")

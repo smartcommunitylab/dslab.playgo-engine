@@ -34,13 +34,13 @@ public class SurveyManager {
 	@Autowired
 	CampaignPlayerSurveyRepository surveyRepository;
 	
-	public void assignSurveyChallenges(String campaignId, List<String> playerIds, ChallengeRequestDTO dto) throws Exception {
+	public void assignSurveyChallenges(String campaignId, List<String> playerIds, SurveyRequest sr) throws Exception {
 		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
 		}
-		Map<String, Object> data = new HashMap<String, Object>(dto.getData());
-		data.put("surveyType", dto.getSurveyName());
+		Map<String, Object> data = new HashMap<String, Object>(sr.getData());
+		data.put("surveyType", sr.getSurveyName());
 		data.put("link", "");
 		// Force double for bonus score
 		if (data.containsKey("bonusScore")) {
@@ -56,8 +56,8 @@ public class SurveyManager {
 		}
 		
 		for(String playerId : playerIds) {
-			gamificationManager.assignSurveyChallenges(playerId, campaign.getGameId(), dto.getSurveyName(), 
-					dto.getStart(), dto.getEnd(), data);
+			gamificationManager.assignSurveyChallenges(playerId, campaign.getGameId(), sr.getSurveyName(), 
+					sr.getStart(), sr.getEnd(), data);
 		}
 	}
 	
@@ -77,13 +77,13 @@ public class SurveyManager {
 				if(survey != null) {
 					return true;
 				}
-				if(campaign.getSurveys().containsKey(surveyName)) {
+				if(campaign.getAllSurveys().containsKey(surveyName)) {
 					survey = new CampaignPlayerSurvey();
 					survey.setPlayerId(playerId);
 					survey.setGameId(gameId);
 					survey.setCampaignId(campaign.getCampaignId());
 					survey.setTimestamp(Utils.getUTCDate(System.currentTimeMillis()));
-					survey.setSurveyLink(campaign.getSurveys().get(surveyName));
+					survey.setSurveyLink(campaign.getAllSurveys().get(surveyName));
 					survey.setSurveyName(surveyName);
 					
 					Map<String, Object> data = new HashMap<>(formData);
@@ -123,8 +123,8 @@ public class SurveyManager {
 					if(survey != null) {
 						info.setCompleted(true);
 					} else {
-						if(campaign.getSurveys().containsKey(surveyName)) {
-							info.setUrl(campaign.getSurveys().get(surveyName));
+						if(campaign.getAllSurveys().containsKey(surveyName)) {
+							info.setUrl(campaign.getAllSurveys().get(surveyName));
 						}
 					}
 				}

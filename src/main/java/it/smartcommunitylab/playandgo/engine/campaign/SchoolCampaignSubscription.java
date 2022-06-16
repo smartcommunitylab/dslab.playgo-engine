@@ -16,15 +16,15 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 
 @Component
-public class CityCampaignSubscription {
-	private static Logger logger = LoggerFactory.getLogger(CityCampaignSubscription.class);
+public class SchoolCampaignSubscription {
+	private static Logger logger = LoggerFactory.getLogger(SchoolCampaignSubscription.class);
 	
 	@Autowired
 	SurveyManager surveyManager;
 	
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData) throws Exception {
-		//TODO check specific parameters
+		//TODO check external API
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaign.getCampaignId());

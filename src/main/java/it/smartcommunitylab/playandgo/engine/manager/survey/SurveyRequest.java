@@ -2,8 +2,9 @@ package it.smartcommunitylab.playandgo.engine.manager.survey;
 
 import java.util.Map;
 
-public class ChallengeRequestDTO {
+public class SurveyRequest {
 	private String surveyName;
+	private String surveyLink;
 	private Map<String, Object> data;
 	private long start;
 	private long end;
@@ -31,6 +32,12 @@ public class ChallengeRequestDTO {
 	}
 	public void setSurveyName(String surveyName) {
 		this.surveyName = surveyName;
+	}
+	public String getSurveyLink() {
+		return surveyLink;
+	}
+	public void setSurveyLink(String surveyLink) {
+		this.surveyLink = surveyLink;
 	}
 
 }
