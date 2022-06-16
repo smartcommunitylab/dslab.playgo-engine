@@ -62,7 +62,7 @@ public class GamificationMessageQueueManager {
 	
 	DeliverCallback gameNotificationCallback;
 	
-//	@PostConstruct
+	@PostConstruct
 	public void init() throws Exception {
 		logger.info("Connecting to RabbitMQ");
 		ConnectionFactory connectionFactory = new ConnectionFactory();
