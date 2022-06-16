@@ -18,14 +18,17 @@ package it.smartcommunitylab.playandgo.engine.notification;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -33,6 +36,7 @@ import it.smartcommunitylab.playandgo.engine.exception.NotFoundException;
 import it.smartcommunitylab.playandgo.engine.exception.PushException;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.notification.Announcement.CHANNEL;
+import it.smartcommunitylab.playandgo.engine.repository.AnnouncementRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
 /**
@@ -47,8 +51,10 @@ public class CommunicationHelper {
 	@Autowired
 	private CommunicationManager notificationManager;
 	@Autowired
-	TerritoryRepository territoryRepository;
-
+	private TerritoryRepository territoryRepository;
+	@Autowired
+	private AnnouncementRepository announcementRepository;
+	
 	@Autowired
 	private EmailSender emailSender;
 
@@ -63,24 +69,24 @@ public class CommunicationHelper {
 	 * @throws NotFoundException 
 	 */
 	public Notification notify(Notification n, String playerId, String territoryId, String campaignId, boolean push) throws Exception {
-			long when = System.currentTimeMillis();
-			n.setTimestamp(when);
-			n.setTerritoryId(territoryId);
-			n.setCampaignId(campaignId);
-			n.setPlayerId(playerId);
+		long when = System.currentTimeMillis();
+		n.setTimestamp(when);
+		n.setTerritoryId(territoryId);
+		n.setCampaignId(campaignId);
+		n.setPlayerId(playerId);
 
-			if (!StringUtils.hasText(playerId)) {
-				if (StringUtils.hasText(campaignId)) {
-					n.addChannelId(campaignId);
-				} 
-				else if (StringUtils.hasText(territoryId)) {
-					n.addChannelId(territoryId);
-				} 
-			}
-			return notificationManager.create(n, push);
+		if (!StringUtils.hasText(playerId)) {
+			if (StringUtils.hasText(campaignId)) {
+				n.addChannelId(territoryId + "/" + campaignId);
+			} 
+			else if (StringUtils.hasText(territoryId)) {
+				n.addChannelId(territoryId);
+			} 
+		}
+		return notificationManager.create(n, push);
 	}
 	
-	public void notifyAnnouncement(Announcement announcement, String territoryId, String campaignId) throws Exception {
+	public Announcement notifyAnnouncement(Announcement announcement, String territoryId, String campaignId) throws Exception {
 		Territory t = territoryRepository.findById(territoryId).orElse(null);
 		ZoneId tz = t == null || t.getTimezone() == null ? ZoneId.systemDefault() : ZoneId.of(t.getTimezone());
 		
@@ -121,6 +127,10 @@ public class CommunicationHelper {
 				notify(not, null, territoryId, campaignId, announcement.has(CHANNEL.push));
 			}
 		}
+		announcement.setTerritoryId(territoryId);
+		announcement.setCampaignId(campaignId);
+		return announcementRepository.save(announcement);
+		
 	}
 	
 	/**
@@ -137,16 +147,10 @@ public class CommunicationHelper {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public Announcement toAnnouncement(ZoneId tz, Notification n) {
-		Announcement a = new Announcement();
-		a.setDescription(n.getDescription());
-		if (n.getContent().get("from") != null && !n.getContent().get("from").equals(-1l)) a.setFrom(new Date((long) n.getContent().get("from")).toInstant().atZone(tz).toLocalDate().toString());
-		if (n.getContent().get("to") != null && !n.getContent().get("to").equals(-1l)) a.setTo(new Date((long) n.getContent().get("to")).toInstant().atZone(tz).toLocalDate().toString());
-		a.setChannels((List<CHANNEL>) n.getContent().get("channels"));
-		a.setTimestamp(n.getTimestamp());
-		a.setTitle(n.getTerritoryId());
-		a.setHtml((String) n.getContent().get("_html"));
-		return a;
-	}
+	public Page<Announcement> getAnnouncements(String territoryId, String campaignId, List<String> channels, Pageable pageRequest) {
+		if (channels == null || channels.isEmpty()) channels = Stream.of(CHANNEL.values()).map(v -> v.name()).collect(Collectors.toList());
+		if (StringUtils.hasText(campaignId)) return announcementRepository.searchAnnouncements(territoryId, campaignId, channels, pageRequest);
+		else return announcementRepository.searchAnnouncements(territoryId, channels, pageRequest);
+	} 
+	
 }

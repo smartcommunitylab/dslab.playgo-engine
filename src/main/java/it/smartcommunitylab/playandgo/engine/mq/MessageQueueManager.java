@@ -60,7 +60,7 @@ public class MessageQueueManager {
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
-	@PostConstruct
+//	@PostConstruct
 	public void init() throws Exception {
 		logger.info("Connecting to RabbitMQ");
 		ConnectionFactory connectionFactory = new ConnectionFactory();

@@ -37,7 +37,7 @@ public class StorageManager {
 	
 	private AmazonS3 s3Client = null;
 	
-	@PostConstruct
+//	@PostConstruct
 	public void init() {
 		AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 		ClientConfiguration clientConfig = new ClientConfiguration();

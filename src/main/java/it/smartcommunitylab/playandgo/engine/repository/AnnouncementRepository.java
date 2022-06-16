@@ -16,22 +16,26 @@
 
 package it.smartcommunitylab.playandgo.engine.repository;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import it.smartcommunitylab.playandgo.engine.notification.Announcement;
 import it.smartcommunitylab.playandgo.engine.notification.Notification;
 
 /**
  * @author raman
  *
  */
-public interface NotificationRepository extends MongoRepository<Notification, String>{
+public interface AnnouncementRepository extends MongoRepository<Announcement, String> {
 
-	@Query("{playerId: {$in:[?0, null]}, territoryId: ?1,campaignId: {$in: ?2}, 'timestamp': {$gte: ?3}}")
-	Page<Notification> searchPlayerNotifications(String playerId, String territoryId, Collection<String> campaigns, Long since, Pageable pageRequest);
+	@Query("{territoryId: ?0, campaignId: ?1, channels: {$in: ?2}}")
+	Page<Announcement> searchAnnouncements(String territoryId, String campaignId, List<String> channels, Pageable pr);
+
+	@Query("{territoryId: ?0, channels: {$in: ?2}}")
+	Page<Announcement> searchAnnouncements(String territoryId, List<String> channels, Pageable pr);
 
 }

@@ -67,18 +67,4 @@ public class CommunicationManager {
 		return notificationRepository.findById(id).orElse(null);
 	}
 
-	/**
-	 * @param territoryId
-	 * @param campaignId
-	 * @param position
-	 * @param count
-	 * @return
-	 */
-	public Page<Notification> getCampaignNotifications(String territoryId, String campaignId, Integer position, Integer count) {
-		int pos = position != null ? position : 0;
-		int c = count != null ? count : 100;
-		Pageable pr = PageRequest.of(pos / c, count);
-		return notificationRepository.searchCampaignNotifications(territoryId, campaignId, pr);
-	}
-
 }

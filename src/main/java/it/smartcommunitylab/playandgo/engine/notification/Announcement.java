@@ -2,9 +2,16 @@ package it.smartcommunitylab.playandgo.engine.notification;
 
 import java.util.List;
 
+import org.springframework.data.annotation.Id;
+
 public class Announcement implements Comparable<Announcement> {
 
 	public enum CHANNEL {email, push, news};
+	
+	@Id
+	private String id;
+	private String territoryId;
+	private String campaignId;
 	
 	private String title;
 	private String description;
@@ -16,6 +23,29 @@ public class Announcement implements Comparable<Announcement> {
 	private List<CHANNEL> channels;
 	private List<String> players;
 	
+	public String getId() {
+		return id;
+	}
+	
+	public String getTerritoryId() {
+		return territoryId;
+	}
+
+	public void setTerritoryId(String territoryId) {
+		this.territoryId = territoryId;
+	}
+
+	public String getCampaignId() {
+		return campaignId;
+	}
+
+	public void setCampaignId(String campaignId) {
+		this.campaignId = campaignId;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getTitle() {
 		return title;
