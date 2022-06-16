@@ -126,7 +126,7 @@ public class SecurityHelper {
 
 	public Player getCurrentPlayerOrNUll() throws UnauthorizedException {
 		String subject = getCurrentSubject();		
-		Player player = readPlayer(subject);
+		Player player = playerRepository.findById(subject).orElse(null);
 		return player;
 	}	
 	
