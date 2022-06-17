@@ -14,6 +14,7 @@ import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 
 @Component
 public class CityCampaignSubscription {
@@ -22,9 +23,12 @@ public class CityCampaignSubscription {
 	@Autowired
 	SurveyManager surveyManager;
 	
+	@Autowired
+	PlayerRepository playerRepository;
+	
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData) throws Exception {
-		//TODO check specific parameters
+		
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaign.getCampaignId());
@@ -39,6 +43,15 @@ public class CityCampaignSubscription {
 		if(campaign.hasDefaultSurvey()) {
 			SurveyRequest sr = campaign.getDefaultSurvey();
 			surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+		}
+		//check player recommendation
+		if(campaignData.containsKey(Campaign.nickRecommendation)) {
+			String nickname = (String) campaignData.get(Campaign.nickRecommendation);
+			Player recommender = playerRepository.findByNickname(nickname);
+			if(recommender != null) {
+				sub.getCampaignData().put(Campaign.recommenderPlayerId, player.getPlayerId());
+				sub.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.TRUE);
+			}
 		}
 		return sub;
 	}

@@ -3,6 +3,7 @@ package it.smartcommunitylab.playandgo.engine.ge;
 import java.security.InvalidKeyException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -138,6 +139,21 @@ public class GamificationEngineManager {
 			logger.error(String.format("sendSurvey error: %s - %s - %s", gameId, playerId, e.getMessage()));
 		}
 		return false;
+	}
+	
+	public void sendRecommendation(String playerId, String gameId) {
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("actionId", "app_sent_recommandation");
+		data.put("gameId", gameId);
+		data.put("playerId", playerId);
+		data.put("data", new HashMap<String, Object>());
+		String content = JsonUtils.toJSON(data);
+		try {
+			HTTPConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
+					"application/json", gamificationUser, gamificationPassword);
+		} catch (Exception e) {
+			logger.error(String.format("sendRecommendation error: %s - %s - %s", gameId, playerId, e.getMessage()));
+		}
 	}
 
 

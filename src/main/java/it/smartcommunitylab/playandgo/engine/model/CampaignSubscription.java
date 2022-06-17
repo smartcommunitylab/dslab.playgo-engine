@@ -22,6 +22,13 @@ public class CampaignSubscription {
 	private Date registrationDate;
 	private Map<String, Object> campaignData = new HashMap<>();
 	
+	public boolean hasRecommendationPlayerToDo() {
+		if(campaignData.containsKey(Campaign.recommendationPlayerToDo)) {
+			return (boolean) campaignData.get(Campaign.recommendationPlayerToDo);
+		}
+		return false;
+	}
+	
 	public String getId() {
 		return id;
 	}

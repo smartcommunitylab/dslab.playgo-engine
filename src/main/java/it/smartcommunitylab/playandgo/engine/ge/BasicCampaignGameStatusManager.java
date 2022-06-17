@@ -1,7 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.ge;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,12 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerGameStatusRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsGameRepository;
@@ -56,6 +56,9 @@ public class BasicCampaignGameStatusManager {
 	
 	@Autowired
 	PlayerGameStatusRepository playerGameStatusRepository;
+	
+	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
@@ -132,6 +135,17 @@ public class BasicCampaignGameStatusManager {
 						updatePlayerState(playerState, gameStatus);
 						gameStatus.setUpdateTime(new Date());
 						playerGameStatusRepository.save(gameStatus);
+					}
+					
+					//check recommendation
+					if(delta > 0) {
+						CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), playerId);
+						if(cs.hasRecommendationPlayerToDo()) {
+							String recommenderPlayerId = (String) cs.getCampaignData().get(Campaign.recommenderPlayerId);
+							gamificationEngineManager.sendRecommendation(recommenderPlayerId, gameId);
+							cs.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.FALSE);
+							campaignSubscriptionRepository.save(cs);
+						}
 					}
 				}
 			}			
