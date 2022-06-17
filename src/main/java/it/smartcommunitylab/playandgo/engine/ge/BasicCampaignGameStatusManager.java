@@ -3,6 +3,8 @@ package it.smartcommunitylab.playandgo.engine.ge;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,15 +27,20 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStat
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerGameStatusRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsGameRepository;
+import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
 @Component
 public class BasicCampaignGameStatusManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(BasicCampaignGameStatusManager.class);
+	
+	@Autowired
+	TerritoryRepository territoryRepository;
 	
 	@Autowired
 	CampaignPlayerTrackRepository campaignPlayerTrackRepository;
@@ -54,6 +61,8 @@ public class BasicCampaignGameStatusManager {
 	GamificationEngineManager gamificationEngineManager;
 	
 	ObjectMapper mapper = new ObjectMapper();
+	
+	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	public void updatePlayerGameStatus(Map<String, Object> msg) {
 		try {
@@ -63,13 +72,11 @@ public class BasicCampaignGameStatusManager {
 				String gameId = (String) obj.get("gameId");
 				String playerId = (String) obj.get("playerId");
 				double delta = (double) obj.get("delta");
-				long startTime = 0;
 				String trackId = null;
 				@SuppressWarnings("unchecked")
 				Map<String, Object> dataPayLoad = (Map<String, Object>) obj.get("dataPayLoad");
 				if(dataPayLoad != null) {
 					trackId = (String) dataPayLoad.get("trackId");
-					startTime = (long) dataPayLoad.get("startTime");
 				}
 				Campaign campaign = campaignRepository.findByGameId(gameId);
 				if(campaign != null) {
@@ -95,7 +102,11 @@ public class BasicCampaignGameStatusManager {
 					
 					//update daily points
 					try {
-						LocalDate day = Instant.ofEpochMilli(startTime).atZone(ZoneId.systemDefault()).toLocalDate();
+						ZonedDateTime trackDay = getTrackDay(campaign, playerTrack);
+						String day = trackDay.format(dtf);
+						int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
+						int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
+						int year = trackDay.get(ChronoField.YEAR);
 						PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDayAndGlobal(playerId, campaignId, 
 								day, Boolean.FALSE);
 						if(statsGame == null) {
@@ -105,9 +116,6 @@ public class BasicCampaignGameStatusManager {
 							statsGame.setCampaignId(gameStatus.getCampaignId());
 							statsGame.setGlobal(Boolean.FALSE);
 							statsGame.setDay(day);
-							int weekOfYear = day.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-							int monthOfYear = day.get(ChronoField.MONTH_OF_YEAR);
-							int year = day.get(ChronoField.YEAR);
 							statsGame.setWeekOfYear(year + "-" + weekOfYear);
 							statsGame.setMonthOfYear(year + "-" + monthOfYear);
 							statsGameRepository.save(statsGame);
@@ -130,6 +138,17 @@ public class BasicCampaignGameStatusManager {
 		} catch (Exception e) {
 			logger.error(String.format("updatePlayerGameStatus error:%s - %s", e.getMessage(), msg));
 		}
+	}
+	
+	private ZonedDateTime getTrackDay(Campaign campaign, CampaignPlayerTrack pt) {		
+		ZoneId zoneId = null;
+		Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+		if(territory == null) {
+			zoneId = ZoneId.systemDefault();
+		} else {
+			zoneId = ZoneId.of(territory.getTimezone());
+		}
+		return ZonedDateTime.ofInstant(pt.getStartTime().toInstant(), zoneId);
 	}
 	
 	private void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus) throws Exception {

@@ -1,7 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
-import java.time.LocalDate;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,7 +15,7 @@ public class PlayerStatsGame {
 	@Indexed
 	private String campaignId;
 	@Indexed
-	private LocalDate day;
+	private String day;
 	@Indexed
 	private Boolean global = Boolean.FALSE; 	
 	private double score;
@@ -48,10 +46,10 @@ public class PlayerStatsGame {
 	public void setScore(double score) {
 		this.score = score;
 	}
-	public LocalDate getDay() {
+	public String getDay() {
 		return day;
 	}
-	public void setDay(LocalDate day) {
+	public void setDay(String day) {
 		this.day = day;
 	}
 	public String getWeekOfYear() {
