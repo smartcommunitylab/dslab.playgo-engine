@@ -358,6 +358,7 @@ public class CampaignManager {
 		if(Utils.isNotEmpty(link) && Utils.isNotEmpty(name)) {
 			if(!campaign.getSurveys().containsKey(name)) {
 				campaign.getSurveys().put(name, link);
+				campaignRepository.save(campaign);
 			}
 		}
 		return campaign.getSurveys();
@@ -371,6 +372,7 @@ public class CampaignManager {
 		}
 		if(Utils.isNotEmpty(name)) {
 			campaign.getSurveys().remove(name);
+			campaignRepository.save(campaign);
 		}
 		return campaign.getSurveys();
 	}
