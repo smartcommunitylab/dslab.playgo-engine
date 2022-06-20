@@ -1,6 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +26,8 @@ public class Campaign {
 	private String campaignId;
 	private Type type;
 	private String territoryId;
-	private String name;
-	private String description;
+	private Map<String, String> name = new HashMap<>();
+	private Map<String, String> description = new HashMap<>();
 	private Date dateFrom;
 	private Date dateTo;
 	private Boolean active = Boolean.FALSE;
@@ -36,7 +35,7 @@ public class Campaign {
 	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
 	@Indexed
 	private String gameId;
-	private List<CampaignDetail> details = new ArrayList<>(); 
+	private Map<String, List<CampaignDetail>> details = new HashMap<>(); 
 	private Image logo;
 	private Image banner;
 	
@@ -84,22 +83,6 @@ public class Campaign {
 
 	public void setCampaignId(String campaignId) {
 		this.campaignId = campaignId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public String getGameId() {
@@ -173,14 +156,6 @@ public class Campaign {
 		this.banner = banner;
 	}
 
-	public List<CampaignDetail> getDetails() {
-		return details;
-	}
-
-	public void setDetails(List<CampaignDetail> details) {
-		this.details = details;
-	}
-
 	public Date getDateFrom() {
 		return dateFrom;
 	}
@@ -211,6 +186,30 @@ public class Campaign {
 
 	public void setSpecificData(Map<String, Object> specificData) {
 		this.specificData = specificData;
+	}
+
+	public Map<String, String> getName() {
+		return name;
+	}
+
+	public void setName(Map<String, String> name) {
+		this.name = name;
+	}
+
+	public Map<String, String> getDescription() {
+		return description;
+	}
+
+	public void setDescription(Map<String, String> description) {
+		this.description = description;
+	}
+
+	public Map<String, List<CampaignDetail>> getDetails() {
+		return details;
+	}
+
+	public void setDetails(Map<String, List<CampaignDetail>> details) {
+		this.details = details;
 	}
 
 }

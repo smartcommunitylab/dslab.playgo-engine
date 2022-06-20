@@ -1,11 +1,14 @@
 package it.smartcommunitylab.playandgo.engine.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 
 public class CampaignTripInfo {
 	private String campaignId;
-	private String campaignName;
+	private Map<String, String> campaignName = new HashMap<>();
 	private Type type;
 	private double score = 0.0;
 	private double distance = 0.0;
@@ -18,12 +21,6 @@ public class CampaignTripInfo {
 	}
 	public void setCampaignId(String campaignId) {
 		this.campaignId = campaignId;
-	}
-	public String getCampaignName() {
-		return campaignName;
-	}
-	public void setCampaignName(String campaignName) {
-		this.campaignName = campaignName;
 	}
 	public double getScore() {
 		return score;
@@ -60,5 +57,11 @@ public class CampaignTripInfo {
 	}
 	public void setDistance(double distance) {
 		this.distance = distance;
+	}
+	public Map<String, String> getCampaignName() {
+		return campaignName;
+	}
+	public void setCampaignName(Map<String, String> campaignName) {
+		this.campaignName = campaignName;
 	}
 }

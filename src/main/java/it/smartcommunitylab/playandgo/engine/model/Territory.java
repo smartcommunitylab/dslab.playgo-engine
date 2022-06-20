@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Territory {
 	@Id
 	private String territoryId;
-	private String name;
-	private String description;
+	private Map<String, String> name = new HashMap<>();
+	private Map<String, String> description = new HashMap<>();
 	private String timezone;
 	
 	private Map<String, Object> territoryData = new HashMap<>();
@@ -22,28 +22,28 @@ public class Territory {
 	public void setTerritoryId(String territoryId) {
 		this.territoryId = territoryId;
 	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
 	public Map<String, Object> getTerritoryData() {
 		return territoryData;
 	}
 	public void setTerritoryData(Map<String, Object> territoryData) {
 		this.territoryData = territoryData;
 	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
 	public String getTimezone() {
 		return timezone;
 	}
 	public void setTimezone(String timezone) {
 		this.timezone = timezone;
+	}
+	public Map<String, String> getName() {
+		return name;
+	}
+	public void setName(Map<String, String> name) {
+		this.name = name;
+	}
+	public Map<String, String> getDescription() {
+		return description;
+	}
+	public void setDescription(Map<String, String> description) {
+		this.description = description;
 	}
 }
