@@ -42,11 +42,11 @@ public class CampaignController extends PlayAndGoController {
 	TerritoryManager territoryManager;
 	
 	@PostMapping("/api/campaign")
-	public void addCampaign(
+	public Campaign addCampaign(
 			@RequestBody Campaign campaign,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, campaign.getTerritoryId());
-		campaignManager.addCampaign(campaign);
+		return campaignManager.addCampaign(campaign);
 	}
 	
 	@PutMapping("/api/campaign")

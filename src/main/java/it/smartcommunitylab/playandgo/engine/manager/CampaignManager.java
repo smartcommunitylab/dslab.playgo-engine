@@ -80,7 +80,7 @@ public class CampaignManager {
 	@Autowired
 	StorageManager storageManager;
 	
-	public void addCampaign(Campaign campaign) throws Exception {
+	public Campaign addCampaign(Campaign campaign) throws Exception {
 		try {
 			campaignRepository.save(campaign);
 			switch (campaign.getType()) {
@@ -93,7 +93,8 @@ public class CampaignManager {
 					schoolCampaignGameNotification.subcribeCampaing(campaign);
 					break;
 				case company:
-			}			
+			}
+			return campaign;
 		} catch (Exception e) {
 			throw new StorageException("territory save error", ErrorCode.ENTITY_SAVE_ERROR);
 		}
