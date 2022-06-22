@@ -49,7 +49,7 @@ public class Campaign {
 	private Map<String, String> surveys = new HashMap<>();
 
 	public boolean hasDefaultSurvey() {
-		return specificData.containsKey(defaultSurveyKey);
+		return (specificData != null) ? specificData.containsKey(defaultSurveyKey) : false;
 	}
 	
 	public SurveyRequest getDefaultSurvey() {
@@ -61,10 +61,14 @@ public class Campaign {
 	
 	public Map<String, String> getAllSurveys() {
 		Map<String, String> allSurveys = new HashMap<>();
-		allSurveys.putAll(surveys);
+		if(surveys != null) {
+			allSurveys.putAll(surveys);
+		}
 		if(hasDefaultSurvey()) {
 			SurveyRequest sr = (SurveyRequest) specificData.get(defaultSurveyKey);
-			allSurveys.put(sr.getSurveyName(), sr.getSurveyLink());
+			if(sr != null) {
+				allSurveys.put(sr.getSurveyName(), sr.getSurveyLink());
+			}
 		}
 		return allSurveys;
 	}

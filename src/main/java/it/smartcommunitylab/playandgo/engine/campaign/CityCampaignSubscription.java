@@ -38,20 +38,20 @@ public class CityCampaignSubscription {
 		sub.setRegistrationDate(new Date());
 		if(campaignData != null) {
 			sub.setCampaignData(campaignData);
+			//check player recommendation
+			if(campaignData.containsKey(Campaign.nickRecommendation)) {
+				String nickname = (String) campaignData.get(Campaign.nickRecommendation);
+				Player recommender = playerRepository.findByNickname(nickname);
+				if(recommender != null) {
+					sub.getCampaignData().put(Campaign.recommenderPlayerId, player.getPlayerId());
+					sub.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.TRUE);
+				}
+			}
 		}
 		//check default survey
 		if(campaign.hasDefaultSurvey()) {
 			SurveyRequest sr = campaign.getDefaultSurvey();
 			surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
-		}
-		//check player recommendation
-		if(campaignData.containsKey(Campaign.nickRecommendation)) {
-			String nickname = (String) campaignData.get(Campaign.nickRecommendation);
-			Player recommender = playerRepository.findByNickname(nickname);
-			if(recommender != null) {
-				sub.getCampaignData().put(Campaign.recommenderPlayerId, player.getPlayerId());
-				sub.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.TRUE);
-			}
 		}
 		return sub;
 	}
