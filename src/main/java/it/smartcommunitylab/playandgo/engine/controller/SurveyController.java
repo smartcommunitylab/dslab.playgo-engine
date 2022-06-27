@@ -49,7 +49,7 @@ public class SurveyController extends PlayAndGoController {
 		surveyManager.assignSurveyChallenges(campaignId, playerIds, sr);
 	}
 	
-	@PostMapping("/api/survey/compile/{surveyName}")
+	@PostMapping("/survey/compile/{surveyName}")
 	public void compileSurvey(
 			@PathVariable String surveyName, 
 			@RequestBody Map<String,Object> formData,
