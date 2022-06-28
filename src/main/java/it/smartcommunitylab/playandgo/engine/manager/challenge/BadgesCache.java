@@ -26,7 +26,7 @@ public class BadgesCache {
 		});
 		for (BadgesData badge: list) {
 			
-			URL resource = getClass().getResource("/public/" + badge.getPath());
+			URL resource = getClass().getResource("/static/web/" + badge.getPath());
 			byte b[] = Resources.asByteSource(resource).read();
 
 			badge.setImageByte(b);					
