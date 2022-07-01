@@ -114,6 +114,7 @@ public class CampaignManager {
 		campaignDb.setDetails(campaign.getDetails());
 		campaignDb.setGameId(campaign.getGameId());
 		campaignDb.setValidationData(campaign.getValidationData());
+		campaignDb.setSpecificData(campaign.getSpecificData());
 		campaignRepository.save(campaignDb);
 		switch (campaign.getType()) {
 			case personal:
