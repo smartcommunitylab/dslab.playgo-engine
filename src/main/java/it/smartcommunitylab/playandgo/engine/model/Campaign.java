@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 
 @Document(collection="campaigns")
@@ -48,10 +50,12 @@ public class Campaign {
 	 */
 	private Map<String, String> surveys = new HashMap<>();
 
+	@JsonIgnore
 	public boolean hasDefaultSurvey() {
 		return (specificData != null) ? specificData.containsKey(defaultSurveyKey) : false;
 	}
 	
+	@JsonIgnore
 	public SurveyRequest getDefaultSurvey() {
 		if(hasDefaultSurvey()) {
 			return (SurveyRequest) specificData.get(defaultSurveyKey);
@@ -59,6 +63,7 @@ public class Campaign {
 		return null;
 	}
 	
+	@JsonIgnore
 	public Map<String, String> getAllSurveys() {
 		Map<String, String> allSurveys = new HashMap<>();
 		if(surveys != null) {

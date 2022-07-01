@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Document(collection="campaignSubscriptions")
 public class CampaignSubscription {
 	@Id
@@ -22,6 +24,7 @@ public class CampaignSubscription {
 	private Date registrationDate;
 	private Map<String, Object> campaignData = new HashMap<>();
 	
+	@JsonIgnore
 	public boolean hasRecommendationPlayerToDo() {
 		if(campaignData.containsKey(Campaign.recommendationPlayerToDo)) {
 			return (boolean) campaignData.get(Campaign.recommendationPlayerToDo);
