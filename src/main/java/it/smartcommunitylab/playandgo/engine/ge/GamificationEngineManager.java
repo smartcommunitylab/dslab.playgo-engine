@@ -119,9 +119,10 @@ public class GamificationEngineManager {
 		return false;
 	}
 	
-	public JsonNode getPlayerStatus(String gameId, String playerId) {
+	public JsonNode getPlayerStatus(String gameId, String playerId, String points) {
 		try {
-			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId;
+			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId
+					+ "?readChallenges=false&points=" + points;
 			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			JsonNode jsonNode = mapper.readTree(json);

@@ -130,7 +130,7 @@ public class BasicCampaignGameStatusManager {
 					}
 					
 					//update global status 
-					JsonNode playerState = gamificationEngineManager.getPlayerStatus(gameId, playerId);
+					JsonNode playerState = gamificationEngineManager.getPlayerStatus(gameId, playerId, "green leaves");
 					if(playerState != null) {
 						updatePlayerState(playerState, gameStatus);
 						gameStatus.setUpdateTime(new Date());
@@ -213,13 +213,6 @@ public class BasicCampaignGameStatusManager {
 			}
 			badgeMap.put("badgeEarned", badgeEarned);
 			gameStatus.getBadges().add(badgeMap);
-		}
-		//challenges
-		gameStatus.getChallenges().clear();
-		JsonNode challenges = root.findPath("ChallengeConcept");
-		for(JsonNode challenge : challenges) {
-			Map<String, Object> map = mapper.convertValue(challenge, new TypeReference<Map<String, Object>>(){});
-			gameStatus.getChallenges().add(map);
 		}
 	}
 }
