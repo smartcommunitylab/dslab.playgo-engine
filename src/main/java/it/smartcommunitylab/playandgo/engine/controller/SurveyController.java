@@ -64,7 +64,7 @@ public class SurveyController extends PlayAndGoController {
 			@PathVariable String id,
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		//RequestContextUtils.getLocaleResolver(request).setLocale(request, response, Locale.forLanguageTag(lang));
+		RequestContextUtils.getLocaleResolver(request).setLocale(request, response, Locale.forLanguageTag(lang));
 		ModelAndView model = null;
 		SurveyInfo info = surveyManager.getSurveyUrl(id, surveyName);
 		if(info.isCompleted()) {
