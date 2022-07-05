@@ -18,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignTripValidator;
+import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
 
@@ -55,7 +58,27 @@ public class DevController extends PlayAndGoController {
 	@Autowired
 	CompanyCampaignTripValidator companyCampaignTripValidator;
 	
+	@Autowired
+	GamificationEngineManager gamificationEngineManager;
+	
+	@Autowired
+	CampaignRepository campaignRepository;
+	
 	static final Random RANDOM = new Random();
+	
+	@GetMapping("/api/dev/survey/url")
+	public String geteSurveyUrl(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam String surveyName,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+		if(campaign != null) {
+			return gamificationEngineManager.createSurveyUrl(playerId, campaign.getGameId(), surveyName, "it");
+		}
+		return null;
+	}
 	
 	@GetMapping("/api/dev/azienda/subscribe")
 	public void subscribeAziendale(

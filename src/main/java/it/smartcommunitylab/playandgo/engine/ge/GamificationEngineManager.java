@@ -91,7 +91,7 @@ public class GamificationEngineManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public  String createSurveyUrl(String playerId, String gameId, String surveyName, String lang) throws Exception {
+	public String createSurveyUrl(String playerId, String gameId, String surveyName, String lang) throws Exception {
 		String id = encryptIdentity(playerId, gameId);
 		String compileSurveyUrl = String.format(SURVEY_URL, playgoURL, lang, surveyName, id);
 		return compileSurveyUrl;

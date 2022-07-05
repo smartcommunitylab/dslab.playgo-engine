@@ -8,25 +8,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
-import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyInfo;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
-@RestController
+@Controller
 public class SurveyController extends PlayAndGoController {
 	
 	@Autowired
@@ -57,14 +57,14 @@ public class SurveyController extends PlayAndGoController {
 		surveyManager.compileSurvey(surveyName, formData);
 	}
 	
-	@GetMapping("/survay/{lang}/{surveyName}/{id}")
+	@GetMapping("/survey/{lang}/{surveyName}/{id}")
 	public ModelAndView redirectSurvey(
 			@PathVariable String lang, 
 			@PathVariable String surveyName, 
 			@PathVariable String id,
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		RequestContextUtils.getLocaleResolver(request).setLocale(request, response, Locale.forLanguageTag(lang));
+		//RequestContextUtils.getLocaleResolver(request).setLocale(request, response, Locale.forLanguageTag(lang));
 		ModelAndView model = null;
 		SurveyInfo info = surveyManager.getSurveyUrl(id, surveyName);
 		if(info.isCompleted()) {
