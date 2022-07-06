@@ -27,6 +27,7 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.exception.StorageException;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -351,30 +352,34 @@ public class CampaignManager {
 		}
 	}
 	
-	public Map<String, String> addSurvey(String campaignId, String name, String link) throws Exception {
+	public List<SurveyRequest> addSurvey(String campaignId, SurveyRequest sr) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {
 			logger.warn("campaign not found");
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
 		}
-		if(Utils.isNotEmpty(link) && Utils.isNotEmpty(name)) {
-			if(!campaign.getSurveys().containsKey(name)) {
-				campaign.getSurveys().put(name, link);
+		if(Utils.isNotEmpty(sr.getSurveyLink()) && Utils.isNotEmpty(sr.getSurveyName())) {
+			SurveyRequest srDb = campaign.getSurveyByName(sr.getSurveyName());
+			if(srDb == null) {
+				campaign.getSurveys().add(sr);
 				campaignRepository.save(campaign);
 			}
 		}
 		return campaign.getSurveys();
 	}
 	
-	public Map<String, String> deleteSurvey(String campaignId, String name) throws Exception {
+	public List<SurveyRequest> deleteSurvey(String campaignId, String name) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {
 			logger.warn("campaign not found");
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
 		}
 		if(Utils.isNotEmpty(name)) {
-			campaign.getSurveys().remove(name);
-			campaignRepository.save(campaign);
+			SurveyRequest sr = campaign.getSurveyByName(name);
+			if(sr != null) {
+				campaign.getSurveys().remove(sr);
+				campaignRepository.save(campaign);				
+			}
 		}
 		return campaign.getSurveys();
 	}

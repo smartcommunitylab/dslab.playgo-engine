@@ -8,6 +8,7 @@ public class SurveyRequest {
 	private Map<String, Object> data;
 	private long start;
 	private long end;
+	private boolean defaultSurvey;
 	
 	public Map<String, Object> getData() {
 		return data;
@@ -38,6 +39,12 @@ public class SurveyRequest {
 	}
 	public void setSurveyLink(String surveyLink) {
 		this.surveyLink = surveyLink;
+	}
+	public boolean isDefaultSurvey() {
+		return defaultSurvey;
+	}
+	public void setDefaultSurvey(boolean defaultSurvey) {
+		this.defaultSurvey = defaultSurvey;
 	}
 
 }

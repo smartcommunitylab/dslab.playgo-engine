@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -146,21 +147,20 @@ public class CampaignController extends PlayAndGoController {
 	}
 	
 	@PostMapping("/api/campaign/{campaignId}/survey")
-	public Map<String, String> addSurvey(
+	public List<SurveyRequest> addSurvey(
 			@PathVariable String campaignId,
-			@RequestParam String name,
-			@RequestParam String link,
+			@RequestBody SurveyRequest sr,
 			HttpServletRequest request) throws Exception {
 		Campaign campaign = campaignManager.getCampaign(campaignId);
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}	
 		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
-		return campaignManager.addSurvey(campaignId, name, link);
+		return campaignManager.addSurvey(campaignId, sr);
 	}
 	
 	@DeleteMapping("/api/campaign/{campaignId}/survey")
-	public Map<String, String> deleteSurvey(
+	public List<SurveyRequest> deleteSurvey(
 			@PathVariable String campaignId,
 			@RequestParam String name,
 			HttpServletRequest request) throws Exception {

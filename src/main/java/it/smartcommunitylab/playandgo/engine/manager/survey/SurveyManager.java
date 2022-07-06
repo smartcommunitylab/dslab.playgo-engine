@@ -1,10 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.manager.survey;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,8 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 public class SurveyManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(SurveyManager.class);
 
+	private static long twoWeeksMillis = 1000 * 60 * 60 * 24 * 14;  
+	
 	@Autowired
 	GamificationEngineManager gamificationManager;
 	
@@ -50,6 +55,12 @@ public class SurveyManager {
 		// Force double for bonus score
 		if (data.containsKey("bonusScore")) {
 			data.put("bonusScore", Double.parseDouble(data.get("bonusScore").toString()));
+		}
+		if(sr.isDefaultSurvey()) {
+			long now = System.currentTimeMillis();
+			Date startDate = DateUtils.truncate(Utils.getUTCDate(now), Calendar.DAY_OF_MONTH);
+			sr.setStart(startDate.getTime());
+			sr.setEnd(startDate.getTime() + twoWeeksMillis);
 		}
 		
 		if(playerIds == null || playerIds.size() == 0) {
@@ -82,13 +93,14 @@ public class SurveyManager {
 				if(survey != null) {
 					return true;
 				}
-				if(campaign.getAllSurveys().containsKey(surveyName)) {
+				SurveyRequest sr = campaign.getSurveyByName(surveyName);
+				if(sr != null) {
 					survey = new CampaignPlayerSurvey();
 					survey.setPlayerId(playerId);
 					survey.setGameId(gameId);
 					survey.setCampaignId(campaign.getCampaignId());
 					survey.setTimestamp(Utils.getUTCDate(System.currentTimeMillis()));
-					survey.setSurveyLink(campaign.getAllSurveys().get(surveyName));
+					survey.setSurveyLink(sr.getSurveyLink());
 					survey.setSurveyName(surveyName);
 					
 					Map<String, Object> data = new HashMap<>(formData);
@@ -128,8 +140,9 @@ public class SurveyManager {
 					if(survey != null) {
 						info.setCompleted(true);
 					} else {
-						if(campaign.getAllSurveys().containsKey(surveyName)) {
-							info.setUrl(campaign.getAllSurveys().get(surveyName));
+						SurveyRequest sr = campaign.getSurveyByName(surveyName);
+						if(sr != null) {
+							info.setUrl(sr.getSurveyLink());
 						}
 					}
 				}

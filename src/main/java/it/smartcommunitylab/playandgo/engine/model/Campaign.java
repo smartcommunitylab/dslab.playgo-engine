@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -45,37 +46,36 @@ public class Campaign {
 	
 	private Map<String, Object> specificData = new HashMap<>();
 	
-	/**
-	 * <name, link>
-	 */
-	private Map<String, String> surveys = new HashMap<>();
+	private List<SurveyRequest> surveys = new ArrayList<>();
 
 	@JsonIgnore
 	public boolean hasDefaultSurvey() {
-		return (specificData != null) ? specificData.containsKey(defaultSurveyKey) : false;
+		for(SurveyRequest sr : surveys) {
+			if(sr.isDefaultSurvey()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@JsonIgnore
 	public SurveyRequest getDefaultSurvey() {
-		if(hasDefaultSurvey()) {
-			return (SurveyRequest) specificData.get(defaultSurveyKey);
+		for(SurveyRequest sr : surveys) {
+			if(sr.isDefaultSurvey()) {
+				return sr;
+			}
 		}
 		return null;
 	}
 	
 	@JsonIgnore
-	public Map<String, String> getAllSurveys() {
-		Map<String, String> allSurveys = new HashMap<>();
-		if(surveys != null) {
-			allSurveys.putAll(surveys);
-		}
-		if(hasDefaultSurvey()) {
-			SurveyRequest sr = (SurveyRequest) specificData.get(defaultSurveyKey);
-			if(sr != null) {
-				allSurveys.put(sr.getSurveyName(), sr.getSurveyLink());
+	public SurveyRequest getSurveyByName(String surveyName) {
+		for(SurveyRequest sr : surveys) {
+			if(sr.getSurveyName().equals(surveyName)) {
+				return sr;
 			}
 		}
-		return allSurveys;
+		return null;
 	}
 	
 	public Type getType() {
@@ -181,14 +181,6 @@ public class Campaign {
 		this.dateTo = dateTo;
 	}
 
-	public Map<String, String> getSurveys() {
-		return surveys;
-	}
-
-	public void setSurveys(Map<String, String> surveys) {
-		this.surveys = surveys;
-	}
-
 	public Map<String, Object> getSpecificData() {
 		return specificData;
 	}
@@ -219,6 +211,14 @@ public class Campaign {
 
 	public void setDetails(Map<String, List<CampaignDetail>> details) {
 		this.details = details;
+	}
+
+	public List<SurveyRequest> getSurveys() {
+		return surveys;
+	}
+
+	public void setSurveys(List<SurveyRequest> surveys) {
+		this.surveys = surveys;
 	}
 
 }

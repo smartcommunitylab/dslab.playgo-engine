@@ -251,7 +251,7 @@ public class ChallengeManager {
 		ci.getGuests().add(new ChallengePlayer(invitation.getAttendeeId()));
 		ci.setChallengeModelName(invitation.getChallengeModelName().toString()); // "groupCompetitivePerformance"
 		
-		LocalDateTime day = LocalDateTime.now().with(TemporalAdjusters.next(DayOfWeek.SATURDAY)).truncatedTo(ChronoUnit.DAYS);
+		LocalDateTime day = LocalDateTime.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY)).truncatedTo(ChronoUnit.DAYS);
 		ci.setChallengeStart(new Date(day.atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli())); // next saturday
 		day = day.plusWeeks(1).minusSeconds(1);
 		ci.setChallengeEnd(new Date(day.atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli())); // 2 fridays
