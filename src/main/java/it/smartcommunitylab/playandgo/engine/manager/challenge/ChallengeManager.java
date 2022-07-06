@@ -49,6 +49,7 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitati
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.Reward;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -135,6 +136,9 @@ public class ChallengeManager {
 	
 	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
+	
+	@Autowired
+	private CampaignNotificationManager campaignNotificationManager;
 	
 	private Map<String, ChallengeStructure> challengeStructureMap;
 	private Map<String, ChallengeLongDescrStructure> challengeLongStructureMap;
@@ -245,6 +249,10 @@ public class ChallengeManager {
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
+		Player player = playerRepository.findById(playerId).orElse(null);
+		if(player == null) {
+			throw new BadRequestException("player doesn't exist", ErrorCode.PLAYER_NOT_FOUND);
+		}
 		ChallengeInvitation ci = new ChallengeInvitation();
 		ci.setGameId(campaign.getGameId());
 		ci.setProposer(new ChallengePlayer(playerId));
@@ -276,10 +284,9 @@ public class ChallengeManager {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 		gamificationCache.invalidatePlayer(playerId, campaign.getGameId());
-		//TODO send direct notification
-//		Map<String, String> extraData = Maps.newTreeMap();
-//		extraData.put("opponent", player.getNickname());
-//		notificationsManager.sendDirectNotification(appId, attendee, "INVITATION", extraData);					
+		Map<String, String> extraData = Maps.newTreeMap();
+		extraData.put("opponent", player.getNickname());
+		campaignNotificationManager.sendDirectNotification(invitation.getAttendeeId(), campaignId, "INVITATION", extraData);					
 	}
 	
 	public Map<String, String> getGroupChallengePreview(String playerId, String campaignId, Invitation invitation) throws Exception {

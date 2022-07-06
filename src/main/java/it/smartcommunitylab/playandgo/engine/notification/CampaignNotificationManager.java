@@ -31,7 +31,7 @@ import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
 
 @Component
-public class PersonalCampaignNotificationManager {
+public class CampaignNotificationManager {
 
 	@SuppressWarnings("rawtypes")
 	private static final List<Class> notificationClasses = Lists.newArrayList(new Class[] 
@@ -40,7 +40,7 @@ public class PersonalCampaignNotificationManager {
 	@SuppressWarnings("rawtypes")
 	private Map<String, Class> notificationClassesMap;
 	
-	private static transient final Logger logger = LoggerFactory.getLogger(PersonalCampaignNotificationManager.class);
+	private static transient final Logger logger = LoggerFactory.getLogger(CampaignNotificationManager.class);
 	
 	@Value("${notificationDir}")
 	private String notificationDir;
@@ -121,6 +121,20 @@ public class PersonalCampaignNotificationManager {
 				logger.error("Player " + not.getPlayerId() + " not found");
 			}
 		}
+	}
+	
+	public void sendDirectNotification(String playerId, String campaignId, String type, Map<String, String> extraData) {
+		Player player = playerRepository.findById(playerId).orElse(null);
+		if(player != null) {
+			Notification notification = buildSimpleNotification(player.getLanguage(), type, extraData);
+			try {
+				notificatioHelper.notify(notification, playerId, player.getTerritoryId(), campaignId, true);
+			} catch (Exception e) {
+				logger.error(String.format("sendDirectNotification error: %s - %s - %s - %s", 
+						playerId, campaignId, type, e.getMessage()));
+			}
+		}
+		
 	}
 	
 	private Notification buildNotification(String campaignId, String gameId, String playerId, String lang, NotificationGe not) {

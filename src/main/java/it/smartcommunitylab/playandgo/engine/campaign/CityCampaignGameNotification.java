@@ -16,7 +16,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.GamificationMessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ManageGameNotification;
-import it.smartcommunitylab.playandgo.engine.notification.PersonalCampaignNotificationManager;
+import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
@@ -31,7 +31,7 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 	GamificationMessageQueueManager gamificationMessageQueueManager;
 	
 	@Autowired
-	PersonalCampaignNotificationManager notificationManager;
+	CampaignNotificationManager notificationManager;
 
 	@Autowired
 	CityCampaignGameStatusManager gameStatusManager;
