@@ -38,7 +38,7 @@ public class Campaign {
 	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
 	@Indexed
 	private String gameId;
-	private Map<String, List<CampaignDetail>> details = new HashMap<>(); 
+	private Map<String, List<CampaignDetail>> details = new HashMap<>();
 	private Image logo;
 	private Image banner;
 	
@@ -47,6 +47,8 @@ public class Campaign {
 	private Map<String, Object> specificData = new HashMap<>();
 	
 	private List<SurveyRequest> surveys = new ArrayList<>();
+	
+	private List<CampaignWeekConf> weekConfs = new ArrayList<>();
 
 	@JsonIgnore
 	public boolean hasDefaultSurvey() {
@@ -219,6 +221,14 @@ public class Campaign {
 
 	public void setSurveys(List<SurveyRequest> surveys) {
 		this.surveys = surveys;
+	}
+
+	public List<CampaignWeekConf> getWeekConfs() {
+		return weekConfs;
+	}
+
+	public void setWeekConfs(List<CampaignWeekConf> weekConfs) {
+		this.weekConfs = weekConfs;
 	}
 
 }

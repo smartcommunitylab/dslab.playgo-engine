@@ -1,9 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -18,6 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+
 import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignSubscription;
@@ -30,7 +38,9 @@ import it.smartcommunitylab.playandgo.engine.exception.StorageException;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
+import it.smartcommunitylab.playandgo.engine.model.CampaignReward;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.CampaignWeekConf;
 import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
@@ -386,6 +396,103 @@ public class CampaignManager {
 	
 	public List<CampaignSubscription> getCampaignSubscriptions(String campaignId) {
 		return campaignSubscriptionRepository.findByCampaignId(campaignId);
+	}
+
+	public List<String> uploadWeekConfs(String campaignId, InputStreamReader contentReader) throws Exception {
+		Campaign campaign = getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
+		}
+		campaign.getWeekConfs().clear();
+		List<String> result = new ArrayList<>();
+		BufferedReader in = new BufferedReader(contentReader);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		CsvMapper csvMapper = new CsvMapper();
+		CsvSchema csvSchema = CsvSchema.emptySchema().withHeader();
+		MappingIterator<Map<String, String>> iterator = csvMapper.readerFor(Map.class)
+				.with(csvSchema).readValues(in);
+		int lineCount = 1;
+		while(iterator.hasNextValue()) {
+			try {
+				Map<String, String> map = iterator.next();
+				String dateFrom = null;
+				String dateTo = null;
+				int weekNumber;
+				weekNumber = Integer.valueOf(map.get("settimana").trim());
+				dateFrom = map.get("data inizio").trim();
+				dateTo = map.get("data fine").trim();
+				CampaignWeekConf conf = new CampaignWeekConf();
+				conf.setCampaignId(campaignId);
+				conf.setWeekNumber(weekNumber);
+				conf.setDateFrom(sdf.parse(dateFrom));
+				conf.setDateTo(sdf.parse(dateTo));
+				campaign.getWeekConfs().add(conf);
+				result.add("add week " + weekNumber);
+				lineCount++;
+			} catch (Exception e) {
+				result.add(String.format("error on week [%s]:%s", lineCount, e.getMessage()));
+			}
+		}
+		campaignRepository.save(campaign);
+		return result;
+	}
+
+	public List<String> uploadRewards(String campaignId, InputStreamReader contentReader) throws Exception {
+		Campaign campaign = getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
+		}
+		campaign.getWeekConfs().forEach(c -> {
+			c.getRewards().clear();
+		});
+		List<String> result = new ArrayList<>();
+		BufferedReader in = new BufferedReader(contentReader);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		CsvMapper csvMapper = new CsvMapper();
+		CsvSchema csvSchema = CsvSchema.emptySchema().withHeader();
+		MappingIterator<Map<String, String>> iterator = csvMapper.readerFor(Map.class)
+				.with(csvSchema).readValues(in);
+		int lineCount = 1;
+		while(iterator.hasNextValue()) {
+			try {
+				Map<String, String> map = iterator.next();
+				int weekNumber;
+				int position;
+				String descIt;
+				String descEn;
+				weekNumber = Integer.valueOf(map.get("settimana").trim());
+				position = Integer.valueOf(map.get("posizione").trim());
+				descIt = map.get("it").trim();
+				descEn = map.get("en").trim();
+				CampaignWeekConf conf = getWeekConf(campaign, weekNumber);
+				if(conf != null) {
+					CampaignReward reward = new CampaignReward();
+					reward.setPosition(position);
+					reward.getDesc().put("it", descIt);
+					reward.getDesc().put("en", descEn);
+					conf.getRewards().add(reward);
+					result.add("add conf " + weekNumber + " - " + lineCount);
+				} else {
+					result.add("skip conf " + weekNumber + " - " + lineCount);
+				}
+				lineCount++;
+			} catch (Exception e) {
+				result.add(String.format("error on reward [%s]:%s", lineCount, e.getMessage()));
+			}
+		}
+		campaignRepository.save(campaign);
+		return result;
+	}
+	
+	private CampaignWeekConf getWeekConf(Campaign campaign, int weekNumber) {
+		for(CampaignWeekConf conf : campaign.getWeekConfs()) {
+			if(conf.getWeekNumber() == weekNumber) {
+				return conf;
+			}
+		}
+		return null;
 	}
 	
 }

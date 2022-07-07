@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
@@ -172,5 +173,30 @@ public class CampaignController extends PlayAndGoController {
 		return campaignManager.deleteSurvey(campaignId, name);
 	}
 	
+	@PostMapping(value = "/api/campaign/{campaignId}/weekconf")
+	public List<String> uploadWeekConfs(
+			@PathVariable String campaignId,
+			@RequestParam("data") MultipartFile data,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		return campaignManager.uploadWeekConfs(campaignId, new InputStreamReader(data.getInputStream(), "UTF-8"));
+	}
+	
+	@PostMapping(value = "/api/campaign/{campaignId}/reward")
+	public List<String> uploadRewards(
+			@PathVariable String campaignId,
+			@RequestParam("data") MultipartFile data,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		return campaignManager.uploadRewards(campaignId, new InputStreamReader(data.getInputStream(), "UTF-8"));
+	}
 
 }
