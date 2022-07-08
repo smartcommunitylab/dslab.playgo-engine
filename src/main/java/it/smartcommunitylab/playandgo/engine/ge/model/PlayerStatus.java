@@ -1,10 +1,13 @@
-package it.smartcommunitylab.playandgo.engine.manager.challenge;
+package it.smartcommunitylab.playandgo.engine.ge.model;
 
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
+import it.smartcommunitylab.playandgo.engine.manager.challenge.Inventory;
 
 public class PlayerStatus {
 

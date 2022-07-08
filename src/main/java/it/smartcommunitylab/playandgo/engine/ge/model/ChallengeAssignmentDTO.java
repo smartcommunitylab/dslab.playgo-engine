@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.ge;
+package it.smartcommunitylab.playandgo.engine.ge.model;
 
 import java.util.Map;
 

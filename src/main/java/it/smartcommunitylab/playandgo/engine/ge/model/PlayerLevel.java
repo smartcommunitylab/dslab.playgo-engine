@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.manager.challenge;
+package it.smartcommunitylab.playandgo.engine.ge.model;
 
 public class PlayerLevel {
     private String levelName;

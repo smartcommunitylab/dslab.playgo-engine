@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.smartcommunitylab.playandgo.engine.ge.model.ChallengeAssignmentDTO;
+import it.smartcommunitylab.playandgo.engine.ge.model.ExecutionDataDTO;
+import it.smartcommunitylab.playandgo.engine.ge.model.PlayerIdentity;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation;
 import it.smartcommunitylab.playandgo.engine.util.EncryptDecrypt;
 import it.smartcommunitylab.playandgo.engine.util.HTTPConnector;

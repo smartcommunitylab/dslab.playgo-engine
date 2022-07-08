@@ -1,12 +1,16 @@
-package it.smartcommunitylab.playandgo.engine.manager.challenge;
+package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -18,12 +22,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
-import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
+import it.smartcommunitylab.playandgo.engine.ge.model.GameStatistics;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
+@Component
 public class GamificationCache {
 	private static transient final Logger logger = LoggerFactory.getLogger(GamificationCache.class);
 
+	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
 	
 	private LoadingCache<String, String> playerState;
@@ -32,7 +38,8 @@ public class GamificationCache {
 	
 	private ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);	
 	
-	public GamificationCache(GamificationEngineManager gamificationEngineManager) {
+	@PostConstruct
+	public void init() {
 		playerState = CacheBuilder.newBuilder().refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
 			@Override
 			public String load(String id) throws Exception {

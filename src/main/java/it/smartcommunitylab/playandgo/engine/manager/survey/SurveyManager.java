@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
-import it.smartcommunitylab.playandgo.engine.ge.PlayerIdentity;
+import it.smartcommunitylab.playandgo.engine.ge.model.PlayerIdentity;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerSurvey;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;

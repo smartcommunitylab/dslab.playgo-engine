@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.manager.challenge;
+package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.net.URL;
 import java.nio.file.Paths;
@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+
+import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 
 public class BadgesCache {
 
