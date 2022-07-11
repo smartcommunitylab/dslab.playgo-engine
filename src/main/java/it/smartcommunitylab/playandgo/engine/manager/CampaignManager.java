@@ -408,6 +408,7 @@ public class CampaignManager {
 		BufferedReader in = new BufferedReader(contentReader);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		sdf.setLenient(false);
 		CsvMapper csvMapper = new CsvMapper();
 		CsvSchema csvSchema = CsvSchema.emptySchema().withHeader();
 		MappingIterator<Map<String, String>> iterator = csvMapper.readerFor(Map.class)
