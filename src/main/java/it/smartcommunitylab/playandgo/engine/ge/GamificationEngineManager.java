@@ -51,7 +51,6 @@ public class GamificationEngineManager {
 	private String secretKey2;
 	
 	private static final String SURVEY_URL = "%s/survey/%s/%s/%s";
-	private static final String UNSUBSCRIBE_URL = "%s/api/unsubscribeMail/%s";
 
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -234,7 +233,7 @@ public class GamificationEngineManager {
 	
 	public boolean chooseChallenge(String playerId, String gameId, String challengeId) {
 		try {
-			String url = gamificationUrl + "/gengine/game/" + gameId + "/player/" + playerId + "/challenges/" + challengeId + "/accept";
+			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenges/" + challengeId + "/accept";
 			HTTPConnector.doBasicAuthenticationPost(url, null, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;

@@ -149,6 +149,14 @@ public class GameDataConverter {
 		badgeCache = new BadgesCache(challengeDir + "/badges.json");
 	}
 	
+	public String encryptIdentity(String playerId, String gameId) throws Exception {
+		return gamificationEngineManager.encryptIdentity(playerId, gameId);
+	}
+	
+	public List<BadgesData> getAllBadges() {
+		return badgeCache.getAllBadges();
+	}
+	
 	public PlayerStatus convertPlayerData(String profile, String playerId, String gameId, String nickName, int challType, String language)
 			throws Exception {
 
