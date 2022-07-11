@@ -67,7 +67,7 @@ public class DevController extends PlayAndGoController {
 	static final Random RANDOM = new Random();
 	
 	@GetMapping("/api/dev/survey/url")
-	public String geteSurveyUrl(
+	public String getSurveyUrl(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
 			@RequestParam String surveyName,

@@ -147,7 +147,7 @@ public class GamificationEngineManager {
 			
 			String content = JsonUtils.toJSON(challenge);
 			
-			String url = gamificationUrl + "/gengine/game/" + gameId + "/player/" + playerId + "/challenges";
+			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenges";
 			HTTPConnector.doBasicAuthenticationPost(url, content, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return true;
