@@ -46,13 +46,10 @@
 			        	Nel seguito le sfide di questa settimana e i tuoi risultati recenti.
 			        </h3>
 			        <!-- <div th:if="${n_challenges ne null}"> -->
-				        <h3 th:if="${show_last_week} == false and ${next_week_theme} ne 'No'" th:text="#{week_desc(${next_week_theme})}">
-				            Questa sar&agrave; la settimana DELLA BICI
-				        </h3>
 				        <h3 th:if="${show_last_week} == true">
 				            Questa sar&agrave; L'ULTIMA SETTIMANA di gioco
 				        </h3>
-				        <h3 th:if="${n_challenges ne null and not #lists.isEmpty(n_challenges) and are_challenges}">
+				        <h3 th:if="${n_challenges ne null and not #lists.isEmpty(n_challenges)}">
 				            Ecco le tue SFIDE per questa settimana, mettiti alla prova per superarle:
 				        </h3>
 				        <table th:if="${n_challenges ne null}">
@@ -72,7 +69,7 @@
 				            Queste sfide partono alle ore <span th:text="${chs_start_time}">00:00</span> del giorno <span th:text="${chs_start_date}">XXX</span> e hai tempo fino alle ore <span th:text="${chs_end_time}">23:59</span> del giorno <span th:text="${chs_end_date}">YYY</span> per superarle!
 				        </h3> -->
 			        <!-- </div> -->
-			        <div th:if="${n_prizes ne null and are_prizes}">
+			        <div th:if="${n_prizes ne null and not #lists.isEmpty(n_prizes)}">
 				        <h3>
 				            I premi in palio per la <strong th:text="${next_week_num}">X+1</strong>^a settimana sono i seguenti:
 				        </h3>
@@ -85,13 +82,13 @@
 				        	</tr>
 						    <tr th:each="p : ${n_prizes}" valign="top">
 						        <td>- </td>
-						        <td><font size="2" ><strong><span th:text="${p.prize}">tessera mitt</span></strong></font></td>
-						        <td><font size="2" > <span th:text="${p.target}">primo posto green point</span></font></td>
+						        <td><font size="2" ><strong><span th:text="${p.desc.get(lang)}">tessera mitt</span></strong></font></td>
+						        <td><font size="2" > <span th:text="${p.position}">primo posto green point</span></font></td>
 						       	<!-- <td><font size="2" > <span th:text="${p.sponsor}">AMR</span></font></td> -->
 						    </tr>
 					    </table>
 			        </div>
-					<div th:if="${n_prizes eq null or !are_prizes}">
+					<div th:if="${n_prizes eq null or #lists.isEmpty(n_prizes)}">
 						<b>
 						<!-- no prizes week -->
 						</b>
@@ -139,9 +136,6 @@
 			        
 			        <h3 th:if="${n_badge eq null and #lists.isEmpty(n_badges)}">
 			            Questa settimana non hai guadagnato nuovi badge! Gioca ancora per accumulare altri punti e ottenere nuovi badge!
-			        </h3>
-			        <h3>
-			        	Accedendo alla App Lecco Play&amp;Go puoi vedere tutti i dettagli relativi ai tuoi risultati di gioco, alle classifiche e alle sfide. Per maggiori dettagli e informazioni sul gioco clicca <b><a href="someref" th:href="${greengame_url}" target="_blank">QUI</a></b>.
 			        </h3>
 			        <h4>
 			        	Se non desideri ricevere la seguente mail di notifica disattiva il servizio cliccando <b><a href="http://localhost:8080/gamificationweb/unsubscribeMail/3" th:href="${unsubscribtionLink}" target="_blank">QUI</a></b>.

@@ -4,6 +4,7 @@ import java.util.List;
 
 public class BadgeCollectionConcept {
 
+	private String id;
 	private String name;
 	private List<BadgeConcept> badgeEarned;
 
@@ -31,6 +32,14 @@ public class BadgeCollectionConcept {
 		super();
 		this.name = name;
 		this.badgeEarned = badgeEarned;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 }

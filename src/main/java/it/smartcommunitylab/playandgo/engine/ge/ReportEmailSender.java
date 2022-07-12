@@ -87,12 +87,12 @@ public class ReportEmailSender {
 	
 	private boolean nextWeek(CampaignWeekConf conf) {
 		Date utcDate = Utils.getUTCDate(System.currentTimeMillis() + MILLIS_IN_WEEK);
-		return utcDate.before(conf.getDateFrom()) || utcDate.after(conf.getDateTo());
+		return !utcDate.before(conf.getDateFrom()) && !utcDate.after(conf.getDateTo());
 	}	
 	
 	private boolean currentWeek(CampaignWeekConf conf) {
-		Date utcDate = Utils.getUTCDate(System.currentTimeMillis() + MILLIS_IN_WEEK);
-		return utcDate.before(conf.getDateFrom()) || utcDate.after(conf.getDateTo());
+		Date utcDate = Utils.getUTCDate(System.currentTimeMillis());
+		return !utcDate.before(conf.getDateFrom()) && !utcDate.after(conf.getDateTo());
 	}
 	
 	private boolean isLastWeek(Campaign campaign, CampaignWeekConf conf) {
@@ -121,12 +121,12 @@ public class ReportEmailSender {
 		
 		List<MailImage> standardImages = Lists.newArrayList();
 
-		standardImages.add(new MailImage("foglie03", Resources.asByteSource(Resources.getResource("/static/web//img/mail/foglie03.png")).read(), IMAGE_PNG));
-		standardImages.add(new MailImage("foglie04", Resources.asByteSource(Resources.getResource("/static/web//img/mail/foglie04.png")).read(), IMAGE_PNG));
-		standardImages.add(new MailImage("greenScore", Resources.asByteSource(Resources.getResource("/static/web//img/mail/green/greenLeavesbase.png")).read(), IMAGE_PNG));
-		standardImages.add(new MailImage("healthScore", Resources.asByteSource(Resources.getResource("/static/web//img/mail/health/healthLeavesBase.png")).read(), IMAGE_PNG));
-		standardImages.add(new MailImage("prScore", Resources.asByteSource(Resources.getResource("/static/web//img/mail/pr/prLeaves.png")).read(), IMAGE_PNG));
-		standardImages.add(new MailImage("footer", Resources.asByteSource(Resources.getResource("/static/web//img/mail/templateMail.png")).read(), IMAGE_PNG));
+		standardImages.add(new MailImage("foglie03", Resources.asByteSource(getClass().getResource("/static/web/img/mail/foglie03.png")).read(), IMAGE_PNG));
+		standardImages.add(new MailImage("foglie04", Resources.asByteSource(getClass().getResource("/static/web/img/mail/foglie04.png")).read(), IMAGE_PNG));
+		standardImages.add(new MailImage("greenScore", Resources.asByteSource(getClass().getResource("/static/web/img/mail/green/greenLeavesbase.png")).read(), IMAGE_PNG));
+		standardImages.add(new MailImage("healthScore", Resources.asByteSource(getClass().getResource("/static/web/img/mail/health/healthLeavesBase.png")).read(), IMAGE_PNG));
+		standardImages.add(new MailImage("prScore", Resources.asByteSource(getClass().getResource("/static/web/img/mail/pr/prLeaves.png")).read(), IMAGE_PNG));
+		standardImages.add(new MailImage("footer", Resources.asByteSource(getClass().getResource("/static/web/img/mail/templateMail.png")).read(), IMAGE_PNG));
 
 		CampaignWeekConf nextWeekConfData = campaign.getWeekConfs().stream().filter(x -> nextWeek(x)).findFirst().orElse(new CampaignWeekConf());
 		CampaignWeekConf currentWeekConfData = campaign.getWeekConfs().stream().filter(x -> currentWeek(x)).findFirst().orElse(new CampaignWeekConf());
@@ -141,7 +141,7 @@ public class ReportEmailSender {
 			logger.info("Sending notifications to " + p.getNickname());
 			logger.debug(String.format("Profile found  %s", p.getNickname()));
 
-			if (!cs.getSendMail()) {
+			if (!cs.getSendMail() || !p.getSendMail()) {
 				logger.info("Mail non inviata a " + p.getNickname() + ". L'utente ha richiesto la disattivazione delle notifiche.");
 				continue;
 			}
@@ -163,8 +163,8 @@ public class ReportEmailSender {
 			if (states != null && states.size() > 0) {
 				//TODO timezone conversion?
 				point_green = (double)states.get(0).getScore();
-				LocalDate cws = LocalDate.ofEpochDay(currentWeekConfData.getDateFrom().getTime());
-				LocalDate cwe = LocalDate.ofEpochDay(currentWeekConfData.getDateTo().getTime());
+				LocalDate cws = currentWeekConfData.getDateFrom().toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+				LocalDate cwe = currentWeekConfData.getDateTo().toInstant().atZone(ZoneId.of("Z")).toLocalDate();
 
 				PointConceptPeriod pcp = states.get(0).getInstances().stream().filter(x -> {
 					LocalDate ws = Instant.ofEpochMilli(x.getStart()).atZone(ZoneId.systemDefault()).toLocalDate();
