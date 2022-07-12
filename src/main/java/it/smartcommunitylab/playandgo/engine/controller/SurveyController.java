@@ -79,5 +79,13 @@ public class SurveyController extends PlayAndGoController {
 		}
 		return model;
 	}
-	
+
+	@GetMapping("/unsubscribeMail/{id}")
+	public ModelAndView unsubscribeCampaignMail(@PathVariable String id) throws Exception {
+		campaignManager.unsubscribeCampaignMail(id);
+		ModelAndView model = new ModelAndView("web/unsubscribesuccess");
+		model.addObject("wsresult", true);
+		return model; 
+	}
+
 }

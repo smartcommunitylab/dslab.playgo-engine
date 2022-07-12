@@ -198,5 +198,5 @@ public class CampaignController extends PlayAndGoController {
 		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
 		return campaignManager.uploadRewards(campaignId, new InputStreamReader(data.getInputStream(), "UTF-8"));
 	}
-
+	
 }

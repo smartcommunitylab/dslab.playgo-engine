@@ -35,6 +35,8 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.exception.StorageException;
+import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
+import it.smartcommunitylab.playandgo.engine.ge.model.PlayerIdentity;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
@@ -90,6 +92,9 @@ public class CampaignManager {
 	
 	@Autowired
 	StorageManager storageManager;
+	
+	@Autowired
+	GamificationEngineManager gamificationEngineManager;
 	
 	public Campaign addCampaign(Campaign campaign) throws Exception {
 		try {
@@ -494,6 +499,19 @@ public class CampaignManager {
 			}
 		}
 		return null;
+	}
+	
+	public void unsubscribeCampaignMail(String id) throws Exception {
+		PlayerIdentity identity = gamificationEngineManager.decryptIdentity(id);
+		Campaign campaign = campaignRepository.findByGameId(identity.getGameId());
+		if(campaign != null) {
+			CampaignSubscription subscription = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), 
+					identity.getPlayerId());
+			if(subscription != null) {
+				subscription.setSendMail(false);
+				campaignSubscriptionRepository.save(subscription);
+			}
+		}
 	}
 	
 }

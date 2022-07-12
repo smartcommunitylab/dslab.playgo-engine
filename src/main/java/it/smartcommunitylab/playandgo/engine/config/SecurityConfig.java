@@ -52,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		            "/webjars/**",
 		            "/publicapi/**",
 		            "/survey/**",
+		            "/unsubscribeMail/**",
 		            "/web/**"
 		            ).permitAll()
 		        .anyRequest().authenticated().and()

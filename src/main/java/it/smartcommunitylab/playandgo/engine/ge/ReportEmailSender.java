@@ -48,7 +48,7 @@ public class ReportEmailSender {
 	
 	private static final String IMAGE_PNG = "image/png";
 	private static final long MILLIS_IN_WEEK = 1000L * 60 * 60 * 24 * 7;
-	private static final String UNSUBSCRIBE_URL = "%s/api/unsubscribeMail/%s";
+	private static final String UNSUBSCRIBE_URL = "%s/unsubscribeMail/%s";
 	
 	@Value("${playgoURL}")
 	private String playgoURL;
