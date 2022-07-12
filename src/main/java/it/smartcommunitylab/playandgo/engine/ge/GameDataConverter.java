@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.ge;
 
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
+import com.google.common.io.Resources;
 
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
@@ -119,7 +121,7 @@ public class GameDataConverter {
 	private Map<String, List> challengeDictionaryMap;
 	private Map<String, String> challengeReplacements;
 
-	private BadgesCache badgeCache;
+	private Map<String, BadgesData> badges;
 	
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -149,7 +151,16 @@ public class GameDataConverter {
 		challengeDictionaryMap = mapper.readValue(Paths.get(challengeDir + "/challenges_dictionary.json").toFile(), Map.class);
 		challengeReplacements = mapper.readValue(Paths.get(challengeDir + "/challenges_replacements.json").toFile(), Map.class);
 		
-		badgeCache = new BadgesCache(challengeDir + "/badges.json");
+		badges = Maps.newTreeMap();
+		List<BadgesData> badgeList = mapper.readValue(Paths.get(challengeDir + "/badges.json").toFile(), new TypeReference<List<BadgesData>>() {});
+		for (BadgesData badge: badgeList) {
+			
+			URL resource = getClass().getResource("/static/web/" + badge.getPath());
+			byte b[] = Resources.asByteSource(resource).read();
+
+			badge.setImageByte(b);
+			badges.put(badge.getTextId(), badge);
+		}
 	}
 	
 	public String encryptIdentity(String playerId, String gameId) throws Exception {
@@ -157,7 +168,7 @@ public class GameDataConverter {
 	}
 	
 	public List<BadgesData> getAllBadges() {
-		return badgeCache.getAllBadges();
+		return Lists.newArrayList(badges.values());
 	}
 	
 	public PlayerStatus convertPlayerData(String profile, String playerId, String gameId, String nickName, int challType, String language)
@@ -208,7 +219,7 @@ public class GameDataConverter {
 	}
 	
 	private String getUrlFromBadgeName(String gamificationUrl, String b_name) {
-		BadgesData badge = badgeCache.getBadge(b_name);
+		BadgesData badge = badges.get(b_name);
 		if (badge != null) {
 			return gamificationUrl + "/" + badge.getPath();
 		}
