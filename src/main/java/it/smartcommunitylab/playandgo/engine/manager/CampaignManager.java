@@ -31,6 +31,7 @@ import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
@@ -83,6 +84,9 @@ public class CampaignManager {
 	
 	@Autowired
 	CompanyCampaignSubscription companyCampaignSubscription;
+	
+	@Autowired
+	SchoolCampaignSubscription schoolCampaignSubscription; 
 	
 	@Autowired
 	CityCampaignGameNotification cityCampaignGameNotification;
@@ -224,6 +228,8 @@ public class CampaignManager {
 				sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
 				break;
 			case school:
+				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+				break;
 		}
 		return campaignSubscriptionRepository.save(sub);
 	}

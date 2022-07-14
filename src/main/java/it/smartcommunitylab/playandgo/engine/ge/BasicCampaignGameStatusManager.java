@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,6 +33,7 @@ import it.smartcommunitylab.playandgo.engine.repository.PlayerGameStatusReposito
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsGameRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class BasicCampaignGameStatusManager {
@@ -132,7 +132,7 @@ public class BasicCampaignGameStatusManager {
 					//update global status 
 					JsonNode playerState = gamificationEngineManager.getPlayerStatus(gameId, playerId, "green leaves");
 					if(playerState != null) {
-						updatePlayerState(playerState, gameStatus);
+						updatePlayerState(playerState, gameStatus, null);
 						gameStatus.setUpdateTime(new Date());
 						playerGameStatusRepository.save(gameStatus);
 					}
@@ -154,7 +154,7 @@ public class BasicCampaignGameStatusManager {
 		}
 	}
 	
-	private ZonedDateTime getTrackDay(Campaign campaign, CampaignPlayerTrack pt) {		
+	protected ZonedDateTime getTrackDay(Campaign campaign, CampaignPlayerTrack pt) {		
 		ZoneId zoneId = null;
 		Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
 		if(territory == null) {
@@ -165,7 +165,7 @@ public class BasicCampaignGameStatusManager {
 		return ZonedDateTime.ofInstant(pt.getStartTime().toInstant(), zoneId);
 	}
 	
-	private void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus) throws Exception {
+	protected void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus, String groupId) throws Exception {
 		//score
 		JsonNode concepts = root.findPath("PointConcept");
 		for(JsonNode pointConcept : concepts) {
@@ -181,6 +181,9 @@ public class BasicCampaignGameStatusManager {
 					statsGlobal.setNickname(gameStatus.getNickname());
 					statsGlobal.setCampaignId(gameStatus.getCampaignId());
 					statsGlobal.setGlobal(Boolean.TRUE);
+					if(Utils.isNotEmpty(groupId)) {
+						statsGlobal.setGroupId(groupId);
+					}
 					statsGameRepository.save(statsGlobal);
 				}
 				statsGlobal.setScore(pointConcept.path("score").asDouble());

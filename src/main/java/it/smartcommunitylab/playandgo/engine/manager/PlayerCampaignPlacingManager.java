@@ -40,6 +40,7 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.report.CampaignGroupPlacing;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
@@ -474,6 +475,53 @@ public class PlayerCampaignPlacingManager {
 		return result;
 	}
 	
+	public List<TransportStat> getPlayerTransportRecord(String playerId, String campaignId, String groupMode, 
+			String metric, String mean) {
+		List<TransportStat> result = new ArrayList<>();
+		
+		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId)
+				.and("global").is(Boolean.FALSE);
+		if(Utils.isNotEmpty(mean)) {
+			criteria = criteria.and("modeType").is(mean);
+		}
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		
+		String groupField = null;
+		if(GroupMode.day.toString().equals(groupMode)) {
+			groupField = "day";
+		} else if(GroupMode.week.toString().equals(groupMode)) {
+			groupField = "weekOfYear";
+		} else {
+			groupField = "monthOfYear";
+		}
+		String sumField = null;
+		if(metric.equalsIgnoreCase("co2")) {
+			sumField = "co2";
+		} else if(metric.equalsIgnoreCase("tracks")) { 
+			sumField = "trackNumber";
+		} else {
+			sumField = "distance";
+		}		
+		GroupOperation groupOperation = Aggregation.group(groupField).sum(sumField).as("value");
+		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "value");
+		LimitOperation limitOperation = Aggregation.limit(1);
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, limitOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			TransportStat stat = new TransportStat();
+			stat.setPeriod(doc.getString("_id"));
+			if(metric.equalsIgnoreCase("tracks")) {
+				Long l = doc.getLong("value");
+				stat.setValue(l.doubleValue());
+			} else {
+				stat.setValue(doc.getDouble("value"));
+			}
+			result.add(stat);
+		}
+		return result;
+	}
+	
 	public Page<CampaignPlacing> getCampaignPlacingByGame(String campaignId,  
 			String dateFrom, String dateTo, Pageable pageRequest) {
 		Criteria criteria = new Criteria("campaignId").is(campaignId);
@@ -597,18 +645,89 @@ public class PlayerCampaignPlacingManager {
 		return 0.0;
 	}
 	
-	public List<TransportStat> getPlayerTransportRecord(String playerId, String campaignId, String groupMode, 
-			String metric, String mean) {
-		List<TransportStat> result = new ArrayList<>();
-		
-		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId)
-				.and("global").is(Boolean.FALSE);
-		if(Utils.isNotEmpty(mean)) {
-			criteria = criteria.and("modeType").is(mean);
+	private long countGameDistincGroups(Criteria criteria) {
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("groupId");
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				PlayerStatsGame.class, Document.class);
+		return aggregationResults.getMappedResults().size();
+	}
+	
+	public Page<CampaignGroupPlacing> getCampaignGroupPlacingByGame(String campaignId,  
+			String dateFrom, String dateTo, Pageable pageRequest) {
+		Criteria criteria = new Criteria("campaignId").is(campaignId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		} else {
+			criteria = criteria.and("global").is(Boolean.TRUE);
 		}
 		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("groupId").sum("score").as("value");
+		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "value").and(Direction.ASC, "groupId");
+		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
+		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, 
+				skipOperation, limitOperation);
+		AggregationResults<CampaignGroupPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				PlayerStatsGame.class, CampaignGroupPlacing.class);
+		List<CampaignGroupPlacing> list = aggregationResults.getMappedResults();
+		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
+		for(CampaignGroupPlacing cp : list) {
+			cp.setPosition(index + 1);
+			index++;
+		}
+		return new PageImpl<>(list, pageRequest, countGameDistincGroups(criteria));
+	}
+
+	public CampaignGroupPlacing getCampaignGroupPlacingByGameAndPlayer(String groupId, String campaignId,
+			String dateFrom, String dateTo) throws Exception {
+		//get group score
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("groupId").is(groupId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		} else {
+			criteria = criteria.and("global").is(Boolean.TRUE);
+		}
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		GroupOperation groupOperation = Aggregation.group("groupId").sum("score").as("value");
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<CampaignGroupPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
+				PlayerStatsGame.class, CampaignGroupPlacing.class);
 		
+		CampaignGroupPlacing placing = null;
+		if(aggregationResults.getMappedResults().size() == 0) {
+			placing = new CampaignGroupPlacing();
+			placing.setGroupId(groupId);
+		} else {
+			placing = aggregationResults.getMappedResults().get(0);
+		}
+		
+		//get group position
+		Criteria criteriaPosition = new Criteria("campaignId").is(campaignId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteriaPosition = criteriaPosition.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		} else {
+			criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
+		}
+		MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
+		GroupOperation groupByPlayer = Aggregation.group("groupId").sum("score").as("value");
+		MatchOperation filterByDistance = Aggregation.match(new Criteria("value").gt(placing.getValue()));
+		Aggregation aggregationPosition = Aggregation.newAggregation(matchModeAndTime, groupByPlayer, filterByDistance);
+		AggregationResults<CampaignGroupPlacing> aggregationPositionResults = mongoTemplate.aggregate(aggregationPosition, 
+				PlayerStatsGame.class, CampaignGroupPlacing.class);
+		placing.setPosition(aggregationPositionResults.getMappedResults().size() + 1);
+		
+		return placing;
+	}
+
+	public List<GameStats> getGroupGameStats(String groupId, String campaignId, String groupMode, 
+			String dateFrom, String dateTo) {
+		List<GameStats> result = new ArrayList<>();
+		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("groupId").is(groupId)
+				.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		MatchOperation matchOperation = Aggregation.match(criteria);
 		String groupField = null;
 		if(GroupMode.day.toString().equals(groupMode)) {
 			groupField = "day";
@@ -617,33 +736,18 @@ public class PlayerCampaignPlacingManager {
 		} else {
 			groupField = "monthOfYear";
 		}
-		String sumField = null;
-		if(metric.equalsIgnoreCase("co2")) {
-			sumField = "co2";
-		} else if(metric.equalsIgnoreCase("tracks")) { 
-			sumField = "trackNumber";
-		} else {
-			sumField = "distance";
-		}		
-		GroupOperation groupOperation = Aggregation.group(groupField).sum(sumField).as("value");
-		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "value");
-		LimitOperation limitOperation = Aggregation.limit(1);
-		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, limitOperation);
-		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		GroupOperation groupOperation = Aggregation.group(groupField).sum("score").as("totalScore");
+		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "_id"));
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsGame.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
-			TransportStat stat = new TransportStat();
-			stat.setPeriod(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks")) {
-				Long l = doc.getLong("value");
-				stat.setValue(l.doubleValue());
-			} else {
-				stat.setValue(doc.getDouble("value"));
-			}
-			result.add(stat);
+			GameStats stats = new GameStats();
+			stats.setPeriod(doc.getString("_id"));
+			stats.setTotalScore(doc.getDouble("totalScore"));
+			result.add(stats);
 		}
 		return result;
 	}
 
-	
 }
 

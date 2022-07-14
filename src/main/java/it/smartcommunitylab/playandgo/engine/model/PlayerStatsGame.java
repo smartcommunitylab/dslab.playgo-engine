@@ -11,7 +11,9 @@ public class PlayerStatsGame {
 	@Indexed
 	private String playerId;
 	@Indexed
-	private String nickname;	
+	private String nickname;
+	@Indexed
+	private String groupId;
 	@Indexed
 	private String campaignId;
 	@Indexed
@@ -75,5 +77,11 @@ public class PlayerStatsGame {
 	}
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+	public String getGroupId() {
+		return groupId;
+	}
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
 	}	
 }
