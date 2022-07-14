@@ -1,5 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.dto;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
@@ -9,6 +11,7 @@ public class TrackedInstancePoly {
 	private String trackPolyline;
 	private Map<String, Object> routesPolylines;
 	private PlayerInfo playerInfo;
+	private List<CampaignTripInfo> campaigns = new ArrayList<>();
 	
 	public TrackedInstance getTrackedInstance() {
 		return trackedInstance;
@@ -33,6 +36,12 @@ public class TrackedInstancePoly {
 	}
 	public void setPlayerInfo(PlayerInfo playerInfo) {
 		this.playerInfo = playerInfo;
+	}
+	public List<CampaignTripInfo> getCampaigns() {
+		return campaigns;
+	}
+	public void setCampaigns(List<CampaignTripInfo> campaigns) {
+		this.campaigns = campaigns;
 	}
 	
 }

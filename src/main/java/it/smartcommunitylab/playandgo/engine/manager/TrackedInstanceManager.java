@@ -526,6 +526,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		ti.setTrackPolyline(getPolyline(Lists.newArrayList(trackedInstance.getGeolocationEvents())));
 		ti.setRoutesPolylines(PTDataHelper.getPolylines(trackedInstance, trackedInstance.getTerritoryId()));
 		ti.setPlayerInfo(getPlayerInfo(trackedInstance.getUserId()));
+		ti.setCampaigns(getTrackedInstanceInfoFromTrack(trackedInstance, trackedInstance.getUserId(), null).getCampaigns());
 		return ti;
 	}
 	
