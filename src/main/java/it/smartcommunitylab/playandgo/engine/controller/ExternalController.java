@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
@@ -26,6 +27,8 @@ import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManage
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.report.CampaignGroupPlacing;
+import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
@@ -89,6 +92,43 @@ public class ExternalController extends PlayAndGoController {
 		return result;
 	}
 	
+	@GetMapping("/api/ext/campaign/game/group/placing")
+	public List<CampaignGroupPlacing> getCampaingGroupPlacingByGame(
+			@RequestParam String campaignId,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			HttpServletRequest request) throws Exception {
+		checkAPIRole(request);
+		List<CampaignGroupPlacing> list = placingManager.getCampaignGroupPlacingByGame(campaignId,  
+				dateFrom, dateTo);
+		return list;			
+	}
+
+	@GetMapping("/api/ext/campaign/game/group/placing/player")
+	public CampaignGroupPlacing getPlayerCampaingGroupPlacingByGame(
+			@RequestParam String campaignId,
+			@RequestParam String groupId,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			HttpServletRequest request) throws Exception {
+		checkAPIRole(request);
+		CampaignGroupPlacing placing = placingManager.getCampaignGroupPlacingByGameAndPlayer(groupId, campaignId, 
+				dateFrom, dateTo);
+		return placing;
+	}
+
+	@GetMapping("/api/ext/campaign/game/group/stats")
+	public List<GameStats> getPlayerGameStats(
+			@RequestParam String campaignId,
+			@RequestParam String groupId,
+			@RequestParam String groupMode,
+			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			HttpServletRequest request) throws Exception {
+		checkAPIRole(request);
+		return placingManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);
+	}
+
 	@GetMapping("/api/ext/territory/players")
 	public Page<PlayerInfo> searchPlayers(@RequestParam(required = false) String txt, @RequestParam String territory, Pageable pageRequest) {
 		if (StringUtils.hasText(txt)) {

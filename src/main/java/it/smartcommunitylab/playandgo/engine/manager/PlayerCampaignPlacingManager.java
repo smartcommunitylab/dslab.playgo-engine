@@ -654,8 +654,8 @@ public class PlayerCampaignPlacingManager {
 		return aggregationResults.getMappedResults().size();
 	}
 	
-	public Page<CampaignGroupPlacing> getCampaignGroupPlacingByGame(String campaignId,  
-			String dateFrom, String dateTo, Pageable pageRequest) {
+	public List<CampaignGroupPlacing> getCampaignGroupPlacingByGame(String campaignId,  
+			String dateFrom, String dateTo) {
 		Criteria criteria = new Criteria("campaignId").is(campaignId);
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
@@ -665,19 +665,16 @@ public class PlayerCampaignPlacingManager {
 		MatchOperation matchOperation = Aggregation.match(criteria);
 		GroupOperation groupOperation = Aggregation.group("groupId").sum("score").as("value");
 		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "value").and(Direction.ASC, "groupId");
-		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
-		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
-		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, 
-				skipOperation, limitOperation);
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
 		AggregationResults<CampaignGroupPlacing> aggregationResults = mongoTemplate.aggregate(aggregation, 
 				PlayerStatsGame.class, CampaignGroupPlacing.class);
 		List<CampaignGroupPlacing> list = aggregationResults.getMappedResults();
-		int index = pageRequest.getPageNumber() * pageRequest.getPageSize();
+		int index = 0;
 		for(CampaignGroupPlacing cp : list) {
 			cp.setPosition(index + 1);
 			index++;
 		}
-		return new PageImpl<>(list, pageRequest, countGameDistincGroups(criteria));
+		return list;
 	}
 
 	public CampaignGroupPlacing getCampaignGroupPlacingByGameAndPlayer(String groupId, String campaignId,
