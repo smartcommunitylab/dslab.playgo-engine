@@ -40,7 +40,8 @@ public class GamificationCache {
 	
 	@PostConstruct
 	public void init() {
-		playerState = CacheBuilder.newBuilder().refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
+		playerState = CacheBuilder.newBuilder()
+				.refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
 			@Override
 			public String load(String id) throws Exception {
 				try {
@@ -73,7 +74,8 @@ public class GamificationCache {
 
 		});	
 		
-		playerNotifications = CacheBuilder.newBuilder().refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
+		playerNotifications = CacheBuilder.newBuilder()
+				.refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
 			@Override
 			public String load(String id) throws Exception {
 				try {
@@ -106,7 +108,8 @@ public class GamificationCache {
 
 		});			
 		
-		statistics = CacheBuilder.newBuilder().refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, List<GameStatistics>>() {
+		statistics = CacheBuilder.newBuilder()
+				.refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, List<GameStatistics>>() {
 			@Override
 			public List<GameStatistics> load(String id) throws Exception {
 				try {
