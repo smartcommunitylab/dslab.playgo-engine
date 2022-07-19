@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStat
 @Component
 public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(SchoolCampaignGameStatusManager.class);
+	public static String statsGroupId = "teamId";
 	
 	@Override
 	public void updatePlayerGameStatus(Map<String, Object> msg) {
@@ -64,7 +65,7 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
 					CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), playerId);
 					String groupId = null;
 					if(cs != null) {
-						groupId = (String) cs.getCampaignData().get(Campaign.statsGroupId);
+						groupId = (String) cs.getCampaignData().get(statsGroupId);
 					}
 					try {
 						ZonedDateTime trackDay = getTrackDay(campaign, playerTrack);

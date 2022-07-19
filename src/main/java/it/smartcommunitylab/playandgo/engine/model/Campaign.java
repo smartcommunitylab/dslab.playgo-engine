@@ -21,10 +21,8 @@ public class Campaign {
 	};
 	
 	public static String defaultSurveyKey = "defaultSurvey";
-	public static String nickRecommendation = "nick_recommandation";
 	public static String recommenderPlayerId = "recommenderPlayerId";
 	public static String recommendationPlayerToDo = "recommendationPlayerToDo";
-	public static String statsGroupId = "statsGroupId";
 
 	@Id
 	private String campaignId;

@@ -20,6 +20,8 @@ import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 public class CityCampaignSubscription {
 	private static Logger logger = LoggerFactory.getLogger(CityCampaignSubscription.class);
 	
+	public static String nickRecommendation = "nick_recommandation";
+	
 	@Autowired
 	SurveyManager surveyManager;
 	
@@ -39,8 +41,8 @@ public class CityCampaignSubscription {
 		if(campaignData != null) {
 			sub.setCampaignData(campaignData);
 			//check player recommendation
-			if(campaignData.containsKey(Campaign.nickRecommendation)) {
-				String nickname = (String) campaignData.get(Campaign.nickRecommendation);
+			if(campaignData.containsKey(nickRecommendation)) {
+				String nickname = (String) campaignData.get(nickRecommendation);
 				Player recommender = playerRepository.findByNickname(nickname);
 				if(recommender != null) {
 					sub.getCampaignData().put(Campaign.recommenderPlayerId, player.getPlayerId());
