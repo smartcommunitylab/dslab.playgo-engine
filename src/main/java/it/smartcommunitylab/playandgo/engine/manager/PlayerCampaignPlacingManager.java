@@ -43,7 +43,7 @@ import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.report.CampaignGroupPlacing;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
-import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
+import it.smartcommunitylab.playandgo.engine.report.PlayerStatusReport;
 import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.report.TransportStats;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
@@ -226,8 +226,8 @@ public class PlayerCampaignPlacingManager {
 		return pst;
 	}
 	
-	public PlayerStatus getPlayerStatus(Player player) {
-		PlayerStatus status = new PlayerStatus();
+	public PlayerStatusReport getPlayerStatus(Player player) {
+		PlayerStatusReport status = new PlayerStatusReport();
 		status.setPlayerId(player.getPlayerId());
 		Territory territory = territoryRepository.findById(player.getTerritoryId()).orElse(null);
 		if(territory != null) {

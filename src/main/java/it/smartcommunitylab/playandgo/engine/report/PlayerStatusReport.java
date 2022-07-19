@@ -6,7 +6,7 @@ import java.util.List;
 
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 
-public class PlayerStatus {
+public class PlayerStatusReport {
 	private String playerId;
 	private Date registrationDate;
 	private int activityDays;

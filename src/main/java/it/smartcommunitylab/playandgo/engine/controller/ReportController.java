@@ -19,7 +19,7 @@ import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManage
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
-import it.smartcommunitylab.playandgo.engine.report.PlayerStatus;
+import it.smartcommunitylab.playandgo.engine.report.PlayerStatusReport;
 import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
@@ -33,10 +33,10 @@ public class ReportController extends PlayAndGoController {
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@GetMapping("/api/report/player/status")
-	public PlayerStatus getPlayerStatsu(
+	public PlayerStatusReport getPlayerStatus(
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		PlayerStatus status = playerReportManager.getPlayerStatus(player);
+		PlayerStatusReport status = playerReportManager.getPlayerStatus(player);
 		return status;
 	}
 	
