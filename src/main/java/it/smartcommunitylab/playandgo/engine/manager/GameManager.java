@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.ge.GameDataConverter;
-import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
+import it.smartcommunitylab.playandgo.engine.ge.GamificationCache;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
@@ -31,10 +31,10 @@ public class GameManager {
 	PlayerRepository playerRepository;
 	
 	@Autowired
-	private GamificationEngineManager gamificationEngineManager;
+	private GameDataConverter gameDataConverter;
 	
 	@Autowired
-	private GameDataConverter gameDataConverter;
+	private GamificationCache gamificationCache;
 	
 	public PlayerGameStatus getCampaignGameStatus(String playerId, String campaignId) {
 		return playerGameStatusRepository.findByPlayerIdAndCampaignId(playerId, campaignId);
@@ -49,7 +49,7 @@ public class GameManager {
 		if(player == null) {
 			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
-		String json = gamificationEngineManager.getGameStatus(playerId, campaign.getGameId());
+		String json = gamificationCache.getPlayerState(playerId, campaign.getGameId());
 		if(json == null) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
