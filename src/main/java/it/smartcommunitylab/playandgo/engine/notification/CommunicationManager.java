@@ -56,11 +56,8 @@ public class CommunicationManager {
 		return notification;
 	}
 
-	public Page<Notification> get(String playerId, String territoryId, Collection<String> campaigns, Long since, Integer position, Integer count) {
-		int pos = position != null ? position : 0;
-		int c = count != null ? count : 100;
-		Pageable pr = PageRequest.of(pos / c, count);
-		return notificationRepository.searchPlayerNotifications(playerId, territoryId, campaigns, since, pr);
+	public Page<Notification> get(String playerId, String territoryId, Collection<String> campaigns, Long since, Pageable pageRequest) {
+		return notificationRepository.searchPlayerNotifications(playerId, territoryId, campaigns, since, pageRequest);
 	}
 
 	public Notification getById(String id)  {
