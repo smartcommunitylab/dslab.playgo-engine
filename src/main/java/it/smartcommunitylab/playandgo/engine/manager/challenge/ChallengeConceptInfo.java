@@ -12,6 +12,7 @@ public class ChallengeConceptInfo {
 	}
 
 	private Map<ChallengeDataType, List<ChallengesData>> challengeData = Maps.newHashMap();
+	private boolean canInvite;
 	
 	public Map<ChallengeDataType, List<ChallengesData>> getChallengeData() {
 		return challengeData;
@@ -19,6 +20,14 @@ public class ChallengeConceptInfo {
 
 	public void setChallengeData(Map<ChallengeDataType, List<ChallengesData>> challengeData) {
 		this.challengeData = challengeData;
+	}
+
+	public boolean isCanInvite() {
+		return canInvite;
+	}
+
+	public void setCanInvite(boolean canInvite) {
+		this.canInvite = canInvite;
 	}
 
 }

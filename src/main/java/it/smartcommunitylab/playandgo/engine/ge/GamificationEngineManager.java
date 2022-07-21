@@ -231,6 +231,18 @@ public class GamificationEngineManager {
 		return null;		
 	}
 	
+	public String getChallenges(String playerId, String gameId) {
+		try {
+			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenges";
+			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+					gamificationUser, gamificationPassword);
+			return json;
+		} catch (Exception e) {
+			logger.error(String.format("getChallenges error: %s - %s - %s", gameId, playerId, e.getMessage()));
+		}
+		return null;		
+	}
+	
 	public boolean chooseChallenge(String playerId, String gameId, String challengeId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenges/" + challengeId + "/accept";

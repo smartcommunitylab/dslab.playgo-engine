@@ -2,21 +2,32 @@ package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.net.URL;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
@@ -39,14 +50,19 @@ import it.smartcommunitylab.playandgo.engine.ge.model.PointConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConceptPeriod;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConcept;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
+import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeLongDescrStructure;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeStructure;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengesData;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.Inventory;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.OtherAttendeeData;
-import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -108,6 +124,9 @@ public class GameDataConverter {
 	
 	@Value("${challengeDir}")
 	private String challengeDir;
+	
+	@Autowired
+	MongoTemplate mongoTemplate;
 	
 	@Autowired
 	private PlayerRepository playerRepository;
@@ -218,6 +237,34 @@ public class GameDataConverter {
 		}
 	}
 	
+	public ChallengeConceptInfo convertPlayerChallengesData(String jsonChallenges, String playerStatus, Player player, Campaign campaign, 
+			Territory territory, int challType) throws Exception {
+		try {
+			Map<String, Object> stateMap = mapper.readValue(playerStatus, Map.class);
+			
+			Map<String, Object> state = (Map<String, Object>)stateMap.get("state");
+			List<BadgeCollectionConcept> badges = mapper.convertValue(state.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			badges.forEach(x -> {
+				x.getBadgeEarned().forEach(y -> {
+					y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
+				});
+			});
+			
+			ChallengeConceptInfo challenges = convertChallengeData(player, campaign, territory, jsonChallenges, challType, badges);
+
+			Calendar c = Calendar.getInstance();
+			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
+			Calendar to = Calendar.getInstance(); to.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); to.set(Calendar.HOUR_OF_DAY, 12); to.set(Calendar.MINUTE, 0); to.set(Calendar.SECOND, 0);
+			challenges.setCanInvite(c.before(to) && c.after(from));
+			
+			return challenges;
+			
+		} catch (Exception e) {
+			logger.error("convertPlayerChallengesData:" + e.getMessage());
+			throw e;
+		}
+	}
+	
 	private String getUrlFromBadgeName(String gamificationUrl, String b_name) {
 		BadgesData badge = badges.get(b_name);
 		if (badge != null) {
@@ -316,8 +363,96 @@ public class GameDataConverter {
 		}
 		
 		return countSuccesses;
-	}	
+	}
+	
+	private String getMetric(String pointName) {
+		String[] elements = pointName.split("_");
+		if(elements.length == 2) {
+			if(elements[1].equals("Trips")) {
+				return "tracks";
+			}
+			if(elements[1].equals("Km")) {
+				return "distance";
+			}			
+		}
+		return null;
+	}
 
+	private String getMean(String pointName) {
+		String[] elements = pointName.split("_");
+		if(elements.length == 2) {
+			String mean = elements[0].toLowerCase();
+			if(mean.equals("Carpooling")) {
+				return "car";
+			}
+			return mean;
+		}
+		return null;
+	}
+
+	private List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String metric, String mean, 
+			String dateFrom, String dateTo) {
+		List<TransportStat> result = new ArrayList<>();
+		
+		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());		
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		} else {
+			criteria = criteria.and("global").is(Boolean.TRUE);
+		}
+		if(Utils.isNotEmpty(mean)) {
+			criteria = criteria.and("modeType").is(mean);
+		}		
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		
+		String sumField = null;
+		if(metric.equalsIgnoreCase("co2")) {
+			sumField = "co2";
+		} else if(metric.equalsIgnoreCase("tracks")) { 
+			sumField = "trackNumber";
+		} else {
+			sumField = "distance";
+		}		
+		GroupOperation groupOperation = Aggregation.group("playerId").sum(sumField).as("value");
+		
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			TransportStat stat = new TransportStat();
+			if(metric.equalsIgnoreCase("tracks")) {
+				Long l = doc.getLong("value");
+				stat.setValue(l.doubleValue());
+			} else {
+				stat.setValue(doc.getDouble("value"));
+			}
+			result.add(stat);
+		}
+		return result;
+	}
+
+	private int retrieveRepeatitiveStatusFromCounterName(Player player, Campaign campaign, Territory territory, String cName, String periodType, 
+			Long chalStart, Long chalEnd, double target) {
+		if (chalEnd <= chalStart) return 0;
+		int countSuccesses = 0; // km or trips
+		if(cName != null && !cName.isEmpty() && chalStart != null && chalEnd != null) {
+			String metric = getMetric(cName);
+			String mean = getMean(cName);
+			if(Utils.isNotEmpty(metric) && Utils.isNotEmpty(mean)) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				sdf.setTimeZone(TimeZone.getTimeZone(territory.getTimezone()));
+				String dateFrom = sdf.format(new Date(chalStart));
+				String dateTo = sdf.format(new Date(chalEnd));
+				List<TransportStat> stats = getPlayerTransportStats(player.getPlayerId(), campaign.getCampaignId(), metric, mean, 
+						dateFrom, dateTo);
+				for(TransportStat ts : stats) {
+					countSuccesses += ts.getValue() >= target ? 1 : 0;
+				}
+			}
+		}
+		return countSuccesses;
+	}	
+	
 	// Method retrieveCorrectStatusFromCounterName: used to get the correct player status starting from counter name field
 	private double retrieveCorrectStatusFromCounterName(String cName, String periodType, List<PointConcept> pointConcept, Long chalStart, Long chalEnd){
 		if (chalEnd <= chalStart) return 0;
@@ -337,6 +472,28 @@ public class GameDataConverter {
 						} 
 					}
 					break;
+				}
+			}
+		}
+		return actualStatus;
+	}
+
+	private double retrieveCorrectStatusFromCounterName(Player player, Campaign campaign, Territory territory, String cName, String periodType, 
+			Long chalStart, Long chalEnd) {
+		if (chalEnd <= chalStart) return 0;
+		double actualStatus = 0.0; // km or trips
+		if(cName != null && !cName.isEmpty() && chalStart != null && chalEnd != null) {
+			String metric = getMetric(cName);
+			String mean = getMean(cName);
+			if(Utils.isNotEmpty(metric) && Utils.isNotEmpty(mean)) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				sdf.setTimeZone(TimeZone.getTimeZone(territory.getTimezone()));
+				String dateFrom = sdf.format(new Date(chalStart));
+				String dateTo = sdf.format(new Date(chalEnd));
+				List<TransportStat> stats = getPlayerTransportStats(player.getPlayerId(), campaign.getCampaignId(), metric, mean, 
+						dateFrom, dateTo);
+				for(TransportStat ts : stats) {
+					actualStatus += ts.getValue();
 				}
 			}
 		}
@@ -865,5 +1022,331 @@ public class GameDataConverter {
 		
     	return result;
     }
-	
+
+	private ChallengeConceptInfo convertChallengeData(Player player, Campaign campaign, Territory territory, String json, 
+			int type, List<BadgeCollectionConcept> bcc_list) throws Exception {
+    	ListMultimap<ChallengeDataType, ChallengesData> challengesMap = ArrayListMultimap.create();
+    	
+    	ChallengeConceptInfo result = new ChallengeConceptInfo();
+    	if(json != null && !json.isEmpty()){
+    		
+    		List<ChallengeConcept> challengeList = mapper.convertValue(json, new TypeReference<List<ChallengeConcept>>() {});
+    		
+    		if(challengeList != null){
+				for(ChallengeConcept challenge: challengeList){
+					String name = challenge.getName();
+					String modelName = challenge.getModelName();
+					long start = challenge.getStart().getTime();
+					long end = challenge.getEnd().getTime();
+					Boolean completed = challenge.isCompleted();
+					String state = challenge.getState();
+					long dateCompleted = challenge.getDateCompleted() != null ? challenge.getDateCompleted().getTime() : 0L;
+					int bonusScore = 0;
+					String periodName = "";
+					String counterName = "";
+					double target = 0;
+					double periodTarget = 0;
+					String badgeCollectionName = "";
+					int initialBadgeNum = 0;
+					Map<String, Object> otherAttendeeScores = null;
+					
+					if(challenge.getFields() != null){
+						bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_BONUS_SCORE, 0)).intValue();
+						periodName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_PERIOD_NAME,"");
+						counterName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_COUNTER_NAME,"");
+						target =  ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_TARGET,0)).doubleValue(); 
+						badgeCollectionName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_COUNTER_NAME,"");
+						initialBadgeNum = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_INITIAL_BADGE_NUM,0)).intValue();
+						periodTarget = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_PERIOD_TARGET,0)).doubleValue();
+						List otherAttendeeScoresList = (List)challenge.getFields().getOrDefault(CHAL_FIELDS_OTHER_ATTENDEE_SCORES, Collections.EMPTY_LIST);
+						if (!otherAttendeeScoresList.isEmpty()) {
+							otherAttendeeScores = (Map)otherAttendeeScoresList.get(0);
+						}
+					}
+
+					if (target == 0) {
+						target = 1;
+					}
+					
+					// Convert data to old challenges models
+//						final String ch_point_type = challData.getBonusPointType();
+					final long now = System.currentTimeMillis();
+					
+	    			ChallengesData challengeData = new ChallengesData();
+	    			challengeData.setChallId(name);
+
+    				challengeData.setType(modelName);
+    				challengeData.setActive(now < end);
+    				challengeData.setSuccess(completed);
+    				challengeData.setStartDate(start);
+    				challengeData.setEndDate(end);
+    				challengeData.setDaysToEnd(calculateRemainingDays(end, now));
+    				challengeData.setChallCompletedDate(dateCompleted);
+    				challengeData.setUnit(counterName);
+	    			
+    				ChallengeDataType challengeDataType = null;
+    				if (type == 0) {
+						if ("ASSIGNED".equals(state)) {
+							if (now >= start - MILLIS_IN_DAY) { // if challenge is started (with one day of offset for mail)
+								if (now < end - MILLIS_IN_DAY) { // if challenge is not ended
+									// challenges.add(challengeData);
+									challengeDataType = ChallengeDataType.ACTIVE;
+								} else if (now < end + MILLIS_IN_DAY) { // CHAL_TS_OFFSET
+									// oldChallenges.add(challengeData); // last week challenges
+									challengeDataType = ChallengeDataType.OLD;
+								}
+							}
+						}
+					} else {
+						if ("PROPOSED".equals(state)) {
+							challengeDataType = ChallengeDataType.PROPOSED;
+						} else if (now < end) { // if challenge is not ended
+							if (now >= start) {
+								challengeDataType = ChallengeDataType.ACTIVE;
+							} else {
+								challengeDataType = ChallengeDataType.FUTURE;
+							}
+						} else { // CHAL_TS_OFFSET
+							challengeDataType = ChallengeDataType.OLD;
+						}
+					}
+    				if(challengeDataType != null) {
+    					challengesMap.put(challengeDataType, challengeData);
+    					
+        				double row_status = 0D;
+        				int status = 0;
+        				
+        				switch (modelName) {
+        					case CHAL_MODEL_REPETITIVE_BEAV: {
+        						if(challengeDataType.equals(ChallengeDataType.ACTIVE)) {
+        		    				double successes = retrieveRepeatitiveStatusFromCounterName(player, campaign, territory, counterName, periodName, start, end, target); 
+        		    				row_status = successes;
+        		    				status = Math.min(100, (int)(100.0 * successes / periodTarget));
+        		    				challengeData.setChallTarget((int)periodTarget);
+        		    				// update unit for repetitive behavior: correspond to the number of periods
+        		    				challengeData.setUnit(UNIT_MAPPING.get(periodName));        							
+        						}
+    	    					break;
+        					}
+    	    				case CHAL_MODEL_PERCENTAGE_INC:
+    	    				case CHAL_MODEL_ABSOLUTE_INC: {
+    	    					if(challengeDataType.equals(ChallengeDataType.ACTIVE)) {
+        		    				double earned = retrieveCorrectStatusFromCounterName(player, campaign, territory, counterName, periodName, start, end); 
+        		    				row_status = earned;
+        		    				status = Math.min(100, (int)(100.0 * earned / target));    	    						
+    	    					}
+    	    					break;
+    	    				}
+    	    				case CHAL_MODEL_NEXT_BADGE: {
+    		    				int count = getEarnedBadgesFromList(bcc_list, badgeCollectionName, initialBadgeNum);
+    		    				if(!challengeData.getActive()){	// NB: fix to avoid situation with challenge not win and count > target
+    		    					if(completed){
+    		    						count = (int)target;
+    		    					} else {
+    		    						count = (int)target - 1;
+    		    					}
+    		    				}
+    		    				row_status = count;
+    		    				status = Math.min(100, (int)(100.0 * count / target));
+    		    				break;
+    	    				}
+    	    				case CHAL_MODEL_SURVEY: {
+    		    				if(completed) {
+    	    						row_status = 1; 
+    	    						status = 100;
+    	    					}
+    		    				// survey link to be passed
+    		    				String link = gamificationEngineManager.createSurveyUrl(player.getPlayerId(), campaign.getGameId(), 
+    		    						(String)challenge.getFields().get("surveyType"), player.getLanguage());
+    		    				challenge.getFields().put("surveylink", link);
+    		    				break;
+    	    				}
+    	    				case CHAL_MODEL_INCENTIVE_GROUP: {
+    		    				if(completed) {
+    	    						row_status = 1; 
+    	    						status = 100;
+    	    					}	    					
+    	    					break;
+    	    				}
+    	    				case CHAL_MODEL_GROUP_COMPETITIVE_PERFORMANCE : {
+    	    					row_status = (Double)challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
+    	    					double other_row_status = (Double)otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
+    	    					double total = row_status + other_row_status;
+    	    					int other_status = 0;
+    	    					if (total != 0) {
+    	    						status = (int)(100 * row_status / total);
+    	    						other_status = 100 - status;
+    	    					}
+    	    					
+    	    					String unit = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
+    	    					challengeData.setUnit(unit);
+    	    					
+    	    					String proposer = (String)challenge.getFields().get(CHAL_FIELDS_PROPOSER);
+    	    					challengeData.setProposerId(proposer);
+    	    					
+    	    					String otherPlayerId = (String)otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID); 
+    	    					Player otherPlayer = playerRepository.findById(player.getPlayerId()).orElse(null);
+    	    					
+    	    					String nickname = null;
+    	    					if (otherPlayer != null) {
+    	    						nickname = otherPlayer.getNickname();
+    	    						challenge.getFields().put("opponent", nickname);
+    	    					}
+    	    					
+    	    					OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
+    	    					otherAttendeeData.setRow_status(round(other_row_status, 2));
+    	    					otherAttendeeData.setStatus(other_status);
+    	    					otherAttendeeData.setPlayerId(otherPlayerId);
+    	    					otherAttendeeData.setNickname(nickname);
+    	    					
+    	    					challengeData.setOtherAttendeeData(otherAttendeeData);
+    	    					
+//    	    					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
+    	    					
+    	    					break;
+    	    				}	    		
+    						case CHAL_MODEL_GROUP_COMPETITIVE_TIME: {
+    							row_status = (Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
+    							double other_row_status = (Double) otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
+    							double challengeTarget = Math.ceil((Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_TARGET));
+    							target = (int)challengeTarget;
+    							int other_status = 0;
+    							if (challengeTarget != 0) {
+    								status = (int) (100 * row_status / challengeTarget);
+    								other_status = (int) (100 * other_row_status / challengeTarget);
+    							}
+    							
+    							if (status + other_status > 100) {
+    								float coeff = (float)(status + other_status) / 100;
+    								status = Math.round(status / coeff);
+    								other_status = Math.round(other_status / coeff);
+    							}							
+    	
+    							String unit = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
+    							challengeData.setUnit(unit);
+    	
+    							String proposer = (String)challenge.getFields().get(CHAL_FIELDS_PROPOSER);
+    							challengeData.setProposerId(proposer);
+    	
+    							String otherPlayerId = (String) otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID);
+    							Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);
+    	
+    							String nickname = null;
+    							if (otherPlayer != null) {
+    								nickname = otherPlayer.getNickname();
+    								challenge.getFields().put("opponent", nickname);
+    							}
+    	
+    							OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
+    							otherAttendeeData.setRow_status(round(other_row_status, 2));
+    							otherAttendeeData.setStatus(other_status);
+    							otherAttendeeData.setPlayerId(otherPlayerId);
+    							otherAttendeeData.setNickname(nickname);
+    	
+    							challengeData.setOtherAttendeeData(otherAttendeeData);
+    							
+    	    					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
+    	
+    							break;
+    						}	
+    						case CHAL_MODEL_GROUP_COOPERATIVE: {
+    							row_status = (Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
+    							double other_row_status = (Double) otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
+    							double challengeTarget = Math.ceil((Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_TARGET));
+    							target = (int)challengeTarget;
+    							int other_status = 0;
+    							if (challengeTarget != 0) {
+    								status = (int) (100 * row_status / challengeTarget);
+    								other_status = (int) (100 * other_row_status / challengeTarget);
+    								
+    								if (status + other_status > 100) {
+    									float coeff = (float)(status + other_status) / 100;
+    									status = Math.round(status / coeff);
+    									other_status = Math.round(other_status / coeff);
+    								}
+    								
+    							}
+    	
+    							Double reward = (Double) challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, "");
+    							
+    							String unit = (String) challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
+    							challengeData.setUnit(unit);
+    	
+    							String proposer = (String) challenge.getFields().get(CHAL_FIELDS_PROPOSER);
+    							challengeData.setProposerId(proposer);
+    	
+    							String otherPlayerId = (String) otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID);
+    							Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);
+    	
+    							String nickname = null;
+    							if (otherPlayer != null) {
+    								nickname = otherPlayer.getNickname();
+    								challenge.getFields().put("opponent", nickname);
+    							}
+    							challenge.getFields().put("reward", reward);
+    							challenge.getFields().put("target", target);
+    	
+    							OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
+    							otherAttendeeData.setRow_status(round(other_row_status, 2));
+    							otherAttendeeData.setStatus(other_status);
+    							otherAttendeeData.setPlayerId(otherPlayerId);
+    							otherAttendeeData.setNickname(nickname);
+    	
+    							challengeData.setOtherAttendeeData(otherAttendeeData);
+    							
+    	    					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
+    	
+    							break;
+    						}						
+    	    				// boolean status: 100 or 0
+    	    				case CHAL_MODEL_COMPLETE_BADGE_COLL: 
+    	    				case CHAL_MODEL_POICHECKIN: 
+    	    				case CHAL_MODEL_CLASSPOSITION: 
+    	    				default: {
+    		    				if(completed){
+    	    						row_status = 1;
+    	    						status = 100;
+    	    					}
+    	    				}
+        				}
+        				
+        				challengeData.setChallTarget((int)target);
+        				challengeData.setChallDesc(fillDescription(challenge, player.getLanguage()));
+        				challengeData.setChallCompleteDesc(fillLongDescription(challenge, getFilterByType(challengeData.getType()), player.getLanguage()));
+
+        				challengeData.setBonus(bonusScore);
+        				challengeData.setStatus(status);
+        				challengeData.setRow_status(round(row_status, 2));    					
+    				}
+				}
+				result.setChallengeData(Multimaps.asMap(challengesMap));
+			}
+    		
+		}
+    	
+		result.getChallengeData().values().forEach(x -> {
+			Collections.sort(x);
+			Collections.reverse(x);
+		});	
+		
+		if (result.getChallengeData().containsKey(ChallengeDataType.PROPOSED)) {
+			Collections.sort(result.getChallengeData().get(ChallengeDataType.PROPOSED), new Comparator<ChallengesData>() {
+
+				@Override
+				public int compare(ChallengesData o1, ChallengesData o2) {
+					String isGroup1 = o1.getProposerId() == null ? "1" : "0";
+					String isGroup2 = o2.getProposerId() == null ? "1" : "0";
+					int res = new String(isGroup1 + o1.getStartDate()).compareTo(new String(isGroup2 + o2.getStartDate()));
+					if (res == 0) {
+						res = o1.getChallId().compareTo(o2.getChallId());
+					}
+					return res;
+				}
+
+			});
+		}
+		
+    	return result;
+    }
+
 }
