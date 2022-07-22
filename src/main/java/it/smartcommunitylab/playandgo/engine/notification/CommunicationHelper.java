@@ -77,7 +77,7 @@ public class CommunicationHelper {
 
 		if (!StringUtils.hasText(playerId)) {
 			if (StringUtils.hasText(campaignId)) {
-				n.addChannelId(territoryId + "/" + campaignId);
+				n.addChannelId(territoryId + "-" + campaignId);
 			} 
 			else if (StringUtils.hasText(territoryId)) {
 				n.addChannelId(territoryId);
