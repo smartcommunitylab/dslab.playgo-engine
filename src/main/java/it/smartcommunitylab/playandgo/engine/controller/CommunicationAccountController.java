@@ -41,7 +41,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -82,11 +81,12 @@ public class CommunicationAccountController extends PlayAndGoController {
 	@GetMapping("/api/app/notifications")
 	public @ResponseBody Page<Notification> getPlayerNotifications(
 			@RequestParam(required = false, defaultValue="0") Long since,
-			Pageable pageRequest,
+			@RequestParam(required = false, defaultValue = "0") Integer skip,
+			@RequestParam(required = false, defaultValue = "20") Integer limit,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		Set<String> campaigns = campaignSubscriptionRepository.findByPlayerId(player.getPlayerId()).stream().map(cs -> cs.getCampaignId()).collect(Collectors.toSet());
-		return communicationManager.get(player.getPlayerId(), player.getTerritoryId(), campaigns, since, pageRequest);
+		return communicationManager.get(player.getPlayerId(), player.getTerritoryId(), campaigns, since, skip, limit);
 	}
 	
 	/**
