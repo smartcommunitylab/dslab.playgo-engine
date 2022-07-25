@@ -121,7 +121,7 @@ public class GamificationEngineManager {
 		return false;
 	}
 	
-	public JsonNode getPlayerStatus(String gameId, String playerId, String points) {
+	public JsonNode getPlayerStatus(String playerId, String gameId, String points) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId
 					+ "?readChallenges=false&points=" + points;

@@ -66,7 +66,7 @@ public class ReportEmailSender {
 	GameDataConverter gameDataConverter;
 	
 	@Autowired
-	GamificationCache gamificationCache;
+	GamificationEngineManager gamificationEngineManager;
 
 	@Autowired
 	EmailService emailService;
@@ -152,7 +152,7 @@ public class ReportEmailSender {
 			List<ChallengesData> challenges = null;
 			List<ChallengesData> lastWeekChallenges = null;
 
-			String completeState = gamificationCache.getPlayerState(p.getPlayerId(), gameId);
+			String completeState = gamificationEngineManager.getGameStatus(p.getPlayerId(), gameId);
 			
 			String language = p.getLanguage();
 

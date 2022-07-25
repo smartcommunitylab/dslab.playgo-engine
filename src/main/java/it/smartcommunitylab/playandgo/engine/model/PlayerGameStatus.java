@@ -2,13 +2,14 @@ package it.smartcommunitylab.playandgo.engine.model;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
+import it.smartcommunitylab.playandgo.engine.ge.model.PlayerLevel;
 
 @Document(collection="playerGameStatus")
 public class PlayerGameStatus {
@@ -21,9 +22,8 @@ public class PlayerGameStatus {
 	private String campaignId;
 	private Date updateTime;
 	private double score;
-	private Map<String, Object> level = new HashMap<>(); 
-	private List<Object> challenges = new ArrayList<>();
-	private List<Object> badges = new ArrayList<>();
+	private List<PlayerLevel> levels = new ArrayList<>(); 
+	private List<BadgeCollectionConcept> badges = new ArrayList<>();
 	
 	public String getId() {
 		return id;
@@ -55,29 +55,23 @@ public class PlayerGameStatus {
 	public void setScore(double score) {
 		this.score = score;
 	}
-	public List<Object> getChallenges() {
-		return challenges;
-	}
-	public void setChallenges(List<Object> challenges) {
-		this.challenges = challenges;
-	}
-	public List<Object> getBadges() {
-		return badges;
-	}
-	public void setBadges(List<Object> badges) {
-		this.badges = badges;
-	}
-	public Map<String, Object> getLevel() {
-		return level;
-	}
-	public void setLevel(Map<String, Object> level) {
-		this.level = level;
-	}
 	public String getNickname() {
 		return nickname;
 	}
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+	public List<BadgeCollectionConcept> getBadges() {
+		return badges;
+	}
+	public void setBadges(List<BadgeCollectionConcept> badges) {
+		this.badges = badges;
+	}
+	public List<PlayerLevel> getLevels() {
+		return levels;
+	}
+	public void setLevels(List<PlayerLevel> levels) {
+		this.levels = levels;
 	}
 	
 }

@@ -35,21 +35,19 @@ import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.ge.GameDataConverter;
-import it.smartcommunitylab.playandgo.engine.ge.GamificationCache;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.GameStatistics;
-import it.smartcommunitylab.playandgo.engine.ge.model.PlayerStatus;
-import it.smartcommunitylab.playandgo.engine.ge.model.PointConcept;
-import it.smartcommunitylab.playandgo.engine.ge.model.PointConceptPeriod;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.ChallengePlayer;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.PointConceptRef;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.Reward;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
@@ -84,6 +82,9 @@ public class ChallengeManager {
 	private CampaignRepository campaignRepository;
 	
 	@Autowired
+	private TerritoryRepository territoryRepository;
+	
+	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
 	
 	@Autowired
@@ -91,9 +92,6 @@ public class ChallengeManager {
 	
 	@Autowired
 	private GameDataConverter gameDataConverter;
-	
-	@Autowired
-	private GamificationCache gamificationCache;
 	
 	@PostConstruct
 	private void init() throws Exception {
@@ -124,7 +122,6 @@ public class ChallengeManager {
 		if(json == null) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		gamificationCache.invalidatePlayer(playerId, campaign.getGameId());
 		Inventory inventory = mapper.readValue(json , Inventory.class);
 		return inventory.getChallengeChoices();
 	}
@@ -138,16 +135,23 @@ public class ChallengeManager {
 		if(player == null) {
 			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
-		String json = gamificationEngineManager.getGameStatus(playerId, campaign.getGameId());
-		if(json == null) {
+		Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+		if(territory == null) {
+			throw new BadRequestException("territory not found", ErrorCode.TERRITORY_NOT_FOUND);
+		}		
+		JsonNode playerStatusNode = gamificationEngineManager.getPlayerStatus(playerId, campaign.getGameId(), "green leaves");
+		if(playerStatusNode == null) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		PlayerStatus playerStatus = gameDataConverter.convertPlayerData(json, playerId, campaign.getGameId(), player.getNickname(), 
-				1, player.getLanguage());
-		if (filter != null) {
-			playerStatus.getChallengeConcept().getChallengeData().entrySet().removeIf(x -> !filter.equals(x.getKey()));
+		String jsonChallenges = gamificationEngineManager.getChallenges(playerId, campaign.getGameId());
+		if(jsonChallenges == null) {
+			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		return playerStatus.getChallengeConcept();
+		ChallengeConceptInfo result = gameDataConverter.convertPlayerChallengesData(jsonChallenges, playerStatusNode, player, campaign, territory, 1);
+		if (filter != null) {
+			result.getChallengeData().entrySet().removeIf(x -> !filter.equals(x.getKey()));
+		}
+		return result;
 	}
 	
 	public void chooseChallenge(String playerId, String campaignId, String challengeId) throws Exception {
@@ -159,7 +163,6 @@ public class ChallengeManager {
 		if(!result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		gamificationCache.invalidatePlayer(playerId, campaign.getGameId());
 	}
 	
 	public void sendInvitation(String playerId, String campaignId, Invitation invitation) throws Exception {
@@ -187,7 +190,7 @@ public class ChallengeManager {
 		Reward reward = rewards.get(ci.getChallengeModelName());
 		
 		if (invitation.getChallengeModelName().isCustomPrizes()) {
-			Map<String, Double> prizes = targetPrizeChallengesCompute(playerId, invitation.getAttendeeId(), campaign.getGameId(), 
+			Map<String, Double> prizes = targetPrizeChallengesCompute(playerId, invitation.getAttendeeId(), campaign, 
 					invitation.getChallengePointConcept(), invitation.getChallengeModelName().toString());
 			Map<String, Double> bonusScore = Maps.newTreeMap();
 			bonusScore.put(playerId, prizes.get(PLAYER1_PRZ));
@@ -198,10 +201,9 @@ public class ChallengeManager {
 
 		ci.setReward(reward); // from body		
 		boolean result = gamificationEngineManager.sendChallengeInvitation(playerId, campaign.getGameId(), ci);
-		if(result) {
+		if(!result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		gamificationCache.invalidatePlayer(playerId, campaign.getGameId());
 		Map<String, String> extraData = Maps.newTreeMap();
 		extraData.put("opponent", player.getNickname());
 		campaignNotificationManager.sendDirectNotification(invitation.getAttendeeId(), campaignId, "INVITATION", extraData);					
@@ -229,7 +231,7 @@ public class ChallengeManager {
 		pars.put("opponent", attendee.getNickname());
 		
 		if (invitation.getChallengeModelName().isCustomPrizes()) {
-			Map<String, Double> prizes = targetPrizeChallengesCompute(player.getPlayerId(), invitation.getAttendeeId(), campaign.getGameId(), 
+			Map<String, Double> prizes = targetPrizeChallengesCompute(player.getPlayerId(), invitation.getAttendeeId(), campaign, 
 					invitation.getChallengePointConcept(), invitation.getChallengeModelName().toString());
 			pars.put("rewardBonusScore", prizes.get(PLAYER1_PRZ));
 			pars.put("reward", prizes.get(PLAYER1_PRZ));
@@ -259,10 +261,9 @@ public class ChallengeManager {
 		if(result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		gamificationCache.invalidatePlayer(playerId, campaign.getGameId());
 	}
 	
-	public List<Map<String, String>> getChallengables(String playerId, String campaignId) throws Exception {
+	public List<Map<String, String>> getChallengeables(String playerId, String campaignId) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
@@ -325,7 +326,6 @@ public class ChallengeManager {
 		if(result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		gamificationCache.invalidatePlayer(playerId, campaign.getGameId());		
 	}
 
 	public void deleteFromBlackList(String playerId, String campaignId, String blockedPlayerId) throws Exception {
@@ -337,7 +337,6 @@ public class ChallengeManager {
 		if(result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		gamificationCache.invalidatePlayer(playerId, campaign.getGameId());
 	}
 	
 	
@@ -718,22 +717,24 @@ public class ChallengeManager {
 		return name;
 	}
 
-	private Map<String, Double> targetPrizeChallengesCompute(String pId_1, String pId_2, String gameId, String counter, String type) throws Exception {
+	private Map<String, Double> targetPrizeChallengesCompute(String pId_1, String pId_2, Campaign campaign, String counter, String type) throws Exception {
 
 		prepare();
 
-		Map<Integer, Double> quantiles = getQuantiles(gameId, counter);
+		Map<Integer, Double> quantiles = getQuantiles(campaign.getGameId(), counter);
 
 		Map<String, Double> res = Maps.newTreeMap();
 
-		String player1 = gamificationCache.getPlayerState(pId_1, gameId);
-        Pair<Double, Double> res1 = getForecast("player1", res, player1, counter);
+		Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+		
+		Player player1 = playerRepository.findById(pId_1).orElse(null);
+        Pair<Double, Double> res1 = getForecast(player1, campaign, territory, "player1", res, counter);
         double player1_tgt = res1.getFirst();
         double player1_bas = res1.getSecond();
         res.put("player1_tgt", player1_tgt);
 
-        String player2 = gamificationCache.getPlayerState(pId_2, gameId);
-        Pair<Double, Double> res2 = getForecast("player2", res, player2, counter);
+        Player player2 = playerRepository.findById(pId_1).orElse(null);
+        Pair<Double, Double> res2 = getForecast(player2, campaign, territory, "player2", res, counter);
         double player2_tgt = res2.getFirst();
         double player2_bas = res2.getSecond();
         res.put("player2_tgt", player2_tgt);		
@@ -764,8 +765,8 @@ public class ChallengeManager {
         return res;
     }
 	
-    private Pair<Double, Double> getForecast(String nm, Map<String, Double> res, String state, String counter) throws Exception {
-        Pair<Double, Double> forecast = forecastMode(state, counter);
+    private Pair<Double, Double> getForecast(Player player, Campaign campaign, Territory territory, String nm, Map<String, Double> res, String counter) throws Exception {
+        Pair<Double, Double> forecast = forecastMode(player, campaign, territory, counter);
 
         double tgt = forecast.getFirst();
         double bas = forecast.getSecond();
@@ -829,23 +830,23 @@ public class ChallengeManager {
 		dc = new DifficultyCalculator();
 	}
 
-	private Pair<Double, Double> forecastMode(String state, String counter) throws Exception {
+	private Pair<Double, Double> forecastMode(Player player, Campaign campaign, Territory territory, String counter) throws Exception {
 
         // Check date of registration, decide which method to use
-        int week_playing = getWeekPlaying(state, counter);
+        int week_playing = getWeekPlaying(player, campaign, territory, counter);
 
         if (week_playing == 1) {
-            Double baseline = getWeeklyContentMode(state, counter, lastMonday);
+            Double baseline = getWeeklyContentMode(player, campaign, territory, counter, lastMonday);
             return new Pair<Double, Double>(baseline*ChallengesConfig.booster, baseline);
         } else if (week_playing == 2) {
-            return forecastModeSimple(state, counter);
+            return forecastModeSimple(player, campaign, territory, counter);
         }
 
-        return forecastWMA(Math.min(ChallengesConfig.week_n, week_playing), state, counter);
+        return forecastWMA(player, campaign, territory, Math.min(ChallengesConfig.week_n, week_playing), counter);
     }
 
     // Weighted moving average
-    private Pair<Double, Double> forecastWMA(int v, String state, String counter) throws Exception {
+    private Pair<Double, Double> forecastWMA(Player player, Campaign campaign, Territory territory, int v, String counter) throws Exception {
 
     	LocalDate date = lastMonday;
 
@@ -853,7 +854,7 @@ public class ChallengeManager {
         double num = 0;
         for (int ix = 0; ix < v; ix++) {
             // weight * value
-            Double c = getWeeklyContentMode(state, counter, date);
+            Double c = getWeeklyContentMode(player, campaign, territory, counter, date);
             den += (v -ix) * c;
             num += (v -ix);
 
@@ -867,13 +868,13 @@ public class ChallengeManager {
         return new Pair<Double, Double>(pv, baseline);
     }
 
-    private int getWeekPlaying(String state, String counter) throws Exception {
+    private int getWeekPlaying(Player player, Campaign campaign, Territory territory, String counter) throws Exception {
 
     	LocalDate date = lastMonday;
         int i = 0;
         while (i < 100) {
             // weight * value
-            Double c = getWeeklyContentMode(state, counter, date);
+            Double c = getWeeklyContentMode(player, campaign, territory, counter, date);
             if (c.equals(-1.0))
                 break;
             i++;
@@ -883,12 +884,12 @@ public class ChallengeManager {
         return i;
     }
 
-    private Pair<Double, Double> forecastModeSimple(String state, String counter) throws Exception {
+    private Pair<Double, Double> forecastModeSimple(Player player, Campaign campaign, Territory territory, String counter) throws Exception {
 
     	LocalDate date = lastMonday;
-        Double currentValue = getWeeklyContentMode(state, counter, date);
+        Double currentValue = getWeeklyContentMode(player, campaign, territory, counter, date);
         date = date.minusDays(7);
-        Double lastValue = getWeeklyContentMode(state, counter, date);
+        Double lastValue = getWeeklyContentMode(player, campaign, territory, counter, date);
 
         double slope = (lastValue - currentValue) / lastValue;
         slope = Math.abs(slope) * 0.8;
@@ -903,7 +904,7 @@ public class ChallengeManager {
         return new Pair<Double, Double>(value, currentValue);
     }
 
-	public Double evaluate(Double target, Double baseline, String counter, Map<Integer, Double> quantiles) {
+	private Double evaluate(Double target, Double baseline, String counter, Map<Integer, Double> quantiles) {
 		if (baseline == 0) {
 			return 100.0;
 		}
@@ -919,33 +920,15 @@ public class ChallengeManager {
         return Math.min(bonus, 300);
 	}
 
-	public Double getWeeklyContentMode(String status, String mode, LocalDate execDate) throws Exception {
-		Map<String, Object> stateMap = mapper.readValue(status, Map.class);
-		Map<String, Object> state = (Map<String, Object>) stateMap.get("state");
-		List<Map> gePointsMap = mapper.convertValue(state.get("PointConcept"), new TypeReference<List<Map>>() {
-		});
-
+	private Double getWeeklyContentMode(Player player, Campaign campaign, Territory territory, 
+			String mode, LocalDate execDate) throws Exception {
 		long time = LocalDate.now().atStartOfDay().atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-
-		List<PointConcept> points = gameDataConverter.convertGEPointConcept(gePointsMap);
-
-		for (PointConcept concept : points) {
-			// System.err.println(concept.getName() + " / " + concept.getPeriodType() + " => " + concept.getInstances().size());
-			if (mode.equals(concept.getName()) && "weekly".equals(concept.getPeriodType())) {
-				for (PointConceptPeriod pcd : concept.getInstances()) {
-					if (pcd.getStart() <= time && pcd.getEnd() > time) {
-						return pcd.getScore();
-					}
-				}
-			}
-		}
-
-		return 0.0;
-
+		return gameDataConverter.getWeeklyContentMode(player, campaign, territory, mode, time);
 	}
 
-	private List<GameStatistics> getStatistics(String appId, String counter) throws Exception {
-		List<GameStatistics> stats = gamificationCache.getStatistics(appId);
+	private List<GameStatistics> getStatistics(String gameId, String counter) throws Exception {
+		String json = gamificationEngineManager.getStatistics(gameId);
+		List<GameStatistics> stats = mapper.readValue(json,  new TypeReference<List<GameStatistics>>() {});
 		return stats.stream().filter(x -> counter.equals(x.getPointConceptName())).collect(Collectors.toList());
 	}
 	

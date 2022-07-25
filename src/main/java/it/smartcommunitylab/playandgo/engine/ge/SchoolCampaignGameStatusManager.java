@@ -94,7 +94,7 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
 					}
 					
 					//update global status 
-					JsonNode playerState = gamificationEngineManager.getPlayerStatus(gameId, playerId, "green leaves");
+					JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
 					if(playerState != null) {
 						updatePlayerState(playerState, gameStatus, groupId);
 						gameStatus.setUpdateTime(new Date());

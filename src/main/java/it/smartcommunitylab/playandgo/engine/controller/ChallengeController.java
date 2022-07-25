@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +31,7 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.Invitation;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 
-@Controller
+@RestController
 public class ChallengeController extends PlayAndGoController {
 	private static Log logger = LogFactory.getLog(ChallengeController.class);
 	
@@ -104,12 +105,12 @@ public class ChallengeController extends PlayAndGoController {
 		challengeManager.changeInvitationStatus(player.getPlayerId(), campaignId, challengeName, status);
 	}	
 	
-	@GetMapping("/api/challenge/challengables")
-	public @ResponseBody List<Map<String, String>> getChallengables(
+	@GetMapping("/api/challenge/challengeables")
+	public @ResponseBody List<Map<String, String>> getChallengeables(
 			@RequestParam String campaignId,			
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		return challengeManager.getChallengables(player.getPlayerId(), campaignId);
+		return challengeManager.getChallengeables(player.getPlayerId(), campaignId);
 	}	
 	
 	@GetMapping("/api/challenge/rewards")

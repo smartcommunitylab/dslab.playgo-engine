@@ -4,10 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -62,6 +59,9 @@ public class BasicCampaignGameStatusManager {
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
+	
+	@Autowired
+	GameDataConverter gameDataConverter;
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -130,7 +130,7 @@ public class BasicCampaignGameStatusManager {
 					}
 					
 					//update global status 
-					JsonNode playerState = gamificationEngineManager.getPlayerStatus(gameId, playerId, "green leaves");
+					JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
 					if(playerState != null) {
 						updatePlayerState(playerState, gameStatus, null);
 						gameStatus.setUpdateTime(new Date());
@@ -192,30 +192,12 @@ public class BasicCampaignGameStatusManager {
 			}
 		}
 		//level
-		gameStatus.getLevel().clear();
-		JsonNode levels = root.path("levels");
-		for(JsonNode level : levels) {
-			if(level.path("pointConcept").asText().equals("green leaves")) {
-				gameStatus.getLevel().put("levelName", level.path("levelName").asText());
-				gameStatus.getLevel().put("levelValue", level.path("levelValue").asText());
-				gameStatus.getLevel().put("startLevelScore", level.path("startLevelScore").asDouble());
-				gameStatus.getLevel().put("endLevelScore", level.path("endLevelScore").asDouble());
-				gameStatus.getLevel().put("toNextLevel", level.path("toNextLevel").asDouble());
-			}
-		}
+		gameStatus.getLevels().clear();
+		JsonNode levels = root.path("levels"); 
+		gameStatus.getLevels().addAll(gameDataConverter.convertLevels(levels));
 		//badges
 		gameStatus.getBadges().clear();
 		JsonNode badges = root.findPath("BadgeCollectionConcept");
-		for(JsonNode badge : badges) {
-			Map<String, Object> badgeMap = new HashMap<>();
-			badgeMap.put("name", badge.path("name").asText());
-			List<String> badgeEarned = new ArrayList<>();
-			JsonNode list = badge.path("badgeEarned");
-			for(JsonNode b : list) {
-				badgeEarned.add(b.asText());
-			}
-			badgeMap.put("badgeEarned", badgeEarned);
-			gameStatus.getBadges().add(badgeMap);
-		}
+		gameStatus.getBadges().addAll(gameDataConverter.convertBadgeCollection(badges));
 	}
 }

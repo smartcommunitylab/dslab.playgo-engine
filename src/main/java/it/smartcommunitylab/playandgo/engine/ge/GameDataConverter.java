@@ -3,6 +3,10 @@ package it.smartcommunitylab.playandgo.engine.ge;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -33,6 +37,7 @@ import org.stringtemplate.v4.ST;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -190,6 +195,21 @@ public class GameDataConverter {
 		return Lists.newArrayList(badges.values());
 	}
 	
+	public List<BadgeCollectionConcept> convertBadgeCollection(JsonNode rootNode) {
+		List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
+		badges.forEach(x -> {
+			x.getBadgeEarned().forEach(y -> {
+				y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
+			});
+		});	
+		return badges;
+	}
+	
+	public List<PlayerLevel> convertLevels(JsonNode rootNode) {
+		List<PlayerLevel> levels = mapper.convertValue(rootNode, new TypeReference<List<PlayerLevel>>() {});
+		return levels;
+	}
+	
 	public PlayerStatus convertPlayerData(String profile, String playerId, String gameId, String nickName, int challType, String language)
 			throws Exception {
 
@@ -237,13 +257,10 @@ public class GameDataConverter {
 		}
 	}
 	
-	public ChallengeConceptInfo convertPlayerChallengesData(String jsonChallenges, String playerStatus, Player player, Campaign campaign, 
+	public ChallengeConceptInfo convertPlayerChallengesData(String jsonChallenges, JsonNode playerStatus, Player player, Campaign campaign, 
 			Territory territory, int challType) throws Exception {
 		try {
-			Map<String, Object> stateMap = mapper.readValue(playerStatus, Map.class);
-			
-			Map<String, Object> state = (Map<String, Object>)stateMap.get("state");
-			List<BadgeCollectionConcept> badges = mapper.convertValue(state.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			List<BadgeCollectionConcept> badges = mapper.convertValue(playerStatus.get("state").get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
 			badges.forEach(x -> {
 				x.getBadgeEarned().forEach(y -> {
 					y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
@@ -401,6 +418,43 @@ public class GameDataConverter {
 		} else {
 			criteria = criteria.and("global").is(Boolean.TRUE);
 		}
+		if(Utils.isNotEmpty(mean)) {
+			criteria = criteria.and("modeType").is(mean);
+		}		
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		
+		String sumField = null;
+		if(metric.equalsIgnoreCase("co2")) {
+			sumField = "co2";
+		} else if(metric.equalsIgnoreCase("tracks")) { 
+			sumField = "trackNumber";
+		} else {
+			sumField = "distance";
+		}		
+		GroupOperation groupOperation = Aggregation.group("playerId").sum(sumField).as("value");
+		
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			TransportStat stat = new TransportStat();
+			if(metric.equalsIgnoreCase("tracks")) {
+				Long l = doc.getLong("value");
+				stat.setValue(l.doubleValue());
+			} else {
+				stat.setValue(doc.getDouble("value"));
+			}
+			result.add(stat);
+		}
+		return result;
+	}
+	
+	private List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String metric, String mean, 
+			String weekOfYear) {
+		List<TransportStat> result = new ArrayList<>();
+		
+		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());		
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId)
+				.and("global").is(Boolean.FALSE).and("weekOfYear").is(weekOfYear);
 		if(Utils.isNotEmpty(mean)) {
 			criteria = criteria.and("modeType").is(mean);
 		}		
@@ -1029,8 +1083,7 @@ public class GameDataConverter {
     	
     	ChallengeConceptInfo result = new ChallengeConceptInfo();
     	if(json != null && !json.isEmpty()){
-    		
-    		List<ChallengeConcept> challengeList = mapper.convertValue(json, new TypeReference<List<ChallengeConcept>>() {});
+    		List<ChallengeConcept> challengeList = mapper.readValue(json, new TypeReference<List<ChallengeConcept>>() {});
     		
     		if(challengeList != null){
 				for(ChallengeConcept challenge: challengeList){
@@ -1348,5 +1401,22 @@ public class GameDataConverter {
 		
     	return result;
     }
+	
+	public double getWeeklyContentMode(Player player, Campaign campaign, Territory territory, String conceptName, long execDate) {
+		ZoneId zoneId = ZoneId.of(territory.getTimezone());
+		ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(execDate), zoneId);
+		int weekOfYear = dateTime.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
+		int year = dateTime.get(ChronoField.YEAR);
+		String week = year + "-" + weekOfYear;
+		String metric = getMetric(conceptName);
+		String mean = getMean(conceptName);
+		if(Utils.isNotEmpty(metric) && Utils.isNotEmpty(mean)) {
+			List<TransportStat> stats = getPlayerTransportStats(player.getPlayerId(), campaign.getCampaignId(), metric, mean, week);
+			if(!stats.isEmpty()) {
+				return stats.get(0).getValue();
+			}
+		}
+		return 0.0;
+	}
 
 }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.smartcommunitylab.playandgo.engine.ge.model.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.manager.GameManager;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
@@ -29,11 +28,4 @@ public class GameController extends PlayAndGoController {
 		return gameManager.getCampaignGameStatus(player.getPlayerId(), campaignId);
 	}
 	
-	@GetMapping("/api/game/campaign/status")
-	public PlayerStatus getPlayerStatus(
-			@RequestParam String campaignId,
-			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
-		return gameManager.getGamePlayerStatus(player.getPlayerId(), campaignId);
-	}
 }
