@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.NoUserAccount;
@@ -59,7 +60,7 @@ public class CommunicationManager {
 	public Page<Notification> get(String playerId, String territoryId, Collection<String> campaigns, Long since, Integer position, Integer count) {
 		int pos = position != null ? position : 0;
 		int c = count != null ? count : 100;
-		Pageable pr = PageRequest.of(pos / c, count);
+		Pageable pr = PageRequest.of(pos / c, count,  Sort.by(Sort.Direction.DESC, "timestamp"));
 		return notificationRepository.searchPlayerNotifications(playerId, territoryId, campaigns, since, pr);
 	}
 
