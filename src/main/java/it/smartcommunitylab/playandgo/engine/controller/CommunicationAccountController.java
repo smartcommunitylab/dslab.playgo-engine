@@ -79,7 +79,7 @@ public class CommunicationAccountController extends PlayAndGoController {
 	 * @throws Exception
 	 */
 	@GetMapping("/api/app/notifications")
-	public @ResponseBody Page<Notification> getPlayerNotifications(
+	public @ResponseBody List<Notification> getPlayerNotifications(
 			@RequestParam(required = false, defaultValue="0") Long since,
 			@RequestParam(required = false, defaultValue = "0") Integer skip,
 			@RequestParam(required = false, defaultValue = "20") Integer limit,

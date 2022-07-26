@@ -16,6 +16,7 @@
 package it.smartcommunitylab.playandgo.engine.notification;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +58,11 @@ public class CommunicationManager {
 		return notification;
 	}
 
-	public Page<Notification> get(String playerId, String territoryId, Collection<String> campaigns, Long since, Integer position, Integer count) {
+	public List<Notification> get(String playerId, String territoryId, Collection<String> campaigns, Long since, Integer position, Integer count) {
 		int pos = position != null ? position : 0;
 		int c = count != null ? count : 100;
 		Pageable pr = PageRequest.of(pos / c, count,  Sort.by(Sort.Direction.DESC, "timestamp"));
-		return notificationRepository.searchPlayerNotifications(playerId, territoryId, campaigns, since, pr);
+		return notificationRepository.searchPlayerNotifications(playerId, territoryId, campaigns, since, pr).getContent();
 	}
 
 	public Notification getById(String id)  {
