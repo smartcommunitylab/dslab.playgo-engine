@@ -119,7 +119,7 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		return playerReportManager.getPlayerGameStats(player.getPlayerId(), groupMode, campaignId, dateFrom, dateTo);
+		return playerReportManager.getPlayerGameStats(player.getPlayerId(), campaignId, groupMode, dateFrom, dateTo);
 	}
 
 	@GetMapping("/api/report/player/transport/record")
