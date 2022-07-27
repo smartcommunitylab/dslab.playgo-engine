@@ -260,12 +260,14 @@ public class GameDataConverter {
 	public ChallengeConceptInfo convertPlayerChallengesData(String jsonChallenges, JsonNode playerStatus, Player player, Campaign campaign, 
 			Territory territory, int challType) throws Exception {
 		try {
-			List<BadgeCollectionConcept> badges = mapper.convertValue(playerStatus.get("state").get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
-			badges.forEach(x -> {
-				x.getBadgeEarned().forEach(y -> {
-					y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
-				});
-			});
+			List<BadgeCollectionConcept> badges = mapper.convertValue(playerStatus.get("state").path("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			if(badges != null) {
+				badges.forEach(x -> {
+					x.getBadgeEarned().forEach(y -> {
+						y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
+					});
+				});				
+			}
 			
 			ChallengeConceptInfo challenges = convertChallengeData(player, campaign, territory, jsonChallenges, challType, badges);
 
@@ -1079,6 +1081,9 @@ public class GameDataConverter {
 
 	private ChallengeConceptInfo convertChallengeData(Player player, Campaign campaign, Territory territory, String json, 
 			int type, List<BadgeCollectionConcept> bcc_list) throws Exception {
+		if(bcc_list == null) {
+			bcc_list = new ArrayList<>();
+		}
     	ListMultimap<ChallengeDataType, ChallengesData> challengesMap = ArrayListMultimap.create();
     	
     	ChallengeConceptInfo result = new ChallengeConceptInfo();
