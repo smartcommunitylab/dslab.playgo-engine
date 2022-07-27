@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.campaign;
+package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylab.playandgo.engine.ge.SchoolCampaignGameStatusManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.GamificationMessageQueueManager;
@@ -21,8 +20,8 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
-public class SchoolCampaignGameNotification implements ManageGameNotification {
-	private static Logger logger = LoggerFactory.getLogger(SchoolCampaignGameNotification.class);
+public class CityCampaignGameNotification implements ManageGameNotification {
+	private static Logger logger = LoggerFactory.getLogger(CityCampaignGameNotification.class);
 	
 	@Autowired
 	CampaignRepository campaignRepository;
@@ -32,14 +31,14 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	
 	@Autowired
 	CampaignNotificationManager notificationManager;
-	
+
 	@Autowired
-	SchoolCampaignGameStatusManager gameStatusManager;
+	CityCampaignGameStatusManager gameStatusManager;
 
 	@PostConstruct
 	public void init() {
-		gamificationMessageQueueManager.setManageGameNotification(this, Type.school);
-		List<Campaign> list = campaignRepository.findByType(Type.school, Sort.by(Sort.Direction.DESC, "dateFrom"));
+		gamificationMessageQueueManager.setManageGameNotification(this, Type.city);
+		List<Campaign> list = campaignRepository.findByType(Type.city, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		list.forEach(c -> {
 			if(Utils.isNotEmpty(c.getGameId())) {
 				gamificationMessageQueueManager.setGameNotification(c.getGameId());

@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.campaign;
+package it.smartcommunitylab.playandgo.engine.campaign.company;
 
 import javax.annotation.PostConstruct;
 

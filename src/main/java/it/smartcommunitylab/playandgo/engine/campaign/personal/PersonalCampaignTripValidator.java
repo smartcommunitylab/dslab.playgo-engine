@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.campaign;
+package it.smartcommunitylab.playandgo.engine.campaign.personal;
 
 import javax.annotation.PostConstruct;
 
@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.campaign.BasicCampaignTripValidator;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 
 @Component

@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.campaign;
+package it.smartcommunitylab.playandgo.engine.campaign.personal;
 
 import java.util.Date;
 import java.util.Map;

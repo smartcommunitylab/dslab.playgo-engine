@@ -39,7 +39,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	//static FastDateFormat fullSdf = FastDateFormat.getInstance("yyyy/MM/dd HH:mm");
 
 	@Autowired
-	MessageQueueManager queueManager;
+	protected MessageQueueManager queueManager;
 	
 	@Autowired
 	CampaignPlayerTrackRepository campaignPlayerTrackRepository;

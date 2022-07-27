@@ -33,8 +33,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
-import it.smartcommunitylab.playandgo.engine.ge.GameDataConverter;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.GameStatistics;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
@@ -91,7 +91,7 @@ public class ChallengeManager {
 	private CampaignNotificationManager campaignNotificationManager;
 	
 	@Autowired
-	private GameDataConverter gameDataConverter;
+	private CityGameDataConverter gameDataConverter;
 	
 	@PostConstruct
 	private void init() throws Exception {
@@ -344,7 +344,7 @@ public class ChallengeManager {
 	
 	
 	private void fillMissingFields(ChallengeConcept challenge, String gameId) {
-		List otherAttendeeScoresList = (List)challenge.getFields().getOrDefault(GameDataConverter.CHAL_FIELDS_OTHER_ATTENDEE_SCORES, Collections.EMPTY_LIST);
+		List otherAttendeeScoresList = (List)challenge.getFields().getOrDefault(CityGameDataConverter.CHAL_FIELDS_OTHER_ATTENDEE_SCORES, Collections.EMPTY_LIST);
 		Map<String, Object> otherAttendeeScores = null;
 		
 		if (!otherAttendeeScoresList.isEmpty()) {
@@ -353,27 +353,27 @@ public class ChallengeManager {
 			return;
 		}
 
-		String otherPlayerId = (String)otherAttendeeScores.get(GameDataConverter.CHAL_FIELDS_PLAYER_ID); 
+		String otherPlayerId = (String)otherAttendeeScores.get(CityGameDataConverter.CHAL_FIELDS_PLAYER_ID); 
 		Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);		
 		
 		switch (challenge.getModelName()) {
-		case GameDataConverter.CHAL_MODEL_GROUP_COMPETITIVE_PERFORMANCE : {
+		case CityGameDataConverter.CHAL_MODEL_GROUP_COMPETITIVE_PERFORMANCE : {
 			if (otherPlayer != null) {
 				String nickname = otherPlayer.getNickname();
 				challenge.getFields().put("opponent", nickname);
 			}			
 			break;
 		}
-		case GameDataConverter.CHAL_MODEL_GROUP_COMPETITIVE_TIME : {
+		case CityGameDataConverter.CHAL_MODEL_GROUP_COMPETITIVE_TIME : {
 			if (otherPlayer != null) {
 				String nickname = otherPlayer.getNickname();
 				challenge.getFields().put("opponent", nickname);
 			}			
 			break;
 		}
-		case GameDataConverter.CHAL_MODEL_GROUP_COOPERATIVE : {
-			Double reward = (Double) challenge.getFields().getOrDefault(GameDataConverter.CHAL_FIELDS_CHALLENGE_REWARD, "");
-			Double target = (Double) challenge.getFields().get(GameDataConverter.CHAL_FIELDS_CHALLENGE_TARGET);
+		case CityGameDataConverter.CHAL_MODEL_GROUP_COOPERATIVE : {
+			Double reward = (Double) challenge.getFields().getOrDefault(CityGameDataConverter.CHAL_FIELDS_CHALLENGE_REWARD, "");
+			Double target = (Double) challenge.getFields().get(CityGameDataConverter.CHAL_FIELDS_CHALLENGE_TARGET);
 			if (target != null) target = Math.ceil(target);
 			if (otherPlayer != null) {
 				String nickname = otherPlayer.getNickname();
@@ -393,35 +393,35 @@ public class ChallengeManager {
 			int score = 0;
 
 			JsonNode profileData = mapper.readTree(profile);
-			JsonNode stateData = (!profileData.has(GameDataConverter.STATE)) ? profileData.get(GameDataConverter.STATE) : null;
+			JsonNode stateData = (!profileData.has(CityGameDataConverter.STATE)) ? profileData.get(CityGameDataConverter.STATE) : null;
 			JsonNode pointConceptData = null;
 			if (stateData != null) {
-				pointConceptData = (stateData.has(GameDataConverter.POINT_CONCEPT) && stateData.get(GameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(GameDataConverter.POINT_CONCEPT) : null;
+				pointConceptData = (stateData.has(CityGameDataConverter.POINT_CONCEPT) && stateData.get(CityGameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
 				if (pointConceptData != null) {
 					for (JsonNode point : pointConceptData) {
-						String pc_name = point.has(GameDataConverter.PC_NAME) ? point.get(GameDataConverter.PC_NAME).asText() : null;
+						String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
 						if (timestamp == null || timestamp.longValue() == 0L) { // global
-							if (pc_name != null && pc_name.compareTo(GameDataConverter.PC_GREEN_LEAVES) == 0) {
-								score = point.has(GameDataConverter.PC_SCORE) ? point.get(GameDataConverter.PC_SCORE).asInt() : null;
+							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
+								score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
 							}
 						} else { // specific week
-							if (pc_name != null && pc_name.compareTo(GameDataConverter.PC_GREEN_LEAVES) == 0) {
-								JsonNode pc_period = point.has(GameDataConverter.PC_PERIODS) ? point.get(GameDataConverter.PC_PERIODS) : null;
+							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
+								JsonNode pc_period = point.has(CityGameDataConverter.PC_PERIODS) ? point.get(CityGameDataConverter.PC_PERIODS) : null;
 								if (pc_period != null) {
 									Iterator<String> keys = pc_period.fieldNames();
 									while (keys.hasNext()) {
 										String key = keys.next();
 										JsonNode pc_weekly = pc_period.get(key);
 										if (pc_weekly != null) {
-											JsonNode pc_instances = pc_weekly.get(GameDataConverter.PC_INSTANCES);
+											JsonNode pc_instances = pc_weekly.get(CityGameDataConverter.PC_INSTANCES);
 
 											if (pc_instances != null) {
 												Iterator<String> instancesKeys = pc_instances.fieldNames();
 												while (instancesKeys.hasNext()) {
 													JsonNode pc_instance = pc_instances.get(instancesKeys.next());
-													int instance_score = pc_instance.has(GameDataConverter.PC_SCORE) ? pc_instance.get(GameDataConverter.PC_SCORE).asInt() : 0;
-													long instance_start = pc_instance.has(GameDataConverter.PC_START) ? pc_instance.get(GameDataConverter.PC_START).asLong() : 0L;
-													long instance_end = pc_instance.has(GameDataConverter.PC_END) ? pc_instance.get(GameDataConverter.PC_END).asLong() : 0L;
+													int instance_score = pc_instance.has(CityGameDataConverter.PC_SCORE) ? pc_instance.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
+													long instance_start = pc_instance.has(CityGameDataConverter.PC_START) ? pc_instance.get(CityGameDataConverter.PC_START).asLong() : 0L;
+													long instance_end = pc_instance.has(CityGameDataConverter.PC_END) ? pc_instance.get(CityGameDataConverter.PC_END).asLong() : 0L;
 													if (timestamp >= instance_start && timestamp <= instance_end) {
 														score = instance_score;
 														break;
@@ -454,30 +454,30 @@ public class ChallengeManager {
 			int score = 0;
 
 			JsonNode profileData = mapper.readTree(profile);
-			JsonNode stateData = profileData.has(GameDataConverter.STATE) ? profileData.get(GameDataConverter.STATE) : null;
+			JsonNode stateData = profileData.has(CityGameDataConverter.STATE) ? profileData.get(CityGameDataConverter.STATE) : null;
 			JsonNode pointConceptData = null;
 			if (stateData != null) {
-				pointConceptData = (stateData.has(GameDataConverter.POINT_CONCEPT) && stateData.get(GameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(GameDataConverter.POINT_CONCEPT) : null;
+				pointConceptData = (stateData.has(CityGameDataConverter.POINT_CONCEPT) && stateData.get(CityGameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
 				if (pointConceptData != null) {
 					for (JsonNode point : pointConceptData) {
-						String pc_name = point.has(GameDataConverter.PC_NAME) ? point.get(GameDataConverter.PC_NAME).asText() : null;
+						String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
 						if (timestamp == null || timestamp.longValue() == 0L) { // global
-							if (pc_name != null && pc_name.compareTo(GameDataConverter.PC_GREEN_LEAVES) == 0) {
-								score = point.has(GameDataConverter.PC_SCORE) ? point.get(GameDataConverter.PC_SCORE).asInt() : null;
+							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
+								score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
 							}
 						} else { // specific week
-							if (pc_name != null && pc_name.compareTo(GameDataConverter.PC_GREEN_LEAVES) == 0) {
-								JsonNode pc_period = point.has(GameDataConverter.PC_PERIODS) ? point.get(GameDataConverter.PC_PERIODS) : null;
+							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
+								JsonNode pc_period = point.has(CityGameDataConverter.PC_PERIODS) ? point.get(CityGameDataConverter.PC_PERIODS) : null;
 								if (pc_period != null) {
-									JsonNode pc_weekly = pc_period.get(GameDataConverter.PC_WEEKLY);
+									JsonNode pc_weekly = pc_period.get(CityGameDataConverter.PC_WEEKLY);
 									if (pc_weekly != null) {
-										JsonNode pc_instances = pc_weekly.get(GameDataConverter.PC_INSTANCES);
+										JsonNode pc_instances = pc_weekly.get(CityGameDataConverter.PC_INSTANCES);
 										if (pc_instances != null) {
 											Iterator<String> instancesKeys = pc_instances.fieldNames();
 											while (instancesKeys.hasNext()) {
 												JsonNode pc_instance = pc_instances.get(instancesKeys.next());
-												int instance_score = pc_instance.has(GameDataConverter.PC_SCORE) ? pc_instance.get(GameDataConverter.PC_SCORE).asInt() : 0;
-												long instance_start = pc_instance.has(GameDataConverter.PC_START) ? pc_instance.get(GameDataConverter.PC_START).asLong() : 0L;
+												int instance_score = pc_instance.has(CityGameDataConverter.PC_SCORE) ? pc_instance.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
+												long instance_start = pc_instance.has(CityGameDataConverter.PC_START) ? pc_instance.get(CityGameDataConverter.PC_START).asLong() : 0L;
 												if (timestamp <= instance_start) {
 													score += instance_score;
 												}
@@ -508,36 +508,36 @@ public class ChallengeManager {
 			JsonNode allPlayersDataList = (allPlayersData.has("content") && allPlayersData.get("content").isArray()) ? allPlayersData.get("content") : null;
 			if (allPlayersDataList != null) {
 				for (JsonNode profileData : allPlayersDataList) {
-					String playerId = profileData.has(GameDataConverter.PLAYER_ID) ? profileData.get(GameDataConverter.PLAYER_ID).asText() : "0";
+					String playerId = profileData.has(CityGameDataConverter.PLAYER_ID) ? profileData.get(CityGameDataConverter.PLAYER_ID).asText() : "0";
 					score = 0; // here I reset the score value to avoid classification problem
-					JsonNode stateData = profileData.has(GameDataConverter.STATE) ? profileData.get(GameDataConverter.STATE) : null;
+					JsonNode stateData = profileData.has(CityGameDataConverter.STATE) ? profileData.get(CityGameDataConverter.STATE) : null;
 					JsonNode pointConceptData = null;
 					if (stateData != null) {
-						pointConceptData = stateData.has(GameDataConverter.POINT_CONCEPT) ? stateData.get(GameDataConverter.POINT_CONCEPT) : null;
+						pointConceptData = stateData.has(CityGameDataConverter.POINT_CONCEPT) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
 						if (pointConceptData != null) {
 							for (JsonNode point : pointConceptData) {
-								String pc_name = point.has(GameDataConverter.PC_NAME) ? point.get(GameDataConverter.PC_NAME).asText() : null;
+								String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
 								if (timestamp == null || timestamp.longValue() == 0L) { // global
-									if (pc_name != null && pc_name.compareTo(GameDataConverter.PC_GREEN_LEAVES) == 0) {
-										score = point.has(GameDataConverter.PC_SCORE) ? point.get(GameDataConverter.PC_SCORE).asInt() : null;
+									if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
+										score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
 									}
 								} else { // specific week
-									if (pc_name != null && pc_name.compareTo(GameDataConverter.PC_GREEN_LEAVES) == 0) {
-										JsonNode pc_period = point.has(GameDataConverter.PC_PERIODS) ? point.get(GameDataConverter.PC_PERIODS) : null;
+									if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
+										JsonNode pc_period = point.has(CityGameDataConverter.PC_PERIODS) ? point.get(CityGameDataConverter.PC_PERIODS) : null;
 										if (pc_period != null) {
 											Iterator<String> keys = pc_period.fieldNames();
 											while (keys.hasNext()) {
 												String key = keys.next();
 												JsonNode pc_weekly = pc_period.get(key);
 												if (pc_weekly != null) {
-													JsonNode pc_instances = pc_weekly.get(GameDataConverter.PC_INSTANCES);
+													JsonNode pc_instances = pc_weekly.get(CityGameDataConverter.PC_INSTANCES);
 													if (pc_instances != null) {
 														Iterator<String> instancesKeys = pc_instances.fieldNames();
 														while (instancesKeys.hasNext()) {
 															JsonNode pc_instance = pc_instances.get(instancesKeys.next());
-															int instance_score = pc_instance.has(GameDataConverter.PC_SCORE) ? pc_instance.get(GameDataConverter.PC_SCORE).asInt() : 0;
-															long instance_start = pc_instance.has(GameDataConverter.PC_START) ? pc_instance.get(GameDataConverter.PC_START).asLong() : 0L;
-															long instance_end = pc_instance.has(GameDataConverter.PC_END) ? pc_instance.get(GameDataConverter.PC_END).asLong() : 0L;
+															int instance_score = pc_instance.has(CityGameDataConverter.PC_SCORE) ? pc_instance.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
+															long instance_start = pc_instance.has(CityGameDataConverter.PC_START) ? pc_instance.get(CityGameDataConverter.PC_START).asLong() : 0L;
+															long instance_end = pc_instance.has(CityGameDataConverter.PC_END) ? pc_instance.get(CityGameDataConverter.PC_END).asLong() : 0L;
 															if (timestamp >= instance_start && timestamp <= instance_end) {
 																score = instance_score;
 																break;
@@ -584,17 +584,17 @@ public class ChallengeManager {
 			JsonNode allPlayersDataList = (allPlayersData.has("content") && allPlayersData.get("content").isArray()) ? allPlayersData.get("content") : null;
 			if (allPlayersDataList != null) {
 				for (JsonNode profileData : allPlayersDataList) {
-					String playerId = profileData.has(GameDataConverter.PLAYER_ID) ? profileData.get(GameDataConverter.PLAYER_ID).asText() : "0";
+					String playerId = profileData.has(CityGameDataConverter.PLAYER_ID) ? profileData.get(CityGameDataConverter.PLAYER_ID).asText() : "0";
 					score = 0; // here I reset the score value to avoid classification problem
-					JsonNode stateData = profileData.has(GameDataConverter.STATE) ? profileData.get(GameDataConverter.STATE) : null;
+					JsonNode stateData = profileData.has(CityGameDataConverter.STATE) ? profileData.get(CityGameDataConverter.STATE) : null;
 					JsonNode pointConceptData = null;
 					if (stateData != null) {
-						pointConceptData = (stateData.has(GameDataConverter.POINT_CONCEPT) && stateData.get(GameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(GameDataConverter.POINT_CONCEPT) : null;
+						pointConceptData = (stateData.has(CityGameDataConverter.POINT_CONCEPT) && stateData.get(CityGameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
 						if (pointConceptData != null) {
 							for (JsonNode point : pointConceptData) {
-								String pc_name = point.has(GameDataConverter.PC_NAME) ? point.get(GameDataConverter.PC_NAME).asText() : null;
-								if (pc_name != null && pc_name.compareTo(GameDataConverter.PC_GREEN_LEAVES) == 0) {
-									score = point.has(GameDataConverter.PC_SCORE) ? point.get(GameDataConverter.PC_SCORE).asInt() : null;
+								String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
+								if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
+									score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
 								}
 							}
 						}
@@ -620,8 +620,8 @@ public class ChallengeManager {
 				JsonNode allPlayersDataList = (allIncClassData.has("board") && allIncClassData.get("board").isArray()) ? allIncClassData.get("board") : null;
 				if (allPlayersDataList != null) {
 					for (JsonNode profileData : allPlayersDataList) {
-						String playerId = profileData.has(GameDataConverter.PLAYER_ID) ? profileData.get(GameDataConverter.PLAYER_ID).asText() : "0";
-						Integer playerScore = profileData.has(GameDataConverter.PC_SCORE) ? profileData.get(GameDataConverter.PC_SCORE).asInt() : 0;
+						String playerId = profileData.has(CityGameDataConverter.PLAYER_ID) ? profileData.get(CityGameDataConverter.PLAYER_ID).asText() : "0";
+						Integer playerScore = profileData.has(CityGameDataConverter.PC_SCORE) ? profileData.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
 						String nickName = getPlayerNickNameById(allNicks, playerId); // getPlayerNameById(allNicks, playerId);
 						ClassificationData playerClass = new ClassificationData();
 						playerClass.setNickName(nickName);

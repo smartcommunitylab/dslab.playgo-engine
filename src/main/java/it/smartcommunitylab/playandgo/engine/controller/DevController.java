@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignTripValidator;
+import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignTripValidator;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;

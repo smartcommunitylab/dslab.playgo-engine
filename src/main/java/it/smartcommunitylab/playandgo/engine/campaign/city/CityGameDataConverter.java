@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.ge;
+package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.net.URL;
 import java.nio.file.Paths;
@@ -47,6 +47,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
 import com.google.common.io.Resources;
 
+import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerLevel;
@@ -71,8 +72,8 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class GameDataConverter {
-	private static final Logger logger = LoggerFactory.getLogger(GameDataConverter.class);
+public class CityGameDataConverter {
+	private static final Logger logger = LoggerFactory.getLogger(CityGameDataConverter.class);
 	
 	// point concept fields
 	public static final String STATE = "state";

@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.ge;
+package it.smartcommunitylab.playandgo.engine.campaign.school;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import it.smartcommunitylab.playandgo.engine.campaign.BasicCampaignGameStatusManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;

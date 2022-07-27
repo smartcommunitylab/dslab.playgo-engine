@@ -1,4 +1,4 @@
-package it.smartcommunitylab.playandgo.engine.ge;
+package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
+import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
@@ -37,35 +39,35 @@ public class BasicCampaignGameStatusManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(BasicCampaignGameStatusManager.class);
 	
 	@Autowired
-	TerritoryRepository territoryRepository;
+	protected TerritoryRepository territoryRepository;
 	
 	@Autowired
-	CampaignPlayerTrackRepository campaignPlayerTrackRepository;
+	protected CampaignPlayerTrackRepository campaignPlayerTrackRepository;
 	
 	@Autowired
-	CampaignRepository campaignRepository;
+	protected CampaignRepository campaignRepository;
 	
 	@Autowired
-	PlayerRepository playerRepository;
+	protected PlayerRepository playerRepository;
 	
 	@Autowired
-	PlayerStatsGameRepository statsGameRepository;
+	protected PlayerStatsGameRepository statsGameRepository;
 	
 	@Autowired
-	PlayerGameStatusRepository playerGameStatusRepository;
+	protected PlayerGameStatusRepository playerGameStatusRepository;
 	
 	@Autowired
-	CampaignSubscriptionRepository campaignSubscriptionRepository;
+	protected CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
-	GamificationEngineManager gamificationEngineManager;
+	protected GamificationEngineManager gamificationEngineManager;
 	
 	@Autowired
-	GameDataConverter gameDataConverter;
+	CityGameDataConverter gameDataConverter;
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
-	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	protected DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	public void updatePlayerGameStatus(Map<String, Object> msg) {
 		try {

@@ -26,12 +26,12 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
-import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignGameNotification;
-import it.smartcommunitylab.playandgo.engine.campaign.CityCampaignSubscription;
-import it.smartcommunitylab.playandgo.engine.campaign.CompanyCampaignSubscription;
-import it.smartcommunitylab.playandgo.engine.campaign.PersonalCampaignSubscription;
-import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignGameNotification;
-import it.smartcommunitylab.playandgo.engine.campaign.SchoolCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.personal.PersonalCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;

@@ -1,5 +1,6 @@
-package it.smartcommunitylab.playandgo.engine.campaign;
+package it.smartcommunitylab.playandgo.engine.campaign.school;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -8,25 +9,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 
 @Component
-public class CompanyCampaignSubscription {
-	private static Logger logger = LoggerFactory.getLogger(CompanyCampaignSubscription.class);
-	
-	public static String companyKey = "companyKey";
-	public static String employeeCode = "employeeCode";
+public class SchoolCampaignSubscription {
+	private static Logger logger = LoggerFactory.getLogger(SchoolCampaignSubscription.class);
 	
 	@Autowired
-	PgAziendaleManager aziendaleManager;
-
+	SurveyManager surveyManager;
+	
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
-			Map<String, Object> campaignData) throws Exception {		
-		aziendaleManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), 
-				(String)campaignData.get(companyKey), (String)campaignData.get(employeeCode));
+			Map<String, Object> campaignData) throws Exception {
+		//TODO check external API
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaign.getCampaignId());
@@ -37,10 +35,11 @@ public class CompanyCampaignSubscription {
 		if(campaignData != null) {
 			sub.setCampaignData(campaignData);
 		}
-		return sub;			
-	}
-	
-	public void unsubscribeCampaign(Player player, Campaign campaign) throws Exception {
-		aziendaleManager.unsubscribeCampaign(campaign.getCampaignId(), player.getPlayerId());		
+		//check default survey
+		if(campaign.hasDefaultSurvey()) {
+			SurveyRequest sr = campaign.getDefaultSurvey();
+			surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+		}
+		return sub;
 	}
 }

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.ge.model.MailImage;
@@ -63,7 +64,7 @@ public class ReportEmailSender {
 	PlayerRepository playerRepository;
 	
 	@Autowired
-	GameDataConverter gameDataConverter;
+	CityGameDataConverter gameDataConverter;
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
