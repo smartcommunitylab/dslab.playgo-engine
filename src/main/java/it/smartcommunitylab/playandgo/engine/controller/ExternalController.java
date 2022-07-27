@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
+import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
+import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
@@ -43,7 +45,10 @@ public class ExternalController extends PlayAndGoController {
 	
 	@Autowired
 	PlayerCampaignPlacingManager placingManager;
-	
+
+	@Autowired
+	TrackedInstanceManager trackedInstanceManager;
+
 	@Autowired
 	PlayerRepository playerRepository;
 
@@ -143,6 +148,15 @@ public class ExternalController extends PlayAndGoController {
 	public PlayerInfo getPlayer(@RequestParam String territory, @PathVariable String playerId) {
 		return playerRepository.findByTerritoryIdAndPlayerIdIn(territory, Collections.singleton(playerId)).stream().findFirst().map(p -> toPlayerInfo(p)).orElse(null);			
 	}
+	
+	@GetMapping("/api/ext/track/{campaignId}/{playerId}/{trackedInstanceId}")
+	public TrackedInstanceInfo getTrackedInstanceInfo(
+			@PathVariable String campaignId,
+			@PathVariable String playerId,
+			@PathVariable String trackedInstanceId) throws Exception {
+		return trackedInstanceManager.getTrackedInstanceInfo(playerId, trackedInstanceId, campaignId);
+	}
+	
 	/**
 	 * @param p
 	 * @return
