@@ -25,6 +25,7 @@ public class TrackedInstance {
 	
 	@Indexed
 	private String userId;
+	private String nickname;
 	
 	@Indexed
 	private String territoryId;
@@ -245,6 +246,14 @@ public class TrackedInstance {
 
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	

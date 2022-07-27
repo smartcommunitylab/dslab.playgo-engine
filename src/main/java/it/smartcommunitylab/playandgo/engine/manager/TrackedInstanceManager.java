@@ -268,10 +268,10 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		return result;
 	}**/
 	
-	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String playerId, String territoryId) throws Exception {
-		List<TrackedInstance> list = geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, playerId, territoryId);
+	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, Player player) throws Exception {
+		List<TrackedInstance> list = geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, player);
 		for (TrackedInstance ti : list) {
-			ValidateTripRequest request = new ValidateTripRequest(playerId, territoryId, ti.getId());
+			ValidateTripRequest request = new ValidateTripRequest(player.getPlayerId(), player.getTerritoryId(), ti.getId());
 			queueManager.sendValidateTripRequest(request);
 		}
 	}
@@ -451,7 +451,8 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			criteria = criteria.and("id").is(trackedInstanceId);
 		}
 		if(Utils.isNotEmpty(playerId)) {
-			criteria = criteria.and("userId").is(playerId);
+			//criteria = criteria.and("userId").is(playerId);
+			criteria = criteria.orOperator(Criteria.where("userId").is(playerId), Criteria.where("nickname").is(playerId));
 		}
 		if(Utils.isNotEmpty(modeType)) {
 			criteria = criteria.and("validationResult.validationStatus.modeType").is(modeType);

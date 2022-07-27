@@ -27,6 +27,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.Coords;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Location;
+import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
@@ -47,7 +48,7 @@ public class GeolocationsProcessor {
 	public static final String START_TIME = "startTime";
 	private static final int MAX_LOCATIONS = 10000;
 	
-	public List<TrackedInstance> storeGeolocationEvents(GeolocationsEvent geolocationsEvent, String userId, String territoryId) throws Exception {
+	public List<TrackedInstance> storeGeolocationEvents(GeolocationsEvent geolocationsEvent, Player player) throws Exception {
 		List<TrackedInstance> instances = Lists.newArrayList();
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -56,7 +57,7 @@ public class GeolocationsProcessor {
 		if (geolocationsEvent.getLocation() != null) {
 			pointCount = geolocationsEvent.getLocation().size();
 		}
-		logger.info("Received " + pointCount + " geolocations for " + userId + ", " + geolocationsEvent.getDevice());
+		logger.info("Received " + pointCount + " geolocations for " + player.getPlayerId() + ", " + geolocationsEvent.getDevice());
 
 		boolean virtual = false;
 		
@@ -65,24 +66,24 @@ public class GeolocationsProcessor {
 		}
 
 		if (!virtual) {
-			checkEventsOrder(geolocationsEvent, userId);
+			checkEventsOrder(geolocationsEvent, player.getPlayerId());
 
 			Multimap<String, Geolocation> geolocationsByItinerary = ArrayListMultimap.create();
 			Map<String, String> freeTracks = new HashMap<String, String>();
 			Map<String, Long> freeTrackStarts = new HashMap<String, Long>();
 			String deviceInfo = mapper.writeValueAsString(geolocationsEvent.getDevice());
 
-			groupByItinerary(geolocationsEvent, userId, geolocationsByItinerary, freeTracks, freeTrackStarts);
+			groupByItinerary(geolocationsEvent, player.getPlayerId(), geolocationsByItinerary, freeTracks, freeTrackStarts);
 
 			for (String key : geolocationsByItinerary.keySet()) {
-				TrackedInstance ti = preSaveTrackedInstance(key, userId, deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts, territoryId);
+				TrackedInstance ti = preSaveTrackedInstance(key, player.getPlayerId(), player.getNickname(), deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts, player.getTerritoryId());
 				if (ti != null) {
 					instances.add(ti);
-					logger.info("Saved geolocation events, user: " + userId + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
+					logger.info("Saved geolocation events, user: " + player.getPlayerId() + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
 				}
 			}
 		} else {
-			logger.info("Device of user " + userId + " is virtual: " + geolocationsEvent.getDevice());
+			logger.info("Device of user " + player.getPlayerId() + " is virtual: " + geolocationsEvent.getDevice());
 		}
 		return instances;
 	}
@@ -158,7 +159,8 @@ public class GeolocationsProcessor {
 		}
 	}
 
-	private void groupByItinerary(GeolocationsEvent geolocationsEvent, String userId, Multimap<String, Geolocation> geolocationsByItinerary, Map<String, String> freeTracks, Map<String, Long> freeTrackStarts) throws Exception {
+	private void groupByItinerary(GeolocationsEvent geolocationsEvent, String userId, Multimap<String, Geolocation> geolocationsByItinerary, 
+			Map<String, String> freeTracks, Map<String, Long> freeTrackStarts) throws Exception {
 		Long now = System.currentTimeMillis();
 		Map<String, Object> device = geolocationsEvent.getDevice();
 
@@ -294,7 +296,7 @@ public class GeolocationsProcessor {
 		return geolocation;
 	}
 
-	private TrackedInstance preSaveTrackedInstance(String key, String userId, String deviceInfo, Multimap<String, Geolocation> geolocationsByItinerary, Map<String, String> freeTracks,
+	private TrackedInstance preSaveTrackedInstance(String key, String userId, String nickname, String deviceInfo, Multimap<String, Geolocation> geolocationsByItinerary, Map<String, String> freeTracks,
 			Map<String, Long> freeTrackStarts, String territoryId) throws Exception {
 		String splitKey[] = key.split("@");
 		String travelId = splitKey[0];
@@ -314,6 +316,7 @@ public class GeolocationsProcessor {
 			res.setClientId(travelId);
 			res.setStartTime(Utils.getUTCDate(freeTrackStarts.get(key)));
 			res.setUserId(userId);
+			res.setNickname(nickname);
 			res.setId(ObjectId.get().toString());
 			if (travelId.contains("_temporary_")) {
 				logger.debug("Orphan temporary, skipping clientId: " + travelId);
