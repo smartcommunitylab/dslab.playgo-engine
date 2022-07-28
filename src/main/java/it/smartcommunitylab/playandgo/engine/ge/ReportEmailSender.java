@@ -41,6 +41,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 @Component
 @EnableScheduling
@@ -73,6 +74,7 @@ public class ReportEmailSender {
 	EmailService emailService;
 	
 	@Scheduled(cron="0 0 17 * * SUN")
+	@SchedulerLock(name = "ReportEmailSender.sendWeeklyNotification")
 	public void sendWeeklyNotification() {
 		List<Campaign> list = campaignRepository.findByType(Campaign.Type.city, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		for(Campaign campaign : list) {
