@@ -43,10 +43,12 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitati
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.Reward;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerStatChallenge;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerStatChallengeRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
@@ -83,6 +85,9 @@ public class ChallengeManager {
 	
 	@Autowired
 	private TerritoryRepository territoryRepository;
+	
+	@Autowired
+	PlayerStatChallengeRepository playerStatChallengeRepository;
 	
 	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
@@ -930,6 +935,11 @@ public class ChallengeManager {
 		String json = gamificationEngineManager.getStatistics(gameId);
 		List<GameStatistics> stats = mapper.readValue(json,  new TypeReference<List<GameStatistics>>() {});
 		return stats.stream().filter(x -> counter.equals(x.getPointConceptName())).collect(Collectors.toList());
+	}
+
+	public List<PlayerStatChallenge> getStats(String playerId, String campaignId, long dateFrom, long dateTo) {
+		return playerStatChallengeRepository.findByPlayerIdAndCampaignIdAndTimestampBetween(playerId, campaignId, 
+				dateFrom, dateTo);
 	}
 	
 }

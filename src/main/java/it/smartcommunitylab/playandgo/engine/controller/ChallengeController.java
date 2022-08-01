@@ -30,6 +30,7 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitati
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.Invitation;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerStatChallenge;
 
 @RestController
 public class ChallengeController extends PlayAndGoController {
@@ -145,5 +146,13 @@ public class ChallengeController extends PlayAndGoController {
 		challengeManager.deleteFromBlackList(player.getPlayerId(), campaignId, blockedPlayerId);
 	}		
 	
-	
+	@GetMapping("/api/challenge/stats")
+	public @ResponseBody List<PlayerStatChallenge> getChallengeStats(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam long dateFrom,
+			@RequestParam long dateTo,
+			HttpServletRequest request) throws Exception {
+		return challengeManager.getStats(playerId, campaignId, dateFrom, dateTo);
+	}
 }

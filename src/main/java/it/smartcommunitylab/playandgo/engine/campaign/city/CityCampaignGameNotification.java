@@ -34,6 +34,9 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 
 	@Autowired
 	CityCampaignGameStatusManager gameStatusManager;
+	
+	@Autowired
+	CityCampaignChallengeNotification challengeNotification;
 
 	@PostConstruct
 	public void init() {
@@ -60,6 +63,12 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 		if(type.endsWith("GameNotification")) {
 			gameStatusManager.updatePlayerGameStatus(msg);
 		} else {
+			if(type.equalsIgnoreCase("challenge_complete")) {
+				challengeNotification.challengeCompleted(msg);
+			}
+			if(type.equalsIgnoreCase("challenge_failed")) {
+				challengeNotification.challengeFailed(msg);
+			}
 			try {
 				notificationManager.processNotification(msg);
 			} catch (Exception e) {
