@@ -54,6 +54,7 @@ import it.smartcommunitylab.playandgo.engine.ge.model.PlayerLevel;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConceptPeriod;
+import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager.GroupMode;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConcept;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
@@ -410,7 +411,7 @@ public class CityGameDataConverter {
 		return null;
 	}
 
-	private List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String metric, String mean, 
+	private List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String groupMode, String metric, String mean, 
 			String dateFrom, String dateTo) {
 		List<TransportStat> result = new ArrayList<>();
 		
@@ -426,6 +427,14 @@ public class CityGameDataConverter {
 		}		
 		MatchOperation matchOperation = Aggregation.match(criteria);
 		
+		String groupField = null;
+		if(groupMode.equals("daily")) {
+			groupField = "day";
+		} else if(groupMode.equals("weekly")) {
+			groupField = "weekOfYear";
+		} else {
+			groupField = "monthOfYear";
+		}		
 		String sumField = null;
 		if(metric.equalsIgnoreCase("co2")) {
 			sumField = "co2";
@@ -434,12 +443,13 @@ public class CityGameDataConverter {
 		} else {
 			sumField = "distance";
 		}		
-		GroupOperation groupOperation = Aggregation.group("playerId").sum(sumField).as("value");
+		GroupOperation groupOperation = Aggregation.group(groupField).sum(sumField).as("value");
 		
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
+			stat.setPeriod(doc.getString("_id"));
 			if(metric.equalsIgnoreCase("tracks")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
@@ -500,7 +510,7 @@ public class CityGameDataConverter {
 				sdf.setTimeZone(TimeZone.getTimeZone(territory.getTimezone()));
 				String dateFrom = sdf.format(new Date(chalStart));
 				String dateTo = sdf.format(new Date(chalEnd));
-				List<TransportStat> stats = getPlayerTransportStats(player.getPlayerId(), campaign.getCampaignId(), metric, mean, 
+				List<TransportStat> stats = getPlayerTransportStats(player.getPlayerId(), campaign.getCampaignId(), periodType, metric, mean, 
 						dateFrom, dateTo);
 				for(TransportStat ts : stats) {
 					countSuccesses += ts.getValue() >= target ? 1 : 0;
@@ -547,7 +557,7 @@ public class CityGameDataConverter {
 				sdf.setTimeZone(TimeZone.getTimeZone(territory.getTimezone()));
 				String dateFrom = sdf.format(new Date(chalStart));
 				String dateTo = sdf.format(new Date(chalEnd));
-				List<TransportStat> stats = getPlayerTransportStats(player.getPlayerId(), campaign.getCampaignId(), metric, mean, 
+				List<TransportStat> stats = getPlayerTransportStats(player.getPlayerId(), campaign.getCampaignId(), periodType, metric, mean, 
 						dateFrom, dateTo);
 				for(TransportStat ts : stats) {
 					actualStatus += ts.getValue();
