@@ -95,18 +95,18 @@ public class ReportController extends PlayAndGoController {
 	@GetMapping("/api/report/player/transport/stats")
 	public List<TransportStat> getPlayerTransportStats(
 			@RequestParam String campaignId,
+			@RequestParam String playerId,
 			@RequestParam String metric,
 			@RequestParam(required = false) String groupMode,
 			@RequestParam(required = false) String mean,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
 		if(Utils.isEmpty(groupMode)) {
-			return playerReportManager.getPlayerTransportStats(player.getPlayerId(), campaignId, metric, 
+			return playerReportManager.getPlayerTransportStats(playerId, campaignId, metric, 
 					mean, dateFrom, dateTo);
 		} else {
-			return playerReportManager.getPlayerTransportStats(player.getPlayerId(), campaignId, groupMode, metric, 
+			return playerReportManager.getPlayerTransportStats(playerId, campaignId, groupMode, metric, 
 					mean, dateFrom, dateTo);
 		}
 	}
@@ -114,22 +114,22 @@ public class ReportController extends PlayAndGoController {
 	@GetMapping("/api/report/player/game/stats")
 	public List<GameStats> getPlayerGameStats(
 			@RequestParam String campaignId,
+			@RequestParam String playerId,
 			@RequestParam String groupMode,
 			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
-		return playerReportManager.getPlayerGameStats(player.getPlayerId(), campaignId, groupMode, dateFrom, dateTo);
+		return playerReportManager.getPlayerGameStats(playerId, campaignId, groupMode, dateFrom, dateTo);
 	}
 
 	@GetMapping("/api/report/player/transport/record")
 	public List<TransportStat> getPlayerTransportRecord(
 			@RequestParam String campaignId,
+			@RequestParam String playerId,
 			@RequestParam String metric,
 			@RequestParam String groupMode,
 			@RequestParam(required = false) String mean,
 			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
-		return playerReportManager.getPlayerTransportRecord(player.getPlayerId(), campaignId, groupMode, metric, mean);
+		return playerReportManager.getPlayerTransportRecord(playerId, campaignId, groupMode, metric, mean);
 	}
  }
