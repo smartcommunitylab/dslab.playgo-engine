@@ -135,6 +135,19 @@ public class GamificationEngineManager {
 		return null;
 	}
 	
+	public String getPlayerStatus(String playerId, String gameId) {
+		try {
+			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId
+					+ "?readChallenges=false";
+			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+					gamificationUser, gamificationPassword);
+			return json;
+		} catch (Exception e) {
+			logger.error(String.format("getPlayerStatus error: %s - %s - %s", gameId, playerId, e.getMessage()));
+		}
+		return null;
+	}
+	
 	public boolean assignSurveyChallenges(String playerId, String gameId, String surveyName, long start, long end, Map<String, Object> data) {
 		try {
 			ChallengeAssignmentDTO challenge = new ChallengeAssignmentDTO();
