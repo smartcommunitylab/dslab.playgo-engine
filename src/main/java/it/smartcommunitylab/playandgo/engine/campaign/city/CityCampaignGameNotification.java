@@ -63,10 +63,10 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 		if(type.endsWith("GameNotification")) {
 			gameStatusManager.updatePlayerGameStatus(msg);
 		} else {
-			if(type.equalsIgnoreCase("challenge_complete")) {
+			if(type.endsWith("ChallengeCompletedNotication")) {
 				challengeNotification.challengeCompleted(msg);
 			}
-			if(type.equalsIgnoreCase("challenge_failed")) {
+			if(type.endsWith("ChallengeFailedNotication")) {
 				challengeNotification.challengeFailed(msg);
 			}
 			try {

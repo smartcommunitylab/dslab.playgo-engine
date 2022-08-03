@@ -31,7 +31,7 @@ public class CityCampaignChallengeNotification {
 	private void challengeStatus(Map<String, Object> msg) {
 		PlayerStatChallenge stat = new PlayerStatChallenge();
 		String type = (String) msg.get("type");
-		if(type.equalsIgnoreCase("challenge_complete")) {
+		if(type.endsWith("ChallengeCompletedNotication")) {
 			stat.setComplete(Boolean.TRUE);
 		}
 		Map obj = (Map) msg.get("obj");
@@ -42,7 +42,8 @@ public class CityCampaignChallengeNotification {
 			stat.setPlayerId((String) obj.get("playerId"));
 			stat.setTimestamp((Long) obj.get("timestamp"));
 			stat.setChallengeName((String) obj.get("challengeName"));
-			//TODO type and unit
+			stat.setType((String) obj.get("model"));
+			stat.setCounterName((String) obj.get("pointConcept"));
 			playerStatChallengeRepository.save(stat);
 		}
 	}

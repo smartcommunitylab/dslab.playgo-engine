@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.smartcommunitylab.playandgo.engine.dto.ChallengeStatsInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeChoice;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
@@ -147,7 +147,7 @@ public class ChallengeController extends PlayAndGoController {
 	}		
 	
 	@GetMapping("/api/challenge/stats")
-	public @ResponseBody List<PlayerStatChallenge> getChallengeStats(
+	public @ResponseBody List<ChallengeStatsInfo> getChallengeStats(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
 			@RequestParam long dateFrom,

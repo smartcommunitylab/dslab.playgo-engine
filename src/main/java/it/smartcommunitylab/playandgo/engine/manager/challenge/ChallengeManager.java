@@ -34,6 +34,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
+import it.smartcommunitylab.playandgo.engine.dto.ChallengeStatsInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.GameStatistics;
@@ -941,9 +942,20 @@ public class ChallengeManager {
 		return stats.stream().filter(x -> counter.equals(x.getPointConceptName())).collect(Collectors.toList());
 	}
 
-	public List<PlayerStatChallenge> getStats(String playerId, String campaignId, long dateFrom, long dateTo) {
-		return playerStatChallengeRepository.findByPlayerIdAndCampaignIdAndTimestampBetween(playerId, campaignId, 
+	public List<ChallengeStatsInfo> getStats(String playerId, String campaignId, long dateFrom, long dateTo) {
+		List<PlayerStatChallenge> list = playerStatChallengeRepository.findByPlayerIdAndCampaignIdAndTimestampBetween(playerId, campaignId, 
 				dateFrom, dateTo);
+		Map<String, ChallengeStatsInfo> map = new HashMap<>();
+		for(PlayerStatChallenge psc : list) {
+			ChallengeStatsInfo info = map.get(psc.getType());
+			if(info == null) {
+				info = new ChallengeStatsInfo();
+				info.setType(psc.getType());
+				map.put(psc.getType(), info);
+			}
+			info.addState(psc.isComplete());
+		}
+		return new ArrayList<>(map.values());
 	}
 	
 }
