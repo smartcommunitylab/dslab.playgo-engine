@@ -248,7 +248,7 @@ public class GamificationEngineManager {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenges";
 			if(active) {
-				url += "?active=true";
+				url += "?incorso=true";
 			}
 			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
