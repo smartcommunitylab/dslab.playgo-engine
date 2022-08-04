@@ -169,6 +169,7 @@ public class ConsoleController extends PlayAndGoController {
 			@ApiParam(value = "UTC millis") Long dateTo,
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
+			@RequestParam(required = false) Boolean toCheck,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
@@ -179,7 +180,7 @@ public class ConsoleController extends PlayAndGoController {
 			dDateTo = Utils.getUTCDate(dateTo);
 		}
 		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, playerId, modeType, campaignId, status, 
-				dDateFrom, dDateTo, pageRequest);
+				toCheck, dDateFrom, dDateTo, pageRequest);
 	}
 	
 	@GetMapping("/api/console/track/detail")

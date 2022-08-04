@@ -444,7 +444,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	}
 	
 	public Page<TrackedInstanceConsole> searchTrackedInstance(String territoryId, String trackedInstanceId, String playerId, String modeType, 
-			String campaignId, String validationStatus, Date dateFrom, Date dateTo, Pageable pageRequest) {
+			String campaignId, String validationStatus, Boolean toCheck, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		List<AggregationOperation> operations = new ArrayList<>();
 		Criteria criteria = new Criteria("territoryId").is(territoryId);
 		if(Utils.isNotEmpty(trackedInstanceId)) {
@@ -459,6 +459,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 		if(Utils.isNotEmpty(validationStatus)) {
 			criteria = criteria.and("validationResult.validationStatus.validationOutcome").is(validationStatus);	
+		}
+		if(toCheck != null) {
+			criteria = criteria.and("toCheck").is(toCheck);
 		}
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
