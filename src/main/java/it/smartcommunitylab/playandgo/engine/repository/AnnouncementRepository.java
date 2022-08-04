@@ -24,7 +24,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import it.smartcommunitylab.playandgo.engine.notification.Announcement;
-import it.smartcommunitylab.playandgo.engine.notification.Notification;
 
 /**
  * @author raman
@@ -35,7 +34,7 @@ public interface AnnouncementRepository extends MongoRepository<Announcement, St
 	@Query("{territoryId: ?0, campaignId: ?1, channels: {$in: ?2}}")
 	Page<Announcement> searchAnnouncements(String territoryId, String campaignId, List<String> channels, Pageable pr);
 
-	@Query("{territoryId: ?0, channels: {$in: ?2}}")
+	@Query("{territoryId: ?0, channels: {$in: ?1}}")
 	Page<Announcement> searchAnnouncements(String territoryId, List<String> channels, Pageable pr);
 
 }
