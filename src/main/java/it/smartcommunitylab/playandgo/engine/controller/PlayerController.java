@@ -115,9 +115,9 @@ public class PlayerController extends PlayAndGoController {
 	
 	@GetMapping("/api/player/avatar")
 	public Avatar getPlayerAvatar(
+			@RequestParam String playerId,
 			HttpServletRequest request) throws Exception {
-		Player player = getCurrentPlayer(request);
-		Avatar avatar = avatarManager.getPlayerAvatar(player.getPlayerId());
+		Avatar avatar = avatarManager.getPlayerAvatar(playerId);
 		if(avatar == null) {
 			throw new BadRequestException("avatar not found", ErrorCode.IMAGE_NOT_FOUND);
 		}
