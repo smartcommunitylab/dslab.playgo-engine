@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import it.smartcommunitylab.playandgo.engine.dto.CampaignInfo;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
@@ -128,6 +129,13 @@ public class CampaignController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		return campaignManager.getPlayerCampaigns(player.getPlayerId());
+	}
+	
+	@GetMapping("/api/campaign/player")
+	public List<CampaignInfo> getCampaignsByPlayer(
+			@RequestParam String playerId,	
+			HttpServletRequest request) throws Exception {
+		return campaignManager.getCampaignsByPlayer(playerId);
 	}
 	
 	@PostMapping("/api/campaign/{campaignId}/subscribe")

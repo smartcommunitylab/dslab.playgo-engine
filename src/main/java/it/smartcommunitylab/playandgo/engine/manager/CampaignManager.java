@@ -32,6 +32,7 @@ import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignSub
 import it.smartcommunitylab.playandgo.engine.campaign.personal.PersonalCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.dto.CampaignInfo;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
@@ -518,6 +519,21 @@ public class CampaignManager {
 				campaignSubscriptionRepository.save(subscription);
 			}
 		}
+	}
+
+	public List<CampaignInfo> getCampaignsByPlayer(String playerId) {
+		List<CampaignInfo> result = new ArrayList<>();
+		List<CampaignSubscription> campaigns = campaignSubscriptionRepository.findByPlayerId(playerId);
+		for(CampaignSubscription sub : campaigns) {
+			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
+			if(campaign != null) {
+				if(campaign.currentlyActive()) {
+					CampaignInfo info = new CampaignInfo(campaign);
+					result.add(info);
+				}
+			}
+		}
+		return result;
 	}
 	
 }
