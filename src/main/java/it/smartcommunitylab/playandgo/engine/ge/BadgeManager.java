@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
@@ -30,6 +31,8 @@ public class BadgeManager {
 
 	@PostConstruct
 	public void init() throws Exception {
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		
 		badges = Maps.newTreeMap();
 		List<BadgesData> badgeList = mapper.readValue(Paths.get(challengeDir + "/badges.json").toFile(), new TypeReference<List<BadgesData>>() {});
 		for (BadgesData badge: badgeList) {
