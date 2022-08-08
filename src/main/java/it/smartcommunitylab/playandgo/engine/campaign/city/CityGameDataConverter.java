@@ -47,6 +47,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
 import com.google.common.io.Resources;
 
+import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
@@ -141,6 +142,9 @@ public class CityGameDataConverter {
 	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
 	
+	@Autowired
+	private BadgeManager badgeManager;
+	
 	private Map<String, ChallengeStructure> challengeStructureMap;
 	private Map<String, ChallengeLongDescrStructure> challengeLongStructureMap;
 
@@ -177,16 +181,7 @@ public class CityGameDataConverter {
 		challengeDictionaryMap = mapper.readValue(Paths.get(challengeDir + "/challenges_dictionary.json").toFile(), Map.class);
 		challengeReplacements = mapper.readValue(Paths.get(challengeDir + "/challenges_replacements.json").toFile(), Map.class);
 		
-		badges = Maps.newTreeMap();
-		List<BadgesData> badgeList = mapper.readValue(Paths.get(challengeDir + "/badges.json").toFile(), new TypeReference<List<BadgesData>>() {});
-		for (BadgesData badge: badgeList) {
-			
-			URL resource = getClass().getResource("/static/web/" + badge.getPath());
-			byte b[] = Resources.asByteSource(resource).read();
-
-			badge.setImageByte(b);
-			badges.put(badge.getTextId(), badge);
-		}
+		badges = badgeManager.getAllBadges();
 	}
 	
 	public String encryptIdentity(String playerId, String gameId) throws Exception {

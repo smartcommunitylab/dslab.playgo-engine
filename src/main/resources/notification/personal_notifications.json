@@ -215,7 +215,7 @@
 				}
 			]
 		}
-},
+	},
 	{
 		"id": "ChallengeInvitationCanceledNotification",
 		"type": "challenge_cancel",
@@ -246,7 +246,6 @@
 			]
 		}
 	},
-	
 	{
 		"id": "ChallengeAssignedNotification",
 		"type": "challenge_assigned",
@@ -288,10 +287,35 @@
 		},
 		"extras": {
 		}
-	}			
-	
-	
-	
-		
-		
+	},
+	{
+		"id": "BadgeNotification",
+		"type": "badge",
+		"title": {
+			"it": "Stemma",
+			"en": "Badge"
+		},
+		"description": {
+			"it": "Complimenti! Hai vinto lo stemma '<badgeName>'!",
+			"en": "Congratulations! You won the badge '<badgeName>'!"
+		},
+		"extras": {
+			"it": [
+				{
+					"type": "REPLACE",
+					"key": "badgeName",
+					"value": null,
+					"string": "badgeName"
+				}
+			],
+			"en": [
+				{
+					"type": "REPLACE",
+					"key": "badgeName",
+					"value": null,
+					"string": "badgeName"
+				}
+			]
+		}
+	}		
 ]

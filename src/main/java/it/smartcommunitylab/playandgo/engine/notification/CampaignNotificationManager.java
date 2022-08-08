@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
+import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
@@ -36,7 +38,7 @@ public class CampaignNotificationManager {
 	@SuppressWarnings("rawtypes")
 	private static final List<Class> notificationClasses = Lists.newArrayList(new Class[] 
 	{ LevelGainedNotification.class, ChallengeInvitationAcceptedNotification.class, ChallengeInvitationRefusedNotification.class, ChallengeInvitationCanceledNotification.class,
-		ChallengeAssignedNotification.class, ChallengeCompletedNotication.class, ChallengeFailedNotication.class });
+		ChallengeAssignedNotification.class, ChallengeCompletedNotication.class, ChallengeFailedNotication.class, BadgeNotification.class });
 	@SuppressWarnings("rawtypes")
 	private Map<String, Class> notificationClassesMap;
 	
@@ -55,6 +57,9 @@ public class CampaignNotificationManager {
 	CampaignRepository campaignRepository;
 	
 	@Autowired
+	private BadgeManager badgeManager;
+
+	@Autowired
 	private CommunicationHelper notificatioHelper;
 
 	private ObjectMapper mapper = new ObjectMapper(); {
@@ -62,7 +67,8 @@ public class CampaignNotificationManager {
 	}	
 	
 	private Map<String, NotificationMessage> notificationsMessages;
-
+	private Map<String, BadgesData> badges;
+	
 	@PostConstruct
 	public void init() throws Exception {
 		notificationClassesMap = Maps.newTreeMap();
@@ -72,6 +78,8 @@ public class CampaignNotificationManager {
 		List<NotificationMessage> messages = mapper.readValue(new File(notificationDir + "/personal_notifications.json"), new TypeReference<List<NotificationMessage>>() {
 		});
 		notificationsMessages = messages.stream().collect(Collectors.toMap(NotificationMessage::getId, Function.identity()));
+		
+		badges = badgeManager.getAllBadges();
 	}
 	
 	
@@ -139,7 +147,7 @@ public class CampaignNotificationManager {
 	
 	private Notification buildNotification(String campaignId, String gameId, String playerId, String lang, NotificationGe not) {
 		String type = not.getClass().getSimpleName();
-		Map<String, String> extraData = buildExtraData(not);
+		Map<String, String> extraData = buildExtraData(not, lang);
 		
 		Notification result = new Notification();
 		
@@ -160,40 +168,48 @@ public class CampaignNotificationManager {
 		return result;
 	}	
 	
-	private Map<String, String> buildExtraData(NotificationGe not) {
+	private Map<String, String> buildExtraData(NotificationGe not, String lang) {
 		Map<String, String> result = Maps.newTreeMap();
 
 		switch (not.getClass().getSimpleName()) {
-		case "LevelGainedNotification": {
-			result.put("levelName", ((LevelGainedNotification) not).getLevelName());
-			result.put("levelIndex", ((LevelGainedNotification) not).getLevelIndex() != null ? ((LevelGainedNotification) not).getLevelIndex().toString() : "");
-			break;
-		}
-		case "ChallengeInvitationAcceptedNotification": {
-			Player guest = playerRepository.findById(((ChallengeInvitationAcceptedNotification) not).getGuestId()).orElse(null);
-			result.put("assigneeName", guest.getNickname());
-			break;
-		}
-		case "ChallengeInvitationRefusedNotification": {
-			Player guest = playerRepository.findById(((ChallengeInvitationRefusedNotification) not).getGuestId()).orElse(null);
-			result.put("assigneeName", guest.getNickname());
-			break;
-		}
-		case "ChallengeInvitationCanceledNotification": {
-			Player proposer = playerRepository.findById(((ChallengeInvitationCanceledNotification) not).getProposerId()).orElse(null);
-			result.put("challengerName", proposer.getNickname());
-			break;
-		}
-		case "ChallengeAssignedNotification":
-			result.put("challengeId", ((ChallengeAssignedNotification)not).getChallengeName());
-			break;		
-		case "ChallengeCompletedNotication":
-			result.put("challengeId", ((ChallengeCompletedNotication)not).getChallengeName());
-			break;
-		case "ChallengeFailedNotication": {
-			result.put("challengeId", ((ChallengeFailedNotication)not).getChallengeName());
-			break;
-		}		
+			case "LevelGainedNotification": {
+				result.put("levelName", ((LevelGainedNotification) not).getLevelName());
+				result.put("levelIndex", ((LevelGainedNotification) not).getLevelIndex() != null ? ((LevelGainedNotification) not).getLevelIndex().toString() : "");
+				break;
+			}
+			case "ChallengeInvitationAcceptedNotification": {
+				Player guest = playerRepository.findById(((ChallengeInvitationAcceptedNotification) not).getGuestId()).orElse(null);
+				result.put("assigneeName", guest.getNickname());
+				break;
+			}
+			case "ChallengeInvitationRefusedNotification": {
+				Player guest = playerRepository.findById(((ChallengeInvitationRefusedNotification) not).getGuestId()).orElse(null);
+				result.put("assigneeName", guest.getNickname());
+				break;
+			}
+			case "ChallengeInvitationCanceledNotification": {
+				Player proposer = playerRepository.findById(((ChallengeInvitationCanceledNotification) not).getProposerId()).orElse(null);
+				result.put("challengerName", proposer.getNickname());
+				break;
+			}
+			case "ChallengeAssignedNotification":
+				result.put("challengeId", ((ChallengeAssignedNotification)not).getChallengeName());
+				break;		
+			case "ChallengeCompletedNotication":
+				result.put("challengeId", ((ChallengeCompletedNotication)not).getChallengeName());
+				break;
+			case "ChallengeFailedNotication": {
+				result.put("challengeId", ((ChallengeFailedNotication)not).getChallengeName());
+				break;
+			}
+			case "BadgeNotification": {
+				String badge = ((BadgeNotification)not).getBadge();
+				BadgesData badgesData = badges.get(badge);
+				if(badgesData != null) {
+					result.put("badgeName", badgesData.getText().get(lang));
+				}
+				break;
+			}
 		}
 
 		return result;
