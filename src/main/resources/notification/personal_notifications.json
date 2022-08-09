@@ -292,11 +292,11 @@
 		"id": "BadgeNotification",
 		"type": "badge",
 		"title": {
-			"it": "Stemma",
+			"it": "Distintivo",
 			"en": "Badge"
 		},
 		"description": {
-			"it": "Complimenti! Hai vinto lo stemma '<badgeName>'!",
+			"it": "Complimenti! Hai vinto il distintivo '<badgeName>'!",
 			"en": "Congratulations! You won the badge '<badgeName>'!"
 		},
 		"extras": {
