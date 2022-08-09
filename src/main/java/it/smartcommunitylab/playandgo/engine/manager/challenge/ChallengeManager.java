@@ -942,20 +942,4 @@ public class ChallengeManager {
 		return stats.stream().filter(x -> counter.equals(x.getPointConceptName())).collect(Collectors.toList());
 	}
 
-	public List<ChallengeStatsInfo> getStats(String playerId, String campaignId, long dateFrom, long dateTo) {
-		List<PlayerStatChallenge> list = playerStatChallengeRepository.findByPlayerIdAndCampaignIdAndTimestampBetween(playerId, campaignId, 
-				dateFrom, dateTo);
-		Map<String, ChallengeStatsInfo> map = new HashMap<>();
-		for(PlayerStatChallenge psc : list) {
-			ChallengeStatsInfo info = map.get(psc.getType());
-			if(info == null) {
-				info = new ChallengeStatsInfo();
-				info.setType(psc.getType());
-				map.put(psc.getType(), info);
-			}
-			info.addState(psc.isComplete());
-		}
-		return new ArrayList<>(map.values());
-	}
-	
 }

@@ -13,11 +13,14 @@ public class PlayerStatChallenge {
 	@Indexed
 	private String campaignId;
 	@Indexed
-	private Long timestamp;
+	private String day;
+	private String weekOfYear;
+	private String monthOfYear;	
 	private String type;
 	private String challengeName;
 	private String counterName;
-	private Boolean complete = Boolean.FALSE;
+	private int completed;
+	private int failed;
 	
 	public String getId() {
 		return id;
@@ -37,23 +40,11 @@ public class PlayerStatChallenge {
 	public void setCampaignId(String campaignId) {
 		this.campaignId = campaignId;
 	}
-	public Long getTimestamp() {
-		return timestamp;
-	}
-	public void setTimestamp(Long timestamp) {
-		this.timestamp = timestamp;
-	}
 	public String getType() {
 		return type;
 	}
 	public void setType(String type) {
 		this.type = type;
-	}
-	public Boolean isComplete() {
-		return complete;
-	}
-	public void setComplete(Boolean complete) {
-		this.complete = complete;
 	}
 	public String getChallengeName() {
 		return challengeName;
@@ -66,6 +57,36 @@ public class PlayerStatChallenge {
 	}
 	public void setCounterName(String counterName) {
 		this.counterName = counterName;
+	}
+	public String getDay() {
+		return day;
+	}
+	public void setDay(String day) {
+		this.day = day;
+	}
+	public String getWeekOfYear() {
+		return weekOfYear;
+	}
+	public void setWeekOfYear(String weekOfYear) {
+		this.weekOfYear = weekOfYear;
+	}
+	public String getMonthOfYear() {
+		return monthOfYear;
+	}
+	public void setMonthOfYear(String monthOfYear) {
+		this.monthOfYear = monthOfYear;
+	}
+	public int getCompleted() {
+		return completed;
+	}
+	public void setCompleted(int completed) {
+		this.completed = completed;
+	}
+	public int getFailed() {
+		return failed;
+	}
+	public void setFailed(int failed) {
+		this.failed = failed;
 	}
 	
 }

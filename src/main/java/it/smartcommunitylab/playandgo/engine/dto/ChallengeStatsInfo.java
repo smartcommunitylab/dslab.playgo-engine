@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.dto;
 
 public class ChallengeStatsInfo {
 	private String type;
+	private String period;
 	private int completed;
 	private int failed;
 	
@@ -38,6 +39,14 @@ public class ChallengeStatsInfo {
 	}
 	public void setFailed(int failed) {
 		this.failed = failed;
+	}
+
+	public String getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(String period) {
+		this.period = period;
 	}
 	
 }

@@ -5,9 +5,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylab.playandgo.engine.model.Campaign;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatChallenge;
-import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.manager.ChallengeStatsManager;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatChallengeRepository;
 
 @Component
@@ -17,7 +15,7 @@ public class CityCampaignChallengeNotification {
 	PlayerStatChallengeRepository playerStatChallengeRepository;
 	
 	@Autowired
-	CampaignRepository campaignRepository;
+	ChallengeStatsManager challengeStatsManager;
 	
 	public void challengeCompleted(Map<String, Object> msg) {
 		challengeStatus(msg);
@@ -29,22 +27,20 @@ public class CityCampaignChallengeNotification {
 	
 	@SuppressWarnings("rawtypes")
 	private void challengeStatus(Map<String, Object> msg) {
-		PlayerStatChallenge stat = new PlayerStatChallenge();
 		String type = (String) msg.get("type");
+		boolean completed = false;
 		if(type.endsWith("ChallengeCompletedNotication")) {
-			stat.setComplete(Boolean.TRUE);
+			completed = true;
 		}
 		Map obj = (Map) msg.get("obj");
 		if(obj.containsKey("gameId")) {
 			String gameId = (String) obj.get("gameId");
-			Campaign campaign = campaignRepository.findByGameId(gameId);
-			stat.setCampaignId(campaign.getCampaignId());
-			stat.setPlayerId((String) obj.get("playerId"));
-			stat.setTimestamp((Long) obj.get("timestamp"));
-			stat.setChallengeName((String) obj.get("challengeName"));
-			stat.setType((String) obj.get("model"));
-			stat.setCounterName((String) obj.get("pointConcept"));
-			playerStatChallengeRepository.save(stat);
+			String playerId = (String) obj.get("playerId");
+			String model = (String) obj.get("model");
+			String challengeName = (String) obj.get("challengeName");
+			String counterName = (String) obj.get("pointConcept");
+			long timestamp = (Long) obj.get("timestamp");
+			challengeStatsManager.updateChallengeStat(playerId, gameId, model, challengeName, counterName, timestamp, completed);			
 		}
 	}
 }

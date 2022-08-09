@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.ChallengeStatsInfo;
+import it.smartcommunitylab.playandgo.engine.manager.ChallengeStatsManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeChoice;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
@@ -30,7 +32,6 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitati
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.Invitation;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatChallenge;
 
 @RestController
 public class ChallengeController extends PlayAndGoController {
@@ -38,6 +39,9 @@ public class ChallengeController extends PlayAndGoController {
 	
 	@Autowired
 	private ChallengeManager challengeManager;		
+	
+	@Autowired
+	private ChallengeStatsManager challengeStatsManager;
 	
 	private ObjectMapper mapper = new ObjectMapper(); {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -150,9 +154,10 @@ public class ChallengeController extends PlayAndGoController {
 	public @ResponseBody List<ChallengeStatsInfo> getChallengeStats(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
-			@RequestParam long dateFrom,
-			@RequestParam long dateTo,
+			@RequestParam(required = false) String groupMode,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
-		return challengeManager.getStats(playerId, campaignId, dateFrom, dateTo);
+		return challengeStatsManager.getPlayerChallengeStats(playerId, campaignId, groupMode, dateFrom, dateTo);
 	}
 }
