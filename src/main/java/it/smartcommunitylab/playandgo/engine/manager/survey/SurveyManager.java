@@ -142,7 +142,7 @@ public class SurveyManager {
 					} else {
 						SurveyRequest sr = campaign.getSurveyByName(surveyName);
 						if(sr != null) {
-							info.setUrl(sr.getSurveyLink());
+							info.setUrl(sr.getSurveyLink().replace("playerId", id));
 						}
 					}
 				}
