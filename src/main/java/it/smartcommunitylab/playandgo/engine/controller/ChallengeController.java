@@ -154,9 +154,9 @@ public class ChallengeController extends PlayAndGoController {
 	public @ResponseBody List<ChallengeStatsInfo> getChallengeStats(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
-			@RequestParam(required = false) String groupMode,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam String groupMode,
+			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		return challengeStatsManager.getPlayerChallengeStats(playerId, campaignId, groupMode, dateFrom, dateTo);
 	}
