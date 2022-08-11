@@ -720,6 +720,7 @@ public class CityGameDataConverter {
 	    				// survey link to be passed
 	    				String link = gamificationEngineManager.createSurveyUrl(playerId, gameId, (String)challenge.getFields().get("surveyType"), language);
 	    				challenge.getFields().put("surveylink", link);
+	    				challengeData.setExtUrl(link);
 	    				break;
     				}
     				case CHAL_MODEL_INCENTIVE_GROUP: {

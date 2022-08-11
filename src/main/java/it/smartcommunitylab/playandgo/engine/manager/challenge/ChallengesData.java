@@ -24,6 +24,8 @@ public class ChallengesData implements Comparable<ChallengesData> {
 	private String proposerId;
 	private OtherAttendeeData otherAttendeeData;
 	
+	private String extUrl;
+	
 	public ChallengesData(){
 		super();
 	}
@@ -177,6 +179,14 @@ public class ChallengesData implements Comparable<ChallengesData> {
 			res = challId.compareTo(o.challId);
 		}
 		return res;
+	}
+
+	public String getExtUrl() {
+		return extUrl;
+	}
+
+	public void setExtUrl(String extUrl) {
+		this.extUrl = extUrl;
 	}
 
 	
