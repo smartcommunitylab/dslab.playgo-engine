@@ -52,7 +52,9 @@ container_scanning:
 
 deploy:
   stage: deploy
-  image: bitnami/kubectl:latest
+  image: 
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
   environment:
     name: platform-new
   script:
