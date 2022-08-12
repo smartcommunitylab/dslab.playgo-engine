@@ -52,7 +52,7 @@ container_scanning:
 
 deploy:
   stage: deploy
-  image: smartcommunitylab/kubectl-alpine:latest
+  image: bitnami/kubectl:latest
   environment:
     name: platform-new
   script:
