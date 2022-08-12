@@ -111,6 +111,17 @@ public class ReportController extends PlayAndGoController {
 		}
 	}
 	
+	@GetMapping("/api/report/player/transport/stats/mean")
+	public List<TransportStat> getPlayerTransportStatsGroupByMean(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam String metric,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			HttpServletRequest request) throws Exception {
+		return playerReportManager.getPlayerTransportStatsGroupByMean(playerId, campaignId, metric, dateFrom, dateTo);
+	}
+	
 	@GetMapping("/api/report/player/game/stats")
 	public List<GameStats> getPlayerGameStats(
 			@RequestParam String campaignId,

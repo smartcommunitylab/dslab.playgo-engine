@@ -434,6 +434,44 @@ public class PlayerCampaignPlacingManager {
 		return result;
 	}
 	
+	public List<TransportStat> getPlayerTransportStatsGroupByMean(String playerId, String campaignId, String metric,
+			String dateFrom, String dateTo) {
+		List<TransportStat> result = new ArrayList<>();
+		
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+		if((dateFrom != null) && (dateTo != null)) {
+			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		} else {
+			criteria = criteria.and("global").is(Boolean.TRUE);
+		}
+		MatchOperation matchOperation = Aggregation.match(criteria);
+		
+		String sumField = null;
+		if(metric.equalsIgnoreCase("co2")) {
+			sumField = "co2";
+		} else if(metric.equalsIgnoreCase("tracks")) { 
+			sumField = "trackNumber";
+		} else {
+			sumField = "distance";
+		}		
+		GroupOperation groupOperation = Aggregation.group("modeType").sum(sumField).as("value");
+		SortOperation sortOperation = Aggregation.sort(Direction.DESC, "modeType");
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
+		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
+		for(Document doc : aggregationResults.getMappedResults()) {
+			TransportStat stat = new TransportStat();
+			stat.setPeriod(doc.getString("_id"));
+			if(metric.equalsIgnoreCase("tracks")) {
+				Long l = doc.getLong("value");
+				stat.setValue(l.doubleValue());
+			} else {
+				stat.setValue(doc.getDouble("value"));
+			}
+			result.add(stat);
+		}
+		return result;
+	}
+	
 	public List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String metric, String mean, 
 			String dateFrom, String dateTo) {
 		List<TransportStat> result = new ArrayList<>();
