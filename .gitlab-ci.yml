@@ -60,6 +60,7 @@ deploy:
   script:
     - touch "kubeconfig"
     - echo "$KUBECONFIGFILE" >> /tmp/kubeconfig
+    - cat /tmp/kubeconfig
     - echo "deploy backend"
     - kubectl -n playngo-dev set image deployments/playngo-engine playngo-engine=$CONTAINER_IMAGE --record=true
     - kubectl -n playngo-dev rollout status deployment playngo-engine
