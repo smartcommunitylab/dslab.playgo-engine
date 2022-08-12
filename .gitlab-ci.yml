@@ -16,22 +16,11 @@ variables:
   DOCKER_DRIVER: overlay
   CONTAINER_IMAGE: smartcommunitylab/playngo-engine:v2-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA
   CONTAINER_IMAGE_LATEST: smartcommunitylab/playngo-engine:v2-$CI_COMMIT_REF_NAME-latest
-  # MAVEN_CLI_OPTS: -DskipTests --batch-mode
   SAST_JAVA_VERSION: 11
-
-# maven-test:
-#   image: maven:3-openjdk-8
-#   stage: test
-#   script:
-#     - mvn $MAVEN_REPO test
 
 maven-build:
   image: maven:3-openjdk-11
   stage: build
-  # only:
-  #   refs:
-  #     - dev
-  #     - master
   script:
     - mvn -DskipTests=true clean package
 
@@ -60,16 +49,6 @@ container_scanning:
     GIT_STRATEGY: fetch
     DOCKER_USER: ""
     DOCKER_PASSWORD: ""
-#   rules:
-#     - if: '$CI_COMMIT_REF_NAME != "adc-aac-test"'
-#
-# gemnasium-dependency_scanning:
-#   rules:
-#     - if: '$CI_COMMIT_REF_NAME != "adc-aac-test"'
-#
-# spotbugs-sast:
-#   rules:
-#     - if: '$CI_COMMIT_REF_NAME != "adc-aac-test"'
 
 deploy:
   stage: deploy
@@ -77,6 +56,8 @@ deploy:
   environment:
     name: platform-new
   script:
+    - touch "kubeconfig"
+    - echo "$KUBECONFIGFILE" >> /tmp/kubeconfig
     - echo "deploy backend"
     - kubectl -n playngo-dev set image deployments/playngo-engine playngo-engine=$CONTAINER_IMAGE --record=true
     - kubectl -n playngo-dev rollout status deployment playngo-engine
