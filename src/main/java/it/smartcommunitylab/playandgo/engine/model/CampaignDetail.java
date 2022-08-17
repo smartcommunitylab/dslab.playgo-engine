@@ -2,7 +2,7 @@ package it.smartcommunitylab.playandgo.engine.model;
 
 public class CampaignDetail {
 	
-	public static enum DescType {privacy, rules, faq, rewards}
+	public static enum DescType {privacy, rules, faq, rewards, sponsor}
 	
 	private DescType type;
 	private String name;
