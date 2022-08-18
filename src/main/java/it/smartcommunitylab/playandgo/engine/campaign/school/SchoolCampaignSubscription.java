@@ -14,7 +14,10 @@ import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
+import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
@@ -26,6 +29,9 @@ public class SchoolCampaignSubscription {
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
+	
+	@Autowired
+	MessageQueueManager queueManager;
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData) throws Exception {
@@ -47,7 +53,38 @@ public class SchoolCampaignSubscription {
 		//create player on GE
 		if(Utils.isNotEmpty(campaign.getGameId())) {
 			gamificationEngineManager.createPlayer(player.getPlayerId(), campaign.getGameId());
-		}		
+		}
+		sendRegisterWebhookRequest(sub);
 		return sub;
 	}
+	
+	public void unsubscribeCampaign(Player player, Campaign campaign) throws Exception {
+		sendUnregisterWebhookRequest(player.getPlayerId(), campaign.getCampaignId());
+	}
+	
+	private void sendRegisterWebhookRequest(CampaignSubscription sub) {
+		WebhookRequest req = new  WebhookRequest();
+		req.setCampaignId(sub.getCampaignId());
+		req.setPlayerId(sub.getPlayerId());
+		req.setEventType(EventType.register);
+		req.getData().putAll(sub.getCampaignData());
+		try {
+			queueManager.sendCallWebhookRequest(req);
+		} catch (Exception e) {
+			logger.error("sendWebhookRequest:" + e.getMessage());
+		}
+	}
+	
+	private void sendUnregisterWebhookRequest(String playerId, String campaignId) {
+		WebhookRequest req = new  WebhookRequest();
+		req.setCampaignId(campaignId);
+		req.setPlayerId(playerId);
+		req.setEventType(EventType.unregister);
+		try {
+			queueManager.sendCallWebhookRequest(req);
+		} catch (Exception e) {
+			logger.error("sendWebhookRequest:" + e.getMessage());
+		}
+	}
+	
 }

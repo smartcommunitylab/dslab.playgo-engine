@@ -19,10 +19,12 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
+import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
+import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
@@ -68,6 +70,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 						LegResult legResult = trackResult.getLegs().get(0);
 						populatePlayerTrack(playerTrack, legResult.getMean(), legResult.getValidDistance());
 						playerReportManager.updatePlayerCampaignPlacings(playerTrack);
+						sendWebhookRequest(playerTrack);
 					}
 				} catch (ServiceException e) {
 					logger.warn("validateTripRequest error:" + e.getMessage());
@@ -107,6 +110,19 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 			return trackData;
 		}
 		return null;
+	}
+	
+	private void sendWebhookRequest(CampaignPlayerTrack pt) {
+		WebhookRequest req = new  WebhookRequest();
+		req.setCampaignId(pt.getCampaignId());
+		req.setPlayerId(pt.getPlayerId());
+		req.setEventType(EventType.validTrack);
+		req.getData().put("trackedInstanceId", pt.getTrackedInstanceId());
+		try {
+			queueManager.sendCallWebhookRequest(req);
+		} catch (Exception e) {
+			logger.error("sendWebhookRequest:" + e.getMessage());
+		}
 	}
 	
 	@Override

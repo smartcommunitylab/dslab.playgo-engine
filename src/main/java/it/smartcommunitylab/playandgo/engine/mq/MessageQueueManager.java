@@ -29,6 +29,7 @@ public class MessageQueueManager {
 	public static final String invalidateCampaignTripRequest = "playgo-campaign-invt-request";
 	public static final String updateCampaignTripRequest = "playgo-campaign-updt-request";
 	//public static final String validateCampaignTripResponse = "playgo-campaign-vt-r";
+	public static final String callWebhookRequest = "playgo-campaign-webhook-request";
 	
 	@Value("${rabbitmq_pg.host}")
 	private String rabbitMQHost;	
@@ -49,14 +50,18 @@ public class MessageQueueManager {
 	
 	private Channel validateTripChannel; 
 	private Channel validateCampaignTripChannel;
+	private Channel callWebhookChannel;
 	
 	private ManageValidateTripRequest manageValidateTripRequest;
+	
+	private ManageWebhookRequest manageWebhookRequest;
 	
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
 	DeliverCallback validateCampaignTripRequestCallback;
 	DeliverCallback invalidateCampaignTripRequestCallback;
 	DeliverCallback updateCampaignTripRequestCallback;
+	DeliverCallback callWebhookCallback;
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -126,7 +131,25 @@ public class MessageQueueManager {
 			}
 		};
 		validateCampaignTripChannel.basicConsume(updateCampaignTripRequest, true, updateCampaignTripRequestCallback, consumerTag -> {});
-
+		
+		callWebhookChannel = connection.createChannel();
+		callWebhookChannel.queueDeclare(callWebhookRequest, true, false, false, null);
+		callWebhookCallback = (consumerTag, delivery) -> {
+			String json = new String(delivery.getBody(), "UTF-8");
+			logger.debug("callWebhookCallback:" + json);
+			WebhookRequest msg = mapper.readValue(json, WebhookRequest.class);
+			if(manageWebhookRequest != null) {
+				try {
+					manageWebhookRequest.sendMessage(msg);
+					callWebhookChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);					
+				} catch (Exception e) {
+					logger.error(String.format("callWebhookCallback error:%s - %s - %s", 
+							msg.getCampaignId(), msg.getPlayerId(), e.getMessage()));
+					callWebhookChannel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
+				}
+			}
+		};
+		callWebhookChannel.basicConsume(callWebhookRequest, false, callWebhookCallback, consumerTag -> {});
 	}
 	
 	@PreDestroy
@@ -147,6 +170,14 @@ public class MessageQueueManager {
 				logger.warn("destroy:" + e.getMessage());
 			}
 		}
+		if(callWebhookChannel != null) {
+			try {
+				callWebhookChannel.close();
+				logger.info("close callWebhookChannel");
+			} catch (Exception e) {
+				logger.warn("destroy:" + e.getMessage());
+			}			
+		}
 		if(connection != null) {
 			try {
 				connection.close();
@@ -155,6 +186,10 @@ public class MessageQueueManager {
 				logger.warn("destroy:" + e.getMessage());
 			}
 		}
+	}
+	
+	public void setManageWebhookRequest(ManageWebhookRequest manager) {
+		this.manageWebhookRequest = manager;
 	}
 	
 	public void setManageValidateTripRequest(ManageValidateTripRequest manager) {
@@ -183,6 +218,11 @@ public class MessageQueueManager {
 	public void sendUpdateCampaignTripRequest(UpdateCampaignTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
 		validateTripChannel.basicPublish("", updateCampaignTripRequest, null, msg.getBytes("UTF-8"));
+	}
+	
+	public void sendCallWebhookRequest(WebhookRequest message) throws Exception {
+		String msg = mapper.writeValueAsString(message);
+		callWebhookChannel.basicPublish("", callWebhookRequest, null, msg.getBytes("UTF-8"));
 	}
 
 
