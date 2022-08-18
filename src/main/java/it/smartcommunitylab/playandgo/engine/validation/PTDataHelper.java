@@ -39,7 +39,9 @@ import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.TTDescriptor;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
 
 @Component
@@ -59,12 +61,22 @@ public class PTDataHelper {
 
 	@Autowired
 	@Value("${validation.shapefolder}")
-	private String shapeFolder;	
+	private String shapeFolder;
+	
+	@Autowired
+	TerritoryRepository territoryRepository;
 	
 	@PostConstruct
 	public void init() {
 		_instance = this;
-		// TODO async init for all territories ?
+		List<Territory> list = territoryRepository.findAll();
+		list.forEach(t -> {
+			try {
+				_instance.initValidationData(t.getTerritoryId());
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}			
+		});
 	}
 	
 	/**

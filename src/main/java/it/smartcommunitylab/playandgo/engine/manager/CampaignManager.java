@@ -240,11 +240,21 @@ public class CampaignManager {
 		if(subscription != null) {
 			Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 			if(campaign != null) {
-				if(Type.personal.equals(campaign.getType()) || Type.school.equals(campaign.getType())) {
+				if(Type.personal.equals(campaign.getType())) {
 					throw new BadRequestException("operation not allowed", ErrorCode.OPERATION_NOT_ALLOWED);
 				}
-				if(Type.company.equals(campaign.getType())) {
-					companyCampaignSubscription.unsubscribeCampaign(player, campaign);
+				switch (campaign.getType()) {
+					case company:
+						companyCampaignSubscription.unsubscribeCampaign(player, campaign);
+						break;
+					case city:
+						cityCampaignSubscription.unsubscribeCampaign(player, campaign);
+						break;
+					case school:
+						schoolCampaignSubscription.unsubscribeCampaign(player, campaign);
+						break;
+					case personal:
+						break;
 				}
 				campaignSubscriptionRepository.deleteById(subscription.getId());
 			}

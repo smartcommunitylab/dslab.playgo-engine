@@ -54,7 +54,6 @@ public class PlayerManager {
 			throw new BadRequestException("nickname already exists", ErrorCode.PLAYER_NICK_EXISTS);
 		}
 		playerDb = playerRepository.save(player);
-		//TODO subscribe default campaign?
 		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
 		if(campaign != null) {
 			campaignManager.subscribePlayer(playerDb, campaign.getCampaignId(), null);

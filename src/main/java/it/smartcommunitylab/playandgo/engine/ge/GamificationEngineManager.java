@@ -369,4 +369,20 @@ public class GamificationEngineManager {
 		return false;						
 	}
 	
+	public boolean createPlayer(String playerId, String gameId) {
+		try {
+			Map<String, Object> data = new HashMap<>();
+			data.put("gameId", gameId);
+			data.put("playerId", playerId);			
+			String content = JsonUtils.toJSON(data);
+			String url = gamificationUrl + "/console/game/" + gameId + "/player";
+			HTTPConnector.doBasicAuthenticationPost(url, content, "application/json", 
+					"application/json", gamificationUser, gamificationPassword);
+			return true;
+		} catch (Exception e) {
+			logger.error(String.format("createPlayer error: %s - %s - %s", gameId, playerId, e.getMessage()));
+		}
+		return false;		
+	}
+	
 }

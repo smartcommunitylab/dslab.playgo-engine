@@ -14,11 +14,13 @@ import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManage
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
+import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
+import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
@@ -99,6 +101,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 			populatePlayerTrack(playerTrack, track, trackingData);
 			campaignPlayerTrackRepository.save(playerTrack);
 			playerReportManager.updatePlayerCampaignPlacings(playerTrack);
+			sendWebhookRequest(playerTrack);
 		}
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
@@ -117,6 +120,8 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		campaignPlayerTrackRepository.save(playerTrack);
 		
 		playerReportManager.updatePlayerCampaignPlacings(playerTrack);
+		
+		sendWebhookRequest(playerTrack);
 		
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
@@ -142,6 +147,19 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));
+	}
+	
+	private void sendWebhookRequest(CampaignPlayerTrack pt) {
+		WebhookRequest req = new  WebhookRequest();
+		req.setCampaignId(pt.getCampaignId());
+		req.setPlayerId(pt.getPlayerId());
+		req.setEventType(EventType.validTrack);
+		req.getData().put("trackedInstanceId", pt.getTrackedInstanceId());
+		try {
+			queueManager.sendCallWebhookRequest(req);
+		} catch (Exception e) {
+			logger.error("sendWebhookRequest:" + e.getMessage());
+		}
 	}
 	
 

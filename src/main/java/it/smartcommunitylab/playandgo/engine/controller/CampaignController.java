@@ -24,10 +24,12 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerCampaign;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
+import it.smartcommunitylab.playandgo.engine.manager.WebhookManager;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook;
 import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
@@ -43,6 +45,9 @@ public class CampaignController extends PlayAndGoController {
 	
 	@Autowired
 	TerritoryManager territoryManager;
+	
+	@Autowired
+	WebhookManager webhookManager;
 	
 	@PostMapping("/api/campaign")
 	public Campaign addCampaign(
@@ -207,4 +212,41 @@ public class CampaignController extends PlayAndGoController {
 		return campaignManager.uploadRewards(campaignId, new InputStreamReader(data.getInputStream(), "UTF-8"));
 	}
 	
+	@GetMapping(value = "/api/campaign/{campaignId}/webhook")
+	public CampaignWebhook getWebhook(
+			@PathVariable String campaignId,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		return webhookManager.getWebhook(campaignId);
+	}
+	
+	@PostMapping(value = "/api/campaign/{campaignId}/webhook")
+	public CampaignWebhook setWebhook(
+			@PathVariable String campaignId,
+			@RequestBody CampaignWebhook hook,
+			HttpServletRequest request) throws Exception {
+		hook.setCampaignId(campaignId);
+		Campaign campaign = campaignManager.getCampaign(hook.getCampaignId());
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		return webhookManager.setWebhook(hook);
+	}
+	
+	@DeleteMapping(value = "/api/campaign/{campaignId}/webhook")
+	public void deleteWebhook(
+		@PathVariable String campaignId,
+		HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		webhookManager.deleteWebhook(campaignId);
+	}
 }
