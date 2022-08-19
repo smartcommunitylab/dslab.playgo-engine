@@ -77,6 +77,7 @@ public class BasicCampaignGameStatusManager {
 				String gameId = (String) obj.get("gameId");
 				String playerId = (String) obj.get("playerId");
 				double delta = (double) obj.get("delta");
+				long timestamp = (long) obj.get("timestamp");
 				String trackId = null;
 				@SuppressWarnings("unchecked")
 				Map<String, Object> dataPayLoad = (Map<String, Object>) obj.get("dataPayLoad");
@@ -107,7 +108,12 @@ public class BasicCampaignGameStatusManager {
 					
 					//update daily points
 					try {
-						ZonedDateTime trackDay = getTrackDay(campaign, playerTrack);
+						ZonedDateTime trackDay = null;
+						if(playerTrack!= null) {
+							trackDay = getTrackDay(campaign, playerTrack);
+						} else {
+							trackDay = getTrackDay(campaign, timestamp);
+						}
 						String day = trackDay.format(dtf);
 						int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
 						int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
@@ -165,6 +171,17 @@ public class BasicCampaignGameStatusManager {
 			zoneId = ZoneId.of(territory.getTimezone());
 		}
 		return ZonedDateTime.ofInstant(pt.getStartTime().toInstant(), zoneId);
+	}
+	
+	protected ZonedDateTime getTrackDay(Campaign campaign, long timestamp) {		
+		ZoneId zoneId = null;
+		Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+		if(territory == null) {
+			zoneId = ZoneId.systemDefault();
+		} else {
+			zoneId = ZoneId.of(territory.getTimezone());
+		}
+		return ZonedDateTime.ofInstant(Utils.getUTCDate(timestamp).toInstant(), zoneId);
 	}
 	
 	protected void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus, String groupId) throws Exception {
