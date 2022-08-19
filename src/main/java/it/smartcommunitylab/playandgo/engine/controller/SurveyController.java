@@ -51,7 +51,7 @@ public class SurveyController extends PlayAndGoController {
 	}
 	
 	@PostMapping("/survey/compile/{surveyName}")
-	public void compileSurvey(
+	public @ResponseBody void compileSurvey(
 			@PathVariable String surveyName, 
 			@RequestBody Map<String,Object> formData,
 			HttpServletRequest request) throws Exception {
