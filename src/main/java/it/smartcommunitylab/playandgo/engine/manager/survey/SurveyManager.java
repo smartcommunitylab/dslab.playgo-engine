@@ -79,6 +79,7 @@ public class SurveyManager {
 	
 	public boolean compileSurvey(String surveyName, Map<String,Object> formData) {
 		boolean complete = false;
+		logger.debug("compileSurvey:" + formData);
 		try {
 			String id = (String)formData.get("playerId");
 			PlayerIdentity identity = gamificationManager.decryptIdentity(id);
