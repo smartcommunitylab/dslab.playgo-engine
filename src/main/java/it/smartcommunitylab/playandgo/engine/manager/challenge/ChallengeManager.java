@@ -267,7 +267,7 @@ public class ChallengeManager {
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
-		String json = gamificationEngineManager.getChallengables(playerId, campaignId);
+		String json = gamificationEngineManager.getChallengables(playerId, campaign.getGameId());
 		List<String> ps = mapper.readValue(json, List.class);
 		
 		List<Map<String, String>> res = Lists.newArrayList();
