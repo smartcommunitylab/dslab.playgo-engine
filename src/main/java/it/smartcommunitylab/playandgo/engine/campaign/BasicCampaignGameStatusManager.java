@@ -109,7 +109,7 @@ public class BasicCampaignGameStatusManager {
 					//update daily points
 					try {
 						ZonedDateTime trackDay = null;
-						if(playerTrack!= null) {
+						if(playerTrack != null) {
 							trackDay = getTrackDay(campaign, playerTrack);
 						} else {
 							trackDay = getTrackDay(campaign, timestamp);
