@@ -111,7 +111,7 @@ public class ChallengeController extends PlayAndGoController {
 	}	
 	
 	@GetMapping("/api/challenge/challengeables")
-	public @ResponseBody List<Map<String, String>> getChallengeables(
+	public @ResponseBody List<Map<String, Object>> getChallengeables(
 			@RequestParam String campaignId,			
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);

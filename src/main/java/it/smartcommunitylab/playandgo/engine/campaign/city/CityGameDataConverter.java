@@ -1,37 +1,22 @@
 package it.smartcommunitylab.playandgo.engine.campaign.city;
 
-import java.net.URL;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
@@ -45,7 +30,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
-import com.google.common.io.Resources;
 
 import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
@@ -55,7 +39,6 @@ import it.smartcommunitylab.playandgo.engine.ge.model.PlayerLevel;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConceptPeriod;
-import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager.GroupMode;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConcept;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
@@ -66,11 +49,7 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.Inventory;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.OtherAttendeeData;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
-import it.smartcommunitylab.playandgo.engine.model.Territory;
-import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
-import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 @SuppressWarnings({ "rawtypes", "unchecked" })

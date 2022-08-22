@@ -34,19 +34,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
-import it.smartcommunitylab.playandgo.engine.dto.ChallengeStatsInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.GameStatistics;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConceptPeriod;
+import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.ChallengePlayer;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.PointConceptRef;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.Reward;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.model.PlayerStatChallenge;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
@@ -93,6 +92,9 @@ public class ChallengeManager {
 	@Autowired
 	private CampaignNotificationManager campaignNotificationManager;
 	
+	@Autowired
+	AvatarManager avatarManager;
+
 	@Autowired
 	private CityGameDataConverter gameDataConverter;
 	
@@ -262,7 +264,7 @@ public class ChallengeManager {
 		}
 	}
 	
-	public List<Map<String, String>> getChallengeables(String playerId, String campaignId) throws Exception {
+	public List<Map<String, Object>> getChallengeables(String playerId, String campaignId) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
@@ -270,13 +272,14 @@ public class ChallengeManager {
 		String json = gamificationEngineManager.getChallengables(playerId, campaign.getGameId());
 		List<String> ps = mapper.readValue(json, List.class);
 		
-		List<Map<String, String>> res = Lists.newArrayList();
+		List<Map<String, Object>> res = Lists.newArrayList();
 		ps.forEach(x -> {
 			Player p =  playerRepository.findById(x).orElse(null);
 			if (p != null) {
-				Map<String, String> pd = Maps.newTreeMap();
+				Map<String, Object> pd = Maps.newTreeMap();
 				pd.put("id", x);
 				pd.put("nickname", p.getNickname());
+				pd.put("avatar", avatarManager.getPlayerSmallAvatar(x));
 				res.add(pd);
 			}
 		});
