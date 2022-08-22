@@ -627,5 +627,12 @@
       "it": "Questa sfida è in collaborazione con i promotori dell'iniziativa 'Bella Coincidenza'! Per vincere devi tracciare un viaggio in treno ed un viaggio in bici nel corso di una stessa giornata durante il periodo di validità della sfida.",
       "en": "This challenge has been defined together with the organizers of 'Bella Coincidenza' initiative. To win, you must track a train trip and a bike trip on the same day during the validity period of the challenge."
     }
+  },
+  {
+    "modelName": "visitPointInterest",
+    "description": {
+      "it": "Per vincere la sfida, traccia almeno <target> viaggi sostenibili che abbiano come destinazione i punti di interesse di tipologia <category>. Scopri la lista completa al seguente \\<a href='https://airfriendlyspots.playngo.it/' target='_system'>indirizzo\\</a>.",
+      "en": "To succeed in this challenge, track at least <target> sustainable trips whose destination is a point of interest of type <category>. Discover them all \\<a href='https://airfriendlyspots.playngo.it/' target='_system'>here\\</a>. Make sure to stop the trip tracking when you reach the point of interest!"
+    }
   } 	
 ]
