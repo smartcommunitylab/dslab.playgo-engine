@@ -121,6 +121,7 @@ public class CityGameDataConverter {
 	public static final String CHAL_MODEL_GROUP_COMPETITIVE_TIME = "groupCompetitiveTime";
 	public static final String CHAL_MODEL_GROUP_COOPERATIVE = "groupCooperative";
 	public static final String CHAL_MODEL_INCENTIVE_GROUP = "incentiveGroupChallengeReward";
+	public static final String CHAL_MODEL_VISIT_POINT = "visitPointInterest";
 	
 	public static final int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 	public static final long MILLIS_IN_WEEK = 1000 * 60 * 60 * 24 * 7;
@@ -859,7 +860,13 @@ public class CityGameDataConverter {
     					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
 
 						break;
-					}						
+					}		
+					case CHAL_MODEL_VISIT_POINT: {
+	    				double earned = retrieveCorrectStatusFromCounterName(counterName, periodName, pointConcept, start, end); 
+	    				row_status = earned;
+	    				status = Math.min(100, (int)(100.0 * earned / target));
+						break;
+					}
     				// boolean status: 100 or 0
     				case CHAL_MODEL_COMPLETE_BADGE_COLL: 
     				case CHAL_MODEL_POICHECKIN: 

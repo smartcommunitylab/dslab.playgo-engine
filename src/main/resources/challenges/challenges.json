@@ -252,6 +252,13 @@
       "it": "Bella Coincidenza! Fai almeno un viaggio in treno e uno in bici nella stessa giornata per vincere 250 Green Leaves",
       "en": "Bella Coincidenza! Do at least a trip by train and a trip by bike in the same day to win 250 Green Leaves"
     }
+  },
+  {
+    "name": "visitPointInterest",
+    "description": {
+      "it": "Visita almeno <target> <category> e avrai un bonus di <bonusScore> punti <bonusPointType>.",
+      "en": "Visit at least <target> <category> locations and you will get a bonus of <bonusScore> <bonusPointType> points."
+    }
   } 
 	
 ]
