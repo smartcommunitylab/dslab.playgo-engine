@@ -39,6 +39,7 @@ import it.smartcommunitylab.playandgo.engine.ge.model.PlayerLevel;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerStatus;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.PointConceptPeriod;
+import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConcept;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo.ChallengeDataType;
@@ -125,6 +126,9 @@ public class CityGameDataConverter {
 	@Autowired
 	private BadgeManager badgeManager;
 	
+	@Autowired
+	AvatarManager avatarManager;
+
 	private Map<String, ChallengeStructure> challengeStructureMap;
 	private Map<String, ChallengeLongDescrStructure> challengeLongStructureMap;
 
@@ -319,22 +323,22 @@ public class CityGameDataConverter {
 		return map;
 	}
 	
-	private List<ChallengeConcept> parse(String data) throws Exception {
-		List<ChallengeConcept> concepts = Lists.newArrayList();
-
-		Map playerMap = mapper.readValue(data, Map.class);
-		if (playerMap.containsKey("state")) {
-			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
-			if (stateMap.containsKey("ChallengeConcept")) {
-				List conceptList = mapper.convertValue(stateMap.get("ChallengeConcept"), List.class);
-				for (Object o : conceptList) {
-					ChallengeConcept concept = mapper.convertValue(o, ChallengeConcept.class);
-					concepts.add(concept);
-				}
-			}
-		}
-		return concepts;
-	}
+//	private List<ChallengeConcept> parse(String data) throws Exception {
+//		List<ChallengeConcept> concepts = Lists.newArrayList();
+//
+//		Map playerMap = mapper.readValue(data, Map.class);
+//		if (playerMap.containsKey("state")) {
+//			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
+//			if (stateMap.containsKey("ChallengeConcept")) {
+//				List conceptList = mapper.convertValue(stateMap.get("ChallengeConcept"), List.class);
+//				for (Object o : conceptList) {
+//					ChallengeConcept concept = mapper.convertValue(o, ChallengeConcept.class);
+//					concepts.add(concept);
+//				}
+//			}
+//		}
+//		return concepts;
+//	}
 	
 	private int calculateRemainingDays(long endTime, long now){
     	int remainingDays = 0;
@@ -740,6 +744,7 @@ public class CityGameDataConverter {
     					otherAttendeeData.setStatus(other_status);
     					otherAttendeeData.setPlayerId(otherPlayerId);
     					otherAttendeeData.setNickname(nickname);
+    					otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
     					
     					challengeData.setOtherAttendeeData(otherAttendeeData);
     					
@@ -784,6 +789,7 @@ public class CityGameDataConverter {
 						otherAttendeeData.setStatus(other_status);
 						otherAttendeeData.setPlayerId(otherPlayerId);
 						otherAttendeeData.setNickname(nickname);
+						otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
 
 						challengeData.setOtherAttendeeData(otherAttendeeData);
 						
@@ -833,6 +839,7 @@ public class CityGameDataConverter {
 						otherAttendeeData.setStatus(other_status);
 						otherAttendeeData.setPlayerId(otherPlayerId);
 						otherAttendeeData.setNickname(nickname);
+						otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
 
 						challengeData.setOtherAttendeeData(otherAttendeeData);
 						

@@ -73,6 +73,7 @@ public class AvatarManager {
 			avatar.setAvatarUrl(avatarUrl);
 			String avatarSmallUrl = storageManager.uploadImage(avatarSmallImage, data.getContentType(), cbs);
 			avatar.setAvatarSmallUrl(avatarSmallUrl);
+			avatar.setContentType(data.getContentType());
 			avatarRepository.save(avatar);
 		} catch (Exception e) {
 			throw new ServiceException("Error storing image", ErrorCode.IMAGE_STORE_ERROR);
