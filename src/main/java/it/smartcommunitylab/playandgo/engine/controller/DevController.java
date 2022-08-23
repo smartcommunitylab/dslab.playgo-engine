@@ -1,6 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -35,9 +37,11 @@ public class DevController extends PlayAndGoController {
 	private static transient final Logger logger = LoggerFactory.getLogger(DevController.class);
 			
 	int players = 200;
-	int tracks = 2000;
+	int tracks = 15000;
 	double rangeMin = 52.0;
 	double rangeMax = 1520.0;
+	String weekOfYear = "2022-34";
+	String monthOfYear = "2022-8";
 	
 	String[] modeTypes = new String[] {"WALK", "BIKE", "BUS", "TRAIN"}; 
 	
@@ -150,6 +154,37 @@ public class DevController extends PlayAndGoController {
 			}
 			playerStatsTransportRepository.saveAll(list);
 		}
+	}
+	
+	@PostMapping("/api/dev/stats")
+	public void addStats(HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate today =  LocalDate.now();
+		today.minusDays(5);
+		String playerId = "u_fe939cab-1638-45b3-a604-80a3fb018e54";
+		List<PlayerStatsTransport> list = new ArrayList<>();
+		for(int j = 0; j < tracks; j++) {				
+			PlayerStatsTransport ps = new PlayerStatsTransport();
+			ps.setPlayerId(playerId);
+			ps.setCampaignId("TAA.test1");
+			ps.setNickname("test");
+			String modeType = modeTypes[RANDOM.nextInt(modeTypes.length)];
+			String trackId = playerId + "_" + modeType + "_" + j;
+			ps.setModeType(modeType);
+			ps.setDistance(rangeMin + (rangeMax - rangeMin) * RANDOM.nextDouble());
+			ps.setCo2(0.32);
+			ps.setDuration(4800);
+			ps.setTrackNumber(1);
+			ps.setGlobal(false);
+			LocalDate day = today.plusDays(RANDOM.nextInt(5));
+			ps.setDay(day.format(dtf));
+			ps.setWeekOfYear("2022-34");
+			ps.setMonthOfYear("2022-08");
+			list.add(ps);
+			logger.info("save track " + trackId);
+		}
+		playerStatsTransportRepository.saveAll(list);
 	}
 	
 	@GetMapping("/api/dev/test/campaign/placing")
