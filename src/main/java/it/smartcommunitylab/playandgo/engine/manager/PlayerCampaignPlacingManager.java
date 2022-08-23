@@ -460,7 +460,7 @@ public class PlayerCampaignPlacingManager {
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
-			stat.setPeriod(doc.getString("_id"));
+			stat.setMean(doc.getString("_id"));
 			if(metric.equalsIgnoreCase("tracks")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
