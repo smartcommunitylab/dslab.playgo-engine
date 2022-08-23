@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.report;
 
 public class TransportStat {
 	private String period;
+	private String mean;
 	private double value = 0.0;
 	
 	public String getPeriod() {
@@ -15,5 +16,11 @@ public class TransportStat {
 	}
 	public void setValue(double value) {
 		this.value = value;
+	}
+	public String getMean() {
+		return mean;
+	}
+	public void setMean(String mean) {
+		this.mean = mean;
 	}
 }
