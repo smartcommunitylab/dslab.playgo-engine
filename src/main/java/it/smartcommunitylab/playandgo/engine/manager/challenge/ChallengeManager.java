@@ -210,7 +210,7 @@ public class ChallengeManager {
 		campaignNotificationManager.sendDirectNotification(invitation.getAttendeeId(), campaignId, "INVITATION", extraData);					
 	}
 	
-	public Map<String, String> getGroupChallengePreview(String playerId, String campaignId, Invitation invitation) throws Exception {
+	public Map<String, Object> getGroupChallengePreview(String playerId, String campaignId, Invitation invitation) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
@@ -247,9 +247,10 @@ public class ChallengeManager {
 		String descr = gameDataConverter.fillDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars, player.getLanguage());
 		String longDescr = gameDataConverter.fillLongDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars, player.getLanguage());
 		
-		Map<String, String> result = Maps.newTreeMap();
+		Map<String, Object> result = Maps.newTreeMap();
 		result.put("description", descr);
 		result.put("longDescription", longDescr);
+		result.put("params", pars);
 		return result;
 	}
 	

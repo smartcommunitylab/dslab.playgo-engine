@@ -92,7 +92,7 @@ public class ChallengeController extends PlayAndGoController {
 	}
 
 	@PostMapping("/api/challenge/invitation/preview")
-	public @ResponseBody Map<String, String> getGroupChallengePreview(
+	public @ResponseBody Map<String, Object> getGroupChallengePreview(
 			@RequestParam String campaignId,
 			@RequestBody Invitation invitation, 
 			HttpServletRequest request) throws Exception {
