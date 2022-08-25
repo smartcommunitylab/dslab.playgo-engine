@@ -37,7 +37,7 @@ public class DevController extends PlayAndGoController {
 	private static transient final Logger logger = LoggerFactory.getLogger(DevController.class);
 			
 	int players = 200;
-	int tracks = 15000;
+	int tracks = 25000;
 	double rangeMin = 52.0;
 	double rangeMax = 1520.0;
 	String weekOfYear = "2022-34";
@@ -157,14 +157,16 @@ public class DevController extends PlayAndGoController {
 	}
 	
 	@PostMapping("/api/dev/stats")
-	public void addStats(HttpServletRequest request) throws Exception {
+	public void addStats(
+			@RequestParam Integer tracksNum,
+			HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate today =  LocalDate.now();
 		today.minusDays(5);
 		String playerId = "u_fe939cab-1638-45b3-a604-80a3fb018e54";
 		List<PlayerStatsTransport> list = new ArrayList<>();
-		for(int j = 0; j < tracks; j++) {				
+		for(int j = 0; j < tracksNum; j++) {				
 			PlayerStatsTransport ps = new PlayerStatsTransport();
 			ps.setPlayerId(playerId);
 			ps.setCampaignId("TAA.test1");
@@ -177,7 +179,7 @@ public class DevController extends PlayAndGoController {
 			ps.setDuration(4800);
 			ps.setTrackNumber(1);
 			ps.setGlobal(false);
-			LocalDate day = today.plusDays(RANDOM.nextInt(5));
+			LocalDate day = today.plusDays(RANDOM.nextInt(7));
 			ps.setDay(day.format(dtf));
 			ps.setWeekOfYear("2022-34");
 			ps.setMonthOfYear("2022-08");

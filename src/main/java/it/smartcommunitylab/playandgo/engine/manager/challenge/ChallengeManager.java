@@ -300,20 +300,21 @@ public class ChallengeManager {
 		return rewards;
 	}
 	
-	public List<Map<String, String>> getBlackList(String playerId, String campaignId) throws Exception {
+	public List<Map<String, Object>> getBlackList(String playerId, String campaignId) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
 		String json = gamificationEngineManager.getBlackList(playerId, campaign.getGameId());
 		PlayerBlackList pbl = mapper.readValue(json, PlayerBlackList.class);
-		List<Map<String, String>> res = Lists.newArrayList();
+		List<Map<String, Object>> res = Lists.newArrayList();
 		pbl.getBlockedPlayers().forEach(x -> {
 			Player p = playerRepository.findById(x).orElse(null);
 			if (p != null) {
-				Map<String, String> pd = Maps.newTreeMap();
+				Map<String, Object> pd = Maps.newTreeMap();
 				pd.put("id", x);
 				pd.put("nickname", p.getNickname());
+				pd.put("avatar", avatarManager.getPlayerSmallAvatar(x));
 				res.add(pd);
 			}
 		});
