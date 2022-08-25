@@ -1,13 +1,16 @@
 package it.smartcommunitylab.playandgo.engine.manager.challenge;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class ChallengesData implements Comparable<ChallengesData> {
 	
 	private String challId = "";
-	private String challDesc = "";
-	private String challCompleteDesc = "";
+	private Map<String, String> challDesc = new HashMap<>();
+	private Map<String, String> challCompleteDesc = new HashMap<>();
 	private int challTarget = 0;
 	private int status = 0;
 	private double row_status = 0L;
@@ -34,9 +37,6 @@ public class ChallengesData implements Comparable<ChallengesData> {
 		return challId;
 	}
 
-	public String getChallDesc() {
-		return challDesc;
-	}
 
 	public int getChallTarget() {
 		return challTarget;
@@ -44,10 +44,6 @@ public class ChallengesData implements Comparable<ChallengesData> {
 
 	public void setChallId(String challId) {
 		this.challId = challId;
-	}
-
-	public void setChallDesc(String challDesc) {
-		this.challDesc = challDesc;
 	}
 
 	public void setChallTarget(int challTarget) {
@@ -100,14 +96,6 @@ public class ChallengesData implements Comparable<ChallengesData> {
 
 	public void setEndDate(long endDate) {
 		this.endDate = endDate;
-	}
-
-	public String getChallCompleteDesc() {
-		return challCompleteDesc;
-	}
-
-	public void setChallCompleteDesc(String challCompleteDesc) {
-		this.challCompleteDesc = challCompleteDesc;
 	}
 
 	public int getDaysToEnd() {
@@ -187,6 +175,22 @@ public class ChallengesData implements Comparable<ChallengesData> {
 
 	public void setExtUrl(String extUrl) {
 		this.extUrl = extUrl;
+	}
+
+	public Map<String, String> getChallDesc() {
+		return challDesc;
+	}
+
+	public void setChallDesc(Map<String, String> challDesc) {
+		this.challDesc = challDesc;
+	}
+
+	public Map<String, String> getChallCompleteDesc() {
+		return challCompleteDesc;
+	}
+
+	public void setChallCompleteDesc(Map<String, String> challCompleteDesc) {
+		this.challCompleteDesc = challCompleteDesc;
 	}
 
 	
