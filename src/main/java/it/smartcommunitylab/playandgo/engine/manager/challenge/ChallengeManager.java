@@ -244,8 +244,8 @@ public class ChallengeManager {
 			pars.put("rewardThreshold", reward.getThreshold());
 		}
 		
-		String descr = gameDataConverter.fillDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars, player.getLanguage());
-		String longDescr = gameDataConverter.fillLongDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars, player.getLanguage());
+		Map<String, String> descr = gameDataConverter.fillDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars);
+		Map<String, String> longDescr = gameDataConverter.fillLongDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars);
 		
 		Map<String, Object> result = Maps.newTreeMap();
 		result.put("description", descr);
@@ -326,7 +326,7 @@ public class ChallengeManager {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
 		boolean result = gamificationEngineManager.addToBlackList(playerId, campaign.getGameId(), blockedPlayerId);
-		if(result) {
+		if(!result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 	}
