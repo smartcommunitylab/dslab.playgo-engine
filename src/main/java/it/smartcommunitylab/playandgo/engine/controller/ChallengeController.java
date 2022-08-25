@@ -125,7 +125,7 @@ public class ChallengeController extends PlayAndGoController {
 	}	
 	
 	@GetMapping("/api/challenge/blacklist")
-	public @ResponseBody List<Map<String, String>> getBlackList(
+	public @ResponseBody List<Map<String, Object>> getBlackList(
 			@RequestParam String campaignId,						
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
