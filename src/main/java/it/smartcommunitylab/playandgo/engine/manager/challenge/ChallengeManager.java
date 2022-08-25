@@ -337,7 +337,7 @@ public class ChallengeManager {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
 		boolean result = gamificationEngineManager.deleteFromBlackList(playerId, campaign.getGameId(), blockedPlayerId);
-		if(result) {
+		if(!result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 	}
