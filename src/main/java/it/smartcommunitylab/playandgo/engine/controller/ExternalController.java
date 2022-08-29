@@ -137,15 +137,25 @@ public class ExternalController extends PlayAndGoController {
 	}
 
 	@GetMapping("/api/ext/territory/players")
-	public Page<PlayerInfo> searchPlayers(@RequestParam(required = false) String txt, @RequestParam String territory, Pageable pageRequest) {
+	public Page<PlayerInfo> searchPlayers(
+			@RequestParam(required = false) String txt, 
+			@RequestParam String territory, 
+			Pageable pageRequest,
+			HttpServletRequest request) throws Exception {
+		checkAPIRole(request);
 		if (StringUtils.hasText(txt)) {
 			return playerRepository.findByTerritoryIdAndNicknameText(territory, txt, pageRequest).map(p -> toPlayerInfo(p));
 		} else {
 			return playerRepository.findByTerritoryId(territory, pageRequest).map(p -> toPlayerInfo(p));			
 		}
 	}
+	
 	@GetMapping("/api/ext/territory/players/{playerId}")
-	public PlayerInfo getPlayer(@RequestParam String territory, @PathVariable String playerId) {
+	public PlayerInfo getPlayer(
+			@RequestParam String territory, 
+			@PathVariable String playerId,
+			HttpServletRequest request) throws Exception {
+		checkAPIRole(request);
 		return playerRepository.findByTerritoryIdAndPlayerIdIn(territory, Collections.singleton(playerId)).stream().findFirst().map(p -> toPlayerInfo(p)).orElse(null);			
 	}
 	
@@ -153,7 +163,9 @@ public class ExternalController extends PlayAndGoController {
 	public TrackedInstanceInfo getTrackedInstanceInfo(
 			@PathVariable String campaignId,
 			@PathVariable String playerId,
-			@PathVariable String trackedInstanceId) throws Exception {
+			@PathVariable String trackedInstanceId,
+			HttpServletRequest request) throws Exception {
+		checkAPIRole(request);
 		return trackedInstanceManager.getTrackedInstanceInfo(playerId, trackedInstanceId, campaignId);
 	}
 	
