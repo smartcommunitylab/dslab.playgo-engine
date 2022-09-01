@@ -254,13 +254,13 @@ public class ChallengeManager {
 		return result;
 	}
 	
-	public void changeInvitationStatus(String playerId, String campaignId, String challengeName, String status) throws Exception {
+	public void changeInvitationStatus(String playerId, String campaignId, String challengeId, String status) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
-		boolean result = gamificationEngineManager.changeChallengeInvitationStatus(playerId, campaign.getGameId(), challengeName, status);
-		if(result) {
+		boolean result = gamificationEngineManager.changeChallengeInvitationStatus(playerId, campaign.getGameId(), challengeId, status);
+		if(!result) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 	}

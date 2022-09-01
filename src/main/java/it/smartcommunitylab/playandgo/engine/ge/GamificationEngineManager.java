@@ -284,15 +284,15 @@ public class GamificationEngineManager {
 		return false;		
 	}
 	
-	public boolean changeChallengeInvitationStatus(String playerId, String gameId, String challengeName, String status) {
+	public boolean changeChallengeInvitationStatus(String playerId, String gameId, String challengeId, String status) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/invitation/" 
-					+ status + "/" + URLEncoder.encode(challengeName, "UTF-8");
+					+ status + "/" + URLEncoder.encode(challengeId, "UTF-8");
 			HTTPConnector.doBasicAuthenticationPost(url, null, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
-			logger.error(String.format("changeChallengeInvitationStatus error: %s - %s - %s - %s", gameId, playerId, challengeName, e.getMessage()));
+			logger.error(String.format("changeChallengeInvitationStatus error: %s - %s - %s - %s", gameId, playerId, challengeId, e.getMessage()));
 		}
 		return false;		
 	}

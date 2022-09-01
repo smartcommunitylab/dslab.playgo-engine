@@ -100,14 +100,14 @@ public class ChallengeController extends PlayAndGoController {
 		return challengeManager.getGroupChallengePreview(player.getPlayerId(), campaignId, invitation);
 	}	
 	
-	@PostMapping("/api/challenge/invitation/status/{challengeName}/{status}")
+	@PostMapping("/api/challenge/invitation/status/{challengeId}/{status}")
 	public void changeInvitationStatus(
 			@RequestParam String campaignId,
-			@PathVariable String challengeName, 
+			@PathVariable String challengeId, 
 			@PathVariable String status, 
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		challengeManager.changeInvitationStatus(player.getPlayerId(), campaignId, challengeName, status);
+		challengeManager.changeInvitationStatus(player.getPlayerId(), campaignId, challengeId, status);
 	}	
 	
 	@GetMapping("/api/challenge/challengeables")
