@@ -8,7 +8,8 @@ stages:
   - build
   - container-build
   - container-scan
-  - deploy
+  - deploy-dev
+  - deploy-prod
 
 variables:
   SECURE_LOG_LEVEL: info
@@ -35,6 +36,7 @@ backend-container-build:
     - docker push $CONTAINER_IMAGE_LATEST
   only:
     - dev
+    - prod
 
 include:
   - template: Security/Container-Scanning.gitlab-ci.yml
@@ -50,8 +52,8 @@ container_scanning:
     DOCKER_USER: ""
     DOCKER_PASSWORD: ""
 
-deploy:
-  stage: deploy
+deploy-dev:
+  stage: deploy-dev
   image: 
     name: bitnami/kubectl:latest
     entrypoint: ['']
@@ -63,3 +65,17 @@ deploy:
     - kubectl -n playngo-dev rollout status deployment playngo-engine
   only:
     - dev
+
+deploy-prod:
+  stage: deploy-prod
+  image: 
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  environment:
+    name: platform-new
+  script:
+    - echo "deploy backend"
+    - kubectl -n playngo-prod set image deployments/playngo-engine playngo-engine=$CONTAINER_IMAGE --record=true
+    - kubectl -n playngo-prod rollout status deployment playngo-engine
+  only:
+    - prod

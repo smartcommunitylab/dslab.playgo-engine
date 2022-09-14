@@ -6,7 +6,7 @@ WORKDIR /tmp
 #RUN --mount=type=bind,target=/root/.m2,source=/root/.m2,from=smartcommunitylab/aac:cache-alpine mvn package -DskipTests
 RUN mvn package -DskipTests
 
-FROM adoptopenjdk/openjdk11:alpine
+FROM eclipse-temurin:11-alpine
 ARG VER=1.0
 ARG USER=playngo
 ARG USER_ID=1005
