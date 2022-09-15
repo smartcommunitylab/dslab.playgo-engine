@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -15,14 +14,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
-import org.stringtemplate.v4.ST;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,6 +24,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
+import org.stringtemplate.v4.ST;
 
 import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
@@ -856,9 +855,17 @@ public class CityGameDataConverter {
 						break;
 					}		
 					case CHAL_MODEL_VISIT_POINT: {
-	    				double earned = retrieveCorrectStatusFromCounterName(counterName, periodName, pointConcept, start, end); 
-	    				row_status = earned;
-	    				status = Math.min(100, (int)(100.0 * earned / target));
+						String poiType = (String)challenge.getFields().getOrDefault("typePoi","");
+	    				int count = getEarnedBadgesFromList(bcc_list, poiType, 0);
+	    				if(!challengeData.getActive()){	// NB: fix to avoid situation with challenge not win and count > target
+	    					if(completed){
+	    						count = (int)target;
+	    					} else {
+	    						count = (int)target - 1;
+	    					}
+	    				}
+	    				row_status = count;
+	    				status = Math.min(100, (int)(100.0 * count / target));
 						break;
 					}
     				// boolean status: 100 or 0
