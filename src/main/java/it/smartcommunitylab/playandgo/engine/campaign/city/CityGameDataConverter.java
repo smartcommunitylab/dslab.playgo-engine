@@ -273,6 +273,7 @@ public class CityGameDataConverter {
 			return challenges;
 			
 		} catch (Exception e) {
+			logger.error("convertPlayerChallengesData error", e);
 			logger.error("convertPlayerChallengesData:" + e.getMessage());
 			throw e;
 		}
