@@ -289,33 +289,34 @@ public class CityGameDataConverter {
 	
 	public List<PointConcept> convertGEPointConcept(List<Map> gePointsMap) {
 		List<PointConcept> result = Lists.newArrayList();
-		
-		for (Map gePointMap: gePointsMap) {
-//			PointConcept pc = new PointConcept();
-//			pc.setName((String)gePointMap.get(PC_NAME));
-//			pc.setScore(((Double)gePointMap.get(PC_SCORE)));
-//			pc.setPeriodType(PC_WEEKLY);
-			Map<String, Object> periods = (Map)gePointMap.get(PC_PERIODS);
-			for (String period : periods.keySet()) {
-				PointConcept pc = new PointConcept();
-				pc.setName((String)gePointMap.get(PC_NAME));
-				pc.setScore(((Double)gePointMap.get(PC_SCORE)));
-				pc.setPeriodType(period);
-				Map pMap = (Map)periods.get(period);
-				if (pMap != null) {
-					pc.setStart((Long)pMap.get(PC_START));
-					pc.setPeriodDuration((Integer)pMap.get(PC_PERIOD));
-					pc.setPeriodIdentifier((String)pMap.get(PC_IDENTIFIER));
-					if (pMap.containsKey(PC_INSTANCES)) {
-						Map<Object, Map> instances = (Map<Object, Map>)pMap.get(PC_INSTANCES);
-						for (Map inst: instances.values()) {
-							PointConceptPeriod pcp = mapper.convertValue(inst, PointConceptPeriod.class);
-							pc.getInstances().add(pcp);
+		if(gePointsMap != null) {
+			for (Map gePointMap: gePointsMap) {
+//				PointConcept pc = new PointConcept();
+//				pc.setName((String)gePointMap.get(PC_NAME));
+//				pc.setScore(((Double)gePointMap.get(PC_SCORE)));
+//				pc.setPeriodType(PC_WEEKLY);
+				Map<String, Object> periods = (Map)gePointMap.get(PC_PERIODS);
+				for (String period : periods.keySet()) {
+					PointConcept pc = new PointConcept();
+					pc.setName((String)gePointMap.get(PC_NAME));
+					pc.setScore(((Double)gePointMap.get(PC_SCORE)));
+					pc.setPeriodType(period);
+					Map pMap = (Map)periods.get(period);
+					if (pMap != null) {
+						pc.setStart((Long)pMap.get(PC_START));
+						pc.setPeriodDuration((Integer)pMap.get(PC_PERIOD));
+						pc.setPeriodIdentifier((String)pMap.get(PC_IDENTIFIER));
+						if (pMap.containsKey(PC_INSTANCES)) {
+							Map<Object, Map> instances = (Map<Object, Map>)pMap.get(PC_INSTANCES);
+							for (Map inst: instances.values()) {
+								PointConceptPeriod pcp = mapper.convertValue(inst, PointConceptPeriod.class);
+								pc.getInstances().add(pcp);
+							}
 						}
 					}
+					result.add(pc);
 				}
-				result.add(pc);
-			}
+			}			
 		}
 		return result;
 	}
