@@ -78,7 +78,7 @@ public class ReportEmailSender {
 	public void sendWeeklyNotification() {
 		List<Campaign> list = campaignRepository.findByType(Campaign.Type.city, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		for(Campaign campaign : list) {
-			if(campaign.currentlyActive()) {
+			if(campaign.currentlyActive() && campaign.getCommunications()) {
 				try {
 					sendWeeklyNotification(campaign);
 				} catch (Exception e) {
