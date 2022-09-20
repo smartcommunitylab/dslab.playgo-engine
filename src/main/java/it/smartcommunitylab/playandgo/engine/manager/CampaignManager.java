@@ -131,6 +131,7 @@ public class CampaignManager {
 		campaignDb.setDateFrom(campaign.getDateFrom());
 		campaignDb.setDateTo(campaign.getDateTo());
 		campaignDb.setActive(campaign.getActive());
+		campaignDb.setCommunications(campaign.getCommunications());
 		campaignDb.setStartDayOfWeek(campaign.getStartDayOfWeek());
 		campaignDb.setDetails(campaign.getDetails());
 		campaignDb.setGameId(campaign.getGameId());
