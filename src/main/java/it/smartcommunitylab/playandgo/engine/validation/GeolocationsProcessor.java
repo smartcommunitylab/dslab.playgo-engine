@@ -58,6 +58,7 @@ public class GeolocationsProcessor {
 			pointCount = geolocationsEvent.getLocation().size();
 		}
 		logger.info("Received " + pointCount + " geolocations for " + player.getPlayerId() + ", " + geolocationsEvent.getDevice());
+		logger.debug("storeGeolocationEvents:" + mapper.writeValueAsString(geolocationsEvent));
 
 		boolean virtual = false;
 		
