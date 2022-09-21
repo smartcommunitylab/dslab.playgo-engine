@@ -181,7 +181,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		trackInfo.setDistance(track.getValidationResult().getValidationStatus().getDistance());
 		if(track.getValidationResult().getValidationStatus().getModeType() != null) {
 			trackInfo.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
-		}		
+		} else {
+			trackInfo.setModeType(track.getFreeTrackingTransport());
+		}
 		//campaigns info
 		Map<String, CampaignTripInfo> campaignInfoMap = new HashMap<>();
 		List<CampaignPlayerTrack> playerTrackList = campaignPlayerTrackRepository.findByPlayerIdAndTrackedInstanceId(playerId, track.getId());
