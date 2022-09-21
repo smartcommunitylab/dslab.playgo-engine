@@ -50,6 +50,7 @@ public class TerritoryManager {
 		territoryDb.setName(territory.getName());
 		territoryDb.setDescription(territory.getDescription());
 		territoryDb.setTerritoryData(territory.getTerritoryData());
+		territoryDb.setTimezone(territory.getTimezone());
 		territoryRepository.save(territoryDb);
 	}
 	
