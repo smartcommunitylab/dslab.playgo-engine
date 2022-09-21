@@ -144,6 +144,7 @@ public class PTDataHelper {
 	}	
 	
 	private void initValidationData(String territoryId) throws Exception{
+		logger.info("initValidationData for territoryId " + territoryId);
 		List<List<Geolocation>> trainShapes = new ArrayList<>();
 		TRAIN_SHAPES_MAP.put(territoryId, trainShapes);
 		List<List<Geolocation>> boatShapes = new ArrayList<>();
@@ -173,6 +174,7 @@ public class PTDataHelper {
 		BUS_DESCRIPTORS.put(territoryId, bus);
 		loadBusFolder(new File(shapeFolder+"/bus/" + territoryId), bus);
 		bus.build(100);
+		logger.info("initValidationData done for territoryId " + territoryId);
 	}
 	
 	
