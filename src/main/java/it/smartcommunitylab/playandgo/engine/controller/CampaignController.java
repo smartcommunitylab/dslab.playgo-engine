@@ -76,9 +76,10 @@ public class CampaignController extends PlayAndGoController {
 	public List<Campaign> getCampaigns(
 			@RequestParam String territoryId,
 			@RequestParam(required = false) Type type,
+			@RequestParam(required = false) boolean currentlyActive,
 			HttpServletRequest request) throws Exception {
 		if(Utils.isNotEmpty(territoryId)) {
-			return campaignManager.getCampaignsByTerritory(territoryId, type);
+			return campaignManager.getCampaignsByTerritory(territoryId, type, currentlyActive);
 		}
 		return campaignManager.getCampaigns();
 	}
@@ -131,9 +132,10 @@ public class CampaignController extends PlayAndGoController {
 	
 	@GetMapping("/api/campaign/my")
 	public List<PlayerCampaign> getMyCampaigns(
+			@RequestParam(required = false) boolean currentlyActive,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		return campaignManager.getPlayerCampaigns(player.getPlayerId());
+		return campaignManager.getPlayerCampaigns(player.getPlayerId(), currentlyActive);
 	}
 	
 	@GetMapping("/api/campaign/player")
