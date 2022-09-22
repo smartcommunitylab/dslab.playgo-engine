@@ -159,11 +159,18 @@ public class CampaignManager {
 		return campaignRepository.findAll(Sort.by(Sort.Direction.DESC, "dateFrom"));
 	}
 	
-	public List<Campaign> getCampaignsByTerritory(String territoryId, Type type) {
+	public List<Campaign> getCampaignsByTerritory(String territoryId, Type type, boolean currentlyActive) {
+		List<Campaign> result = new ArrayList<>();
 		if(type == null) {
-			return campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
+			result = campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
+		} else {
+			result = campaignRepository.findByTerritoryIdAndType(territoryId, type, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		}
-		return campaignRepository.findByTerritoryIdAndType(territoryId, type, Sort.by(Sort.Direction.DESC, "dateFrom"));
+		if(currentlyActive) {
+			return result.stream().filter(c -> c.currentlyActive()).collect(Collectors.toList());			
+		} else {
+			return result;
+		}
 	}
 	
 	public Campaign getCampaignByGameId(String gameId) {
@@ -282,12 +289,17 @@ public class CampaignManager {
 		}
 	}
 	
-	public List<PlayerCampaign> getPlayerCampaigns(String playerId) {
+	public List<PlayerCampaign> getPlayerCampaigns(String playerId, boolean currentlyActive) {
 		List<PlayerCampaign> result = new ArrayList<>();
 		List<CampaignSubscription> campaigns = campaignSubscriptionRepository.findByPlayerId(playerId);
 		for(CampaignSubscription sub : campaigns) {
 			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
 			if(campaign != null) {
+				if(currentlyActive) {
+					if(!campaign.currentlyActive()) {
+						continue;
+					}
+				}
 				PlayerCampaign dto = new PlayerCampaign(campaign, sub);
 				result.add(dto);
 			}

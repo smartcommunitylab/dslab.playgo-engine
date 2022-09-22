@@ -104,11 +104,15 @@ public class SurveyManager {
 					survey.setSurveyLink(sr.getSurveyLink());
 					survey.setSurveyName(surveyName);
 					
-					Map<String, Object> data = new HashMap<>(formData);
-					data.remove("playerId");
-					data = correctData(data);
-					complete = gamificationManager.sendSurvey(playerId, gameId, surveyName);
-					if(complete) {
+					if(campaign.currentlyActive()) {
+						Map<String, Object> data = new HashMap<>(formData);
+						data.remove("playerId");
+						data = correctData(data);
+						complete = gamificationManager.sendSurvey(playerId, gameId, surveyName);
+						if(complete) {
+							surveyRepository.save(survey);
+						}						
+					} else {
 						surveyRepository.save(survey);
 					}
 				}
