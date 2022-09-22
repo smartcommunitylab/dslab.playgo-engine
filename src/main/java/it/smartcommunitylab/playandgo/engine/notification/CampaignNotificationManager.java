@@ -78,6 +78,7 @@ public class CampaignNotificationManager {
 		List<NotificationMessage> messages = mapper.readValue(new File(notificationDir + "/personal_notifications.json"), new TypeReference<List<NotificationMessage>>() {
 		});
 		notificationsMessages = messages.stream().collect(Collectors.toMap(NotificationMessage::getId, Function.identity()));
+		logger.info("init:" + notificationsMessages);
 		
 		badges = badgeManager.getAllBadges();
 	}
