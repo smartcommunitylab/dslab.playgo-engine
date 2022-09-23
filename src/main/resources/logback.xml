@@ -40,6 +40,7 @@
 
 	<!-- LOG "it.smartcommunitylab.playandgo" at DEBUG level -->
 	<logger name="it.smartcommunitylab.playandgo" level="debug" additivity="false">
+		<appender-ref ref="Console" />
 		<appender-ref ref="RollingFile" />
 	</logger>
 
