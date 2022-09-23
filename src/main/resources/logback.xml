@@ -34,14 +34,13 @@
 
 	<!-- LOG everything at INFO level -->
 	<root level="info">
-		<appender-ref ref="RollingFile" />
 		<appender-ref ref="Console" />
+		<appender-ref ref="RollingFile" />
 	</root>
 
 	<!-- LOG "it.smartcommunitylab.playandgo" at DEBUG level -->
 	<logger name="it.smartcommunitylab.playandgo" level="debug" additivity="false">
 		<appender-ref ref="RollingFile" />
-		<appender-ref ref="Console" />
 	</logger>
 
 </configuration>
