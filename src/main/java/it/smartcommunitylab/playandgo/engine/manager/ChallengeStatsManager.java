@@ -72,7 +72,7 @@ public class ChallengeStatsManager {
 			psc = new PlayerStatChallenge();
 			psc.setCampaignId(campaign.getCampaignId());
 			psc.setPlayerId(playerId);
-			psc.setChallengeName(challengeName);
+			//psc.setChallengeName(challengeName);
 			psc.setType(type);
 			psc.setCounterName(counterName);
 			psc.setDay(day);
