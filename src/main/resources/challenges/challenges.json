@@ -165,8 +165,8 @@
 		"name": "groupCompetitivePerformance",
 		"filter": "green leaves",
 		"description": {
-			"it": "Guadagna più punti green leaves del tuo avversario <opponent>. Otterrai un bonus del <rewardPercentage>% sul totale dei punti guadagnati in settimana.",
-			"en": "To win this challenge, gain more green leaves point than your opponent <opponent>. The winner will get a <rewardPercentage>% bonus of all the points got during the week."
+			"it": "Guadagna più punti eco-Leaves del tuo avversario <opponent>. Otterrai un bonus del <rewardPercentage>% sul totale dei punti guadagnati in settimana.",
+			"en": "To win this challenge, gain more eco-Leaves point than your opponent <opponent>. The winner will get a <rewardPercentage>% bonus of all the points got during the week."
 		}
 	},
 	{
@@ -191,8 +191,8 @@
 		"name": "groupCompetitiveTime",
 		"filter": "green leaves",
 		"description": {
-			"it": "Guadagna <challengeTarget> green leaves prima del tuo avversario <opponent>. Se vinci otterrai un bonus di <rewardBonusScore> green leaves, se vince <opponent> otterrà <challengerBonusScore> green leaves.",
-			"en": "Gain <challengeTarget> green leaves point faster than your opponent <opponent>. If you win, you'll get <rewardBonusScore> green leaves. If you lose, <opponent> will get <challengerBonusScore> green leaves."
+			"it": "Guadagna <challengeTarget> eco-Leaves prima del tuo avversario <opponent>. Se vinci otterrai un bonus di <rewardBonusScore> eco-Leaves, se vince <opponent> otterrà <challengerBonusScore> eco-Leaves.",
+			"en": "Gain <challengeTarget> eco-Leaves point faster than your opponent <opponent>. If you win, you'll get <rewardBonusScore> eco-Leaves. If you lose, <opponent> will get <challengerBonusScore> eco-Leaves."
 		}
 	},
 	
@@ -200,16 +200,16 @@
 		"name": "groupCompetitiveTime",
 		"filter": "Bike_Km",
 		"description": {
-			"it": "Fai <challengeTarget> km in bici prima del tuo avversario <opponent>. Se vinci otterrai un bonus di <rewardBonusScore> green leaves, se vince <opponent> otterrà <challengerBonusScore> green leaves.",
-			"en": "Bike <challengeTarget> km before your opponent <opponent>. If you win, you'll get <rewardBonusScore> green leaves. If you lose, <opponent> will get <challengerBonusScore> green leaves."
+			"it": "Fai <challengeTarget> km in bici prima del tuo avversario <opponent>. Se vinci otterrai un bonus di <rewardBonusScore> eco-Leaves, se vince <opponent> otterrà <challengerBonusScore> eco-Leaves.",
+			"en": "Bike <challengeTarget> km before your opponent <opponent>. If you win, you'll get <rewardBonusScore> eco-Leaves. If you lose, <opponent> will get <challengerBonusScore> eco-Leaves."
 		}
 	},
 	{
 		"name": "groupCompetitiveTime",
 		"filter": "Walk_Km",
 		"description": {
-			"it": "Fai <challengeTarget> km a piedi prima del tuo avversario <opponent>. Se vinci otterrai un bonus di <rewardBonusScore> green leaves, se vince <opponent> otterrà <challengerBonusScore> green leaves.",
-			"en": "Walk <challengeTarget> km before your opponent <opponent>. If you win, you'll get <rewardBonusScore> green leaves. If you lose, <opponent> will get <challengerBonusScore> green leaves."
+			"it": "Fai <challengeTarget> km a piedi prima del tuo avversario <opponent>. Se vinci otterrai un bonus di <rewardBonusScore> eco-Leaves, se vince <opponent> otterrà <challengerBonusScore> eco-Leaves.",
+			"en": "Walk <challengeTarget> km before your opponent <opponent>. If you win, you'll get <rewardBonusScore> eco-Leaves. If you lose, <opponent> will get <challengerBonusScore> eco-Leaves."
 		}
 	},
 	
@@ -218,39 +218,39 @@
 		"name": "groupCooperative",
 		"filter": "green leaves",
 		"description": {
-			"it": "Unite le forze e guadagnate almeno <target> green leaves. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> green leaves.",
-			"en": "Join the forces: gain at least <target> green leaves together with <opponent>. If you win, you'll both get <reward> green leaves."
+			"it": "Unite le forze e guadagnate almeno <target> eco-Leaves. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> eco-Leaves.",
+			"en": "Join the forces: gain at least <target> eco-Leaves together with <opponent>. If you win, you'll both get <reward> eco-Leaves."
 		}
 	},
 	{
 		"name": "groupCooperative",
 		"filter": "Bike_Km",
 		"description": {
-			"it": "Unite le forze e fate almeno <target> km in bici. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> green leaves.",
-			"en": "Join forces: bike at least <target> km between you and <opponent>. If you win, you'll both get <reward> green leaves."
+			"it": "Unite le forze e fate almeno <target> km in bici. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> eco-Leaves.",
+			"en": "Join forces: bike at least <target> km between you and <opponent>. If you win, you'll both get <reward> eco-Leaves."
 		}
 	},
 	{
 		"name": "groupCooperative",
 		"filter": "Walk_Km",
 		"description": {
-			"it": "Unite le forze e fate almeno <target> km a piedi. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> green leaves.",
-			"en": "Join forces: walk at least <target> km between you and <opponent>. If you win, you'll both get <reward> green leaves."
+			"it": "Unite le forze e fate almeno <target> km a piedi. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> eco-Leaves.",
+			"en": "Join forces: walk at least <target> km between you and <opponent>. If you win, you'll both get <reward> eco-Leaves."
 		}
 	},
 	{
 		"name": "incentiveGroupChallengeReward",
 		"periodName": "daily",
 		"description": {
-			"it": "Vinci una sfida di coppia di qualsiasi tipo ed ottieni <bonusScore> punti green leaves addizionali.",
-			"en": "Win one multiplayer challenge of any kind to obtain additional <bonusScore> green leaves points."
+			"it": "Vinci una sfida di coppia di qualsiasi tipo ed ottieni <bonusScore> punti eco-Leaves addizionali.",
+			"en": "Win one multiplayer challenge of any kind to obtain additional <bonusScore> eco-Leaves points."
 		}
 	},
 	 {
     "name": "multiTarget",
     "description": {
-      "it": "Bella Coincidenza! Fai almeno un viaggio in treno e uno in bici nella stessa giornata per vincere 250 Green Leaves",
-      "en": "Bella Coincidenza! Do at least a trip by train and a trip by bike in the same day to win 250 Green Leaves"
+      "it": "Bella Coincidenza! Fai almeno un viaggio in treno e uno in bici nella stessa giornata per vincere 250 eco-Leaves",
+      "en": "Bella Coincidenza! Do at least a trip by train and a trip by bike in the same day to win 250 eco-Leaves"
     }
   },
   {
