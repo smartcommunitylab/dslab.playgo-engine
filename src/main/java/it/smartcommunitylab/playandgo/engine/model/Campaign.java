@@ -34,6 +34,7 @@ public class Campaign {
 	private Date dateTo;
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;
+	private Boolean visible = Boolean.FALSE;
 	private int startDayOfWeek = 1; //Monday is 1 and Sunday is 7
 	@Indexed
 	private String gameId;
@@ -228,6 +229,14 @@ public class Campaign {
 
 	public void setWeekConfs(List<CampaignWeekConf> weekConfs) {
 		this.weekConfs = weekConfs;
+	}
+
+	public Boolean getVisible() {
+		return visible;
+	}
+
+	public void setVisible(Boolean visible) {
+		this.visible = visible;
 	}
 
 }

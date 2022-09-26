@@ -132,6 +132,7 @@ public class CampaignManager {
 		campaignDb.setDateTo(campaign.getDateTo());
 		campaignDb.setActive(campaign.getActive());
 		campaignDb.setCommunications(campaign.getCommunications());
+		campaignDb.setVisible(campaign.getVisible());
 		campaignDb.setStartDayOfWeek(campaign.getStartDayOfWeek());
 		campaignDb.setDetails(campaign.getDetails());
 		campaignDb.setGameId(campaign.getGameId());
@@ -159,7 +160,7 @@ public class CampaignManager {
 		return campaignRepository.findAll(Sort.by(Sort.Direction.DESC, "dateFrom"));
 	}
 	
-	public List<Campaign> getCampaignsByTerritory(String territoryId, Type type, boolean currentlyActive) {
+	public List<Campaign> getCampaignsByTerritory(String territoryId, Type type, boolean currentlyActive, boolean onlyVisible) {
 		List<Campaign> result = new ArrayList<>();
 		if(type == null) {
 			result = campaignRepository.findByTerritoryId(territoryId, Sort.by(Sort.Direction.DESC, "dateFrom"));
@@ -167,10 +168,12 @@ public class CampaignManager {
 			result = campaignRepository.findByTerritoryIdAndType(territoryId, type, Sort.by(Sort.Direction.DESC, "dateFrom"));
 		}
 		if(currentlyActive) {
-			return result.stream().filter(c -> c.currentlyActive()).collect(Collectors.toList());			
-		} else {
-			return result;
+			result = result.stream().filter(c -> c.currentlyActive()).collect(Collectors.toList());			
 		}
+		if(onlyVisible) {
+			result = result.stream().filter(c -> c.getVisible()).collect(Collectors.toList());
+		}
+		return result;
 	}
 	
 	public Campaign getCampaignByGameId(String gameId) {
@@ -289,7 +292,7 @@ public class CampaignManager {
 		}
 	}
 	
-	public List<PlayerCampaign> getPlayerCampaigns(String playerId, boolean currentlyActive) {
+	public List<PlayerCampaign> getPlayerCampaigns(String playerId, boolean currentlyActive, boolean onlyVisible) {
 		List<PlayerCampaign> result = new ArrayList<>();
 		List<CampaignSubscription> campaigns = campaignSubscriptionRepository.findByPlayerId(playerId);
 		for(CampaignSubscription sub : campaigns) {
@@ -297,6 +300,11 @@ public class CampaignManager {
 			if(campaign != null) {
 				if(currentlyActive) {
 					if(!campaign.currentlyActive()) {
+						continue;
+					}
+				}
+				if(onlyVisible) {
+					if(!campaign.getVisible()) {
 						continue;
 					}
 				}
