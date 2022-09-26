@@ -39,8 +39,10 @@ public class CityCampaignChallengeNotification {
 			String model = (String) obj.get("model");
 			String challengeName = (String) obj.get("challengeName");
 			String counterName = (String) obj.get("pointConcept");
-			long timestamp = (Long) obj.get("timestamp");
-			challengeStatsManager.updateChallengeStat(playerId, gameId, model, challengeName, counterName, timestamp, completed);			
+			//long timestamp = (Long) obj.get("timestamp");
+			//long start = (Long) obj.get("start");
+			long end = (Long) obj.get("end");
+			challengeStatsManager.updateChallengeStat(playerId, gameId, model, challengeName, counterName, end, completed);			
 		}
 	}
 }
