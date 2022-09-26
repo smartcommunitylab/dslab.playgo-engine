@@ -42,7 +42,7 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 		list.forEach(c -> {
 			if(Utils.isNotEmpty(c.getGameId())) {
 				gamificationMessageQueueManager.setGameNotification(c.getGameId());
-				logger.debug(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
+				logger.info(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
 			}
 		});
 	}
@@ -50,7 +50,7 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	public void subcribeCampaing(Campaign c) {
 		if(Utils.isNotEmpty(c.getGameId())) {
 			gamificationMessageQueueManager.setGameNotification(c.getGameId());
-			logger.debug(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
+			logger.info(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
 		}
 	}
 	

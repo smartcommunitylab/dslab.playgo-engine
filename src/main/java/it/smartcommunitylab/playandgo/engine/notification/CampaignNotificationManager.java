@@ -78,6 +78,7 @@ public class CampaignNotificationManager {
 		List<NotificationMessage> messages = mapper.readValue(new File(notificationDir + "/personal_notifications.json"), new TypeReference<List<NotificationMessage>>() {
 		});
 		notificationsMessages = messages.stream().collect(Collectors.toMap(NotificationMessage::getId, Function.identity()));
+		logger.info("init:" + notificationsMessages);
 		
 		badges = badgeManager.getAllBadges();
 	}
@@ -113,7 +114,8 @@ public class CampaignNotificationManager {
 						}
 						if (notification != null) {
 								try {
-									logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + ")");
+									logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + "):" 
+											+ mapper.writeValueAsString(notification));
 									notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
 								} catch (Exception e) {
 									logger.warn("Error sending notification:" + e.getMessage());
@@ -148,10 +150,12 @@ public class CampaignNotificationManager {
 	private Notification buildNotification(String campaignId, String gameId, String playerId, String lang, NotificationGe not) {
 		String type = not.getClass().getSimpleName();
 		Map<String, String> extraData = buildExtraData(not, lang);
+		logger.debug("buildExtraData:" + extraData);
 		
 		Notification result = new Notification();
 		
 		NotificationMessage message = notificationsMessages.get(type);
+		logger.debug("NotificationMessage:" + message);
 			
 		fillNotification(result, lang, message, extraData);
 		
@@ -211,7 +215,6 @@ public class CampaignNotificationManager {
 				break;
 			}
 		}
-
 		return result;
 	}
 	

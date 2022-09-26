@@ -5,6 +5,9 @@
 
 	<appender name="Console"
 		class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>INFO</level>
+    </filter>		
 		<layout class="ch.qos.logback.classic.PatternLayout">
 			<Pattern>
 				%black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
@@ -34,14 +37,14 @@
 
 	<!-- LOG everything at INFO level -->
 	<root level="info">
-		<appender-ref ref="RollingFile" />
 		<appender-ref ref="Console" />
+		<appender-ref ref="RollingFile" />
 	</root>
 
 	<!-- LOG "it.smartcommunitylab.playandgo" at DEBUG level -->
 	<logger name="it.smartcommunitylab.playandgo" level="debug" additivity="false">
-		<appender-ref ref="RollingFile" />
 		<appender-ref ref="Console" />
+		<appender-ref ref="RollingFile" />
 	</logger>
 
 </configuration>

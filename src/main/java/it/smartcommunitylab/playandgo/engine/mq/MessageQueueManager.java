@@ -83,7 +83,7 @@ public class MessageQueueManager {
 		
 		DeliverCallback validateTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
-			logger.debug("validateTripRequestCallback:" + json);
+			logger.info("validateTripRequestCallback:" + json);
 			ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
 			if(manageValidateTripRequest != null) {
 				manageValidateTripRequest.validateTripRequest(message);
@@ -98,7 +98,7 @@ public class MessageQueueManager {
 
 		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
-			logger.debug("validateCampaignTripRequestCallback:" + json);
+			logger.info("validateCampaignTripRequestCallback:" + json);
 			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
 			String routingKey = message.getCampaignType();
 			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
@@ -110,7 +110,7 @@ public class MessageQueueManager {
 		
 		invalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
-			logger.debug("invalidateCampaignTripRequestCallback:" + json);
+			logger.info("invalidateCampaignTripRequestCallback:" + json);
 			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
 			String routingKey = message.getCampaignType();
 			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
@@ -122,7 +122,7 @@ public class MessageQueueManager {
 
 		updateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
-			logger.debug("updateCampaignTripRequestCallback:" + json);
+			logger.info("updateCampaignTripRequestCallback:" + json);
 			UpdateCampaignTripRequest message = mapper.readValue(json, UpdateCampaignTripRequest.class);
 			String routingKey = message.getCampaignType();
 			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
@@ -136,7 +136,7 @@ public class MessageQueueManager {
 		callWebhookChannel.queueDeclare(callWebhookRequest, true, false, false, null);
 		callWebhookCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
-			logger.debug("callWebhookCallback:" + json);
+			logger.info("callWebhookCallback:" + json);
 			WebhookRequest msg = mapper.readValue(json, WebhookRequest.class);
 			if(manageWebhookRequest != null) {
 				try {
