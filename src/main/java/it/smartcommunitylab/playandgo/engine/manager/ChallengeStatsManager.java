@@ -57,10 +57,10 @@ public class ChallengeStatsManager {
 	}
 
 	public void updateChallengeStat(String playerId, String gameId, String type, 
-			String challengeName, String counterName, long timestamp, boolean completed) {
+			String challengeName, String counterName, long timestamp, long start, boolean completed) {
 		Campaign campaign = campaignRepository.findByGameId(gameId);
 		
-		ZonedDateTime trackDay = getDay(campaign, timestamp);
+		ZonedDateTime trackDay = getDay(campaign, start);
 		String day = trackDay.format(dtf);
 		int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
 		int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
