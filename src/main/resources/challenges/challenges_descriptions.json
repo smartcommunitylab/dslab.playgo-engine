@@ -631,8 +631,8 @@
   {
     "modelName": "visitPointInterest",
     "description": {
-      "it": "Per vincere la sfida, traccia almeno <target> viaggi sostenibili che abbiano come destinazione i punti di interesse di tipologia <category>. Scopri la lista completa al seguente \\<a href='<weblink>/' target='_system'>indirizzo\\</a>.",
-      "en": "To succeed in this challenge, track at least <target> sustainable trips whose destination is a point of interest of type <category>. Discover them all \\<a href='<weblink>' target='_system'>here\\</a>."
+      "it": "Per vincere la sfida, visita almeno <target> luoghi di tipo <category> con viaggi sostenibili. Scopri la lista completa dei luoghi da raggiungere aprendo la seguente \\<a href='<weblink>/' target='_system'>mappa\\</a>.",
+      "en": "To succeed in this challenge, visit at least <target> locations of type <category> with sustainable trips. Discover the complete list of locations opening the following \\<a href='<weblink>' target='_system'>map\\</a>."
     }
   } 	
 ]
