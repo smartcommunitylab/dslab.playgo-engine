@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
@@ -140,9 +142,14 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		
 		playerTrack.setScoreStatus(ScoreStatus.SENT);
 		playerTrack.setValid(true);
-		playerTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
-		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
-		playerTrack.setDistance(track.getValidationResult().getValidationStatus().getDistance());
+		ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
+		playerTrack.setModeType(validationStatus.getModeType().toString());
+		playerTrack.setDuration(validationStatus.getDuration());
+		if(validationStatus.getEffectiveDistances().containsKey(validationStatus.getModeType())) {
+			playerTrack.setDistance(validationStatus.getEffectiveDistances().get(validationStatus.getModeType()));
+		} else {
+			playerTrack.setDistance(validationStatus.getDistance());
+		}
 		playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), playerTrack.getDistance()));
 		
 		playerTrack.setStartTime(track.getStartTime());

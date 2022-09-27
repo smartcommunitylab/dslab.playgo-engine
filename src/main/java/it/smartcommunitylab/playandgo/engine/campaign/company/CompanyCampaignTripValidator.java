@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.LegData;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.LegResult;
@@ -103,8 +104,13 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 			trackData.setStartTime(track.getStartTime().getTime());
 			LegData legData = new LegData();
 			legData.setId(track.getId());
-			legData.setMean(track.getValidationResult().getValidationStatus().getModeType().toString());
-			legData.setDistance(track.getValidationResult().getValidationStatus().getDistance());
+			ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
+			legData.setMean(validationStatus.getModeType().toString());
+			if(validationStatus.getEffectiveDistances().containsKey(validationStatus.getModeType())) {
+				legData.setDistance(validationStatus.getEffectiveDistances().get(validationStatus.getModeType()));
+			} else {
+				legData.setDistance(validationStatus.getDistance());
+			}
 			legData.getPoints().addAll(track.getGeolocationEvents());
 			trackData.getLegs().add(legData);
 			return trackData;

@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
+import it.smartcommunitylab.playandgo.engine.manager.UnregisterManager;
 import it.smartcommunitylab.playandgo.engine.model.Avatar;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -38,6 +39,9 @@ public class PlayerController extends PlayAndGoController {
 	
 	@Autowired
 	CampaignManager campaignManager;
+	
+	@Autowired
+	UnregisterManager unregisterManager;
 	
 	@PostMapping("/api/player")
 	public Player addPlayer(
@@ -122,6 +126,13 @@ public class PlayerController extends PlayAndGoController {
 			throw new BadRequestException("avatar not found", ErrorCode.IMAGE_NOT_FOUND);
 		}
 		return avatar;
+	}
+	
+	@PutMapping("/api/player/unregister")
+	public void unregisterPlayer(
+			HttpServletRequest request) throws Exception {
+		Player currentPlayer = getCurrentPlayer(request);
+		unregisterManager.unregisterPlayer(currentPlayer);
 	}
 
 }
