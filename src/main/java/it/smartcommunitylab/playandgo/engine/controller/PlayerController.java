@@ -133,6 +133,7 @@ public class PlayerController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		Player currentPlayer = getCurrentPlayer(request);
 		unregisterManager.unregisterPlayer(currentPlayer);
+		invalidatePlayerCache(currentPlayer.getPlayerId());
 	}
 
 }

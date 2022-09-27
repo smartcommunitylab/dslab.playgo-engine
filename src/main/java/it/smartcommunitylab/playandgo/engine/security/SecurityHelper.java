@@ -187,7 +187,7 @@ public class SecurityHelper {
 	private Player readPlayer(String subject) {
 		try {
 			return playerCache.get(subject);
-		} catch (ExecutionException e) {
+		} catch (Exception e) {
 			return null;
 		}
 		// return playerRepository.findById(subject).orElse(null);
@@ -212,6 +212,10 @@ public class SecurityHelper {
 
 	public void invalidateUserRoleCache(String username) {
 		roleCache.invalidate(username);
+	}
+	
+	public void invalidatePlayerCache(String subject) {
+		playerCache.invalidate(subject);
 	}
 	
 }

@@ -70,6 +70,10 @@ public class PlayAndGoController {
 		securityHelper.invalidateUserRoleCache(username);
 	}
 	
+	public void invalidatePlayerCache(String subject) {
+		securityHelper.invalidatePlayerCache(subject);
+	}
+	
 	public void checkId(Long... ids) throws BadRequestException {
 		for (Long id : ids) {
 			if (id == null) {
