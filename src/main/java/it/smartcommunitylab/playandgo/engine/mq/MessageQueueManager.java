@@ -28,6 +28,7 @@ public class MessageQueueManager {
 	public static final String validateCampaignTripRequest = "playgo-campaign-vt-request";
 	public static final String invalidateCampaignTripRequest = "playgo-campaign-invt-request";
 	public static final String updateCampaignTripRequest = "playgo-campaign-updt-request";
+	public static final String revalidateCampaignTripRequest = "playgo-campaign-revt-request";
 	//public static final String validateCampaignTripResponse = "playgo-campaign-vt-r";
 	public static final String callWebhookRequest = "playgo-campaign-webhook-request";
 	
@@ -61,6 +62,7 @@ public class MessageQueueManager {
 	DeliverCallback validateCampaignTripRequestCallback;
 	DeliverCallback invalidateCampaignTripRequestCallback;
 	DeliverCallback updateCampaignTripRequestCallback;
+	DeliverCallback revalidateCampaignTripRequestCallback;
 	DeliverCallback callWebhookCallback;
 	
 	ObjectMapper mapper = new ObjectMapper();
@@ -95,6 +97,7 @@ public class MessageQueueManager {
 		validateCampaignTripChannel.queueDeclare(validateCampaignTripRequest, true, false, false, null);
 		validateCampaignTripChannel.queueDeclare(invalidateCampaignTripRequest, true, false, false, null);
 		validateCampaignTripChannel.queueDeclare(updateCampaignTripRequest, true, false, false, null);
+		validateCampaignTripChannel.queueDeclare(revalidateCampaignTripRequest, true, false, false, null);
 
 		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
@@ -131,6 +134,18 @@ public class MessageQueueManager {
 			}
 		};
 		validateCampaignTripChannel.basicConsume(updateCampaignTripRequest, true, updateCampaignTripRequestCallback, consumerTag -> {});
+		
+		revalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
+			String json = new String(delivery.getBody(), "UTF-8");
+			logger.info("revalidateCampaignTripRequestCallback:" + json);
+			UpdateCampaignTripRequest message = mapper.readValue(json, UpdateCampaignTripRequest.class);
+			String routingKey = message.getCampaignType();
+			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
+			if(manager != null) {
+				manager.revalidateTripRequest(message);
+			}
+		};
+		validateCampaignTripChannel.basicConsume(revalidateCampaignTripRequest, true, revalidateCampaignTripRequestCallback, consumerTag -> {});
 		
 		callWebhookChannel = connection.createChannel();
 		callWebhookChannel.queueDeclare(callWebhookRequest, true, false, false, null);
@@ -218,6 +233,11 @@ public class MessageQueueManager {
 	public void sendUpdateCampaignTripRequest(UpdateCampaignTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
 		validateTripChannel.basicPublish("", updateCampaignTripRequest, null, msg.getBytes("UTF-8"));
+	}
+	
+	public void sendRevalidateCampaignTripRequest(UpdateCampaignTripRequest message) throws Exception {
+		String msg = mapper.writeValueAsString(message);
+		validateTripChannel.basicPublish("", revalidateCampaignTripRequest, null, msg.getBytes("UTF-8"));
 	}
 	
 	public void sendCallWebhookRequest(WebhookRequest message) throws Exception {

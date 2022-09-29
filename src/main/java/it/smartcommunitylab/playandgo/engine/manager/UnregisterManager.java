@@ -45,6 +45,7 @@ public class UnregisterManager {
 		mongoTemplate.remove(query, PlayerStatsGame.class);
 		mongoTemplate.remove(query, PlayerStatsTransport.class);
 		playerRepository.delete(playerDb);
+		logger.info(String.format("unregisterPlayer:%s", player.getPlayerId()));
 	}
 	
 }

@@ -11,7 +11,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 @Document(collection="campaignMessages")
 public class CampaignMsg {
 	public static enum Operation {
-		validate, invalidate, update
+		validate, invalidate, update, revalidate
 	};
 	
 

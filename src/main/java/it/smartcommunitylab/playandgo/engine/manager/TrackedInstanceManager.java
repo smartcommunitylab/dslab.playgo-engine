@@ -50,6 +50,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.ERROR_TYPE;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -589,6 +590,53 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				msg.setTrackedInstanceId(track.getId());
 				invalidateCampaigns(msg);
 			}
+		}
+	}
+
+	private void revalidateCampaign(String campaignId, String type, String playerId, String trackedInstanceId) throws Exception {
+		CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, campaignId, trackedInstanceId);
+		if(pTrack != null) {
+			UpdateCampaignTripRequest request = new UpdateCampaignTripRequest(type, pTrack.getId(), 0);
+			queueManager.sendRevalidateCampaignTripRequest(request);
+		}
+	}
+	
+	public void revalidateTrack(String territoryId, String campaignId, String trackedInstanceId) throws Exception {
+		TrackedInstance trackedInstance = trackedInstanceRepository.findById(trackedInstanceId).orElse(null);
+		if(trackedInstance == null) {
+			throw new BadRequestException("track not found", ErrorCode.TRACK_NOT_FOUND);
+		}
+		if(!trackedInstance.getTerritoryId().equals(territoryId)) {
+			throw new BadRequestException("territory not corrisponding", ErrorCode.TERRITORY_NOT_ALLOWED);
+		}
+		if(!trackedInstance.getValidationResult().isValid()) {
+			return;
+		}
+		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}		
+		if(Type.company.equals(campaign.getType())) {
+			revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstanceId);
+		}
+	}
+	
+	public void revalidateTracks(String territoryId, String campaignId, Date dateFrom, Date dateTo) throws Exception {
+		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}
+		if(Type.company.equals(campaign.getType())) {
+			Criteria criteria = new Criteria("territoryId").is(territoryId).and("validationResult.valid").is(true);
+			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
+			Query query = new Query(criteria);
+			List<TrackedInstance> list = mongoTemplate.find(query, TrackedInstance.class);
+			for(TrackedInstance trackedInstance : list) {
+				if(!trackedInstance.getValidationResult().isValid()) {
+					continue;
+				}
+				revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstance.getId());
+			}			
 		}
 	}
 	
