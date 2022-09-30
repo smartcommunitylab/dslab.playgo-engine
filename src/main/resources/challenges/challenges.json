@@ -256,8 +256,8 @@
   {
     "name": "visitPointInterest",
     "description": {
-      "it": "Visita almeno <target> \\<a href='<weblink>/' target='_system'>luoghi\\</a> di tipo <category> e avrai un bonus di <bonusScore> punti <bonusPointType>.",
-      "en": "Visit at least <target> \\<a href='<weblink>/' target='_system'>locations\\</a> of type <category> and you will get a bonus of <bonusScore> <bonusPointType> points."
+      "it": "Visita almeno <target> \\<a href='<weblink>/' target='_system'>luoghi\\</a> del tipo <category> e avrai un bonus di <bonusScore> punti eco-Leaves.",
+      "en": "Visit at least <target> \\<a href='<weblink>/' target='_system'>locations\\</a> of type <category> and you will get a bonus of <bonusScore> eco-Leaves points."
     }
   } 
 	
