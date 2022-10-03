@@ -133,8 +133,8 @@
 	{
 		"name": "survey",
 		"description": {
-			"it": "Compila il questionario e guadagna <bonusScore> punti <bonusPointType>.",
-			"en": "Fill out the survey and gain a bonus of <bonusScore> <bonusPointType> points."
+			"it": "Compila il \\<a href='<surveylink>' target='_system'>questionario\\</a> e guadagna <bonusScore> punti eco-Leaves.",
+			"en": "Fill out the \\<a href='<surveylink>' target='_system'>survey\\</a> and gain a bonus of <bonusScore> eco-Leaves points."
 		}
 	},
   {
