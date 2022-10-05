@@ -30,9 +30,11 @@ public class CompanyCampaignSubscription {
 	MessageQueueManager queueManager;
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
-			Map<String, Object> campaignData) throws Exception {		
-		aziendaleManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), 
-				(String)campaignData.get(companyKey), (String)campaignData.get(employeeCode));
+			Map<String, Object> campaignData, boolean sendExtRequest) throws Exception {
+		if(sendExtRequest) {
+			aziendaleManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), 
+					(String)campaignData.get(companyKey), (String)campaignData.get(employeeCode));			
+		}
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaign.getCampaignId());
