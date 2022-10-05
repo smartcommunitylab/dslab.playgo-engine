@@ -52,4 +52,9 @@ public class CampaignMsgManager {
 	public void addUpdateTripRequest(UpdateCampaignTripRequest msg, Type type, String errorMsg, String errorCode) {
 		addRequest(msg.getCampaignPlayerTrackId(), type, Operation.update, errorMsg, errorCode, msg);
 	}
+	
+	public void addRevalidateTripRequest(UpdateCampaignTripRequest msg, Type type, String errorMsg, String errorCode) {
+		addRequest(msg.getCampaignPlayerTrackId(), type, Operation.revalidate, errorMsg, errorCode, msg);
+	}
+	
 }
