@@ -206,5 +206,29 @@ public class ConsoleController extends PlayAndGoController {
 		TravelValidity changedValidity = TravelValidity.valueOf(validity);
 		trackedInstanceManager.updateValidationResult(trackId, changedValidity, modeType, distance, duration, errorType, note);
 	}
+	
+	@GetMapping("/api/console/track/revalidate")
+	public void revalidateTrack(
+			@RequestParam String territoryId,
+			@RequestParam String campaignId,
+			@RequestParam(required = false) String trackedInstanceId,
+			@RequestParam(required = false) 
+			@ApiParam(value = "UTC millis") Long dateFrom,
+			@RequestParam(required = false) 
+			@ApiParam(value = "UTC millis") Long dateTo,			
+			HttpServletRequest request) throws Exception {
+		checkRole(request, Role.territory, territoryId);
+		if(Utils.isNotEmpty(trackedInstanceId)) {
+			trackedInstanceManager.revalidateTrack(territoryId, campaignId, trackedInstanceId);
+		} else {
+			Date dDateFrom = null;
+			Date dDateTo = null;
+			if((dateFrom != null) && (dateTo != null)) {
+				dDateFrom = Utils.getUTCDate(dateFrom);
+				dDateTo = Utils.getUTCDate(dateTo);
+				trackedInstanceManager.revalidateTracks(territoryId, campaignId, dDateFrom, dDateTo);
+			}
+		}
+	}
 
 }

@@ -216,4 +216,8 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		}
 	}
 
+	@Override
+	public void revalidateTripRequest(UpdateCampaignTripRequest msg) {
+	}
+
 }

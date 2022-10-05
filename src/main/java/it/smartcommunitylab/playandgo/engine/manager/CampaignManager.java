@@ -234,7 +234,7 @@ public class CampaignManager {
 				sub = personalCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
 				break;
 			case company:
-				sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData); 
+				sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true); 
 				break;
 			case city:
 				sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
