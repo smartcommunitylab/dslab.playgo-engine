@@ -20,7 +20,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
@@ -57,6 +62,8 @@ public class UnregisterManager {
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
+	
+	ObjectMapper mapper = new ObjectMapper();
 
 	public void unregisterPlayer(Player player) throws Exception {
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);
@@ -103,10 +110,14 @@ public class UnregisterManager {
 			logger.warn(String.format("deleteAccount[%s]: error getting token - %s", userId, token.getStatusCodeValue()));
 			throw new ServiceException("error getting token", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
-		ResponseEntity<String> response = deleteAccountApi(userId, token.getBody());
-		if(!response.getStatusCode().is2xxSuccessful()) {
-			logger.warn(String.format("deleteAccount[%s]: error calling api - %s", userId, response.getStatusCodeValue()));
-			throw new ServiceException("error calling api", ErrorCode.EXT_SERVICE_INVOCATION);			
+		String json = token.getBody();
+		JsonNode jsonNode = mapper.readTree(json);
+		if(jsonNode.has("access_token")) {
+			ResponseEntity<String> response = deleteAccountApi(userId, jsonNode.get("access_token").asText());
+			if(!response.getStatusCode().is2xxSuccessful()) {
+				logger.warn(String.format("deleteAccount[%s]: error calling api - %s", userId, response.getStatusCodeValue()));
+				throw new ServiceException("error calling api", ErrorCode.EXT_SERVICE_INVOCATION);			
+			}			
 		}
 	}
 	
@@ -120,13 +131,13 @@ public class UnregisterManager {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-		Map<String, String> map = new HashMap<>();
-		map.put("grant_type", "client_credentials");
-		map.put("client_id", clientId);
-		map.put("client_secret", clientSecret);
-		map.put("scope", "aac.api.users");
+		MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+		map.add("grant_type", "client_credentials");
+		map.add("client_id", clientId);
+		map.add("client_secret", clientSecret);
+		map.add("scope", "aac.api.users");
 
-		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(map, headers);
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
 		ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);		
 		return response;
