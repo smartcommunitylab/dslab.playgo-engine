@@ -86,4 +86,9 @@ aziende:
   endpoint: ${AZIENDE_ENDPOIN:}
   user: ${AZIENDE_USER:}
   password: ${AZIENDE_PASSWORD:}
+
+aac:
+  client-id: ${AAC_ADMIN_CLIENT_ID:}
+  client-secret: ${AAC_ADMIN_CLIENT_SECRET:}
+  realm: ${AAC_ADMIN_REALM:}
  

@@ -64,5 +64,9 @@ public class StorageManager {
 		}
 	}
 	
+	public void deleteImage(String objectId) throws Exception {
+		s3Client.deleteObject(bucket, objectId);
+	}
+	
 	
 }

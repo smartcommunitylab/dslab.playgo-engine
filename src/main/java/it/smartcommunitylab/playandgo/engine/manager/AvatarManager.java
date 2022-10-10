@@ -81,4 +81,15 @@ public class AvatarManager {
 		return avatar;
 	}
 	
+	public void deleteAvatar(String playerId) throws Exception {
+		Avatar avatar = avatarRepository.findByPlayerId(playerId);
+		if(avatar != null) {
+			String avatarImage = "avatar-" + playerId;
+			String avatarSmallImage = "avatar-small-" + playerId;
+			storageManager.deleteImage(avatarImage);
+			storageManager.deleteImage(avatarSmallImage);
+			avatarRepository.delete(avatar);
+		}
+	}
+	
 }

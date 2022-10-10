@@ -18,6 +18,7 @@ public class Player {
 	private String territoryId;
 	private String givenName;
 	private String familyName;
+	private Boolean deleted = Boolean.FALSE;
 //	private Map<String, Object> personalData;
 //	private boolean checkedRecommendation;
 //	private List<Event> eventsCheckIn;
@@ -88,6 +89,14 @@ public class Player {
 
 	public void setFamilyName(String familyName) {
 		this.familyName = familyName;
+	}
+
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
 	}
 
 	
