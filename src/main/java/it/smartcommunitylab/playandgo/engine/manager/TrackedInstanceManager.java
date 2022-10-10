@@ -78,6 +78,8 @@ import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
 public class TrackedInstanceManager implements ManageValidateTripRequest {
 	private static Log logger = LogFactory.getLog(TrackedInstanceManager.class);
 	
+	public static final String meansKey = "means";
+	
 	@Autowired
 	MongoTemplate mongoTemplate;
 	
@@ -347,22 +349,41 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
 			// skip non-active campaigns
 			if (!campaign.currentlyActive()) continue;
-			// keep existing track
-			CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), campaign.getCampaignId(), msg.getTrackedInstanceId());
-			if (pTrack == null) {
-				pTrack = new CampaignPlayerTrack();
-				pTrack.setPlayerId(msg.getPlayerId());
-				pTrack.setCampaignId(sub.getCampaignId());
-				pTrack.setCampaignSubscriptionId(sub.getId());
-				pTrack.setTrackedInstanceId(msg.getTrackedInstanceId());
-				pTrack.setTerritoryId(msg.getTerritoryId());
-				pTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
-				pTrack = campaignPlayerTrackRepository.save(pTrack);
+			TrackedInstance trackedInstance = getTrackedInstance(msg.getTrackedInstanceId());
+			if(trackedInstance != null) {
+				ValidationStatus validationStatus = trackedInstance.getValidationResult().getValidationStatus();
+				if(checkMean(campaign, validationStatus.getModeType().toString())) {
+					// keep existing track
+					CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), campaign.getCampaignId(), msg.getTrackedInstanceId());
+					if (pTrack == null) {
+						pTrack = new CampaignPlayerTrack();
+						pTrack.setPlayerId(msg.getPlayerId());
+						pTrack.setCampaignId(sub.getCampaignId());
+						pTrack.setCampaignSubscriptionId(sub.getId());
+						pTrack.setTrackedInstanceId(msg.getTrackedInstanceId());
+						pTrack.setTerritoryId(msg.getTerritoryId());
+						pTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
+						pTrack = campaignPlayerTrackRepository.save(pTrack);
+					}
+					ValidateCampaignTripRequest request = new ValidateCampaignTripRequest(msg.getPlayerId(), 
+							msg.getTerritoryId(), msg.getTrackedInstanceId(), sub.getCampaignId(), sub.getId(), pTrack.getId(), campaign.getType().toString());
+					queueManager.sendValidateCampaignTripRequest(request);					
+				}
 			}
-			ValidateCampaignTripRequest request = new ValidateCampaignTripRequest(msg.getPlayerId(), 
-					msg.getTerritoryId(), msg.getTrackedInstanceId(), sub.getCampaignId(), sub.getId(), pTrack.getId(), campaign.getType().toString());
-			queueManager.sendValidateCampaignTripRequest(request);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private boolean checkMean(Campaign campaign, String mean) {
+		if((campaign.getValidationData() != null) && (campaign.getValidationData().get(meansKey) != null)) {
+			try {
+				List<String> means = (List<String>) campaign.getValidationData().get(meansKey);
+				return means.contains(mean);
+			} catch (Exception e) {
+				logger.warn("checkMean:" + e.getMessage());
+			}
+		}
+		return false;
 	}
 	
 	/**
