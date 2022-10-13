@@ -282,8 +282,41 @@ public class CityGameDataConverter {
 			return challenges;
 			
 		} catch (Exception e) {
-			logger.error("convertPlayerChallengesData error", e);
 			logger.error("convertPlayerChallengesData:" + e.getMessage());
+			throw e;
+		}
+	}
+	
+	public ChallengesData convertPlayerChallengesDataByName(String jsonChallenge, String playerStatus, Player player, Campaign campaign, 
+			int challType) throws Exception {
+		try {
+			Map playerMap = mapper.readValue(playerStatus, Map.class);
+			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
+			List<BadgeCollectionConcept> badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			if(badges != null) {
+				badges.forEach(x -> {
+					x.getBadgeEarned().forEach(y -> {
+						y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
+					});
+				});				
+			}
+			
+			List<Map> gePointsMap = mapper.convertValue(stateMap.get("PointConcept"), new TypeReference<List<Map>>() {});
+			List<PointConcept> points = convertGEPointConcept(gePointsMap);
+			
+			ChallengeConcept challenge = mapper.readValue(jsonChallenge, new TypeReference<ChallengeConcept>() {});
+					
+			long start = challenge.getStart().getTime();
+			long end = challenge.getEnd().getTime();
+			
+			final long now = System.currentTimeMillis();
+			
+			ChallengesData challengeData = extractChallengeData(player.getPlayerId(), campaign.getGameId(), player.getLanguage(), points, badges,
+					challenge, start, end, now);
+
+			return challengeData;	
+		} catch (Exception e) {
+			logger.error("convertPlayerChallengesDataByName:" + e.getMessage());
 			throw e;
 		}
 	}
@@ -631,275 +664,17 @@ public class CityGameDataConverter {
     	ChallengeConceptInfo result = new ChallengeConceptInfo();    		
     		
 		if(challengeList != null){
-			for(ChallengeConcept challenge: challengeList){
-				String name = challenge.getName();
-				String modelName = challenge.getModelName();
+			for(ChallengeConcept challenge: challengeList) {
+				String state = challenge.getState();
 				long start = challenge.getStart().getTime();
 				long end = challenge.getEnd().getTime();
-				Boolean completed = challenge.isCompleted();
-				String state = challenge.getState();
-				long dateCompleted = challenge.getDateCompleted() != null ? challenge.getDateCompleted().getTime() : 0L;
-				int bonusScore = 0;
-				String periodName = "";
-				String counterName = "";
-				double target = 0;
-				double periodTarget = 0;
-				String badgeCollectionName = "";
-				int initialBadgeNum = 0;
-				Map<String, Object> otherAttendeeScores = null;
-				
-				if(challenge.getFields() != null){
-					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_BONUS_SCORE, 0)).intValue();
-					periodName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_PERIOD_NAME,"");
-					counterName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_COUNTER_NAME,"");
-					target =  ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_TARGET,0)).doubleValue(); 
-					badgeCollectionName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_COUNTER_NAME,"");
-					initialBadgeNum = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_INITIAL_BADGE_NUM,0)).intValue();
-					periodTarget = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_PERIOD_TARGET,0)).doubleValue();
-					List otherAttendeeScoresList = (List)challenge.getFields().getOrDefault(CHAL_FIELDS_OTHER_ATTENDEE_SCORES, Collections.EMPTY_LIST);
-					if (!otherAttendeeScoresList.isEmpty()) {
-						otherAttendeeScores = (Map)otherAttendeeScoresList.get(0);
-					}
-				}
-
-				if (target == 0) {
-					target = 1;
-				}
 				
 				// Convert data to old challenges models
 //						final String ch_point_type = challData.getBonusPointType();
 				final long now = System.currentTimeMillis();
 				
-    			ChallengesData challengeData = new ChallengesData();
-    			challengeData.setChallId(name);
-
-				challengeData.setType(modelName);
-				challengeData.setActive(now < end);
-				challengeData.setSuccess(completed);
-				challengeData.setStartDate(start);
-				challengeData.setEndDate(end);
-				challengeData.setDaysToEnd(calculateRemainingDays(end, now));
-				challengeData.setChallCompletedDate(dateCompleted);
-				challengeData.setUnit(counterName);
-    			
-				double row_status = 0D;
-				int status = 0;
-				
-				switch (modelName) {
-					case CHAL_MODEL_REPETITIVE_BEAV:
-	    				double successes = retrieveRepeatitiveStatusFromCounterName(counterName, periodName, pointConcept, start, end, target); 
-	    				row_status = successes;
-	    				status = Math.min(100, (int)(100.0 * successes / periodTarget));
-	    				challengeData.setChallTarget((int)periodTarget);
-	    				// update unit for repetitive behavior: correspond to the number of periods
-	    				challengeData.setUnit(UNIT_MAPPING.get(periodName));
-    					break;
-    				case CHAL_MODEL_PERCENTAGE_INC:
-    				case CHAL_MODEL_ABSOLUTE_INC: {
-	    				double earned = retrieveCorrectStatusFromCounterName(counterName, periodName, pointConcept, start, end); 
-	    				row_status = earned;
-	    				status = Math.min(100, (int)(100.0 * earned / target));
-    					break;
-    				}
-    				case CHAL_MODEL_NEXT_BADGE: {
-	    				int count = getEarnedBadgesFromList(bcc_list, badgeCollectionName, initialBadgeNum);
-	    				if(!challengeData.getActive()){	// NB: fix to avoid situation with challenge not win and count > target
-	    					if(completed){
-	    						count = (int)target;
-	    					} else {
-	    						count = (int)target - 1;
-	    					}
-	    				}
-	    				row_status = count;
-	    				status = Math.min(100, (int)(100.0 * count / target));
-	    				break;
-    				}
-    				case CHAL_MODEL_SURVEY: {
-	    				if(completed) {
-    						row_status = 1; 
-    						status = 100;
-    					}
-	    				// survey link to be passed
-	    				String link = gamificationEngineManager.createSurveyUrl(playerId, gameId, (String)challenge.getFields().get("surveyType"), language);
-	    				challenge.getFields().put("surveylink", link);
-	    				challengeData.setExtUrl(link);
-	    				break;
-    				}
-    				case CHAL_MODEL_INCENTIVE_GROUP: {
-	    				if(completed) {
-    						row_status = 1; 
-    						status = 100;
-    					}	    					
-    					break;
-    				}
-    				case CHAL_MODEL_GROUP_COMPETITIVE_PERFORMANCE : {
-    					row_status = (Double)challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
-    					double other_row_status = (Double)otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
-    					double total = row_status + other_row_status;
-    					int other_status = 0;
-    					if (total != 0) {
-    						status = (int)(100 * row_status / total);
-    						other_status = 100 - status;
-    					}
-    					
-    					String unit = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
-    					challengeData.setUnit(unit);
-    					
-    					String proposer = (String)challenge.getFields().get(CHAL_FIELDS_PROPOSER);
-    					challengeData.setProposerId(proposer);
-    					
-    					String otherPlayerId = (String)otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID); 
-    					Player otherPlayer = playerRepository.findById(playerId).orElse(null);
-    					
-    					String nickname = null;
-    					if (otherPlayer != null) {
-    						nickname = otherPlayer.getNickname();
-    						challenge.getFields().put("opponent", nickname);
-    					}
-    					
-    					OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
-    					otherAttendeeData.setRow_status(round(other_row_status, 2));
-    					otherAttendeeData.setStatus(other_status);
-    					otherAttendeeData.setPlayerId(otherPlayerId);
-    					otherAttendeeData.setNickname(nickname);
-    					otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
-    					
-    					challengeData.setOtherAttendeeData(otherAttendeeData);
-    					
-//	    					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
-    					
-    					break;
-    				}	    		
-					case CHAL_MODEL_GROUP_COMPETITIVE_TIME: {
-						row_status = (Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
-						double other_row_status = (Double) otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
-						double challengeTarget = Math.ceil((Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_TARGET));
-						target = (int)challengeTarget;
-						int other_status = 0;
-						if (challengeTarget != 0) {
-							status = (int) (100 * row_status / challengeTarget);
-							other_status = (int) (100 * other_row_status / challengeTarget);
-						}
-						
-						if (status + other_status > 100) {
-							float coeff = (float)(status + other_status) / 100;
-							status = Math.round(status / coeff);
-							other_status = Math.round(other_status / coeff);
-						}							
-
-						String unit = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
-						challengeData.setUnit(unit);
-
-						String proposer = (String)challenge.getFields().get(CHAL_FIELDS_PROPOSER);
-						challengeData.setProposerId(proposer);
-
-						String otherPlayerId = (String) otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID);
-						Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);
-
-						String nickname = null;
-						if (otherPlayer != null) {
-							nickname = otherPlayer.getNickname();
-							challenge.getFields().put("opponent", nickname);
-						}
-
-						OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
-						otherAttendeeData.setRow_status(round(other_row_status, 2));
-						otherAttendeeData.setStatus(other_status);
-						otherAttendeeData.setPlayerId(otherPlayerId);
-						otherAttendeeData.setNickname(nickname);
-						otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
-
-						challengeData.setOtherAttendeeData(otherAttendeeData);
-						
-    					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
-
-						break;
-					}	
-					case CHAL_MODEL_GROUP_COOPERATIVE: {
-						row_status = (Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
-						double other_row_status = (Double) otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
-						double challengeTarget = Math.ceil((Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_TARGET));
-						target = (int)challengeTarget;
-						int other_status = 0;
-						if (challengeTarget != 0) {
-							status = (int) (100 * row_status / challengeTarget);
-							other_status = (int) (100 * other_row_status / challengeTarget);
-							
-							if (status + other_status > 100) {
-								float coeff = (float)(status + other_status) / 100;
-								status = Math.round(status / coeff);
-								other_status = Math.round(other_status / coeff);
-							}
-							
-						}
-
-						Double reward = (Double) challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, "");
-						
-						String unit = (String) challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
-						challengeData.setUnit(unit);
-
-						String proposer = (String) challenge.getFields().get(CHAL_FIELDS_PROPOSER);
-						challengeData.setProposerId(proposer);
-
-						String otherPlayerId = (String) otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID);
-						Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);
-
-						String nickname = null;
-						if (otherPlayer != null) {
-							nickname = otherPlayer.getNickname();
-							challenge.getFields().put("opponent", nickname);
-						}
-						challenge.getFields().put("reward", reward);
-						challenge.getFields().put("target", target);
-
-						OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
-						otherAttendeeData.setRow_status(round(other_row_status, 2));
-						otherAttendeeData.setStatus(other_status);
-						otherAttendeeData.setPlayerId(otherPlayerId);
-						otherAttendeeData.setNickname(nickname);
-						otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
-
-						challengeData.setOtherAttendeeData(otherAttendeeData);
-						
-    					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
-
-						break;
-					}		
-					case CHAL_MODEL_VISIT_POINT: {
-						String poiType = (String)challenge.getFields().getOrDefault("typePoi","");
-	    				int count = getEarnedBadgesFromList(bcc_list, poiType, 0);
-	    				if(!challengeData.getActive()){	// NB: fix to avoid situation with challenge not win and count > target
-	    					if(completed){
-	    						count = (int)target;
-	    					} else {
-	    						count = (int)target - 1;
-	    					}
-	    				}
-	    				row_status = count;
-	    				status = Math.min(100, (int)(100.0 * count / target));
-						break;
-					}
-    				// boolean status: 100 or 0
-    				case CHAL_MODEL_COMPLETE_BADGE_COLL: 
-    				case CHAL_MODEL_POICHECKIN: 
-    				case CHAL_MODEL_CLASSPOSITION: 
-    				default: {
-	    				if(completed){
-    						row_status = 1;
-    						status = 100;
-    					}
-    				}
-				}
-				
-				challengeData.setChallTarget((int)target);
-				for(String lang : languages) {
-					challengeData.getChallDesc().put(lang, fillDescription(challenge, lang));
-					challengeData.getChallCompleteDesc().put(lang, fillLongDescription(challenge, getFilterByType(challengeData.getType()), lang));
-				}
-
-				challengeData.setBonus(bonusScore);
-				challengeData.setStatus(status);
-				challengeData.setRow_status(round(row_status, 2));
+    			ChallengesData challengeData = extractChallengeData(playerId, gameId, language, pointConcept, bcc_list,
+						challenge, start, end, now);
 				
 				if (type == 0) {
 					if ("ASSIGNED".equals(state)) {
@@ -955,5 +730,272 @@ public class CityGameDataConverter {
 		
     	return result;
     }
+
+	public ChallengesData extractChallengeData(String playerId, String gameId, String language,
+			List<PointConcept> pointConcept, List<BadgeCollectionConcept> bcc_list, ChallengeConcept challenge,
+			final long start, final long end, final long now) throws Exception {
+		
+		String name = challenge.getName();
+		String modelName = challenge.getModelName();
+		Boolean completed = challenge.isCompleted();
+		long dateCompleted = challenge.getDateCompleted() != null ? challenge.getDateCompleted().getTime() : 0L;
+		int bonusScore = 0;
+		String periodName = "";
+		String counterName = "";
+		double target = 0;
+		double periodTarget = 0;
+		String badgeCollectionName = "";
+		int initialBadgeNum = 0;
+		Map<String, Object> otherAttendeeScores = null;
+		
+		if(challenge.getFields() != null){
+			bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_BONUS_SCORE, 0)).intValue();
+			periodName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_PERIOD_NAME,"");
+			counterName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_COUNTER_NAME,"");
+			target =  ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_TARGET,0)).doubleValue(); 
+			badgeCollectionName = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_COUNTER_NAME,"");
+			initialBadgeNum = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_INITIAL_BADGE_NUM,0)).intValue();
+			periodTarget = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_PERIOD_TARGET,0)).doubleValue();
+			List otherAttendeeScoresList = (List)challenge.getFields().getOrDefault(CHAL_FIELDS_OTHER_ATTENDEE_SCORES, Collections.EMPTY_LIST);
+			if (!otherAttendeeScoresList.isEmpty()) {
+				otherAttendeeScores = (Map)otherAttendeeScoresList.get(0);
+			}
+		}
+
+		if (target == 0) {
+			target = 1;
+		}		
+		ChallengesData challengeData = new ChallengesData();
+		challengeData.setChallId(name);
+
+		challengeData.setType(modelName);
+		challengeData.setActive(now < end);
+		challengeData.setSuccess(completed);
+		challengeData.setStartDate(start);
+		challengeData.setEndDate(end);
+		challengeData.setDaysToEnd(calculateRemainingDays(end, now));
+		challengeData.setChallCompletedDate(dateCompleted);
+		challengeData.setUnit(counterName);
+		
+		double row_status = 0D;
+		int status = 0;
+		
+		switch (modelName) {
+			case CHAL_MODEL_REPETITIVE_BEAV:
+				double successes = retrieveRepeatitiveStatusFromCounterName(counterName, periodName, pointConcept, start, end, target); 
+				row_status = successes;
+				status = Math.min(100, (int)(100.0 * successes / periodTarget));
+				challengeData.setChallTarget((int)periodTarget);
+				// update unit for repetitive behavior: correspond to the number of periods
+				challengeData.setUnit(UNIT_MAPPING.get(periodName));
+				break;
+			case CHAL_MODEL_PERCENTAGE_INC:
+			case CHAL_MODEL_ABSOLUTE_INC: {
+				double earned = retrieveCorrectStatusFromCounterName(counterName, periodName, pointConcept, start, end); 
+				row_status = earned;
+				status = Math.min(100, (int)(100.0 * earned / target));
+				break;
+			}
+			case CHAL_MODEL_NEXT_BADGE: {
+				int count = getEarnedBadgesFromList(bcc_list, badgeCollectionName, initialBadgeNum);
+				if(!challengeData.getActive()){	// NB: fix to avoid situation with challenge not win and count > target
+					if(completed){
+						count = (int)target;
+					} else {
+						count = (int)target - 1;
+					}
+				}
+				row_status = count;
+				status = Math.min(100, (int)(100.0 * count / target));
+				break;
+			}
+			case CHAL_MODEL_SURVEY: {
+				if(completed) {
+					row_status = 1; 
+					status = 100;
+				}
+				// survey link to be passed
+				String link = gamificationEngineManager.createSurveyUrl(playerId, gameId, (String)challenge.getFields().get("surveyType"), language);
+				challenge.getFields().put("surveylink", link);
+				challengeData.setExtUrl(link);
+				break;
+			}
+			case CHAL_MODEL_INCENTIVE_GROUP: {
+				if(completed) {
+					row_status = 1; 
+					status = 100;
+				}	    					
+				break;
+			}
+			case CHAL_MODEL_GROUP_COMPETITIVE_PERFORMANCE : {
+				row_status = (Double)challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
+				double other_row_status = (Double)otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
+				double total = row_status + other_row_status;
+				int other_status = 0;
+				if (total != 0) {
+					status = (int)(100 * row_status / total);
+					other_status = 100 - status;
+				}
+				
+				String unit = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
+				challengeData.setUnit(unit);
+				
+				String proposer = (String)challenge.getFields().get(CHAL_FIELDS_PROPOSER);
+				challengeData.setProposerId(proposer);
+				
+				String otherPlayerId = (String)otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID); 
+				Player otherPlayer = playerRepository.findById(playerId).orElse(null);
+				
+				String nickname = null;
+				if (otherPlayer != null) {
+					nickname = otherPlayer.getNickname();
+					challenge.getFields().put("opponent", nickname);
+				}
+				
+				OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
+				otherAttendeeData.setRow_status(round(other_row_status, 2));
+				otherAttendeeData.setStatus(other_status);
+				otherAttendeeData.setPlayerId(otherPlayerId);
+				otherAttendeeData.setNickname(nickname);
+				otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
+				
+				challengeData.setOtherAttendeeData(otherAttendeeData);
+				
+//	    					bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
+				
+				break;
+			}	    		
+			case CHAL_MODEL_GROUP_COMPETITIVE_TIME: {
+				row_status = (Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
+				double other_row_status = (Double) otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
+				double challengeTarget = Math.ceil((Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_TARGET));
+				target = (int)challengeTarget;
+				int other_status = 0;
+				if (challengeTarget != 0) {
+					status = (int) (100 * row_status / challengeTarget);
+					other_status = (int) (100 * other_row_status / challengeTarget);
+				}
+				
+				if (status + other_status > 100) {
+					float coeff = (float)(status + other_status) / 100;
+					status = Math.round(status / coeff);
+					other_status = Math.round(other_status / coeff);
+				}							
+
+				String unit = (String)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
+				challengeData.setUnit(unit);
+
+				String proposer = (String)challenge.getFields().get(CHAL_FIELDS_PROPOSER);
+				challengeData.setProposerId(proposer);
+
+				String otherPlayerId = (String) otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID);
+				Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);
+
+				String nickname = null;
+				if (otherPlayer != null) {
+					nickname = otherPlayer.getNickname();
+					challenge.getFields().put("opponent", nickname);
+				}
+
+				OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
+				otherAttendeeData.setRow_status(round(other_row_status, 2));
+				otherAttendeeData.setStatus(other_status);
+				otherAttendeeData.setPlayerId(otherPlayerId);
+				otherAttendeeData.setNickname(nickname);
+				otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
+
+				challengeData.setOtherAttendeeData(otherAttendeeData);
+				
+				bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
+
+				break;
+			}	
+			case CHAL_MODEL_GROUP_COOPERATIVE: {
+				row_status = (Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_SCORE);
+				double other_row_status = (Double) otherAttendeeScores.get(CHAL_FIELDS_CHALLENGE_SCORE);
+				double challengeTarget = Math.ceil((Double) challenge.getFields().get(CHAL_FIELDS_CHALLENGE_TARGET));
+				target = (int)challengeTarget;
+				int other_status = 0;
+				if (challengeTarget != 0) {
+					status = (int) (100 * row_status / challengeTarget);
+					other_status = (int) (100 * other_row_status / challengeTarget);
+					
+					if (status + other_status > 100) {
+						float coeff = (float)(status + other_status) / 100;
+						status = Math.round(status / coeff);
+						other_status = Math.round(other_status / coeff);
+					}
+					
+				}
+
+				Double reward = (Double) challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, "");
+				
+				String unit = (String) challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_SCORE_NAME, "");
+				challengeData.setUnit(unit);
+
+				String proposer = (String) challenge.getFields().get(CHAL_FIELDS_PROPOSER);
+				challengeData.setProposerId(proposer);
+
+				String otherPlayerId = (String) otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID);
+				Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);
+
+				String nickname = null;
+				if (otherPlayer != null) {
+					nickname = otherPlayer.getNickname();
+					challenge.getFields().put("opponent", nickname);
+				}
+				challenge.getFields().put("reward", reward);
+				challenge.getFields().put("target", target);
+
+				OtherAttendeeData otherAttendeeData = new OtherAttendeeData();
+				otherAttendeeData.setRow_status(round(other_row_status, 2));
+				otherAttendeeData.setStatus(other_status);
+				otherAttendeeData.setPlayerId(otherPlayerId);
+				otherAttendeeData.setNickname(nickname);
+				otherAttendeeData.setAvatar(avatarManager.getPlayerSmallAvatar(otherPlayerId));
+
+				challengeData.setOtherAttendeeData(otherAttendeeData);
+				
+				bonusScore = ((Number)challenge.getFields().getOrDefault(CHAL_FIELDS_CHALLENGE_REWARD, 0)).intValue();
+
+				break;
+			}		
+			case CHAL_MODEL_VISIT_POINT: {
+				String poiType = (String)challenge.getFields().getOrDefault("typePoi","");
+				int count = getEarnedBadgesFromList(bcc_list, poiType, 0);
+				if(!challengeData.getActive()){	// NB: fix to avoid situation with challenge not win and count > target
+					if(completed){
+						count = (int)target;
+					} else {
+						count = (int)target - 1;
+					}
+				}
+				row_status = count;
+				status = Math.min(100, (int)(100.0 * count / target));
+				break;
+			}
+			// boolean status: 100 or 0
+			case CHAL_MODEL_COMPLETE_BADGE_COLL: 
+			case CHAL_MODEL_POICHECKIN: 
+			case CHAL_MODEL_CLASSPOSITION: 
+			default: {
+				if(completed){
+					row_status = 1;
+					status = 100;
+				}
+			}
+		}
+		
+		challengeData.setChallTarget((int)target);
+		for(String lang : languages) {
+			challengeData.getChallDesc().put(lang, fillDescription(challenge, lang));
+			challengeData.getChallCompleteDesc().put(lang, fillLongDescription(challenge, getFilterByType(challengeData.getType()), lang));
+		}
+
+		challengeData.setBonus(bonusScore);
+		challengeData.setStatus(status);
+		challengeData.setRow_status(round(row_status, 2));
+		return challengeData;
+	}
 
 }

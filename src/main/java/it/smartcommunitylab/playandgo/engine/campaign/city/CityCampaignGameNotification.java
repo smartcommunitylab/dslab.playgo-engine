@@ -37,7 +37,7 @@ public class CityCampaignGameNotification implements ManageGameNotification {
 	
 	@Autowired
 	CityCampaignChallengeNotification challengeNotification;
-
+	
 	@PostConstruct
 	public void init() {
 		gamificationMessageQueueManager.setManageGameNotification(this, Type.city);
