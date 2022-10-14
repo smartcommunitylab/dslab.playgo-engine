@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -45,9 +46,9 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerChallenge;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerChallengeRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatChallengeRepository;
-import it.smartcommunitylab.playandgo.engine.repository.PlayerChallengeRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
@@ -385,6 +386,10 @@ public class ChallengeManager {
 			playerChallengeRepository.save(pc);
 		}
 		return pc;
+	}
+	
+	public List<PlayerChallenge> getCompletedChallanges(String playerId, String campaignId, long start, long end) throws Exception {
+		return playerChallengeRepository.findByDate(playerId, campaignId, start, end, Sort.by(Sort.Direction.DESC, "challengeData.status"));
 	}
 	
 	private Map<String, Double> targetPrizeChallengesCompute(String pId_1, String pId_2, Campaign campaign, String counter, String type) throws Exception {
