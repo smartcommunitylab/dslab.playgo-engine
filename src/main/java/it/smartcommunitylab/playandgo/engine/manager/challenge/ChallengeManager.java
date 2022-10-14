@@ -8,12 +8,9 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,11 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -46,8 +43,10 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitati
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.Reward;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerChallenge;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerChallengeRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatChallengeRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -85,6 +84,9 @@ public class ChallengeManager {
 	
 	@Autowired
 	PlayerStatChallengeRepository playerStatChallengeRepository;
+	
+	@Autowired
+	PlayerChallengeRepository playerChallengeRepository;
 	
 	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
@@ -153,6 +155,26 @@ public class ChallengeManager {
 			result.getChallengeData().entrySet().removeIf(x -> !filter.equals(x.getKey()));
 		}
 		return result;
+	}
+	
+	public ChallengesData getChallangeData(String playerId, String campaignId, String challengeName) throws Exception {
+		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+		if(campaign == null) {
+			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}
+		Player player = playerRepository.findById(playerId).orElse(null);
+		if(player == null) {
+			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
+		}
+		String playerStatus = gamificationEngineManager.getPlayerStatus(playerId, campaign.getGameId());
+		if(playerStatus == null) {
+			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
+		}
+		String jsonChallenge = gamificationEngineManager.getChallenge(playerId, campaign.getGameId(), challengeName);
+		if(jsonChallenge == null) {
+			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
+		}
+		return gameDataConverter.convertPlayerChallengesDataByName(jsonChallenge, playerStatus, player, campaign, 1);
 	}
 	
 	public void chooseChallenge(String playerId, String campaignId, String challengeId) throws Exception {
@@ -343,380 +365,33 @@ public class ChallengeManager {
 		}
 	}
 	
-	private void fillMissingFields(ChallengeConcept challenge, String gameId) {
-		List otherAttendeeScoresList = (List)challenge.getFields().getOrDefault(CityGameDataConverter.CHAL_FIELDS_OTHER_ATTENDEE_SCORES, Collections.EMPTY_LIST);
-		Map<String, Object> otherAttendeeScores = null;
-		
-		if (!otherAttendeeScoresList.isEmpty()) {
-			otherAttendeeScores = (Map)otherAttendeeScoresList.get(0);
-		} else {
-			return;
+	public PlayerChallenge storePlayerChallenge(String playerId, String gameId,	String challengeName) throws Exception {
+		Campaign campaign = campaignRepository.findByGameId(gameId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
-
-		String otherPlayerId = (String)otherAttendeeScores.get(CityGameDataConverter.CHAL_FIELDS_PLAYER_ID); 
-		Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);		
-		
-		switch (challenge.getModelName()) {
-		case CityGameDataConverter.CHAL_MODEL_GROUP_COMPETITIVE_PERFORMANCE : {
-			if (otherPlayer != null) {
-				String nickname = otherPlayer.getNickname();
-				challenge.getFields().put("opponent", nickname);
-			}			
-			break;
+		Player player = playerRepository.findById(playerId).orElse(null);
+		if(player == null) {
+			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
-		case CityGameDataConverter.CHAL_MODEL_GROUP_COMPETITIVE_TIME : {
-			if (otherPlayer != null) {
-				String nickname = otherPlayer.getNickname();
-				challenge.getFields().put("opponent", nickname);
-			}			
-			break;
+		PlayerChallenge pc = playerChallengeRepository.findByPlayerIdAndCampaignIdAndChallangeId(playerId, 
+				campaign.getCampaignId(), challengeName);
+		if(pc == null) {
+			ChallengesData challangeData = getChallangeData(playerId, campaign.getCampaignId(), challengeName);
+			pc = new PlayerChallenge();
+			pc.setPlayerId(playerId);
+			pc.setCampaignId(campaign.getCampaignId());
+			pc.setChallangeId(challengeName);
+			pc.setChallengeData(challangeData);
+			playerChallengeRepository.save(pc);
 		}
-		case CityGameDataConverter.CHAL_MODEL_GROUP_COOPERATIVE : {
-			Double reward = (Double) challenge.getFields().getOrDefault(CityGameDataConverter.CHAL_FIELDS_CHALLENGE_REWARD, "");
-			Double target = (Double) challenge.getFields().get(CityGameDataConverter.CHAL_FIELDS_CHALLENGE_TARGET);
-			if (target != null) target = Math.ceil(target);
-			if (otherPlayer != null) {
-				String nickname = otherPlayer.getNickname();
-				challenge.getFields().put("opponent", nickname);
-			}
-			challenge.getFields().put("reward", reward);
-			challenge.getFields().put("target", target);
-			break;
-			}			
-		}		
-	}
-	
-	private ClassificationData correctPlayerClassificationData(String profile, String playerId, String nickName, Long timestamp, String type) throws Exception {
-		ClassificationData playerClass = new ClassificationData();
-		if (profile != null && !profile.isEmpty()) {
-
-			int score = 0;
-
-			JsonNode profileData = mapper.readTree(profile);
-			JsonNode stateData = (!profileData.has(CityGameDataConverter.STATE)) ? profileData.get(CityGameDataConverter.STATE) : null;
-			JsonNode pointConceptData = null;
-			if (stateData != null) {
-				pointConceptData = (stateData.has(CityGameDataConverter.POINT_CONCEPT) && stateData.get(CityGameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
-				if (pointConceptData != null) {
-					for (JsonNode point : pointConceptData) {
-						String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
-						if (timestamp == null || timestamp.longValue() == 0L) { // global
-							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
-								score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
-							}
-						} else { // specific week
-							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
-								JsonNode pc_period = point.has(CityGameDataConverter.PC_PERIODS) ? point.get(CityGameDataConverter.PC_PERIODS) : null;
-								if (pc_period != null) {
-									Iterator<String> keys = pc_period.fieldNames();
-									while (keys.hasNext()) {
-										String key = keys.next();
-										JsonNode pc_weekly = pc_period.get(key);
-										if (pc_weekly != null) {
-											JsonNode pc_instances = pc_weekly.get(CityGameDataConverter.PC_INSTANCES);
-
-											if (pc_instances != null) {
-												Iterator<String> instancesKeys = pc_instances.fieldNames();
-												while (instancesKeys.hasNext()) {
-													JsonNode pc_instance = pc_instances.get(instancesKeys.next());
-													int instance_score = pc_instance.has(CityGameDataConverter.PC_SCORE) ? pc_instance.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
-													long instance_start = pc_instance.has(CityGameDataConverter.PC_START) ? pc_instance.get(CityGameDataConverter.PC_START).asLong() : 0L;
-													long instance_end = pc_instance.has(CityGameDataConverter.PC_END) ? pc_instance.get(CityGameDataConverter.PC_END).asLong() : 0L;
-													if (timestamp >= instance_start && timestamp <= instance_end) {
-														score = instance_score;
-														break;
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				playerClass.setNickName(nickName);
-				playerClass.setPlayerId(playerId);
-				playerClass.setScore(score);
-				if (nickName == null || nickName.isEmpty()) {
-					playerClass.setPosition(-1); // used for user without nickName
-				}
-			}
-
-		}
-		return playerClass;
-	}
-	
-	private ClassificationData playerClassificationSince(String profile, String playerId, String nickName, Long timestamp) throws Exception {
-		ClassificationData playerClass = new ClassificationData();
-		if (profile != null && !profile.isEmpty()) {
-
-			int score = 0;
-
-			JsonNode profileData = mapper.readTree(profile);
-			JsonNode stateData = profileData.has(CityGameDataConverter.STATE) ? profileData.get(CityGameDataConverter.STATE) : null;
-			JsonNode pointConceptData = null;
-			if (stateData != null) {
-				pointConceptData = (stateData.has(CityGameDataConverter.POINT_CONCEPT) && stateData.get(CityGameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
-				if (pointConceptData != null) {
-					for (JsonNode point : pointConceptData) {
-						String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
-						if (timestamp == null || timestamp.longValue() == 0L) { // global
-							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
-								score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
-							}
-						} else { // specific week
-							if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
-								JsonNode pc_period = point.has(CityGameDataConverter.PC_PERIODS) ? point.get(CityGameDataConverter.PC_PERIODS) : null;
-								if (pc_period != null) {
-									JsonNode pc_weekly = pc_period.get(CityGameDataConverter.PC_WEEKLY);
-									if (pc_weekly != null) {
-										JsonNode pc_instances = pc_weekly.get(CityGameDataConverter.PC_INSTANCES);
-										if (pc_instances != null) {
-											Iterator<String> instancesKeys = pc_instances.fieldNames();
-											while (instancesKeys.hasNext()) {
-												JsonNode pc_instance = pc_instances.get(instancesKeys.next());
-												int instance_score = pc_instance.has(CityGameDataConverter.PC_SCORE) ? pc_instance.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
-												long instance_start = pc_instance.has(CityGameDataConverter.PC_START) ? pc_instance.get(CityGameDataConverter.PC_START).asLong() : 0L;
-												if (timestamp <= instance_start) {
-													score += instance_score;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				playerClass.setNickName(nickName);
-				playerClass.setPlayerId(playerId);
-				playerClass.setScore(score);
-			}
-
-		}
-		return playerClass;
-	}
-
-	private List<ClassificationData> correctClassificationData(String allStatus, Map<String, String> allNicks, Long timestamp, String type) throws Exception {
-		List<ClassificationData> playerClassList = new ArrayList<ClassificationData>();
-		if (allStatus != null && !allStatus.isEmpty()) {
-
-			int score = 0;
-
-			JsonNode allPlayersData = mapper.readTree(allStatus);
-			JsonNode allPlayersDataList = (allPlayersData.has("content") && allPlayersData.get("content").isArray()) ? allPlayersData.get("content") : null;
-			if (allPlayersDataList != null) {
-				for (JsonNode profileData : allPlayersDataList) {
-					String playerId = profileData.has(CityGameDataConverter.PLAYER_ID) ? profileData.get(CityGameDataConverter.PLAYER_ID).asText() : "0";
-					score = 0; // here I reset the score value to avoid classification problem
-					JsonNode stateData = profileData.has(CityGameDataConverter.STATE) ? profileData.get(CityGameDataConverter.STATE) : null;
-					JsonNode pointConceptData = null;
-					if (stateData != null) {
-						pointConceptData = stateData.has(CityGameDataConverter.POINT_CONCEPT) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
-						if (pointConceptData != null) {
-							for (JsonNode point : pointConceptData) {
-								String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
-								if (timestamp == null || timestamp.longValue() == 0L) { // global
-									if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
-										score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
-									}
-								} else { // specific week
-									if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
-										JsonNode pc_period = point.has(CityGameDataConverter.PC_PERIODS) ? point.get(CityGameDataConverter.PC_PERIODS) : null;
-										if (pc_period != null) {
-											Iterator<String> keys = pc_period.fieldNames();
-											while (keys.hasNext()) {
-												String key = keys.next();
-												JsonNode pc_weekly = pc_period.get(key);
-												if (pc_weekly != null) {
-													JsonNode pc_instances = pc_weekly.get(CityGameDataConverter.PC_INSTANCES);
-													if (pc_instances != null) {
-														Iterator<String> instancesKeys = pc_instances.fieldNames();
-														while (instancesKeys.hasNext()) {
-															JsonNode pc_instance = pc_instances.get(instancesKeys.next());
-															int instance_score = pc_instance.has(CityGameDataConverter.PC_SCORE) ? pc_instance.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
-															long instance_start = pc_instance.has(CityGameDataConverter.PC_START) ? pc_instance.get(CityGameDataConverter.PC_START).asLong() : 0L;
-															long instance_end = pc_instance.has(CityGameDataConverter.PC_END) ? pc_instance.get(CityGameDataConverter.PC_END).asLong() : 0L;
-															if (timestamp >= instance_start && timestamp <= instance_end) {
-																score = instance_score;
-																break;
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-						String nickName = getPlayerNickNameById(allNicks, playerId); // getPlayerNameById(allNicks,
-																						// playerId);
-						ClassificationData playerClass = new ClassificationData();
-						playerClass.setNickName(nickName);
-						playerClass.setPlayerId(playerId);
-						playerClass.setScore(score);
-						if (nickName != null && !nickName.isEmpty()) { // if
-																				// nickName
-																				// present
-																				// (user
-																				// registered
-																				// and
-																				// active)
-							playerClassList.add(playerClass);
-						}
-					}
-				}
-			}
-
-		}
-		return playerClassList;
-	}
-
-	// Method correctGlobalClassification: return a map 'playerId, score' of the
-	// global classification
-	private Map<String, Integer> correctGlobalClassification(String allStatus) throws Exception {
-		Map classification = new HashMap<String, Integer>();
-		if (allStatus != null && !allStatus.isEmpty()) {
-			int score = 0;
-			JsonNode allPlayersData = mapper.readTree(allStatus);
-			JsonNode allPlayersDataList = (allPlayersData.has("content") && allPlayersData.get("content").isArray()) ? allPlayersData.get("content") : null;
-			if (allPlayersDataList != null) {
-				for (JsonNode profileData : allPlayersDataList) {
-					String playerId = profileData.has(CityGameDataConverter.PLAYER_ID) ? profileData.get(CityGameDataConverter.PLAYER_ID).asText() : "0";
-					score = 0; // here I reset the score value to avoid classification problem
-					JsonNode stateData = profileData.has(CityGameDataConverter.STATE) ? profileData.get(CityGameDataConverter.STATE) : null;
-					JsonNode pointConceptData = null;
-					if (stateData != null) {
-						pointConceptData = (stateData.has(CityGameDataConverter.POINT_CONCEPT) && stateData.get(CityGameDataConverter.POINT_CONCEPT).isArray()) ? stateData.get(CityGameDataConverter.POINT_CONCEPT) : null;
-						if (pointConceptData != null) {
-							for (JsonNode point : pointConceptData) {
-								String pc_name = point.has(CityGameDataConverter.PC_NAME) ? point.get(CityGameDataConverter.PC_NAME).asText() : null;
-								if (pc_name != null && pc_name.compareTo(CityGameDataConverter.PC_GREEN_LEAVES) == 0) {
-									score = point.has(CityGameDataConverter.PC_SCORE) ? point.get(CityGameDataConverter.PC_SCORE).asInt() : null;
-								}
-							}
-						}
-						classification.put(playerId, score);
-					}
-				}
-			}
-
-		}
-		return classification;
-	}
-
-	private List<ClassificationData> correctClassificationIncData(String allStatus, Map<String, String> allNicks, Long timestamp, String type) throws Exception {
-		List<ClassificationData> playerClassList = new ArrayList<ClassificationData>();
-
-		/*
-		 * allStatus = "{" + "\"pointConceptName\": \"green leaves\"," + "\"type\": \"INCREMENTAL\"," + "\"board\": [" + "{" + "\"score\": 12," + "\"playerId\": \"3\"" + "}," + "{" + "\"score\": 10," + "\"playerId\": \"16\"" + "}," + "{" + "\"score\": 4," + "\"playerId\": \"4\"" + "}" + "]" + "}";
-		 */
-
-		if (allStatus != null && !allStatus.isEmpty()) {
-			JsonNode allIncClassData = mapper.readTree(allStatus);
-			if (allIncClassData != null) {
-				JsonNode allPlayersDataList = (allIncClassData.has("board") && allIncClassData.get("board").isArray()) ? allIncClassData.get("board") : null;
-				if (allPlayersDataList != null) {
-					for (JsonNode profileData : allPlayersDataList) {
-						String playerId = profileData.has(CityGameDataConverter.PLAYER_ID) ? profileData.get(CityGameDataConverter.PLAYER_ID).asText() : "0";
-						Integer playerScore = profileData.has(CityGameDataConverter.PC_SCORE) ? profileData.get(CityGameDataConverter.PC_SCORE).asInt() : 0;
-						String nickName = getPlayerNickNameById(allNicks, playerId); // getPlayerNameById(allNicks, playerId);
-						ClassificationData playerClass = new ClassificationData();
-						playerClass.setNickName(nickName);
-						playerClass.setPlayerId(playerId);
-						playerClass.setScore(playerScore);
-						if (nickName != null && !nickName.isEmpty()) { // if
-																				// nickName
-																				// present
-																				// (user
-																				// registered
-																				// and
-																				// active)
-							playerClassList.add(playerClass);
-						}
-					}
-				}
-			}
-		}
-		return playerClassList;
-	}
-
-	private PlayerClassification completeClassificationPosition(List<ClassificationData> playersClass, ClassificationData actualPlayerClass, Integer from, Integer to) {
-		List<ClassificationData> playersClassCorr = new ArrayList<ClassificationData>();
-		int from_index = 0;
-		PlayerClassification pc = new PlayerClassification();
-		List<ClassificationData> cleanedList = new ArrayList<ClassificationData>();
-		boolean myPosFind = false;
-		if (playersClass != null && !playersClass.isEmpty()) {
-			ClassificationData prec_pt = null;
-			for (int i = 0; i < playersClass.size(); i++) {
-				ClassificationData pt = playersClass.get(i);
-				if (i > 0) {
-					if (pt.getScore() < prec_pt.getScore()) {
-						pt.setPosition(i + 1);
-					} else {
-						pt.setPosition(prec_pt.getPosition());
-					}
-				} else {
-					pt.setPosition(i + 1);
-				}
-				prec_pt = pt;
-				if (pt.getPlayerId().compareTo(actualPlayerClass.getPlayerId()) == 0) {
-					myPosFind = true;
-					actualPlayerClass.setPosition(pt.getPosition());
-				}
-				playersClassCorr.add(pt);
-			}
-			if (!myPosFind) {
-				ClassificationData lastPlayer = playersClass.get(playersClass.size() - 1);
-				if (lastPlayer.getScore() == actualPlayerClass.getScore()) {
-					actualPlayerClass.setPosition(lastPlayer.getPosition());
-				} else {
-					actualPlayerClass.setPosition(lastPlayer.getPosition() + 1);
-				}
-				playersClassCorr.add(actualPlayerClass);
-			}
-			int to_index = playersClassCorr.size();
-			if (from != null) {
-				from_index = from.intValue();
-			}
-			if (to != null) {
-				to_index = to.intValue();
-			}
-			if (from_index < 0)
-				from_index = 0;
-			if (from_index > playersClassCorr.size())
-				from_index = playersClassCorr.size();
-			if (to_index < 0)
-				to_index = 0;
-			if (to_index > playersClassCorr.size())
-				to_index = playersClassCorr.size();
-			if (from_index >= to_index)
-				from_index = to_index;
-			try {
-				cleanedList = playersClassCorr.subList(from_index, to_index);
-			} catch (Exception ex) {
-				// do nothings
-			}
-			pc.setClassificationList(cleanedList);
-		} else {
-			pc.setClassificationList(playersClass);
-			actualPlayerClass.setPosition(0);
-		}
-		pc.setActualUser(actualPlayerClass);
 		return pc;
 	}
-
-	private String getPlayerNickNameById(Map<String, String> allNicks, String id) {
-		String name = "";
-		if (allNicks != null && !allNicks.isEmpty()) {
-			name = allNicks.get(id);
-		}
-		return name;
+	
+	public List<PlayerChallenge> getCompletedChallanges(String playerId, String campaignId, long start, long end) throws Exception {
+		return playerChallengeRepository.findByDate(playerId, campaignId, start, end, Sort.by(Sort.Direction.DESC, "challengeData.status"));
 	}
-
+	
 	private Map<String, Double> targetPrizeChallengesCompute(String pId_1, String pId_2, Campaign campaign, String counter, String type) throws Exception {
 
 		prepare();
@@ -780,25 +455,25 @@ public class ChallengeManager {
     }	
 
     private double checkMaxTargetCompetitive(String counter, double v) {
-            if ("Walk_Km".equals(counter))
-                return Math.min(70, v);
-            if ("Bike_Km".equals(counter))
-                return Math.min(210, v);
-            if ("green leaves".equals(counter))
-                return Math.min(3000, v);
-
-            return 0.0;
-        }
+	    if ("Walk_Km".equals(counter))
+	        return Math.min(70, v);
+	    if ("Bike_Km".equals(counter))
+	        return Math.min(210, v);
+	    if ("green leaves".equals(counter))
+	        return Math.min(3000, v);
+	
+	    return 0.0;
+	}
 
     private double checkMaxTargetCooperative(String counter, double v) {
-        if ("Walk_Km".equals(counter))
-            return Math.min(140, v);
-        if ("Bike_Km".equals(counter))
-            return Math.min(420, v);
-        if ("green leaves".equals(counter))
-            return Math.min(6000, v);
-
-        return 0.0;
+	    if ("Walk_Km".equals(counter))
+	        return Math.min(140, v);
+	    if ("Bike_Km".equals(counter))
+	        return Math.min(420, v);
+	    if ("green leaves".equals(counter))
+	        return Math.min(6000, v);
+	
+	    return 0.0;
     }
 
 	private Double checkMinTarget(String counter, Double v) {

@@ -32,6 +32,7 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitati
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.Invitation;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerChallenge;
 
 @RestController
 public class ChallengeController extends PlayAndGoController {
@@ -159,5 +160,15 @@ public class ChallengeController extends PlayAndGoController {
 			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		return challengeStatsManager.getPlayerChallengeStats(playerId, campaignId, groupMode, dateFrom, dateTo);
+	}
+	
+	@GetMapping("/api/challenge/completed")
+	public @ResponseBody List<PlayerChallenge> getCompletedChallanges(
+			@RequestParam String campaignId,
+			@RequestParam @ApiParam(value = "UTC millis") Long dateFrom,
+			@RequestParam @ApiParam(value = "UTC millis") Long dateTo,
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		return challengeManager.getCompletedChallanges(player.getPlayerId(), campaignId, dateFrom, dateTo);
 	}
 }
