@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.manager.azienda;
 
 import java.net.URLEncoder;
 import java.util.Base64;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
+import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
@@ -207,6 +210,43 @@ public class PgAziendaleManager {
 		try {
 			TrackResult trackResult = mapper.readValue(response.getBody(), TrackResult.class);
 			return trackResult;
+		} catch (Exception e) {
+			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);
+		}
+	}
+	
+	public List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String groupMode, String metric,
+			String mean, String dateFrom, String dateTo) throws ServiceException {
+		HttpHeaders headers = new HttpHeaders();
+		try {
+			headers.setBearerAuth(getJwt());
+		} catch (Exception e) {
+			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
+		}
+		HttpEntity<Object> request = new HttpEntity<>(headers);
+		
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response = null;
+		try {
+			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
+			url = url + "api/admin/report/player/transport/stats?campaignId=" 
+					+ URLEncoder.encode(campaignId, "UTF-8") 
+					+ "&playerId=" + URLEncoder.encode(playerId, "UTF-8")
+					+ "&groupMode=" + groupMode
+					+ "&mean=" + mean
+					+ "&dateFrom=" + dateFrom
+					+ "&dateTo=" + dateTo;
+			 response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+		} catch (Exception e) {
+			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
+		}
+		if(!response.getStatusCode().is2xxSuccessful()) {
+			throw new ServiceException("External Service invocation result:" + response.getStatusCodeValue(), 
+					ErrorCode.EXT_SERVICE_INVOCATION);
+		}
+		try {
+			List<TransportStat> result = mapper.readValue(response.getBody(), new TypeReference<List<TransportStat>>() {});
+			return result;
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);
 		}
