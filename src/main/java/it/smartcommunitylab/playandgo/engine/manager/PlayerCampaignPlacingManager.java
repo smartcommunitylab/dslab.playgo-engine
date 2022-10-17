@@ -32,6 +32,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
@@ -85,6 +86,9 @@ public class PlayerCampaignPlacingManager {
 	
 	@Autowired
 	PlayerStatsGameRepository playerStatsGameRepository;
+	
+	@Autowired
+	PgAziendaleManager pgAziendaleManager;
 	
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");   
 	
@@ -388,9 +392,30 @@ public class PlayerCampaignPlacingManager {
 		return placing;
 	}
 	
+	private List<TransportStat> getPlayerTransportStatsCompanyCampaign(String playerId, String campaignId, String groupMode, String metric,
+			String mean, String dateFrom, String dateTo) {
+		List<TransportStat> result = new ArrayList<>();
+		try {
+			result = pgAziendaleManager.getPlayerTransportStats(playerId, campaignId, groupMode, metric, mean, dateFrom, dateTo);
+			if(metric.equalsIgnoreCase("co2")) {
+				result.forEach(ts -> {
+					ts.setValue(Utils.getSavedCo2(mean, ts.getValue()));
+				});
+			}
+		} catch (Exception e) {
+			logger.error(String.format("getPlayerTransportStatsCompanyCampaign[%s][%s]:%s", playerId, campaignId, e.getMessage()));
+		}
+		return result;
+	}
+	
 	public List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String groupMode, String metric,
 			String mean, String dateFrom, String dateTo) {
 		List<TransportStat> result = new ArrayList<>();
+		
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if((campaign != null) && (Type.company.equals(campaign.getType()))) {
+			return getPlayerTransportStatsCompanyCampaign(playerId, campaignId, groupMode, metric, mean, dateFrom, dateTo);
+		}
 		
 		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
 		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId)
