@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.manager.ChallengeStatsManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
+import it.smartcommunitylab.playandgo.engine.model.PlayerChallenge;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatChallengeRepository;
 
 @Component
@@ -48,13 +49,16 @@ public class CityCampaignChallengeNotification {
 			String counterName = (String) obj.get("pointConcept");
 			//long timestamp = (Long) obj.get("timestamp");
 			//long start = (Long) obj.get("start");
-			long end = (Long) obj.get("end");
+			long timestamp = (Long) obj.get("end");
 			try {
-				challengeManager.storePlayerChallenge(playerId, gameId, challengeName);
+				PlayerChallenge playerChallenge = challengeManager.storePlayerChallenge(playerId, gameId, challengeName);
+				if((playerChallenge.getChallengeData() != null) && (playerChallenge.getChallengeData().getChallCompletedDate() > 0)) {
+					timestamp = playerChallenge.getChallengeData().getChallCompletedDate();
+				}
 			} catch (Exception e) {
 				logger.error(String.format("challengeStatus storePlayerChallenge [%s - %s - %s]:%s", playerId, gameId, challengeName, e.getMessage()));
 			}
-			challengeStatsManager.updateChallengeStat(playerId, gameId, model, challengeName, counterName, end, completed);			
+			challengeStatsManager.updateChallengeStat(playerId, gameId, model, challengeName, counterName, timestamp, completed);			
 		}
 	}
 }
