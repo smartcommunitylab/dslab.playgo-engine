@@ -88,7 +88,7 @@ aziende:
   password: ${AZIENDE_PASSWORD:}
 
 aac:
-  client-id: ${AAC_ADMIN_CLIENT_ID:}
-  client-secret: ${AAC_ADMIN_CLIENT_SECRET:}
-  realm: ${AAC_ADMIN_REALM:}
+  admin-client-id: ${AAC_ADMIN_CLIENT_ID:}
+  admin-client-secret: ${AAC_ADMIN_CLIENT_SECRET:}
+  admin-realm: ${AAC_ADMIN_REALM:}
  
