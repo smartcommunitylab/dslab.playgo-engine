@@ -1,9 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +32,6 @@ import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
-import it.smartcommunitylab.playandgo.engine.util.HTTPConnector;
 
 @Component
 public class UnregisterManager {
@@ -137,6 +132,7 @@ public class UnregisterManager {
 		map.add("client_secret", clientSecret);
 		map.add("scope", "aac.api.users");
 
+		logger.info("getToken:" + map.toString());
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
 		ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);		
