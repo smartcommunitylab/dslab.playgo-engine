@@ -40,13 +40,13 @@ public class UnregisterManager {
 	@Value("${security.oauth2.resourceserver.jwt.issuer-uri}")
     private String endpoint;
     
-	@Value("${aac.client-id}")
+	@Value("${aac.admin-client-id}")
     private String clientId;
     
-	@Value("${aac.client-secret}")
+	@Value("${aac.admin-client-secret}")
     private String clientSecret;
 	
-	@Value("${aac.realm}")
+	@Value("${aac.admin-realm}")
     private String realm;
 	
 	@Autowired
