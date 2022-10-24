@@ -65,7 +65,7 @@ public class PgAziendaleManager {
 	public void subscribeCampaign(String campaignId, String playerId, String companyKey, String code)  throws ServiceException {
 		HttpHeaders headers = new HttpHeaders();
 		try {
-			//headers.setBearerAuth(getJwt());
+			headers.setBearerAuth(getJwt());
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
 		}
