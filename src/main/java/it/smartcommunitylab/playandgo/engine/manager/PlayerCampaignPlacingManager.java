@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +90,8 @@ public class PlayerCampaignPlacingManager {
 	PgAziendaleManager pgAziendaleManager;
 	
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");   
+    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww");
+    DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 	
 	private ZonedDateTime getTrackDay(Campaign campaign, CampaignPlayerTrack pt) {		
 		ZoneId zoneId = null;
@@ -120,7 +121,7 @@ public class PlayerCampaignPlacingManager {
 					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
 			if(globalByMode == null) {
 				globalByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
-						Boolean.TRUE, null, 0, 0, 0);
+						Boolean.TRUE, null, null, null);
 			}
 			globalByMode.addDistance(pt.getDistance());
 			globalByMode.addDuration(pt.getDuration());
@@ -131,14 +132,13 @@ public class PlayerCampaignPlacingManager {
 			//transport daily placing
 			ZonedDateTime trackDay = getTrackDay(campaign, pt);
 			String day = trackDay.format(dtf);
-			int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-			int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
-			int year = trackDay.get(ChronoField.YEAR);
+			String weekOfYear = trackDay.format(dftWeek);
+			String monthOfYear = trackDay.format(dftMonth);
 			PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
 					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, day);
 			if(dayByMode == null) {
 				dayByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
-						Boolean.FALSE, day, weekOfYear, monthOfYear, year);
+						Boolean.FALSE, day, weekOfYear, monthOfYear);
 			}
 			dayByMode.addDistance(pt.getDistance());
 			dayByMode.addDuration(pt.getDuration());
@@ -214,7 +214,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	private PlayerStatsTransport addNewPlacing(String playerId, String nickname, String campaignId, String modeType, 
-			Boolean global, String day, int weekOfYear, int monthOfYear, int year) {
+			Boolean global, String day, String weekOfYear, String monthOfYear) {
 		PlayerStatsTransport pst = new PlayerStatsTransport();
 		pst.setPlayerId(playerId);
 		pst.setNickname(nickname);
@@ -223,8 +223,8 @@ public class PlayerCampaignPlacingManager {
 		pst.setGlobal(global);
 		if(!global) {
 			pst.setDay(day);
-			pst.setWeekOfYear(year + "-" + weekOfYear);
-			pst.setMonthOfYear(year + "-" + monthOfYear);			
+			pst.setWeekOfYear(weekOfYear);
+			pst.setMonthOfYear(monthOfYear);			
 		}
 		playerStatsTransportRepository.save(pst);
 		return pst;
