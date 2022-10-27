@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public class BasicCampaignGameStatusManager {
 	ObjectMapper mapper = new ObjectMapper();
 	
 	protected DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	protected DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww");
+	protected DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
 	protected DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 
 	public void updatePlayerGameStatus(Map<String, Object> msg) {

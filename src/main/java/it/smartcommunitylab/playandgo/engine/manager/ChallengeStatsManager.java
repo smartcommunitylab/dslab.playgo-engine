@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class ChallengeStatsManager {
 	TerritoryRepository territoryRepository;
 	
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww");
+    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
     DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 	
 	private ZonedDateTime getDay(Campaign campaign, long timestamp) {
