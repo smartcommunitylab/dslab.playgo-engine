@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +43,8 @@ public class ChallengeStatsManager {
 	TerritoryRepository territoryRepository;
 	
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww");
+    DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 	
 	private ZonedDateTime getDay(Campaign campaign, long timestamp) {
 		ZoneId zoneId = null;
@@ -62,9 +63,6 @@ public class ChallengeStatsManager {
 		
 		ZonedDateTime trackDay = getDay(campaign, timestamp);
 		String day = trackDay.format(dtf);
-		int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-		int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
-		int year = trackDay.get(ChronoField.YEAR);
 		
 		PlayerStatChallenge psc = playerStatChallengeRepository.findByPlayerIdAndCampaignIdAndTypeAndDay(playerId, 
 				campaign.getCampaignId(), type, day);
@@ -76,8 +74,8 @@ public class ChallengeStatsManager {
 			psc.setType(type);
 			psc.setCounterName(counterName);
 			psc.setDay(day);
-			psc.setWeekOfYear(year + "-" + weekOfYear);
-			psc.setMonthOfYear(year + "-" + monthOfYear);
+			psc.setWeekOfYear(trackDay.format(dftWeek));
+			psc.setMonthOfYear(trackDay.format(dftMonth));
 			playerStatChallengeRepository.save(psc);
 		}
 		

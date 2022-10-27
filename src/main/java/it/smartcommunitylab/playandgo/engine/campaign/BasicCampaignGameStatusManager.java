@@ -3,7 +3,6 @@ package it.smartcommunitylab.playandgo.engine.campaign;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.Map;
 
@@ -68,6 +67,8 @@ public class BasicCampaignGameStatusManager {
 	ObjectMapper mapper = new ObjectMapper();
 	
 	protected DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	protected DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww");
+	protected DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 
 	public void updatePlayerGameStatus(Map<String, Object> msg) {
 		try {
@@ -115,9 +116,6 @@ public class BasicCampaignGameStatusManager {
 							trackDay = getTrackDay(campaign, timestamp);
 						}
 						String day = trackDay.format(dtf);
-						int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-						int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
-						int year = trackDay.get(ChronoField.YEAR);
 						PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDayAndGlobal(playerId, campaignId, 
 								day, Boolean.FALSE);
 						if(statsGame == null) {
@@ -127,8 +125,8 @@ public class BasicCampaignGameStatusManager {
 							statsGame.setCampaignId(gameStatus.getCampaignId());
 							statsGame.setGlobal(Boolean.FALSE);
 							statsGame.setDay(day);
-							statsGame.setWeekOfYear(year + "-" + weekOfYear);
-							statsGame.setMonthOfYear(year + "-" + monthOfYear);
+							statsGame.setWeekOfYear(trackDay.format(dftWeek));
+							statsGame.setMonthOfYear(trackDay.format(dftMonth));
 							statsGameRepository.save(statsGame);
 						}
 						statsGame.setScore(statsGame.getScore() + delta);

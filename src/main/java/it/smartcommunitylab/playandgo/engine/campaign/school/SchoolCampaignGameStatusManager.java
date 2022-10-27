@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.campaign.school;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.Map;
 
@@ -14,11 +13,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import it.smartcommunitylab.playandgo.engine.campaign.BasicCampaignGameStatusManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
+import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
-import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 
 @Component
 public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusManager {
@@ -71,9 +70,6 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
 					try {
 						ZonedDateTime trackDay = getTrackDay(campaign, playerTrack);
 						String day = trackDay.format(dtf);
-						int weekOfYear = trackDay.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-						int monthOfYear = trackDay.get(ChronoField.MONTH_OF_YEAR);
-						int year = trackDay.get(ChronoField.YEAR);
 						PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDayAndGlobal(playerId, campaignId, 
 								day, Boolean.FALSE);
 						if(statsGame == null) {
@@ -84,8 +80,8 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
 							statsGame.setCampaignId(gameStatus.getCampaignId());
 							statsGame.setGlobal(Boolean.FALSE);
 							statsGame.setDay(day);
-							statsGame.setWeekOfYear(year + "-" + weekOfYear);
-							statsGame.setMonthOfYear(year + "-" + monthOfYear);
+							statsGame.setWeekOfYear(trackDay.format(dftWeek));
+							statsGame.setMonthOfYear(trackDay.format(dftMonth));
 							statsGameRepository.save(statsGame);
 						}
 						statsGame.setScore(statsGame.getScore() + delta);
