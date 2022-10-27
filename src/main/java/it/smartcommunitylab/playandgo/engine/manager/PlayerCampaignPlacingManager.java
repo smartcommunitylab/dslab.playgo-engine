@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,7 +91,7 @@ public class PlayerCampaignPlacingManager {
 	PgAziendaleManager pgAziendaleManager;
 	
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");   
-    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww");
+    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
     DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 	
 	private ZonedDateTime getTrackDay(Campaign campaign, CampaignPlayerTrack pt) {		
