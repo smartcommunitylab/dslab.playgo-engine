@@ -156,15 +156,13 @@ public class MessageQueueManager {
 			if(manageWebhookRequest != null) {
 				try {
 					manageWebhookRequest.sendMessage(msg);
-					callWebhookChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);					
 				} catch (Exception e) {
 					logger.error(String.format("callWebhookCallback error:%s - %s - %s", 
 							msg.getCampaignId(), msg.getPlayerId(), e.getMessage()));
-					callWebhookChannel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
 				}
 			}
 		};
-		callWebhookChannel.basicConsume(callWebhookRequest, false, callWebhookCallback, consumerTag -> {});
+		callWebhookChannel.basicConsume(callWebhookRequest, true, callWebhookCallback, consumerTag -> {});
 	}
 	
 	@PreDestroy
