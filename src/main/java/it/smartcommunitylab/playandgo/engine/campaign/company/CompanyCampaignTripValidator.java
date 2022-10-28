@@ -87,6 +87,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		playerTrack.setValid(true);
 		playerTrack.setModeType(modeType);
 		playerTrack.setDistance(distance);
+		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
 		playerTrack.setCo2(Utils.getSavedCo2(modeType, distance));
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));		
