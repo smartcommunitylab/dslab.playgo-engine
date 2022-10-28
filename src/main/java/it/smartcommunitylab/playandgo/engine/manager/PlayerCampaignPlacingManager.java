@@ -306,7 +306,9 @@ public class PlayerCampaignPlacingManager {
 			sumField = "co2";
 		} else if(metric.equalsIgnoreCase("tracks")) { 
 			sumField = "trackNumber";
-		} else {
+		} else if(metric.equalsIgnoreCase("time")) {
+            sumField = "duration";
+        } else {
 			sumField = "distance";
 		}
 		GroupOperation groupOperation = Aggregation.group("nickname").sum(sumField).as("value");
@@ -353,7 +355,9 @@ public class PlayerCampaignPlacingManager {
 			sumField = "co2";
 		} else if(metric.equalsIgnoreCase("tracks")) { 
 			sumField = "trackNumber";
-		} else {
+		} else if(metric.equalsIgnoreCase("time")) {
+            sumField = "duration";
+        } else {
 			sumField = "distance";
 		}
 		GroupOperation groupOperation = Aggregation.group("nickname").sum(sumField).as("value");
@@ -439,6 +443,8 @@ public class PlayerCampaignPlacingManager {
 			sumField = "co2";
 		} else if(metric.equalsIgnoreCase("tracks")) { 
 			sumField = "trackNumber";
+		} else if(metric.equalsIgnoreCase("time")) {
+		    sumField = "duration";
 		} else {
 			sumField = "distance";
 		}		
@@ -449,7 +455,7 @@ public class PlayerCampaignPlacingManager {
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
 			stat.setPeriod(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
@@ -477,7 +483,9 @@ public class PlayerCampaignPlacingManager {
 			sumField = "co2";
 		} else if(metric.equalsIgnoreCase("tracks")) { 
 			sumField = "trackNumber";
-		} else {
+		} else if(metric.equalsIgnoreCase("time")) {
+            sumField = "duration";
+        } else {
 			sumField = "distance";
 		}		
 		GroupOperation groupOperation = Aggregation.group("modeType").sum(sumField).as("value");
@@ -487,7 +495,7 @@ public class PlayerCampaignPlacingManager {
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
 			stat.setMean(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
@@ -519,7 +527,9 @@ public class PlayerCampaignPlacingManager {
 			sumField = "co2";
 		} else if(metric.equalsIgnoreCase("tracks")) { 
 			sumField = "trackNumber";
-		} else {
+		} else if(metric.equalsIgnoreCase("time")) {
+            sumField = "duration";
+        } else {
 			sumField = "distance";
 		}		
 		GroupOperation groupOperation = Aggregation.group("playerId").sum(sumField).as("value");
@@ -528,7 +538,7 @@ public class PlayerCampaignPlacingManager {
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
-			if(metric.equalsIgnoreCase("tracks")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
@@ -564,7 +574,9 @@ public class PlayerCampaignPlacingManager {
 			sumField = "co2";
 		} else if(metric.equalsIgnoreCase("tracks")) { 
 			sumField = "trackNumber";
-		} else {
+		} else if(metric.equalsIgnoreCase("time")) {
+            sumField = "duration";
+        } else {
 			sumField = "distance";
 		}		
 		GroupOperation groupOperation = Aggregation.group(groupField).sum(sumField).as("value");
@@ -575,7 +587,7 @@ public class PlayerCampaignPlacingManager {
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
 			stat.setPeriod(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
