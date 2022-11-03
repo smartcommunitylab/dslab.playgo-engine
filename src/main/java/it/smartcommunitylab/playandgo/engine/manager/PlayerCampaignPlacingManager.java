@@ -527,8 +527,12 @@ public class PlayerCampaignPlacingManager {
 			String dateFrom, String dateTo) {
 		List<TransportStat> result = new ArrayList<>();
 		
-		//Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());		
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+        if((campaign != null) && (Type.company.equals(campaign.getType()))) {
+            return getPlayerTransportStatsCompanyCampaign(playerId, campaignId, "total", metric, mean, dateFrom, dateTo);
+        }
+		
+        Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		} else {
