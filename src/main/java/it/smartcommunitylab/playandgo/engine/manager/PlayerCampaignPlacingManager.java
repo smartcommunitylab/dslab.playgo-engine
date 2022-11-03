@@ -177,6 +177,7 @@ public class PlayerCampaignPlacingManager {
 	}
 	
 	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2) {
+	    Player player = playerRepository.findById(pt.getPlayerId()).orElse(null);
 		//transport global placing
 		PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
 				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
@@ -189,6 +190,13 @@ public class PlayerCampaignPlacingManager {
 				globalByMode.subCo2(Math.abs(deltaCo2));
 			}
 			playerStatsTransportRepository.save(globalByMode);
+		} else {
+		    globalByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
+                    Boolean.TRUE, null, null, null); 
+            globalByMode.addDistance(deltaDistance);
+            globalByMode.addCo2(deltaCo2);
+            globalByMode.addTrack();
+            playerStatsTransportRepository.save(globalByMode);		    
 		}
 		
 		//transport daily placing
@@ -206,6 +214,15 @@ public class PlayerCampaignPlacingManager {
 				dayByMode.subCo2(Math.abs(deltaCo2));
 			}
 			playerStatsTransportRepository.save(dayByMode);			
+		} else {
+            String weekOfYear = trackDay.format(dftWeek);
+            String monthOfYear = trackDay.format(dftMonth);
+            dayByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
+                    Boolean.FALSE, day, weekOfYear, monthOfYear);
+            dayByMode.addDistance(deltaDistance);
+            dayByMode.addCo2(deltaCo2);
+            dayByMode.addTrack();
+            playerStatsTransportRepository.save(dayByMode);                     
 		}
 	}
 	
