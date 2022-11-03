@@ -67,7 +67,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 				try {
 					TrackResult trackResult = pgAziendaleManager.validateTrack(msg.getCampaignId(), msg.getPlayerId(), trackData);
 					if(!trackResult.getValid()) {
-						errorPlayerTrack(playerTrack, trackResult.getErrorCode());
+						errorPlayerTrack(track, playerTrack, trackResult.getErrorCode());
 					} else {
 						LegResult legResult = trackResult.getLegs().get(0);
 						populatePlayerTrack(track, playerTrack, legResult.getMean(), legResult.getValidDistance());
@@ -94,13 +94,26 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		campaignPlayerTrackRepository.save(playerTrack);
 	}
 	
-	private void errorPlayerTrack(CampaignPlayerTrack playerTrack, String errorCode) {
+	private void errorPlayerTrack(TrackedInstance track, CampaignPlayerTrack playerTrack, String errorCode) {
 		playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 		playerTrack.setValid(false);
-		playerTrack.setErrorCode(errorCode);	
+		playerTrack.setErrorCode(errorCode);
+        playerTrack.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+        playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
+        playerTrack.setDistance(0.0);
+        playerTrack.setCo2(0.0);
+        playerTrack.setStartTime(track.getStartTime());
+        playerTrack.setEndTime(Utils.getEndTime(track));        
 		campaignPlayerTrackRepository.save(playerTrack);
 	}
 	
+    private void errorPlayerTrack(CampaignPlayerTrack playerTrack, String errorCode) {
+        playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
+        playerTrack.setValid(false);
+        playerTrack.setErrorCode(errorCode);
+        campaignPlayerTrackRepository.save(playerTrack);
+    }
+    
 	private TrackData getTrackData(TrackedInstance track) {
 		if(track != null) {
 			TrackData trackData = new TrackData();
