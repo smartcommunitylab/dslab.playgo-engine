@@ -83,7 +83,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	}
 	
 	private void populatePlayerTrack(TrackedInstance track, CampaignPlayerTrack playerTrack, String modeType, double distance) {
-		playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
+	    playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 		playerTrack.setValid(true);
 		playerTrack.setModeType(modeType);
 		playerTrack.setDistance(distance);
@@ -191,6 +191,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 					if(!trackResult.getValid()) {
 						errorPlayerTrack(playerTrack, trackResult.getErrorCode());
 					} else {
+				        playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
+				        playerTrack.setValid(true);
+				        campaignPlayerTrackRepository.save(playerTrack);
 						LegResult legResult = trackResult.getLegs().get(0);
 						double deltaDistance = legResult.getValidDistance() - playerTrack.getDistance();
 						if(deltaDistance > 0) {
