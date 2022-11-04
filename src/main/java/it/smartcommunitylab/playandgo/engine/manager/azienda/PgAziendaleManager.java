@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class PgAziendaleManager {
@@ -233,10 +234,12 @@ public class PgAziendaleManager {
 					+ URLEncoder.encode(campaignId, "UTF-8") 
 					+ "&playerId=" + URLEncoder.encode(playerId, "UTF-8")
 					+ "&groupMode=" + groupMode
-					+ "&mean=" + mean
-					+ "&dateFrom=" + dateFrom
-					+ "&dateTo=" + dateTo;
-			 response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+					+ "&mean=" + mean;
+			if(Utils.isNotEmpty(dateFrom) && Utils.isNotEmpty(dateTo)) {
+			    url = url + "&dateFrom=" + dateFrom
+			            + "&dateTo=" + dateTo;
+			}		
+			response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
 		}
