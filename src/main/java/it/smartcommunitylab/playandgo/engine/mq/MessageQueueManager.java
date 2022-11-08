@@ -9,9 +9,12 @@ import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -45,7 +48,7 @@ public class MessageQueueManager {
 	private String rabbitMQUser;
 	
 	@Value("${rabbitmq_pg.password}")
-	private String rabbitMQPassword;	
+	private String rabbitMQPassword;
 	
 	private Connection connection;
 	
@@ -59,11 +62,15 @@ public class MessageQueueManager {
 	
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
+	CancelCallback cancelCallback;
+	DeliverCallback validateTripRequestCallback;
 	DeliverCallback validateCampaignTripRequestCallback;
 	DeliverCallback invalidateCampaignTripRequestCallback;
 	DeliverCallback updateCampaignTripRequestCallback;
 	DeliverCallback revalidateCampaignTripRequestCallback;
 	DeliverCallback callWebhookCallback;
+	
+	private Map<String, String> consumerTagMap = new HashMap<>();
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -77,13 +84,49 @@ public class MessageQueueManager {
 		connectionFactory.setHost(rabbitMQHost);
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
+		connectionFactory.setTopologyRecoveryEnabled(true);
 
 		connection = connectionFactory.newConnection();
 		
-		validateTripChannel = connection.createChannel();
-		validateTripChannel.queueDeclare(validateTripRequest, true, false, false, null);		
-		
-		DeliverCallback validateTripRequestCallback = (consumerTag, delivery) -> {
+        cancelCallback = consumerTag -> {
+            logger.info(String.format("cancelCallback:%s", consumerTag));
+            String queue = consumerTagMap.get(consumerTag);
+            if(queue != null) {
+                try {
+                    switch (queue) {
+                        case validateTripRequest:      
+                            declareQueue(validateTripRequest, validateTripChannel, validateTripRequestCallback, cancelCallback);
+                            break;
+                        case validateCampaignTripRequest:
+                            declareQueue(validateCampaignTripRequest, validateCampaignTripChannel, 
+                                    validateCampaignTripRequestCallback, cancelCallback);
+                            break;
+                        case invalidateCampaignTripRequest:
+                            declareQueue(invalidateCampaignTripRequest, validateCampaignTripChannel, 
+                                    invalidateCampaignTripRequestCallback, cancelCallback);
+                            break;
+                        case updateCampaignTripRequest:
+                            declareQueue(updateCampaignTripRequest, validateCampaignTripChannel, 
+                                    updateCampaignTripRequestCallback, cancelCallback);
+                            break;
+                        case revalidateCampaignTripRequest:
+                            declareQueue(revalidateCampaignTripRequest, validateCampaignTripChannel, 
+                                    revalidateCampaignTripRequestCallback, cancelCallback);
+                            break;
+                        case callWebhookRequest:
+                            declareQueue(callWebhookRequest, callWebhookChannel, callWebhookCallback, cancelCallback);
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (Exception e) {
+                    logger.info(String.format("cancelCallback error[%s]:%s", queue, e.getMessage())); 
+                } 
+            }
+        };
+        
+		validateTripChannel = connection.createChannel();		
+		validateTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("validateTripRequestCallback:" + json);
 			ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
@@ -91,15 +134,9 @@ public class MessageQueueManager {
 				manageValidateTripRequest.validateTripRequest(message);
 			}			
 		};
-		validateTripChannel.basicConsume(validateTripRequest, true, validateTripRequestCallback, consumerTag -> {});
-		logger.info(String.format("init consumer %s", validateTripRequest));
+		declareQueue(validateTripRequest, validateTripChannel, validateTripRequestCallback, cancelCallback);
 
 		validateCampaignTripChannel = connection.createChannel();
-		validateCampaignTripChannel.queueDeclare(validateCampaignTripRequest, true, false, false, null);
-		validateCampaignTripChannel.queueDeclare(invalidateCampaignTripRequest, true, false, false, null);
-		validateCampaignTripChannel.queueDeclare(updateCampaignTripRequest, true, false, false, null);
-		validateCampaignTripChannel.queueDeclare(revalidateCampaignTripRequest, true, false, false, null);
-
 		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("validateCampaignTripRequestCallback:" + json);
@@ -110,9 +147,7 @@ public class MessageQueueManager {
 				manager.validateTripRequest(message);
 			}
 		};
-		validateCampaignTripChannel.basicConsume(validateCampaignTripRequest, true, validateCampaignTripRequestCallback, consumerTag -> {});
-		logger.info(String.format("init consumer %s", validateCampaignTripRequest));
-		
+		declareQueue(validateCampaignTripRequest, validateCampaignTripChannel, validateCampaignTripRequestCallback, cancelCallback);
 		invalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("invalidateCampaignTripRequestCallback:" + json);
@@ -123,9 +158,7 @@ public class MessageQueueManager {
 				manager.invalidateTripRequest(message);
 			}
 		};
-		validateCampaignTripChannel.basicConsume(invalidateCampaignTripRequest, true, invalidateCampaignTripRequestCallback, consumerTag -> {});
-		logger.info(String.format("init consumer %s", invalidateCampaignTripRequest));
-
+		declareQueue(invalidateCampaignTripRequest, validateCampaignTripChannel, invalidateCampaignTripRequestCallback, cancelCallback);
 		updateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("updateCampaignTripRequestCallback:" + json);
@@ -136,9 +169,7 @@ public class MessageQueueManager {
 				manager.updateTripRequest(message);
 			}
 		};
-		validateCampaignTripChannel.basicConsume(updateCampaignTripRequest, true, updateCampaignTripRequestCallback, consumerTag -> {});
-		logger.info(String.format("init consumer %s", updateCampaignTripRequest));
-		
+		declareQueue(updateCampaignTripRequest, validateCampaignTripChannel, updateCampaignTripRequestCallback, cancelCallback);
 		revalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("revalidateCampaignTripRequestCallback:" + json);
@@ -149,11 +180,9 @@ public class MessageQueueManager {
 				manager.revalidateTripRequest(message);
 			}
 		};
-		validateCampaignTripChannel.basicConsume(revalidateCampaignTripRequest, true, revalidateCampaignTripRequestCallback, consumerTag -> {});
-		logger.info(String.format("init consumer %s", revalidateCampaignTripRequest));
+		declareQueue(revalidateCampaignTripRequest, validateCampaignTripChannel, revalidateCampaignTripRequestCallback, cancelCallback);
 		
 		callWebhookChannel = connection.createChannel();
-		callWebhookChannel.queueDeclare(callWebhookRequest, true, false, false, null);
 		callWebhookCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("callWebhookCallback:" + json);
@@ -167,8 +196,21 @@ public class MessageQueueManager {
 				}
 			}
 		};
-		callWebhookChannel.basicConsume(callWebhookRequest, true, callWebhookCallback, consumerTag -> {});
-		logger.info(String.format("init consumer %s", callWebhookRequest));
+		declareQueue(callWebhookRequest, callWebhookChannel, callWebhookCallback, cancelCallback);
+	}
+	
+	private void declareQueue(String queue, Channel channel, DeliverCallback deliverCallback, CancelCallback cancelCallback) throws Exception {
+        channel.queueDeclare(queue, true, false, false, null);
+        String consumerTag = reconnect(queue, channel, deliverCallback, cancelCallback);
+        consumerTagMap.put(consumerTag, queue);
+	}
+	
+    @Retryable(value = Exception.class, 
+            maxAttempts = 10, backoff = @Backoff(delay = 60000, multiplier = 2))    	
+	private String reconnect(String queue, Channel channel, DeliverCallback deliverCallback, CancelCallback cancelCallback) throws Exception {
+        String consumerTag = channel.basicConsume(queue, true, deliverCallback, cancelCallback);
+        logger.info(String.format("add consumer[%s]:%s", queue, consumerTag));
+        return consumerTag;	    
 	}
 	
 	@PreDestroy
