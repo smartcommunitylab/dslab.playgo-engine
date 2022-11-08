@@ -18,7 +18,6 @@ import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.ConsumerShutdownSignalCallback;
 import com.rabbitmq.client.DeliverCallback;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
@@ -64,7 +63,6 @@ public class MessageQueueManager {
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
 	CancelCallback cancelCallback;
-	ConsumerShutdownSignalCallback consumerShutdownSignalCallback;
 	DeliverCallback validateTripRequestCallback;
 	DeliverCallback validateCampaignTripRequestCallback;
 	DeliverCallback invalidateCampaignTripRequestCallback;
