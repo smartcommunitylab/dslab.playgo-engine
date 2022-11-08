@@ -129,6 +129,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		if(campaign != null) {
 			if(Utils.isNotEmpty(campaign.getGameId())) {
 				gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+			} else {
+			    playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
+			    campaignPlayerTrackRepository.save(playerTrack);
 			}
 		}
 	}
