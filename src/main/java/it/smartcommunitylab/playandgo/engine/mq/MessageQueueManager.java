@@ -92,6 +92,7 @@ public class MessageQueueManager {
 			}			
 		};
 		validateTripChannel.basicConsume(validateTripRequest, true, validateTripRequestCallback, consumerTag -> {});
+		logger.info(String.format("init consumer %s", validateTripRequest));
 
 		validateCampaignTripChannel = connection.createChannel();
 		validateCampaignTripChannel.queueDeclare(validateCampaignTripRequest, true, false, false, null);
@@ -110,6 +111,7 @@ public class MessageQueueManager {
 			}
 		};
 		validateCampaignTripChannel.basicConsume(validateCampaignTripRequest, true, validateCampaignTripRequestCallback, consumerTag -> {});
+		logger.info(String.format("init consumer %s", validateCampaignTripRequest));
 		
 		invalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
@@ -122,6 +124,7 @@ public class MessageQueueManager {
 			}
 		};
 		validateCampaignTripChannel.basicConsume(invalidateCampaignTripRequest, true, invalidateCampaignTripRequestCallback, consumerTag -> {});
+		logger.info(String.format("init consumer %s", invalidateCampaignTripRequest));
 
 		updateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
@@ -134,6 +137,7 @@ public class MessageQueueManager {
 			}
 		};
 		validateCampaignTripChannel.basicConsume(updateCampaignTripRequest, true, updateCampaignTripRequestCallback, consumerTag -> {});
+		logger.info(String.format("init consumer %s", updateCampaignTripRequest));
 		
 		revalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
@@ -146,6 +150,7 @@ public class MessageQueueManager {
 			}
 		};
 		validateCampaignTripChannel.basicConsume(revalidateCampaignTripRequest, true, revalidateCampaignTripRequestCallback, consumerTag -> {});
+		logger.info(String.format("init consumer %s", revalidateCampaignTripRequest));
 		
 		callWebhookChannel = connection.createChannel();
 		callWebhookChannel.queueDeclare(callWebhookRequest, true, false, false, null);
@@ -163,6 +168,7 @@ public class MessageQueueManager {
 			}
 		};
 		callWebhookChannel.basicConsume(callWebhookRequest, true, callWebhookCallback, consumerTag -> {});
+		logger.info(String.format("init consumer %s", callWebhookRequest));
 	}
 	
 	@PreDestroy
