@@ -9,15 +9,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
+import it.smartcommunitylab.playandgo.engine.manager.azienda.LegResult;
+import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackData;
+import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackResult;
+import it.smartcommunitylab.playandgo.engine.manager.ext.CampaignMsgManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
@@ -27,6 +33,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepos
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationConstants;
 import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
@@ -65,6 +72,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
+   
+	@Autowired
+    CampaignMsgManager campaignMsgManager;
 	
 	//SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 	
@@ -107,8 +117,12 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		}
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
-			if(Utils.isNotEmpty(campaign.getGameId())) {
-				gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+			if(Utils.isNotEmpty(campaign.getGameId())) {			    
+				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+                if(action) {
+                    playerTrack.setScoreStatus(ScoreStatus.SENT);
+                    campaignPlayerTrackRepository.save(playerTrack);
+                }
 			} else {
                 playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
                 campaignPlayerTrackRepository.save(playerTrack);
@@ -131,7 +145,11 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
 			if(Utils.isNotEmpty(campaign.getGameId())) {
-				gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+				if(action) {
+				    playerTrack.setScoreStatus(ScoreStatus.SENT);
+				    campaignPlayerTrackRepository.save(playerTrack);
+				}
 			} else {
 			    playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 			    campaignPlayerTrackRepository.save(playerTrack);
@@ -146,7 +164,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		trackingData.put(START_TIME, track.getStartTime().getTime());
 		playerTrack.setTrackingData(trackingData);
 		
-		playerTrack.setScoreStatus(ScoreStatus.SENT);
+		playerTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
 		playerTrack.setValid(true);
 		ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
 		playerTrack.setModeType(validationStatus.getModeType().toString());
@@ -224,6 +242,40 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 
 	@Override
 	public void revalidateTripRequest(UpdateCampaignTripRequest msg) {
+        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
+        if(playerTrack != null) {
+            Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
+            if(campaign != null) {
+                try {
+                    double oldDistance =  playerTrack.getDistance();
+                    ScoreStatus oldStatus = playerTrack.getScoreStatus();
+                    
+                    TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
+                    Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(track.getTerritoryId(), 
+                            track.getGeolocationEvents(), track.getFreeTrackingTransport(), track.getValidationResult().getValidationStatus(), track.getOverriddenDistances());
+                    populatePlayerTrack(playerTrack, track, trackingData);
+                    if(Utils.isNotEmpty(campaign.getGameId()) && oldStatus.equals(ScoreStatus.UNASSIGNED)) {
+                        campaignPlayerTrackRepository.save(playerTrack);
+                        boolean action = gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData);
+                        if(action) {
+                            playerTrack.setScoreStatus(ScoreStatus.SENT);
+                            campaignPlayerTrackRepository.save(playerTrack);
+                        }
+                    } else {
+                        playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
+                        campaignPlayerTrackRepository.save(playerTrack);
+                        double deltaDistance = playerTrack.getDistance() - oldDistance;                        
+                        if(deltaDistance > 0) {
+                            double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), deltaDistance);
+                            playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.warn("revalidateTripRequest error:" + e.getMessage());
+                    campaignMsgManager.addRevalidateTripRequest(msg, campaign.getType(), e.getMessage(), ErrorCode.OPERATION_ERROR);
+                }                
+            }
+        }	    
 	}
 
 }
