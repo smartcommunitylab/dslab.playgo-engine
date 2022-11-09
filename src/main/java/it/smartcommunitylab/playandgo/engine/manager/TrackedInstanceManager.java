@@ -639,10 +639,8 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
-		}		
-		if(Type.company.equals(campaign.getType())) {
-			revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstanceId);
-		}
+		}	
+		revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstanceId);
 	}
 	
 	public void revalidateTracks(String territoryId, String campaignId, Date dateFrom, Date dateTo) throws Exception {
@@ -650,18 +648,16 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
-		if(Type.company.equals(campaign.getType())) {
-			Criteria criteria = new Criteria("territoryId").is(territoryId).and("validationResult.valid").is(true);
-			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
-			Query query = new Query(criteria);
-			List<TrackedInstance> list = mongoTemplate.find(query, TrackedInstance.class);
-			for(TrackedInstance trackedInstance : list) {
-				if(!trackedInstance.getValidationResult().isValid()) {
-					continue;
-				}
-				revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstance.getId());
-			}			
-		}
+		Criteria criteria = new Criteria("territoryId").is(territoryId).and("validationResult.valid").is(true);
+		criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
+		Query query = new Query(criteria);
+		List<TrackedInstance> list = mongoTemplate.find(query, TrackedInstance.class);
+		for(TrackedInstance trackedInstance : list) {
+			if(!trackedInstance.getValidationResult().isValid()) {
+				continue;
+			}
+			revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstance.getId());
+		}			
 	}
 	
 }
