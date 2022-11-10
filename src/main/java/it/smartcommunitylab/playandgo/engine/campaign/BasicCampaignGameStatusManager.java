@@ -96,6 +96,7 @@ public class BasicCampaignGameStatusManager {
 						playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 						playerTrack.setScore(playerTrack.getScore() + delta);
 						campaignPlayerTrackRepository.save(playerTrack);
+						logger.debug("update playerTrack " + playerTrack.getId());
 					}
 					
 					PlayerGameStatus gameStatus = playerGameStatusRepository.findByPlayerIdAndCampaignId(playerId, campaignId);
@@ -106,6 +107,7 @@ public class BasicCampaignGameStatusManager {
 						gameStatus.setNickname(p.getNickname());
 						gameStatus.setCampaignId(campaignId);
 						playerGameStatusRepository.save(gameStatus);
+						logger.debug("add gameStatus " + gameStatus.getId());
 					}
 					
 					//update daily points
@@ -129,9 +131,11 @@ public class BasicCampaignGameStatusManager {
 							statsGame.setWeekOfYear(trackDay.format(dftWeek));
 							statsGame.setMonthOfYear(trackDay.format(dftMonth));
 							statsGameRepository.save(statsGame);
+							logger.debug("add statsGame " + statsGame.getId());
 						}
 						statsGame.setScore(statsGame.getScore() + delta);
 						statsGameRepository.save(statsGame);
+						logger.debug("update statsGame " + statsGame.getId());
 					} catch (Exception e) {
 						logger.warn("updatePlayerState error:" + e.getMessage());
 					}
@@ -142,16 +146,18 @@ public class BasicCampaignGameStatusManager {
 						updatePlayerState(playerState, gameStatus, null);
 						gameStatus.setUpdateTime(new Date());
 						playerGameStatusRepository.save(gameStatus);
+						logger.debug("update playerState " + gameStatus.getId());
 					}
 					
 					//check recommendation
 					if(delta > 0) {
 						CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), playerId);
-						if(cs.hasRecommendationPlayerToDo()) {
+						if((cs != null) && cs.hasRecommendationPlayerToDo()) {
 							String recommenderPlayerId = (String) cs.getCampaignData().get(Campaign.recommenderPlayerId);
 							gamificationEngineManager.sendRecommendation(recommenderPlayerId, gameId);
 							cs.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.FALSE);
 							campaignSubscriptionRepository.save(cs);
+							
 						}
 					}
 				}
