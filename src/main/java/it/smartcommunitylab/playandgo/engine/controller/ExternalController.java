@@ -32,6 +32,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignGroupPlacing;
+import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -100,15 +101,16 @@ public class ExternalController extends PlayAndGoController {
 	}
 	
 	@GetMapping("/api/ext/campaign/game/group/placing")
-	public List<CampaignGroupPlacing> getCampaingGroupPlacingByGame(
+	public Page<CampaignPlacing> getCampaingGroupPlacingByGame(
 			@RequestParam String campaignId,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
-		List<CampaignGroupPlacing> list = placingManager.getCampaignGroupPlacingByGame(campaignId,  
-				dateFrom, dateTo);
-		return list;			
+		Page<CampaignPlacing> page = placingManager.getCampaignPlacingByGame(campaignId,  
+				dateFrom, dateTo, pageRequest, true);
+		return page;			
 	}
 
 	@GetMapping("/api/ext/campaign/game/group/placing/player")

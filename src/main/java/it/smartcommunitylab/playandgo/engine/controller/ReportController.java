@@ -73,10 +73,11 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) boolean groupByGroupId,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByGame(campaignId,  
-				dateFrom, dateTo, pageRequest);
+				dateFrom, dateTo, pageRequest, groupByGroupId);
 		return page;			
 	}
 
@@ -92,6 +93,18 @@ public class ReportController extends PlayAndGoController {
 		return placing;
 	}
 
+    @GetMapping("/api/report/campaign/placing/group/game")
+    public CampaignPlacing getGroupCampaingPlacingByGame(
+            @RequestParam String campaignId,
+            @RequestParam String groupId,
+            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
+            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            HttpServletRequest request) throws Exception {
+        CampaignPlacing placing = playerReportManager.getCampaignPlacingByGameAndGroup(groupId, campaignId, 
+                dateFrom, dateTo);
+        return placing;
+    }
+    
 	@GetMapping("/api/report/player/transport/stats")
 	public List<TransportStat> getPlayerTransportStats(
 			@RequestParam String campaignId,

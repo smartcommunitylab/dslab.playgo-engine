@@ -14,6 +14,8 @@ public class PlayerStatsTransport {
 	private String nickname;
 	@Indexed
 	private String campaignId;
+    @Indexed
+    private String groupId;	
 	@Indexed
 	private Boolean global = Boolean.FALSE; 
 	@Indexed
@@ -145,6 +147,14 @@ public class PlayerStatsTransport {
 	public void setDay(String day) {
 		this.day = day;
 	}
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 	
 	
 }

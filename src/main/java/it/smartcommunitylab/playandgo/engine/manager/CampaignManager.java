@@ -240,7 +240,7 @@ public class CampaignManager {
 				sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
 				break;
 			case school:
-				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
 				break;
 		}
 		return campaignSubscriptionRepository.save(sub);

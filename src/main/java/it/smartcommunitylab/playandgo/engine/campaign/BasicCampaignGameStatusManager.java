@@ -35,7 +35,7 @@ import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
-public class BasicCampaignGameStatusManager {
+public abstract class BasicCampaignGameStatusManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(BasicCampaignGameStatusManager.class);
 	
 	@Autowired
@@ -71,7 +71,9 @@ public class BasicCampaignGameStatusManager {
 	protected DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
 	protected DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 
-	public void updatePlayerGameStatus(Map<String, Object> msg) {
+	public abstract void updatePlayerGameStatus(Map<String, Object> msg);
+	
+	protected void updatePlayerGameStatus(Map<String, Object> msg, final String groupIdKey) {
 		try {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> obj = (Map<String, Object>) msg.get("obj");
@@ -111,6 +113,13 @@ public class BasicCampaignGameStatusManager {
 					}
 					
 					//update daily points
+					String groupId = null;
+					if(Utils.isNotEmpty(groupIdKey)) {
+	                    CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), playerId);
+	                    if(cs != null) {
+	                        groupId = (String) cs.getCampaignData().get(groupIdKey);
+	                    }                   					    
+					}
 					try {
 						ZonedDateTime trackDay = null;
 						if(playerTrack != null) {
@@ -127,6 +136,9 @@ public class BasicCampaignGameStatusManager {
 							statsGame.setNickname(gameStatus.getNickname());
 							statsGame.setCampaignId(gameStatus.getCampaignId());
 							statsGame.setGlobal(Boolean.FALSE);
+		                    if(Utils.isNotEmpty(groupId)) {
+		                        statsGame.setGroupId(groupId);
+		                    }							
 							statsGame.setDay(day);
 							statsGame.setWeekOfYear(trackDay.format(dftWeek));
 							statsGame.setMonthOfYear(trackDay.format(dftMonth));
@@ -143,7 +155,7 @@ public class BasicCampaignGameStatusManager {
 					//update global status 
 					JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
 					if(playerState != null) {
-						updatePlayerState(playerState, gameStatus, null);
+						updatePlayerState(playerState, gameStatus, groupId);
 						gameStatus.setUpdateTime(new Date());
 						playerGameStatusRepository.save(gameStatus);
 						logger.debug("update playerState " + gameStatus.getId());
