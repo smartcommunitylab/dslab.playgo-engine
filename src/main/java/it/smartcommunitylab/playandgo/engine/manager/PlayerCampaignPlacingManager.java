@@ -537,11 +537,25 @@ public class PlayerCampaignPlacingManager {
 		return result;
 	}
 	
-	public List<TransportStat> getPlayerTransportStatsGroupByMean(String playerId, String campaignId, String metric,
-			String dateFrom, String dateTo) {
+   public List<TransportStat> getPlayerTransportStatsGroupByMean(String playerId, String campaignId, String metric,
+           String dateFrom, String dateTo) {
+       return getOwnerTransportStatsGroupByMean(playerId, campaignId, metric, dateFrom, dateTo, false);
+   }
+   
+   public List<TransportStat> getGroupTransportStatsGroupByMean(String groupId, String campaignId, String metric,
+           String dateFrom, String dateTo) {
+       return getOwnerTransportStatsGroupByMean(groupId, campaignId, metric, dateFrom, dateTo, true);
+   }
+   
+   private List<TransportStat> getOwnerTransportStatsGroupByMean(String ownerId, String campaignId, String metric,
+			String dateFrom, String dateTo, boolean group) {
 		List<TransportStat> result = new ArrayList<>();
-		
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and("playerId").is(playerId);
+
+        String selectId = "playerId";
+        if(group) {
+            selectId = "groupId";  
+        }
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and(selectId).is(ownerId);
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		} else {
@@ -576,9 +590,7 @@ public class PlayerCampaignPlacingManager {
 		}
 		return result;
 	}
-	
-
-	
+		
 	public List<TransportStat> getPlayerTransportRecord(String playerId, String campaignId, String groupMode, 
 			String metric, String mean) {
 		List<TransportStat> result = new ArrayList<>();
