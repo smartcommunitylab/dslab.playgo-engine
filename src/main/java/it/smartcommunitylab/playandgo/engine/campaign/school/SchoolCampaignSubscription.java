@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
+import it.smartcommunitylab.playandgo.engine.manager.highschool.PgHighSchoolManager;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
@@ -24,6 +25,8 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 public class SchoolCampaignSubscription {
 	private static Logger logger = LoggerFactory.getLogger(SchoolCampaignSubscription.class);
 	
+	public static final String groupIdKey = "teamId";
+	
 	@Autowired
 	SurveyManager surveyManager;
 	
@@ -32,9 +35,16 @@ public class SchoolCampaignSubscription {
 	
 	@Autowired
 	MessageQueueManager queueManager;
+	
+	@Autowired
+	PgHighSchoolManager highSchoolManager;
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
-			Map<String, Object> campaignData) throws Exception {
+			Map<String, Object> campaignData, boolean sendExtRequest) throws Exception {
+	    String groupId = null;
+	    if(sendExtRequest) {
+	        groupId = highSchoolManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), player.getNickname());
+	    }
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaign.getCampaignId());
@@ -43,8 +53,9 @@ public class SchoolCampaignSubscription {
 		sub.setSendMail(player.getSendMail());
 		sub.setRegistrationDate(new Date());
 		if(campaignData != null) {
-			sub.setCampaignData(campaignData);
+			sub.getCampaignData().putAll(campaignData);
 		}
+        sub.getCampaignData().put(groupIdKey, groupId);
 		//check default survey
 		if(campaign.hasDefaultSurvey()) {
 			SurveyRequest sr = campaign.getDefaultSurvey();
@@ -59,6 +70,7 @@ public class SchoolCampaignSubscription {
 	}
 	
 	public void unsubscribeCampaign(Player player, Campaign campaign) throws Exception {
+	    highSchoolManager.unsubscribeCampaign(campaign.getCampaignId(), player.getPlayerId());
 		sendUnregisterWebhookRequest(player.getPlayerId(), campaign.getCampaignId());
 	}
 	

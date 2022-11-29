@@ -24,7 +24,8 @@ public class CampaignPlayerTrack {
 	private String campaignSubscriptionId;
 	private String trackedInstanceId;
 	private String territoryId;
-	
+    private String groupId;    
+
 	private boolean valid = false;
 	private String errorCode;
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
@@ -142,5 +143,11 @@ public class CampaignPlayerTrack {
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
+    public String getGroupId() {
+        return groupId;
+    }
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
 }

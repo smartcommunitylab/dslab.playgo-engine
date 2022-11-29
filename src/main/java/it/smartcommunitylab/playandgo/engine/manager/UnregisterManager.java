@@ -139,6 +139,20 @@ public class UnregisterManager {
 		return response;
 	}
 	
+	public String getBearerToken() throws Exception {
+        ResponseEntity<String> token = getToken();
+        if(!token.getStatusCode().is2xxSuccessful()) {
+            logger.warn(String.format("getBearerToken: error getting token - %s", token.getStatusCodeValue()));
+            throw new ServiceException("error getting token", ErrorCode.EXT_SERVICE_INVOCATION);
+        }
+        String json = token.getBody();
+        JsonNode jsonNode = mapper.readTree(json);
+        if(jsonNode.has("access_token")) {
+            return jsonNode.get("access_token").asText();
+        }
+        throw new ServiceException("error getting token", ErrorCode.EXT_SERVICE_INVOCATION);
+	}
+	
 	private ResponseEntity<String> deleteAccountApi(String userId, String token)  throws Exception {
 		String url = new String(endpoint);
 		if(!url.endsWith("/")) {

@@ -194,7 +194,7 @@ public class DevController extends PlayAndGoController {
 		checkAdminRole(request);
 		for(String modeType : modeTypes) {
 			long startTime = System.currentTimeMillis();
-			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing("TAA.test1", "distance", modeType, "2022-03-21", "2022-03-31", PageRequest.of(10, 10));
+			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing("TAA.test1", "distance", modeType, "2022-03-21", "2022-03-31", PageRequest.of(10, 10), false);
 			long endTime = System.currentTimeMillis();
 			logger.info(String.format("query2 [%s]: %s - %s", modeType, page.getSize(), (endTime - startTime)));
 		}

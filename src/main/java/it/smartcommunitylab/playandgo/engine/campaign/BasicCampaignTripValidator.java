@@ -9,21 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
-import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
-import it.smartcommunitylab.playandgo.engine.manager.azienda.LegResult;
-import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackData;
-import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackResult;
 import it.smartcommunitylab.playandgo.engine.manager.ext.CampaignMsgManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
-import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
@@ -31,6 +26,7 @@ import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsTransportRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -60,6 +56,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	
 	@Autowired
 	CampaignRepository campaignRepository;
+   
+	@Autowired
+    CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
 	PlayerStatsTransportRepository playerStatsTrackRepository;
@@ -75,6 +74,8 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
    
 	@Autowired
     CampaignMsgManager campaignMsgManager;
+	
+	protected String groupIdKey = null;
 	
 	//SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 	
@@ -178,6 +179,16 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));
+		
+        if(Utils.isNotEmpty(groupIdKey)) {
+            CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(playerTrack.getCampaignId(), playerTrack.getPlayerId());
+            if(cs != null) {
+                String groupId = (String) cs.getCampaignData().get(groupIdKey);
+                if(Utils.isNotEmpty(groupId)) {
+                    playerTrack.setGroupId(groupId); 
+                }
+            }                                           
+        }		    
 	}
 	
 	private void sendWebhookRequest(CampaignPlayerTrack pt) {
