@@ -83,10 +83,13 @@ minio:
   bucket: ${MINIO_BUCKET:}
   
 aziende:
-  endpoint: ${AZIENDE_ENDPOIN:}
+  endpoint: ${AZIENDE_ENDPOINT:}
   user: ${AZIENDE_USER:}
   password: ${AZIENDE_PASSWORD:}
 
+hsc:
+  endpoint: ${HSC_ENDPOINT:}
+  
 aac:
   admin-client-id: ${AAC_ADMIN_CLIENT_ID:}
   admin-client-secret: ${AAC_ADMIN_CLIENT_SECRET:}
