@@ -46,6 +46,7 @@ public class PgHighSchoolManager {
             url = url + "api/initiatives/" 
                     + URLEncoder.encode(campaignId, "UTF-8") 
                     + "/player/subscribe?nickname=" + URLEncoder.encode(nickname, "UTF-8");
+            logger.info(String.format("subscribeCampaign uri:%s", url));
              response = restTemplate.postForEntity(url, request, String.class);
         } catch (Exception e) {
             throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);   
