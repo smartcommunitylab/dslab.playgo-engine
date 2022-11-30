@@ -33,7 +33,7 @@ public class PgHighSchoolManager {
     public String subscribeCampaign(String campaignId, String playerId, String nickname)  throws ServiceException {
         HttpHeaders headers = new HttpHeaders();
         try {
-            headers.setBearerAuth(unregisterManager.getBearerToken());
+            //headers.setBearerAuth(unregisterManager.getBearerToken());
         } catch (Exception e) {
             throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
         }
@@ -62,7 +62,7 @@ public class PgHighSchoolManager {
         //TODO
         HttpHeaders headers = new HttpHeaders();
         try {
-            headers.setBearerAuth(unregisterManager.getBearerToken());
+            //headers.setBearerAuth(unregisterManager.getBearerToken());
         } catch (Exception e) {
             throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
         }
