@@ -51,7 +51,7 @@ public class SecurityHelper {
 
 	static Log logger = LogFactory.getLog(SecurityHelper.class);
 	
-    @Value("${security.oauth2.resourceserver.jwt.client-id}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.client-id}")
     private String jwtAudience;
 
 	@Autowired

@@ -20,16 +20,30 @@ spring:
       max-file-size: ${SPRING_HTTP_MULTIPART_MAX_FILE_SIZE:10MB}
       max-request-size: ${SPRING_HTTP_MULTIPART_MAX_REQUEST_SIZE:10MB}
 
-security:
-  oauth2:
-    resourceserver:
-      jwt:
-        issuer-uri: ${AAC_ISSUER_URI:}
-        client-id: ${AAC_CLIENT_ID:}
-      opaque-token:
-        introspection-uri: 
-        client-id: 
-        client-secret: 
+  security:
+    oauth2:
+      client:
+        registration:
+          oauthprovider: 
+            authorization-grant-type: client_credentials
+            client-id:  ${AAC_CLIENT_ID:}
+            client-secret:  ${AAC_CLIENT_SECRET:}
+        provider:
+          oauthprovider:
+            token-uri: ${AAC_TOKEN_URI:}
+            issuer-uri: ${AAC_ISSUER_URI:}
+            authorization-uri: ${AAC_AUTHORIZATION_URI:}
+      resourceserver:
+        jwt:
+          issuer-uri: ${AAC_ISSUER_URI:}
+          client-id: ${AAC_CLIENT_ID:}
+        opaque-token:
+          introspection-uri: 
+          client-id: 
+          client-secret: 
+        
+
+
 
 mail:
   host: ${MAIL_HOST:}
