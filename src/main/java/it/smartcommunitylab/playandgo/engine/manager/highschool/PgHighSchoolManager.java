@@ -26,7 +26,7 @@ public class PgHighSchoolManager {
     
     public String subscribeCampaign(String campaignId, String playerId, String nickname)  throws ServiceException {
 		try {
-	        String url ="/api/initiatives/" 
+	        String url ="/api/admin/initiatives/" 
 	                + URLEncoder.encode(campaignId, "UTF-8") 
 	                + "/player/subscribe?nickname=" + URLEncoder.encode(nickname, "UTF-8");
 	        logger.info(String.format("subscribeCampaign uri:%s", url));
@@ -44,11 +44,11 @@ public class PgHighSchoolManager {
 		}
     }
     
-    public void unsubscribeCampaign(String campaignId, String playerId)  throws ServiceException {
+    public void unsubscribeCampaign(String campaignId, String playerId, String nickname)  throws ServiceException {
 		try {
-	    	String url ="/api/admin/unsubscribe/" 
+	    	String url ="/api/admin/initiatives/" 
 	    			+ URLEncoder.encode(campaignId, "UTF-8") 
-	                + "/" + URLEncoder.encode(playerId, "UTF-8");
+	    			+ "/player/unsubscribe?nickname=" + URLEncoder.encode(nickname, "UTF-8");
 	    	logger.info(String.format("unsubscribeCampaign uri:%s", url));
 
 			hscWebClient.post()
