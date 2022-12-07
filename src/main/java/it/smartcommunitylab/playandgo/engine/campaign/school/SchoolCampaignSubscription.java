@@ -70,7 +70,7 @@ public class SchoolCampaignSubscription {
 	}
 	
 	public void unsubscribeCampaign(Player player, Campaign campaign) throws Exception {
-	    highSchoolManager.unsubscribeCampaign(campaign.getCampaignId(), player.getPlayerId());
+	    highSchoolManager.unsubscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), player.getNickname());
 		sendUnregisterWebhookRequest(player.getPlayerId(), campaign.getCampaignId());
 	}
 	

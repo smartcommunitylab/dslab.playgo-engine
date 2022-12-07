@@ -37,7 +37,7 @@ import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 public class UnregisterManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(UnregisterManager.class);
    
-	@Value("${security.oauth2.resourceserver.jwt.issuer-uri}")
+	@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String endpoint;
     
 	@Value("${aac.admin-client-id}")

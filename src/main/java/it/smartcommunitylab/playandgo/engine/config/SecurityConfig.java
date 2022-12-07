@@ -24,19 +24,19 @@ import it.smartcommunitylab.playandgo.engine.security.JwtAudienceValidator;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Value("${security.oauth2.resourceserver.jwt.issuer-uri}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String jwtIssuerUri;
 
-    @Value("${security.oauth2.resourceserver.jwt.client-id}")
+    @Value("${spring.security.oauth2.resourceserver.jwt.client-id}")
     private String jwtAudience;
 
-    @Value("${security.oauth2.resourceserver.opaque-token.introspection-uri}")
+    @Value("${spring.security.oauth2.resourceserver.opaque-token.introspection-uri}")
     private String introspectionUri;
 
-    @Value("${security.oauth2.resourceserver.opaque-token.client-id}")
+    @Value("${spring.security.oauth2.resourceserver.opaque-token.client-id}")
     private String introspectClientId;
 
-    @Value("${security.oauth2.resourceserver.opaque-token.client-secret}")
+    @Value("${spring.security.oauth2.resourceserver.opaque-token.client-secret}")
     private String introspectClientSecret;
 
     @Override
