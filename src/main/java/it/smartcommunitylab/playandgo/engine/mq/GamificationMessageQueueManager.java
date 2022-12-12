@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.mq;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.ShutdownListener;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
@@ -62,6 +64,8 @@ public class GamificationMessageQueueManager {
 	
 	DeliverCallback gameNotificationCallback;
 	
+	ShutdownListener shutdownListener;
+	
 	@PostConstruct
 	public void init() throws Exception {
 		logger.info("Connecting to RabbitMQ");
@@ -75,8 +79,18 @@ public class GamificationMessageQueueManager {
 
 		connection = connectionFactory.newConnection();
 		
+		shutdownListener = (cause) -> {
+		    logger.warn(String.format("GamificationMessageQueueManager channel error:%s", cause.getMessage()));
+		    try {
+                channel = connection.createChannel();
+            } catch (IOException e) {
+                logger.warn(String.format("create channel error:%s", e.getMessage()));
+            }
+		};
+		
 		channel = connection.createChannel();
 		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
+		channel.addShutdownListener(shutdownListener);
 		
 		gameNotificationCallback = (consumerTag, delivery) -> {
 			String msg = new String(delivery.getBody(), "UTF-8");
