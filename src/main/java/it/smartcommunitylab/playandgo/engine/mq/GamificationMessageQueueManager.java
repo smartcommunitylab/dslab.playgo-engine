@@ -1,6 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.mq;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.BuiltinExchangeType;
+import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -60,7 +63,11 @@ public class GamificationMessageQueueManager {
 	
 	Map<String, ManageGameNotification> manageGameNotificationMap = new HashMap<>();
 	
+	List<String> gameList = new ArrayList<>(); 
+	private Map<String, String> consumerTagMap = new HashMap<>();
+	
 	DeliverCallback gameNotificationCallback;
+	CancelCallback cancelCallback;
 	
 	@PostConstruct
 	public void init() throws Exception {
@@ -75,37 +82,56 @@ public class GamificationMessageQueueManager {
 
 		connection = connectionFactory.newConnection();
 		
-		channel = connection.createChannel();
-		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
-		
-		gameNotificationCallback = (consumerTag, delivery) -> {
-			String msg = new String(delivery.getBody(), "UTF-8");
-			logger.info("gameNotificationCallback:" + msg);
-			@SuppressWarnings("unchecked")
-			Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
-			String type = (String) map.get("type");
-			String gameId = null;
-			@SuppressWarnings("unchecked")
-			Map<String, Object> obj = (Map<String, Object>) map.get("obj");
-			if(obj != null) {
-				gameId = (String) obj.get("gameId");
-			}
-			if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
-				Campaign campaign = campaignRepository.findByGameId(gameId);
-				if(campaign != null) {
-					String routingKey = campaign.getType().toString(); 
-					ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
-					if(manager != null) {
-						manager.manageGameNotification(map, routingKey);
-					}					
-				} else {
-					logger.warn("campaign not found: " + gameId);
-				}
-			} else {
-				logger.warn("Bad notification content: " + msg);
-			}
-		};
+        gameNotificationCallback = (consumerTag, delivery) -> {
+            String msg = new String(delivery.getBody(), "UTF-8");
+            logger.info("gameNotificationCallback:" + msg);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
+            String type = (String) map.get("type");
+            String gameId = null;
+            @SuppressWarnings("unchecked")
+            Map<String, Object> obj = (Map<String, Object>) map.get("obj");
+            if(obj != null) {
+                gameId = (String) obj.get("gameId");
+            }
+            if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
+                Campaign campaign = campaignRepository.findByGameId(gameId);
+                if(campaign != null) {
+                    String routingKey = campaign.getType().toString(); 
+                    ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
+                    if(manager != null) {
+                        manager.manageGameNotification(map, routingKey);
+                    }                   
+                } else {
+                    logger.warn("campaign not found: " + gameId);
+                }
+            } else {
+                logger.warn("Bad notification content: " + msg);
+            }
+        };
+        
+        cancelCallback = consumerTag -> {
+            logger.info(String.format("cancelCallback:%s", consumerTag));
+            String queue = consumerTagMap.get(consumerTag);
+            if(queue != null) {
+                if(queue.startsWith("queue-")) {
+                    String gameId = queue.replace("queue-", "");
+                    setGameNotification(gameId);
+                }
+            }
+        };
+        
+		initChannel();
 	}
+
+    private void initChannel() throws Exception {
+        logger.info("init channel");
+        channel = connection.createChannel();
+        channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
+        for(String gameId : gameList) {
+            setGameNotification(gameId);
+        }
+    }
 	
 	@PreDestroy
 	public void destroy() {
@@ -128,15 +154,28 @@ public class GamificationMessageQueueManager {
 	}
 	
 	public void setGameNotification(String gameId) {
-		String routingKey = geRoutingKeyPrefix + "-" + gameId;
-		try {
-			String queueName = "queue-" + gameId;
-			channel.queueDeclare(queueName, true, false, false, null);
-			channel.queueBind(queueName, geExchangeName, routingKey);
-			channel.basicConsume(queueName, true, gameNotificationCallback, consumerTag -> {});
-		} catch (Exception e) {
-			logger.warn(String.format("setGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
-		}
+	    if(!gameList.contains(gameId)) {
+	        gameList.add(gameId);
+	    }
+	    if(!channel.isOpen()) {
+	        try {
+                initChannel();
+            } catch (Exception e) {
+                logger.info(String.format("init channel error:%s", e.getMessage()));
+            }
+	    } else {
+	        String routingKey = geRoutingKeyPrefix + "-" + gameId;
+	        try {
+	            String queueName = "queue-" + gameId;
+	            channel.queueDeclare(queueName, true, false, false, null);
+	            channel.queueBind(queueName, geExchangeName, routingKey);
+	            String consumerTag = channel.basicConsume(queueName, true, gameNotificationCallback, cancelCallback);
+	            consumerTagMap.put(consumerTag, queueName);
+	            logger.info(String.format("add consumer[%s]:%s", queueName, consumerTag));
+	        } catch (Exception e) {
+	            logger.warn(String.format("setGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
+	        }	        
+	    }
 	}
 	
 	public void setManageGameNotification(ManageGameNotification manager, Type type) {
