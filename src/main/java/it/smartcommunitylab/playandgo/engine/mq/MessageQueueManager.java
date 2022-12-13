@@ -84,7 +84,9 @@ public class MessageQueueManager {
 		connectionFactory.setHost(rabbitMQHost);
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
+		connectionFactory.setNetworkRecoveryInterval(10000);
 		connectionFactory.setTopologyRecoveryEnabled(true);
+		
 
 		connection = connectionFactory.newConnection();
 		
@@ -94,26 +96,44 @@ public class MessageQueueManager {
             if(queue != null) {
                 try {
                     switch (queue) {
-                        case validateTripRequest:      
+                        case validateTripRequest:
+                            if(!validateTripChannel.isOpen()) {
+                                validateTripChannel = connection.createChannel();
+                            }
                             declareQueue(validateTripRequest, validateTripChannel, validateTripRequestCallback, cancelCallback);
                             break;
                         case validateCampaignTripRequest:
+                            if(!validateCampaignTripChannel.isOpen()) {
+                                validateCampaignTripChannel = connection.createChannel();
+                            }
                             declareQueue(validateCampaignTripRequest, validateCampaignTripChannel, 
                                     validateCampaignTripRequestCallback, cancelCallback);
                             break;
                         case invalidateCampaignTripRequest:
+                            if(!validateCampaignTripChannel.isOpen()) {
+                                validateCampaignTripChannel = connection.createChannel();
+                            }
                             declareQueue(invalidateCampaignTripRequest, validateCampaignTripChannel, 
                                     invalidateCampaignTripRequestCallback, cancelCallback);
                             break;
                         case updateCampaignTripRequest:
+                            if(!validateCampaignTripChannel.isOpen()) {
+                                validateCampaignTripChannel = connection.createChannel();
+                            }
                             declareQueue(updateCampaignTripRequest, validateCampaignTripChannel, 
                                     updateCampaignTripRequestCallback, cancelCallback);
                             break;
                         case revalidateCampaignTripRequest:
+                            if(!validateCampaignTripChannel.isOpen()) {
+                                validateCampaignTripChannel = connection.createChannel();
+                            }
                             declareQueue(revalidateCampaignTripRequest, validateCampaignTripChannel, 
                                     revalidateCampaignTripRequestCallback, cancelCallback);
                             break;
                         case callWebhookRequest:
+                            if(!callWebhookChannel.isOpen()) {
+                                callWebhookChannel = connection.createChannel();
+                            }
                             declareQueue(callWebhookRequest, callWebhookChannel, callWebhookCallback, cancelCallback);
                             break;
                         default:
@@ -125,7 +145,7 @@ public class MessageQueueManager {
             }
         };
         
-		validateTripChannel = connection.createChannel();		
+		validateTripChannel = connection.createChannel();	
 		validateTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("validateTripRequestCallback:" + json);
@@ -200,7 +220,9 @@ public class MessageQueueManager {
 	}
 	
 	private void declareQueue(String queue, Channel channel, DeliverCallback deliverCallback, CancelCallback cancelCallback) throws Exception {
-        channel.queueDeclare(queue, true, false, false, null);
+	    Map<String, Object> args = new HashMap<>();
+	    args.put("x-queue-type", "quorum");
+	    channel.queueDeclare(queue, true, false, false, args);
         String consumerTag = reconnect(queue, channel, deliverCallback, cancelCallback);
         consumerTagMap.put(consumerTag, queue);
 	}
@@ -208,7 +230,7 @@ public class MessageQueueManager {
     @Retryable(value = Exception.class, 
             maxAttempts = 10, backoff = @Backoff(delay = 60000, multiplier = 2))    	
 	private String reconnect(String queue, Channel channel, DeliverCallback deliverCallback, CancelCallback cancelCallback) throws Exception {
-        String consumerTag = channel.basicConsume(queue, true, deliverCallback, cancelCallback);
+        String consumerTag = channel.basicConsume(queue, true, deliverCallback, cTag -> {});
         logger.info(String.format("add consumer[%s]:%s", queue, consumerTag));
         return consumerTag;	    
 	}

@@ -79,6 +79,9 @@ public class GamificationMessageQueueManager {
 		connectionFactory.setHost(rabbitMQHost);
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
+		connectionFactory.setNetworkRecoveryInterval(10000);
+		connectionFactory.setTopologyRecoveryEnabled(true);
+		
 
 		connection = connectionFactory.newConnection();
 		
