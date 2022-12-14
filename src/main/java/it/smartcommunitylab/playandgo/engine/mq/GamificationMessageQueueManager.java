@@ -111,15 +111,15 @@ public class GamificationMessageQueueManager {
             }
         };
         
-		initChannel();
+		initChannel(false);
 	}
 
-    private void initChannel() throws Exception {
+    private void initChannel(boolean forceConsumer) throws Exception {
         logger.info("init channel");
         channel = connection.createChannel();
         channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
         for(String gameId : gameList) {
-            setGameNotification(gameId);
+            setGameNotification(gameId, forceConsumer);
         }
     }
     
@@ -128,7 +128,7 @@ public class GamificationMessageQueueManager {
         logger.info("checkChannel");
         try {
             if(!channel.isOpen()) {
-                initChannel();
+                initChannel(true);
             }
         } catch (Exception e) {
             logger.info(String.format("checkChannel init channel error:%s", e.getMessage()));
@@ -156,23 +156,29 @@ public class GamificationMessageQueueManager {
 	}
 	
 	public void setGameNotification(String gameId) {
+	    setGameNotification(gameId, false);
+	}
+	
+	public void setGameNotification(String gameId, boolean forceConsumer) {
 	    if(!gameList.contains(gameId)) {
 	        gameList.add(gameId);
 	    }
 	    if(!channel.isOpen()) {
 	        try {
-                initChannel();
+                initChannel(true);
             } catch (Exception e) {
                 logger.info(String.format("init channel error:%s", e.getMessage()));
             }
 	    } else {
 	        String routingKey = geRoutingKeyPrefix + "-" + gameId;
+            String queueName = "queue-" + gameId;
+            if(!forceConsumer && consumerTagMap.containsKey(gameId))
+                return;
 	        try {
-	            String queueName = "queue-" + gameId;
 	            channel.queueDeclare(queueName, true, false, false, null);
 	            channel.queueBind(queueName, geExchangeName, routingKey);
 	            String consumerTag = channel.basicConsume(queueName, true, gameNotificationCallback, cTag -> {});
-	            consumerTagMap.put(consumerTag, queueName);
+	            consumerTagMap.put(gameId, consumerTag);
 	            logger.info(String.format("add consumer[%s]:%s", queueName, consumerTag));
 	        } catch (Exception e) {
 	            logger.warn(String.format("setGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
