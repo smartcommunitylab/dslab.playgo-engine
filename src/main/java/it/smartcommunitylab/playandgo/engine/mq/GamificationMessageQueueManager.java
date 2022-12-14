@@ -12,11 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.BuiltinExchangeType;
-import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -67,7 +67,6 @@ public class GamificationMessageQueueManager {
 	private Map<String, String> consumerTagMap = new HashMap<>();
 	
 	DeliverCallback gameNotificationCallback;
-	CancelCallback cancelCallback;
 	
 	@PostConstruct
 	public void init() throws Exception {
@@ -79,7 +78,6 @@ public class GamificationMessageQueueManager {
 		connectionFactory.setHost(rabbitMQHost);
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
-		connectionFactory.setNetworkRecoveryInterval(10000);
 		connectionFactory.setTopologyRecoveryEnabled(true);
 		
 
@@ -113,17 +111,6 @@ public class GamificationMessageQueueManager {
             }
         };
         
-        cancelCallback = consumerTag -> {
-            logger.info(String.format("cancelCallback:%s", consumerTag));
-            String queue = consumerTagMap.get(consumerTag);
-            if(queue != null) {
-                if(queue.startsWith("queue-")) {
-                    String gameId = queue.replace("queue-", "");
-                    setGameNotification(gameId);
-                }
-            }
-        };
-        
 		initChannel();
 	}
 
@@ -133,6 +120,18 @@ public class GamificationMessageQueueManager {
         channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
         for(String gameId : gameList) {
             setGameNotification(gameId);
+        }
+    }
+    
+    @Scheduled(cron="0 */15 * * * *")
+    public void checkChannel() {
+        logger.info("checkChannel");
+        try {
+            if(!channel.isOpen()) {
+                initChannel();
+            }
+        } catch (Exception e) {
+            logger.info(String.format("checkChannel init channel error:%s", e.getMessage()));
         }
     }
 	
@@ -172,7 +171,7 @@ public class GamificationMessageQueueManager {
 	            String queueName = "queue-" + gameId;
 	            channel.queueDeclare(queueName, true, false, false, null);
 	            channel.queueBind(queueName, geExchangeName, routingKey);
-	            String consumerTag = channel.basicConsume(queueName, true, gameNotificationCallback, cancelCallback);
+	            String consumerTag = channel.basicConsume(queueName, true, gameNotificationCallback, cTag -> {});
 	            consumerTagMap.put(consumerTag, queueName);
 	            logger.info(String.format("add consumer[%s]:%s", queueName, consumerTag));
 	        } catch (Exception e) {
