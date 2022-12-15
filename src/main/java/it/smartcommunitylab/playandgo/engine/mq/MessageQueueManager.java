@@ -14,7 +14,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -62,7 +61,6 @@ public class MessageQueueManager {
 	
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
-	CancelCallback cancelCallback;
 	DeliverCallback validateTripRequestCallback;
 	DeliverCallback validateCampaignTripRequestCallback;
 	DeliverCallback invalidateCampaignTripRequestCallback;
@@ -84,68 +82,12 @@ public class MessageQueueManager {
 		connectionFactory.setHost(rabbitMQHost);
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
-		connectionFactory.setNetworkRecoveryInterval(10000);
 		connectionFactory.setTopologyRecoveryEnabled(true);
 		
-
 		connection = connectionFactory.newConnection();
 		
-        cancelCallback = consumerTag -> {
-            logger.info(String.format("cancelCallback:%s", consumerTag));
-            String queue = consumerTagMap.get(consumerTag);
-            if(queue != null) {
-                try {
-                    switch (queue) {
-                        case validateTripRequest:
-                            if(!validateTripChannel.isOpen()) {
-                                validateTripChannel = connection.createChannel();
-                            }
-                            declareQueue(validateTripRequest, validateTripChannel, validateTripRequestCallback, cancelCallback);
-                            break;
-                        case validateCampaignTripRequest:
-                            if(!validateCampaignTripChannel.isOpen()) {
-                                validateCampaignTripChannel = connection.createChannel();
-                            }
-                            declareQueue(validateCampaignTripRequest, validateCampaignTripChannel, 
-                                    validateCampaignTripRequestCallback, cancelCallback);
-                            break;
-                        case invalidateCampaignTripRequest:
-                            if(!validateCampaignTripChannel.isOpen()) {
-                                validateCampaignTripChannel = connection.createChannel();
-                            }
-                            declareQueue(invalidateCampaignTripRequest, validateCampaignTripChannel, 
-                                    invalidateCampaignTripRequestCallback, cancelCallback);
-                            break;
-                        case updateCampaignTripRequest:
-                            if(!validateCampaignTripChannel.isOpen()) {
-                                validateCampaignTripChannel = connection.createChannel();
-                            }
-                            declareQueue(updateCampaignTripRequest, validateCampaignTripChannel, 
-                                    updateCampaignTripRequestCallback, cancelCallback);
-                            break;
-                        case revalidateCampaignTripRequest:
-                            if(!validateCampaignTripChannel.isOpen()) {
-                                validateCampaignTripChannel = connection.createChannel();
-                            }
-                            declareQueue(revalidateCampaignTripRequest, validateCampaignTripChannel, 
-                                    revalidateCampaignTripRequestCallback, cancelCallback);
-                            break;
-                        case callWebhookRequest:
-                            if(!callWebhookChannel.isOpen()) {
-                                callWebhookChannel = connection.createChannel();
-                            }
-                            declareQueue(callWebhookRequest, callWebhookChannel, callWebhookCallback, cancelCallback);
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (Exception e) {
-                    logger.info(String.format("cancelCallback error[%s]:%s", queue, e.getMessage())); 
-                } 
-            }
-        };
-        
-		validateTripChannel = connection.createChannel();	
+		validateTripChannel = connection.createChannel();
+		validateTripChannel.basicQos(10, false);
 		validateTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("validateTripRequestCallback:" + json);
@@ -154,9 +96,10 @@ public class MessageQueueManager {
 				manageValidateTripRequest.validateTripRequest(message);
 			}			
 		};
-		declareQueue(validateTripRequest, validateTripChannel, validateTripRequestCallback, cancelCallback);
+		declareQueue(validateTripRequest, validateTripChannel, validateTripRequestCallback);
 
 		validateCampaignTripChannel = connection.createChannel();
+		validateCampaignTripChannel.basicQos(10, false);
 		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("validateCampaignTripRequestCallback:" + json);
@@ -167,7 +110,7 @@ public class MessageQueueManager {
 				manager.validateTripRequest(message);
 			}
 		};
-		declareQueue(validateCampaignTripRequest, validateCampaignTripChannel, validateCampaignTripRequestCallback, cancelCallback);
+		declareQueue(validateCampaignTripRequest, validateCampaignTripChannel, validateCampaignTripRequestCallback);
 		invalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("invalidateCampaignTripRequestCallback:" + json);
@@ -178,7 +121,7 @@ public class MessageQueueManager {
 				manager.invalidateTripRequest(message);
 			}
 		};
-		declareQueue(invalidateCampaignTripRequest, validateCampaignTripChannel, invalidateCampaignTripRequestCallback, cancelCallback);
+		declareQueue(invalidateCampaignTripRequest, validateCampaignTripChannel, invalidateCampaignTripRequestCallback);
 		updateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("updateCampaignTripRequestCallback:" + json);
@@ -189,7 +132,7 @@ public class MessageQueueManager {
 				manager.updateTripRequest(message);
 			}
 		};
-		declareQueue(updateCampaignTripRequest, validateCampaignTripChannel, updateCampaignTripRequestCallback, cancelCallback);
+		declareQueue(updateCampaignTripRequest, validateCampaignTripChannel, updateCampaignTripRequestCallback);
 		revalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("revalidateCampaignTripRequestCallback:" + json);
@@ -200,9 +143,10 @@ public class MessageQueueManager {
 				manager.revalidateTripRequest(message);
 			}
 		};
-		declareQueue(revalidateCampaignTripRequest, validateCampaignTripChannel, revalidateCampaignTripRequestCallback, cancelCallback);
+		declareQueue(revalidateCampaignTripRequest, validateCampaignTripChannel, revalidateCampaignTripRequestCallback);
 		
 		callWebhookChannel = connection.createChannel();
+		callWebhookChannel.basicQos(10, false);
 		callWebhookCallback = (consumerTag, delivery) -> {
 			String json = new String(delivery.getBody(), "UTF-8");
 			logger.info("callWebhookCallback:" + json);
@@ -216,20 +160,20 @@ public class MessageQueueManager {
 				}
 			}
 		};
-		declareQueue(callWebhookRequest, callWebhookChannel, callWebhookCallback, cancelCallback);
+		declareQueue(callWebhookRequest, callWebhookChannel, callWebhookCallback);
 	}
 	
-	private void declareQueue(String queue, Channel channel, DeliverCallback deliverCallback, CancelCallback cancelCallback) throws Exception {
+	private void declareQueue(String queue, Channel channel, DeliverCallback deliverCallback) throws Exception {
 	    Map<String, Object> args = new HashMap<>();
 	    args.put("x-queue-type", "quorum");
 	    channel.queueDeclare(queue, true, false, false, args);
-        String consumerTag = reconnect(queue, channel, deliverCallback, cancelCallback);
+        String consumerTag = reconnect(queue, channel, deliverCallback);
         consumerTagMap.put(consumerTag, queue);
 	}
 	
     @Retryable(value = Exception.class, 
             maxAttempts = 10, backoff = @Backoff(delay = 60000, multiplier = 2))    	
-	private String reconnect(String queue, Channel channel, DeliverCallback deliverCallback, CancelCallback cancelCallback) throws Exception {
+	private String reconnect(String queue, Channel channel, DeliverCallback deliverCallback) throws Exception {
         String consumerTag = channel.basicConsume(queue, true, deliverCallback, cTag -> {});
         logger.info(String.format("add consumer[%s]:%s", queue, consumerTag));
         return consumerTag;	    
