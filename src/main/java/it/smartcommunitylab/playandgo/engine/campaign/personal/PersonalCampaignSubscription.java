@@ -17,7 +17,6 @@ public class PersonalCampaignSubscription {
 	
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData) throws Exception {
-		//TODO check specific parameters
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
 		sub.setCampaignId(campaign.getCampaignId());
