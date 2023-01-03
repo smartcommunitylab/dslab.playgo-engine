@@ -62,4 +62,25 @@ public class PgHighSchoolManager {
             throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);   
 		}   
     }
+    
+    public void unregisterPlayer(String campaignId, String playerId, String nickname)  throws ServiceException {
+        try {
+            String url ="/api/admin/initiatives/" 
+                    + URLEncoder.encode(campaignId, "UTF-8") 
+                    + "/player/unregister?nickname=" + URLEncoder.encode(nickname, "UTF-8")
+                    + "&playerId=" + URLEncoder.encode(playerId, "UTF-8");
+            logger.info(String.format("unregisterPlayer uri:%s", url));
+
+            hscWebClient.post()
+            .uri(url)
+            .contentType(MediaType.APPLICATION_JSON)
+            .attributes(clientRegistrationId("oauthprovider"))
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);   
+        }   
+    }
+    
 }

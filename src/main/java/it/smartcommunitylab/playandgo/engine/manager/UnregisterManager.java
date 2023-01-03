@@ -1,5 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
+import java.util.List;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +27,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
+import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
+import it.smartcommunitylab.playandgo.engine.manager.highschool.PgHighSchoolManager;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
@@ -53,11 +61,23 @@ public class UnregisterManager {
 	PlayerRepository playerRepository;
 	
 	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
+	
+	@Autowired
+	CampaignRepository campaignRepository;
+	
+	@Autowired
 	AvatarManager avatarManager;
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
 	
+    @Autowired
+    PgAziendaleManager aziendaleManager;
+    
+	@Autowired
+    PgHighSchoolManager highSchoolManager;
+
 	ObjectMapper mapper = new ObjectMapper();
 
 	public void unregisterPlayer(Player player) throws Exception {
@@ -85,7 +105,26 @@ public class UnregisterManager {
 			try {
 				avatarManager.deleteAvatar(player.getPlayerId());
 			} catch (Exception e) {
-				logger.warn(String.format("unregisterPlayer[%s]:%s", player.getPlayerId(), e.getMessage()));
+				logger.warn(String.format("unregisterPlayer[%s] avatar:%s", player.getPlayerId(), e.getMessage()));
+			}
+			List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerId(playerDb.getPlayerId());
+			for(CampaignSubscription cs : list) {
+			    Campaign campaign = campaignRepository.findById(cs.getCampaignId()).orElse(null);
+			    if(campaign != null) {
+	                switch(campaign.getType()) {
+	                    case school:
+	                        try {
+	                            highSchoolManager.unregisterPlayer(campaign.getCampaignId(), playerDb.getPlayerId(), playerDb.getNickname());                                
+                            } catch (Exception e) {
+                                logger.warn(String.format("unregisterPlayer[%s] hsc:%s", player.getPlayerId(), e.getMessage())); 
+                            }
+	                        break;
+	                    case company:
+	                        break;
+                        default:
+                            break;
+	                }			        
+			    }
 			}
 		}
 		logger.info(String.format("unregisterPlayer:%s", player.getPlayerId()));
