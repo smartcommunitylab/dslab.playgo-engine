@@ -265,20 +265,19 @@ public class CityGameDataConverter {
 			ChallengeConceptInfo challenges = convertChallengeData(player.getPlayerId(), campaign.getGameId(), challType, player.getLanguage(),
 					points, badges, challengeList);
 
-			challenges.setCanInvite(true);
-			logger.info("playerMap:" + playerMap);
-//			Calendar c = Calendar.getInstance();
-//			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
-//			Calendar to = Calendar.getInstance(); to.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY); to.set(Calendar.HOUR_OF_DAY, 12); to.set(Calendar.MINUTE, 0); to.set(Calendar.SECOND, 0);
-//			if(c.before(to) && c.after(from)) {
-//				if(playerMap.containsKey("inventory")) {
-//					Map inventory = (Map) playerMap.get("inventory");
-//					List challengeChoices = (List) inventory.get("challengeChoices");
-//					if((challengeChoices != null) && challengeChoices.size() > 0) {
-//						challenges.setCanInvite(true);
-//					}
-//				}
-//			}
+			challenges.setCanInvite(false);
+			Calendar c = Calendar.getInstance();
+			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
+			Calendar to = Calendar.getInstance(); to.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY); to.set(Calendar.HOUR_OF_DAY, 12); to.set(Calendar.MINUTE, 0); to.set(Calendar.SECOND, 0);
+			if(c.before(to) && c.after(from)) {
+				if(playerMap.containsKey("inventory")) {
+					Map inventory = (Map) playerMap.get("inventory");
+					List challengeChoices = (List) inventory.get("challengeChoices");
+					if((challengeChoices != null) && challengeChoices.size() > 0) {
+						challenges.setCanInvite(true);
+					}
+				}
+			}
 			
 			return challenges;
 			

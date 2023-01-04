@@ -14,7 +14,6 @@ public class CityCampaignGameStatusManager  extends BasicCampaignGameStatusManag
 
     @Override
     public void updatePlayerGameStatus(Map<String, Object> msg) {
-        // TODO Auto-generated method stub
         updatePlayerGameStatus(msg, null); 
     }
 	

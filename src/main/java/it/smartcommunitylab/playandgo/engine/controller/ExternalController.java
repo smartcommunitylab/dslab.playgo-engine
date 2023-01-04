@@ -182,8 +182,7 @@ public class ExternalController extends PlayAndGoController {
 	        @RequestParam String territory,
 	        @RequestParam List<String> players,
 	        HttpServletRequest request) throws Exception {
-	    //TODO token from hsc
-	    //checkAPIRole(request);
+	    checkAPIRole(request);
 	    List<Player> list = playerRepository.findByTerritoryIdAndPlayerIdIn(territory, players);
 	    List<PlayerInfo> result = list.stream()
 	        .map(p -> toPlayerInfoWithAvatar(p))
