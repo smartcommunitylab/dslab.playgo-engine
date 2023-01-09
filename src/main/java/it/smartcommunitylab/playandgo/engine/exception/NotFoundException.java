@@ -26,6 +26,10 @@ public class NotFoundException extends PlayAndGoException {
 	public NotFoundException() {
 		super();
 	}
+	
+	public NotFoundException(String message, String code) {
+	    super(message, code);
+	}
 
 	public NotFoundException(String message, Throwable cause) {
 		super(message, cause);
