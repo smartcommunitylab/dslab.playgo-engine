@@ -63,7 +63,7 @@ public abstract class BasicCampaignGameStatusManager {
 	protected GamificationEngineManager gamificationEngineManager;
 	
 	@Autowired
-	CityGameDataConverter gameDataConverter;
+	protected CityGameDataConverter gameDataConverter;
 	
 	ObjectMapper mapper = new ObjectMapper();
 	
