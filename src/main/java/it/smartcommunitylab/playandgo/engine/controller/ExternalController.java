@@ -31,6 +31,7 @@ import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
+import it.smartcommunitylab.playandgo.engine.manager.UnregisterManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Image;
@@ -59,6 +60,9 @@ public class ExternalController extends PlayAndGoController {
 	
 	@Autowired
 	AvatarManager avatarManager;
+	
+	@Autowired
+	UnregisterManager unregisterManager;
 
 	@PostMapping("/api/ext/campaign/subscribe/territory")
 	public CampaignSubscription subscribeCampaignByTerritory(
@@ -216,11 +220,10 @@ public class ExternalController extends PlayAndGoController {
 	    checkAPIRole(request);
 	    Player player = playerRepository.findById(playerId).orElse(null);
 	    if((player != null) && (player.getGroup())) {
+	        unregisterManager.deleteGroupStats(player);
 	        playerRepository.delete(player);
-	        //TODO remove stats?
 	    }
-	}
-	
+	}	
 	
 	/**
 	 * @param p
