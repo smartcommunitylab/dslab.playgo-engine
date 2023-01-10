@@ -18,6 +18,7 @@ package it.smartcommunitylab.playandgo.engine.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -77,6 +78,14 @@ public class JsonUtils {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	public static Map<String, Object> toMap(String body) {
+	    try {
+	        return fullMapper.readValue(body, new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            return null;
+        }
 	}
 
 	/**
