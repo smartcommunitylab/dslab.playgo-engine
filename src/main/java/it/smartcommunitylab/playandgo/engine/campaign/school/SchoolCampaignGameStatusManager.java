@@ -154,7 +154,7 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
     }
 	
 	private double getDailyScore(JsonNode pointConcept, String day) {
-	    return pointConcept.at("/periods/daily/instances/" + day + "TT00:00:00/score").asDouble(0.0);
+	    return pointConcept.at("/periods/daily/instances/" + day + "T00:00:00/score").asDouble(0.0);
 	}
 	
 	
