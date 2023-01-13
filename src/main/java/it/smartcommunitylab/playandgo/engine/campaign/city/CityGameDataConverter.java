@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -269,6 +270,9 @@ public class CityGameDataConverter {
 			Calendar c = Calendar.getInstance();
 			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
 			Calendar to = Calendar.getInstance(); to.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY); to.set(Calendar.HOUR_OF_DAY, 12); to.set(Calendar.MINUTE, 0); to.set(Calendar.SECOND, 0);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+			logger.info(String.format("challenges time[%s]: %s - %s - %s", player.getNickname(), sdf.format(from.getTime()), sdf.format(to.getTime()), sdf.format(c.getTime())));
+			logger.info(String.format("challenges inv[%s]: %s", player.getNickname(), playerMap.get("inventory")));
 			if(c.before(to) && c.after(from)) {
 				if(playerMap.containsKey("inventory")) {
 					Map inventory = (Map) playerMap.get("inventory");
