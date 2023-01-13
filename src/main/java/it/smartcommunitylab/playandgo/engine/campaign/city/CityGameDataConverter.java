@@ -269,7 +269,7 @@ public class CityGameDataConverter {
 			challenges.setCanInvite(false);
 			Calendar c = Calendar.getInstance();
 			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
-			Calendar to = Calendar.getInstance(); to.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY); to.set(Calendar.HOUR_OF_DAY, 12); to.set(Calendar.MINUTE, 0); to.set(Calendar.SECOND, 0);
+			Calendar to = Calendar.getInstance(); to.setTime(from.getTime()); to.add(Calendar.DAY_OF_MONTH, 2);
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 			logger.info(String.format("challenges time[%s]: %s - %s - %s", player.getNickname(), sdf.format(from.getTime()), sdf.format(to.getTime()), sdf.format(c.getTime())));
 			logger.info(String.format("challenges inv[%s]: %s", player.getNickname(), playerMap.get("inventory")));
