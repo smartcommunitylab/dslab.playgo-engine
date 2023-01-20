@@ -133,7 +133,7 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
                     statsGame.setCampaignId(gameStatus.getCampaignId());
                     statsGame.setGlobal(Boolean.FALSE);
                     if(p.getGroup()) {
-                        statsGlobal.setGroupId(p.getPlayerId()); 
+                        statsGame.setGroupId(p.getPlayerId()); 
                     }                    
                     statsGame.setDay(dayString);
                     statsGame.setWeekOfYear(day.format(dftWeek));
