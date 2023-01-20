@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -181,7 +182,10 @@ public class CityGameDataConverter {
 	}
 	
 	public List<BadgeCollectionConcept> convertBadgeCollection(JsonNode rootNode) {
-		List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
+		if(rootNode.isMissingNode()) {
+		    return new ArrayList<>();
+		}
+	    List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
 		badges.forEach(x -> {
 			x.getBadgeEarned().forEach(y -> {
 				y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
