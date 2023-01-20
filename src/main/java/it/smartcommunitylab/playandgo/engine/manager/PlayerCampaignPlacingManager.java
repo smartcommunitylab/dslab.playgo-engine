@@ -730,9 +730,7 @@ public class PlayerCampaignPlacingManager {
         } else {
             criteria = criteria.and("global").is(Boolean.TRUE);
         }
-        if(group) {
-            criteria = criteria.and("groupId").ne(null);
-        } else {
+        if(!group) {
             criteria = criteria.and("groupId").isNull();
         }
         MatchOperation matchOperation = Aggregation.match(criteria);
@@ -745,6 +743,8 @@ public class PlayerCampaignPlacingManager {
         if(!group) {
             placing.setPlayerId(player.getPlayerId());
             placing.setNickname(player.getNickname());            
+        } else {
+            placing.setGroupId(groupFieldValue);
         }
         if(aggregationResults.getMappedResults().size() > 0) {
             Document doc = aggregationResults.getMappedResults().get(0);
@@ -759,9 +759,9 @@ public class PlayerCampaignPlacingManager {
             criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
         }
         if(group) {
-            criteria = criteria.and("groupId").ne(null);
+            criteriaPosition = criteriaPosition.and("groupId").ne(null);
         } else {
-            criteria = criteria.and("groupId").isNull();
+            criteriaPosition = criteriaPosition.and("groupId").isNull();
         }
         MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
         GroupOperation groupByPlayer = Aggregation.group(groupField).sum("score").as("value");
