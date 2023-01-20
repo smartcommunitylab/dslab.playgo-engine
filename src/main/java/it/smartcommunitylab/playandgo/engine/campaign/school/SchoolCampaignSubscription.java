@@ -61,10 +61,6 @@ public class SchoolCampaignSubscription {
 			SurveyRequest sr = campaign.getDefaultSurvey();
 			surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
 		}
-		//create player on GE
-		if(Utils.isNotEmpty(campaign.getGameId())) {
-			gamificationEngineManager.createPlayer(player.getPlayerId(), campaign.getGameId());
-		}
 		sendRegisterWebhookRequest(sub);
 		return sub;
 	}
