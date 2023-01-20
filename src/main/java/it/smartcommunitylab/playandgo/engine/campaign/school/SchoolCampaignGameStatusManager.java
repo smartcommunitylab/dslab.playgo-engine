@@ -1,11 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.campaign.school;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,10 +20,17 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsGame;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(SchoolCampaignGameStatusManager.class);
+	
+	@Autowired
+	TrackedInstanceRepository trackedInstanceRepository;
 	
 	@Override
 	public void updatePlayerGameStatus(Map<String, Object> msg) {
@@ -67,7 +76,9 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
                     ZonedDateTime trackDay = null;
                     if(playerTrack != null) {
                         trackDay = getTrackDay(campaign, playerTrack);
-                    } else {
+                    } else if(p.getGroup() && Utils.isNotEmpty(trackId)) {
+                        trackDay = getTrackDay(campaign, trackId, timestamp);
+                    } else { 
                         trackDay = getTrackDay(campaign, timestamp);
                     }
                     
@@ -98,7 +109,22 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
         }	    
 	}
 	
-	protected void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus, Player p, ZonedDateTime day) throws Exception {
+	private ZonedDateTime getTrackDay(Campaign campaign, String trackId, long timestamp) {
+        ZoneId zoneId = null;
+        Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+        if(territory == null) {
+            zoneId = ZoneId.systemDefault();
+        } else {
+            zoneId = ZoneId.of(territory.getTimezone());
+        }
+        TrackedInstance ti = trackedInstanceRepository.findById(trackId).orElse(null);
+        if(ti != null) {
+            return ZonedDateTime.ofInstant(ti.getStartTime().toInstant(), zoneId);
+        }
+        return ZonedDateTime.ofInstant(Utils.getUTCDate(timestamp).toInstant(), zoneId);
+    }
+
+    protected void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus, Player p, ZonedDateTime day) throws Exception {
         //score
         JsonNode concepts = root.findPath("PointConcept");
         for(JsonNode pointConcept : concepts) {
