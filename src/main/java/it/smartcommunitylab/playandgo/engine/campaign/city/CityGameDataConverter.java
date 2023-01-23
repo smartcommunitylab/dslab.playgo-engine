@@ -1,7 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -15,6 +15,14 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
+import org.stringtemplate.v4.ST;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,14 +33,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
-import org.stringtemplate.v4.ST;
 
 import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
@@ -182,7 +182,10 @@ public class CityGameDataConverter {
 	}
 	
 	public List<BadgeCollectionConcept> convertBadgeCollection(JsonNode rootNode) {
-		List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
+		if(rootNode.isMissingNode()) {
+		    return new ArrayList<>();
+		}
+	    List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
 		badges.forEach(x -> {
 			x.getBadgeEarned().forEach(y -> {
 				y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
@@ -235,7 +238,7 @@ public class CityGameDataConverter {
 			
 			Calendar c = Calendar.getInstance();
 			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
-			Calendar to = Calendar.getInstance(); to.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); to.set(Calendar.HOUR_OF_DAY, 12); to.set(Calendar.MINUTE, 0); to.set(Calendar.SECOND, 0);
+			Calendar to = Calendar.getInstance(); to.setTime(from.getTime()); to.add(Calendar.DAY_OF_MONTH, 2);
 			ps.setCanInvite(c.before(to) && c.after(from));
 			
 			return ps;
@@ -270,9 +273,6 @@ public class CityGameDataConverter {
 			Calendar c = Calendar.getInstance();
 			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
 			Calendar to = Calendar.getInstance(); to.setTime(from.getTime()); to.add(Calendar.DAY_OF_MONTH, 2);
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
-			logger.info(String.format("challenges time[%s]: %s - %s - %s", player.getNickname(), sdf.format(from.getTime()), sdf.format(to.getTime()), sdf.format(c.getTime())));
-			logger.info(String.format("challenges inv[%s]: %s", player.getNickname(), playerMap.get("inventory")));
 			if(c.before(to) && c.after(from)) {
 				if(playerMap.containsKey("inventory")) {
 					Map inventory = (Map) playerMap.get("inventory");

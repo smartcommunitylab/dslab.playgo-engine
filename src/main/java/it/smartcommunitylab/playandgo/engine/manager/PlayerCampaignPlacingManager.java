@@ -640,8 +640,8 @@ public class PlayerCampaignPlacingManager {
 		return result;
 	}
 	
-	public Page<CampaignPlacing> getCampaignPlacingByGame(String campaignId,  
-			String dateFrom, String dateTo, Pageable pageRequest, boolean groupByGroupId) {
+	public Page<CampaignPlacing> getCampaignPlacingByGame(String campaignId, String dateFrom, String dateTo, 
+	        Pageable pageRequest, boolean groupByGroupId) {
 	    List<CampaignPlacing> result = new ArrayList<>();
 	    
 		Criteria criteria = new Criteria("campaignId").is(campaignId);
@@ -649,6 +649,11 @@ public class PlayerCampaignPlacingManager {
 			criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
 		} else {
 			criteria = criteria.and("global").is(Boolean.TRUE);
+		}
+		if(groupByGroupId) {
+		    criteria = criteria.and("groupId").ne(null);
+		} else {
+		    criteria = criteria.and("groupId").isNull();
 		}
 		MatchOperation matchOperation = Aggregation.match(criteria);
 		
@@ -725,6 +730,9 @@ public class PlayerCampaignPlacingManager {
         } else {
             criteria = criteria.and("global").is(Boolean.TRUE);
         }
+        if(!group) {
+            criteria = criteria.and("groupId").isNull();
+        }
         MatchOperation matchOperation = Aggregation.match(criteria);
         GroupOperation groupOperation = Aggregation.group(groupField).sum("score").as("value");
         Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
@@ -735,6 +743,8 @@ public class PlayerCampaignPlacingManager {
         if(!group) {
             placing.setPlayerId(player.getPlayerId());
             placing.setNickname(player.getNickname());            
+        } else {
+            placing.setGroupId(groupFieldValue);
         }
         if(aggregationResults.getMappedResults().size() > 0) {
             Document doc = aggregationResults.getMappedResults().get(0);
@@ -747,6 +757,11 @@ public class PlayerCampaignPlacingManager {
             criteriaPosition = criteriaPosition.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
         } else {
             criteriaPosition = criteriaPosition.and("global").is(Boolean.TRUE);
+        }
+        if(group) {
+            criteriaPosition = criteriaPosition.and("groupId").ne(null);
+        } else {
+            criteriaPosition = criteriaPosition.and("groupId").isNull();
         }
         MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
         GroupOperation groupByPlayer = Aggregation.group(groupField).sum("score").as("value");

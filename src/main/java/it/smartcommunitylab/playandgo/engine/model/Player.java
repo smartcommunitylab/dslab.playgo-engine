@@ -19,6 +19,7 @@ public class Player {
 	private String givenName;
 	private String familyName;
 	private Boolean deleted = Boolean.FALSE;
+	private Boolean group = Boolean.FALSE;
 //	private Map<String, Object> personalData;
 //	private boolean checkedRecommendation;
 //	private List<Event> eventsCheckIn;
@@ -98,6 +99,14 @@ public class Player {
 	public void setDeleted(Boolean deleted) {
 		this.deleted = deleted;
 	}
+
+    public Boolean getGroup() {
+        return group;
+    }
+
+    public void setGroup(Boolean group) {
+        this.group = group;
+    }
 
 	
 }

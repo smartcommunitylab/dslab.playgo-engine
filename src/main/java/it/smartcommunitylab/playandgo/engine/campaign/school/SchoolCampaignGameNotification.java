@@ -13,10 +13,15 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.mq.GamificationMessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ManageGameNotification;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.util.JsonUtils;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
@@ -27,6 +32,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	CampaignRepository campaignRepository;
 	
 	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
+	
+	@Autowired
+	PlayerRepository playerRepository;
+	
+	@Autowired
 	GamificationMessageQueueManager gamificationMessageQueueManager;
 	
 	@Autowired
@@ -34,7 +45,7 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	
 	@Autowired
 	SchoolCampaignGameStatusManager gameStatusManager;
-
+	
 	@PostConstruct
 	public void init() {
 		gamificationMessageQueueManager.setManageGameNotification(this, Type.school);
@@ -54,14 +65,43 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 		}
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public void manageGameNotification(Map<String, Object> msg, String routingKey) {
 		String type = (String) msg.get("type");
 		if(type.endsWith("GameNotification")) {
 			gameStatusManager.updatePlayerGameStatus(msg);
 		} else {
-			try {
-				notificationManager.processNotification(msg);
+		    //check if is a group notification
+		    Map<String, Object> obj = (Map<String, Object>) msg.get("obj");
+		    String playerId = (String) obj.get("playerId");
+		    try {
+			    Player player = playerRepository.findById(playerId).orElse(null);
+			    if(player != null) {
+			        if(player.getGroup()) {
+			            String gameId = (String) obj.get("gameId");
+			            Campaign campaign = campaignRepository.findByGameId(gameId);
+			            if(campaign != null) {
+			                String json = JsonUtils.toJSON(msg);
+			                List<CampaignSubscription> list = campaignSubscriptionRepository.findByMetaData(campaign.getCampaignId(), 
+			                        SchoolCampaignSubscription.groupIdKey, playerId);
+			                list.forEach(cs -> {
+			                    try {
+	                                Map<String, Object> copyMsg = JsonUtils.toMap(json);
+	                                if(copyMsg != null) {
+	                                    Map<String, Object> copyObj = (Map<String, Object>) copyMsg.get("obj"); 
+	                                    copyObj.put("playerId", cs.getPlayerId());
+	                                    notificationManager.processNotification(copyMsg);	                                    
+	                                }
+                                } catch (Exception e) {
+                                    logger.warn(String.format("manageGameNotification group error:%s - %s", routingKey, e.getMessage())); 
+                                }
+			                });
+			            }
+			        } else {
+			            notificationManager.processNotification(msg); 
+			        }
+			    }
 			} catch (Exception e) {
 				logger.error(String.format("manageGameNotification error:%s - %s", routingKey, e.getMessage()));
 			}					
