@@ -79,6 +79,14 @@ public class UnregisterManager {
     PgHighSchoolManager highSchoolManager;
 
 	ObjectMapper mapper = new ObjectMapper();
+	
+	public void deleteGroupStats(Player player) {
+	    if((player != null) && (player.getGroup())) {
+	        Query query = new Query(new Criteria("playerId").is(player.getPlayerId()));
+	        mongoTemplate.remove(query, PlayerGameStatus.class);
+	        mongoTemplate.remove(query, PlayerStatsGame.class);
+	    }
+	}
 
 	public void unregisterPlayer(Player player) throws Exception {
 		Player playerDb = playerRepository.findById(player.getPlayerId()).orElse(null);

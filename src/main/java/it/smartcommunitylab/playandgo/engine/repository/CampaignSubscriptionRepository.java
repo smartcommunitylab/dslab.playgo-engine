@@ -3,6 +3,7 @@ package it.smartcommunitylab.playandgo.engine.repository;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -22,5 +23,8 @@ public interface CampaignSubscriptionRepository extends MongoRepository<Campaign
 	
 	public List<CampaignSubscription> findByTerritoryId(String territoryId);
 	public List<CampaignSubscription> findByTerritoryIdAndCampaignId(String territoryId, String campaignId);
+	
+	@Query("{'campaignId':?0, 'campaignData.?1':?2}")
+	public List<CampaignSubscription> findByMetaData(String campaignId, String metaDataKey, Object metaDataValue);
 
 }

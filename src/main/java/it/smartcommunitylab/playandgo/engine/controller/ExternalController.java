@@ -26,10 +26,12 @@ import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.exception.NotFoundException;
 import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
+import it.smartcommunitylab.playandgo.engine.manager.UnregisterManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Image;
@@ -58,6 +60,9 @@ public class ExternalController extends PlayAndGoController {
 	
 	@Autowired
 	AvatarManager avatarManager;
+	
+	@Autowired
+	UnregisterManager unregisterManager;
 
 	@PostMapping("/api/ext/campaign/subscribe/territory")
 	public CampaignSubscription subscribeCampaignByTerritory(
@@ -190,6 +195,35 @@ public class ExternalController extends PlayAndGoController {
 	    return result;
 	}
 	
+	@PostMapping("/api/ext/player/hsc")
+	public PlayerInfo addGroupPlayer(
+	        @RequestParam String campaignId,
+	        @RequestParam String playerId,
+	        HttpServletRequest request) throws Exception {
+	    checkAPIRole(request);
+	    Campaign campaign = campaignManager.getCampaign(campaignId);
+	    if(campaign == null) {
+	        throw new NotFoundException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+	    }
+	    Player p = new Player();
+	    p.setPlayerId(playerId);
+	    p.setTerritoryId(campaign.getTerritoryId());
+	    p.setNickname(playerId);
+	    p.setGroup(true);
+	    return toPlayerInfo(playerRepository.save(p));
+	}
+	
+	@DeleteMapping("/api/ext/player/hsc")
+	public void deleteGroupPlayer(
+	        @RequestParam String playerId,
+	        HttpServletRequest request) throws Exception {
+	    checkAPIRole(request);
+	    Player player = playerRepository.findById(playerId).orElse(null);
+	    if((player != null) && (player.getGroup())) {
+	        unregisterManager.deleteGroupStats(player);
+	        playerRepository.delete(player);
+	    }
+	}	
 	
 	/**
 	 * @param p

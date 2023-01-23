@@ -1,7 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -182,7 +181,10 @@ public class CityGameDataConverter {
 	}
 	
 	public List<BadgeCollectionConcept> convertBadgeCollection(JsonNode rootNode) {
-		List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
+		if(rootNode.isMissingNode()) {
+		    return new ArrayList<>();
+		}
+	    List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
 		badges.forEach(x -> {
 			x.getBadgeEarned().forEach(y -> {
 				y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
@@ -235,7 +237,7 @@ public class CityGameDataConverter {
 			
 			Calendar c = Calendar.getInstance();
 			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
-			Calendar to = Calendar.getInstance(); to.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); to.set(Calendar.HOUR_OF_DAY, 12); to.set(Calendar.MINUTE, 0); to.set(Calendar.SECOND, 0);
+			Calendar to = Calendar.getInstance(); to.setTime(from.getTime()); to.add(Calendar.DAY_OF_MONTH, 2);
 			ps.setCanInvite(c.before(to) && c.after(from));
 			
 			return ps;

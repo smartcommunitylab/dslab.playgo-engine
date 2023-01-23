@@ -19,7 +19,6 @@ import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManage
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.report.TransportStat;
-import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
 public class ReportController extends PlayAndGoController {
