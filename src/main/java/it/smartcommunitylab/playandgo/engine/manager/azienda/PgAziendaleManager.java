@@ -76,12 +76,10 @@ public class PgAziendaleManager {
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-			url = url + "api/admin/subscribe/" 
-					+ URLEncoder.encode(campaignId, "UTF-8") 
-					+ "/" + URLEncoder.encode(playerId, "UTF-8")
-					+ "/" + URLEncoder.encode(companyKey, "UTF-8")
-					+ "/" + URLEncoder.encode(code, "UTF-8");
-			 response = restTemplate.postForEntity(url, request, String.class);
+            url = url + "api/admin/subscribe/" 
+                    + campaignId + "/" + playerId 
+                    + "/" + companyKey + "/" + code;
+			response = restTemplate.postForEntity(url, request, String.class);
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
 		}
@@ -104,10 +102,8 @@ public class PgAziendaleManager {
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-			url = url + "api/admin/unsubscribe/" 
-					+ URLEncoder.encode(campaignId, "UTF-8") 
-					+ "/" + URLEncoder.encode(playerId, "UTF-8");
-			 response = restTemplate.postForEntity(url, request, String.class);
+            url = url + "api/admin/unsubscribe/" + campaignId + "/" + playerId;
+			response = restTemplate.postForEntity(url, request, String.class);
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
 		}
@@ -130,10 +126,8 @@ public class PgAziendaleManager {
 		ResponseEntity<String> response = null;		
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-			url = url + "api/admin/validate/" 
-					+ URLEncoder.encode(campaignId, "UTF-8") 
-					+ "/" + URLEncoder.encode(playerId, "UTF-8");
-			 response = restTemplate.postForEntity(url, request, String.class);
+			url = url + "api/admin/validate/" + campaignId + "/" + playerId;			 
+			response = restTemplate.postForEntity(url, request, String.class);
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
 		}
@@ -162,12 +156,9 @@ public class PgAziendaleManager {
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-			url = url + "api/admin/update/" 
-					+ URLEncoder.encode(campaignId, "UTF-8") 
-					+ "/" + URLEncoder.encode(playerId, "UTF-8")
-					+ "/" + URLEncoder.encode(trackId, "UTF-8")
-					+ "/" + URLEncoder.encode(String.valueOf(increment), "UTF-8");
-			 response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
+            url = url + "api/admin/update/" + campaignId + "/" + playerId 
+                    + "/" + trackId + "/" + String.valueOf(increment);
+			response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
 		}
@@ -196,11 +187,9 @@ public class PgAziendaleManager {
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-			url = url + "api/admin/invalidate/" 
-					+ URLEncoder.encode(campaignId, "UTF-8") 
-					+ "/" + URLEncoder.encode(playerId, "UTF-8")
-					+ "/" + URLEncoder.encode(trackId, "UTF-8");
-			 response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
+            url = url + "api/admin/invalidate/" 
+                    + campaignId + "/" + playerId + "/" + trackId;
+			response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
 		} catch (Exception e) {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
 		}
@@ -230,11 +219,10 @@ public class PgAziendaleManager {
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-			url = url + "api/admin/report/player/transport/stats?campaignId=" 
-					+ URLEncoder.encode(campaignId, "UTF-8") 
-					+ "&playerId=" + URLEncoder.encode(playerId, "UTF-8")
-					+ "&groupMode=" + groupMode
-					+ "&mean=" + mean;
+            url = url + "api/admin/report/player/transport/stats?campaignId=" + campaignId 
+                    + "&playerId=" + playerId
+                    + "&groupMode=" + groupMode
+                    + "&mean=" + mean;
 			if(Utils.isNotEmpty(dateFrom) && Utils.isNotEmpty(dateTo)) {
 			    url = url + "&dateFrom=" + dateFrom
 			            + "&dateTo=" + dateTo;
