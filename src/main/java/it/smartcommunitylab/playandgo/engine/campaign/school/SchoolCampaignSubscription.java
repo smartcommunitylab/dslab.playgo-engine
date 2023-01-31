@@ -19,7 +19,6 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
-import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class SchoolCampaignSubscription {
@@ -43,7 +42,8 @@ public class SchoolCampaignSubscription {
 			Map<String, Object> campaignData, boolean sendExtRequest) throws Exception {
 	    String groupId = null;
 	    if(sendExtRequest) {
-	        groupId = highSchoolManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), player.getNickname());
+	        groupId = highSchoolManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), 
+	                player.getNickname(), (String)campaignData.get(groupIdKey));
 	    }
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
