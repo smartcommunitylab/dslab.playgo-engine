@@ -2,8 +2,6 @@ package it.smartcommunitylab.playandgo.engine.manager.highschool;
 
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
-import java.net.URLEncoder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +22,11 @@ public class PgHighSchoolManager {
     @Qualifier("hscClient")
     WebClient hscWebClient;
     
-    public String subscribeCampaign(String campaignId, String playerId, String nickname)  throws ServiceException {
+    public String subscribeCampaign(String campaignId, String playerId, String nickname, String teamId)  throws ServiceException {
 		try {
 	        String url ="/api/admin/initiatives/" 
-	                + URLEncoder.encode(campaignId, "UTF-8") 
-	                + "/player/subscribe?nickname=" + URLEncoder.encode(nickname, "UTF-8");
+	                + campaignId 
+	                + "/player/subscribe?nickname=" + nickname + "&teamId=" + teamId;
 	        logger.info(String.format("subscribeCampaign uri:%s", url));
 
 			return 
@@ -47,8 +45,8 @@ public class PgHighSchoolManager {
     public void unsubscribeCampaign(String campaignId, String playerId, String nickname)  throws ServiceException {
 		try {
 	    	String url ="/api/admin/initiatives/" 
-	    			+ URLEncoder.encode(campaignId, "UTF-8") 
-	    			+ "/player/unsubscribe?nickname=" + URLEncoder.encode(nickname, "UTF-8");
+	    			+ campaignId 
+	    			+ "/player/unsubscribe?nickname=" + nickname;
 	    	logger.info(String.format("unsubscribeCampaign uri:%s", url));
 
 			hscWebClient.post()
@@ -66,9 +64,9 @@ public class PgHighSchoolManager {
     public void unregisterPlayer(String campaignId, String playerId, String nickname)  throws ServiceException {
         try {
             String url ="/api/admin/initiatives/" 
-                    + URLEncoder.encode(campaignId, "UTF-8") 
-                    + "/player/unregister?nickname=" + URLEncoder.encode(nickname, "UTF-8")
-                    + "&playerId=" + URLEncoder.encode(playerId, "UTF-8");
+                    + campaignId 
+                    + "/player/unregister?nickname=" + nickname
+                    + "&playerId=" + playerId;
             logger.info(String.format("unregisterPlayer uri:%s", url));
 
             hscWebClient.post()
