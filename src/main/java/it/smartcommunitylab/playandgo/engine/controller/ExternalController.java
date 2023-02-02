@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,13 +26,18 @@ import io.swagger.annotations.ApiParam;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.exception.NotFoundException;
+import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
+import it.smartcommunitylab.playandgo.engine.manager.UnregisterManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.report.CampaignGroupPlacing;
+import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -51,6 +57,12 @@ public class ExternalController extends PlayAndGoController {
 
 	@Autowired
 	PlayerRepository playerRepository;
+	
+	@Autowired
+	AvatarManager avatarManager;
+	
+	@Autowired
+	UnregisterManager unregisterManager;
 
 	@PostMapping("/api/ext/campaign/subscribe/territory")
 	public CampaignSubscription subscribeCampaignByTerritory(
@@ -100,15 +112,16 @@ public class ExternalController extends PlayAndGoController {
 	}
 	
 	@GetMapping("/api/ext/campaign/game/group/placing")
-	public List<CampaignGroupPlacing> getCampaingGroupPlacingByGame(
+	public Page<CampaignPlacing> getCampaingGroupPlacingByGame(
 			@RequestParam String campaignId,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
-		List<CampaignGroupPlacing> list = placingManager.getCampaignGroupPlacingByGame(campaignId,  
-				dateFrom, dateTo);
-		return list;			
+		Page<CampaignPlacing> page = placingManager.getCampaignPlacingByGame(campaignId,  
+				dateFrom, dateTo, pageRequest, true);
+		return page;			
 	}
 
 	@GetMapping("/api/ext/campaign/game/group/placing/player")
@@ -169,6 +182,49 @@ public class ExternalController extends PlayAndGoController {
 		return trackedInstanceManager.getTrackedInstanceInfo(playerId, trackedInstanceId, campaignId);
 	}
 	
+	@GetMapping("/api/ext/territory/players/avatar")
+	public List<PlayerInfo> getPlayersWithAvatar(
+	        @RequestParam String territory,
+	        @RequestParam List<String> players,
+	        HttpServletRequest request) throws Exception {
+	    checkAPIRole(request);
+	    List<Player> list = playerRepository.findByTerritoryIdAndPlayerIdIn(territory, players);
+	    List<PlayerInfo> result = list.stream()
+	        .map(p -> toPlayerInfoWithAvatar(p))
+	        .collect(Collectors.toList());
+	    return result;
+	}
+	
+	@PostMapping("/api/ext/player/hsc")
+	public PlayerInfo addGroupPlayer(
+	        @RequestParam String campaignId,
+	        @RequestParam String playerId,
+	        HttpServletRequest request) throws Exception {
+	    checkAPIRole(request);
+	    Campaign campaign = campaignManager.getCampaign(campaignId);
+	    if(campaign == null) {
+	        throw new NotFoundException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+	    }
+	    Player p = new Player();
+	    p.setPlayerId(playerId);
+	    p.setTerritoryId(campaign.getTerritoryId());
+	    p.setNickname(playerId);
+	    p.setGroup(true);
+	    return toPlayerInfo(playerRepository.save(p));
+	}
+	
+	@DeleteMapping("/api/ext/player/hsc")
+	public void deleteGroupPlayer(
+	        @RequestParam String playerId,
+	        HttpServletRequest request) throws Exception {
+	    checkAPIRole(request);
+	    Player player = playerRepository.findById(playerId).orElse(null);
+	    if((player != null) && (player.getGroup())) {
+	        unregisterManager.deleteGroupStats(player);
+	        playerRepository.delete(player);
+	    }
+	}	
+	
 	/**
 	 * @param p
 	 * @return
@@ -178,6 +234,17 @@ public class ExternalController extends PlayAndGoController {
 		info.setNickname(p.getNickname());
 		info.setPlayerId(p.getPlayerId());
 		return info;
+	}
+	
+	private PlayerInfo toPlayerInfoWithAvatar(Player p) {
+	    PlayerInfo info = new PlayerInfo();
+        info.setNickname(p.getNickname());
+        info.setPlayerId(p.getPlayerId());
+        Image avatar = avatarManager.getPlayerSmallAvatar(p.getPlayerId());
+        if(avatar != null) {
+            info.setAvatar(avatar);
+        }
+	    return info;
 	}
 	
 }

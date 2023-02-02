@@ -20,6 +20,7 @@ public class SchoolCampaignTripValidator extends BasicCampaignTripValidator {
 
 	@PostConstruct
 	public void init() {
+	    groupIdKey = SchoolCampaignSubscription.groupIdKey;
 		queueManager.setManageValidateCampaignTripRequest(this, Type.school);
 	}
 	

@@ -1,6 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.mq;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +63,9 @@ public class GamificationMessageQueueManager {
 	
 	Map<String, ManageGameNotification> manageGameNotificationMap = new HashMap<>();
 	
+	List<String> gameList = new ArrayList<>(); 
+	private Map<String, String> consumerTagMap = new HashMap<>();
+	
 	DeliverCallback gameNotificationCallback;
 	
 	@PostConstruct
@@ -72,40 +78,62 @@ public class GamificationMessageQueueManager {
 		connectionFactory.setHost(rabbitMQHost);
 		connectionFactory.setPort(rabbitMQPort);
 		connectionFactory.setAutomaticRecoveryEnabled(true);
+		connectionFactory.setTopologyRecoveryEnabled(true);
+		
 
 		connection = connectionFactory.newConnection();
 		
-		channel = connection.createChannel();
-		channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
-		
-		gameNotificationCallback = (consumerTag, delivery) -> {
-			String msg = new String(delivery.getBody(), "UTF-8");
-			logger.info("gameNotificationCallback:" + msg);
-			@SuppressWarnings("unchecked")
-			Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
-			String type = (String) map.get("type");
-			String gameId = null;
-			@SuppressWarnings("unchecked")
-			Map<String, Object> obj = (Map<String, Object>) map.get("obj");
-			if(obj != null) {
-				gameId = (String) obj.get("gameId");
-			}
-			if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
-				Campaign campaign = campaignRepository.findByGameId(gameId);
-				if(campaign != null) {
-					String routingKey = campaign.getType().toString(); 
-					ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
-					if(manager != null) {
-						manager.manageGameNotification(map, routingKey);
-					}					
-				} else {
-					logger.warn("campaign not found: " + gameId);
-				}
-			} else {
-				logger.warn("Bad notification content: " + msg);
-			}
-		};
+        gameNotificationCallback = (consumerTag, delivery) -> {
+            String msg = new String(delivery.getBody(), "UTF-8");
+            logger.info("gameNotificationCallback:" + msg);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
+            String type = (String) map.get("type");
+            String gameId = null;
+            @SuppressWarnings("unchecked")
+            Map<String, Object> obj = (Map<String, Object>) map.get("obj");
+            if(obj != null) {
+                gameId = (String) obj.get("gameId");
+            }
+            if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
+                Campaign campaign = campaignRepository.findByGameId(gameId);
+                if(campaign != null) {
+                    String routingKey = campaign.getType().toString(); 
+                    ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
+                    if(manager != null) {
+                        manager.manageGameNotification(map, routingKey);
+                    }                   
+                } else {
+                    logger.warn("campaign not found: " + gameId);
+                }
+            } else {
+                logger.warn("Bad notification content: " + msg);
+            }
+        };
+        
+		initChannel(false);
 	}
+
+    private void initChannel(boolean forceConsumer) throws Exception {
+        logger.info("init channel");
+        channel = connection.createChannel();
+        channel.exchangeDeclare(geExchangeName, BuiltinExchangeType.DIRECT, true);
+        for(String gameId : gameList) {
+            setGameNotification(gameId, forceConsumer);
+        }
+    }
+    
+    @Scheduled(cron="0 */15 * * * *")
+    public void checkChannel() {
+        logger.info("checkChannel");
+        try {
+            if(!channel.isOpen()) {
+                initChannel(true);
+            }
+        } catch (Exception e) {
+            logger.info(String.format("checkChannel init channel error:%s", e.getMessage()));
+        }
+    }
 	
 	@PreDestroy
 	public void destroy() {
@@ -128,15 +156,34 @@ public class GamificationMessageQueueManager {
 	}
 	
 	public void setGameNotification(String gameId) {
-		String routingKey = geRoutingKeyPrefix + "-" + gameId;
-		try {
-			String queueName = "queue-" + gameId;
-			channel.queueDeclare(queueName, true, false, false, null);
-			channel.queueBind(queueName, geExchangeName, routingKey);
-			channel.basicConsume(queueName, true, gameNotificationCallback, consumerTag -> {});
-		} catch (Exception e) {
-			logger.warn(String.format("setGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
-		}
+	    setGameNotification(gameId, false);
+	}
+	
+	public void setGameNotification(String gameId, boolean forceConsumer) {
+	    if(!gameList.contains(gameId)) {
+	        gameList.add(gameId);
+	    }
+	    if(!channel.isOpen()) {
+	        try {
+                initChannel(true);
+            } catch (Exception e) {
+                logger.info(String.format("init channel error:%s", e.getMessage()));
+            }
+	    } else {
+	        String routingKey = geRoutingKeyPrefix + "-" + gameId;
+            String queueName = "queue-" + gameId;
+            if(!forceConsumer && consumerTagMap.containsKey(gameId))
+                return;
+	        try {
+	            channel.queueDeclare(queueName, true, false, false, null);
+	            channel.queueBind(queueName, geExchangeName, routingKey);
+	            String consumerTag = channel.basicConsume(queueName, true, gameNotificationCallback, cTag -> {});
+	            consumerTagMap.put(gameId, consumerTag);
+	            logger.info(String.format("add consumer[%s]:%s", queueName, consumerTag));
+	        } catch (Exception e) {
+	            logger.warn(String.format("setGameNotification: error in queue bind - %s - %s", routingKey, e.getMessage()));
+	        }	        
+	    }
 	}
 	
 	public void setManageGameNotification(ManageGameNotification manager, Type type) {

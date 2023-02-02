@@ -23,17 +23,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import it.sayservice.platform.smartplanner.data.message.Itinerary;
-import it.sayservice.platform.smartplanner.data.message.Leg;
-import it.sayservice.platform.smartplanner.data.message.TType;
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Shape;
-import it.smartcommunitylab.playandgo.engine.mobility.model.ItineraryObject;
 
 /**
  * @author raman
@@ -41,10 +37,6 @@ import it.smartcommunitylab.playandgo.engine.mobility.model.ItineraryObject;
  */
 @Component
 public class GamificationHelper {
-
-
-
-	public static final List<TType> FAST_TRANSPORTS = Lists.newArrayList(TType.BUS, TType.CAR, TType.GONDOLA, TType.SHUTTLE, TType.TRAIN, TType.TRANSIT);
 
 	private final static int EARTH_RADIUS = 6371; // Earth radius in km.
 
@@ -226,41 +218,6 @@ public class GamificationHelper {
 		return EARTH_RADIUS * c;
 	}
 
-	public static List<Geolocation> decodePoly(Leg leg) {
-		List<Geolocation> legPositions = Lists.newArrayList();
-		String encoded = leg.getLegGeometery().getPoints();
-		int index = 0, len = encoded.length();
-		int lat = 0, lng = 0;
-		while (index < len) {
-			int b, shift = 0, result = 0;
-			do {
-				b = encoded.charAt(index++) - 63;
-				result |= (b & 0x1f) << shift;
-				shift += 5;
-			} while (b >= 0x20);
-			int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-			lat += dlat;
-			shift = 0;
-			result = 0;
-			do {
-				b = encoded.charAt(index++) - 63;
-				result |= (b & 0x1f) << shift;
-				shift += 5;
-			} while (b >= 0x20);
-			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-			lng += dlng;
-
-			Geolocation onLeg = new Geolocation();
-			onLeg.setLatitude((((double) lat / 1E5)));
-			onLeg.setLongitude((((double) lng / 1E5)));
-			onLeg.setRecorded_at(new Date(leg.getStartime()));
-
-			legPositions.add(onLeg);
-
-		}
-		return legPositions;
-	}
-
 	public static List<List<Geolocation>> splitList(List<Geolocation> list) {
 		List<List<Geolocation>> result = Lists.newArrayList();
 		int half = list.size() / 2;
@@ -327,22 +284,6 @@ public class GamificationHelper {
 
 	}
 
-	public static String convertTType(TType tt) {
-		if (tt.equals(TType.CAR) || tt.equals(TType.CARWITHPARKING)) {
-			return "car";
-		}
-		if (tt.equals(TType.WALK)) {
-			return "walk";
-		}
-		if (tt.equals(TType.BICYCLE) || tt.equals(TType.SHAREDBIKE) || tt.equals(TType.SHAREDBIKE_WITHOUT_STATION)) {
-			return "bike";
-		}
-		if (tt.equals(TType.BUS) || tt.equals(TType.TRAIN) || tt.equals(TType.TRANSIT) || tt.equals(TType.GONDOLA)) {
-			return "transit";
-		}
-		return "";
-	}
-
 	public static String convertFreetrackingType(String tt) {
 		if ("bus".equals(tt) || "train".equals(tt) || "boat".equals(tt)) {
 			return "transit";
@@ -360,39 +301,7 @@ public class GamificationHelper {
 		}
 		return false;
 	}
-	
-	public static String getFreetrackingTransportForItinerary(ItineraryObject itinerary) {
-		Set<TType> ttypes = Sets.newHashSet();
-		
-		for (Leg leg: itinerary.getData().getLeg()) {
-			if (leg.getTransport() != null && leg.getTransport().getType() != null) {
-				ttypes.add(leg.getTransport().getType());
-			}
-		}
-		
-		if (ttypes.size() != 1) {
-			return null;
-		}
-		
-		return convertTType(ttypes.iterator().next());
-	}
 
-	
-	public static String getFreetrackingTransportForItinerary(Itinerary itinerary) {
-		Set<TType> ttypes = Sets.newHashSet();
-		
-		for (Leg leg: itinerary.getLeg()) {
-			if (leg.getTransport() != null && leg.getTransport().getType() != null) {
-				ttypes.add(leg.getTransport().getType());
-			}
-		}
-		
-		if (ttypes.size() != 1) {
-			return null;
-		}
-		
-		return convertTType(ttypes.iterator().next());
-	}	
 //	
 //	public static void main(String[] args) {
 //		String encoded = "yivpGsdpfA~AXxBr@lB`@`B\\pAXdBj@rA^tAThA`@bAVnBp@hAl@j@x@j@l@pAvB`@pAt@~BV~@ZfCb@zBVlBf@tCZbCXrBRvAThB\\bBZfCZxB`@|BTjBb@~B^zC^hC??b@|B\\zBZrB^jCb@xC`@vB\\dB\\pCZvBd@`DVpBr@hD\\nC^|B^vBd@vCn@jE\\lCZ|Bb@lC\\zBXxB`@`C\\lBVhBZrB^vBZrBXvB^tBXnB\\lBZvBf@|Bj@dC^dB`@jBh@dCj@nCl@dC`@xA`@pBh@hBl@bCd@xBh@`Cd@lB`@jBd@|A^nBb@nBl@dCf@vBd@tBh@lBn@hC`@hBh@hCj@rBj@xBd@tBb@bBf@zBl@jCl@dC^dBj@bCf@xBf@pBv@fDl@hCl@dCp@jCh@zCf@`D?nCQtCO~DEpDQlCQtCGxCIzBE|CBrDNlDPtCXnC^tC`@zCj@~C^lCNjC^~DJxCHrC@xC???~BCjCFvBDhECnB?vCAnCBxC@pBJxC??HzBNjBNnBN~BRbCHlCBlCC~DMnFSdDMlCMfDI|BSbD[xBm@nAs@xA{@zA{@xAuAzBuAxB}AjB{AjB}AtBuAnBqAhAgBhAoBlB_BlBeAjBe@rB[bBc@pCg@`Cy@`Ds@`Cy@fCoAtBu@~A}A|DaAvCsAjD{@|B{@~Cc@~By@lBu@~Aq@rBs@`B{@lCsA~Cs@nB{@zB}@~Bm@`C{@nCo@rBg@pBaApEq@rCk@~Bu@xCoA|Ck@jCs@|Bm@bC}@jCq@tBk@hBm@|Bm@jB}@xCaAvC??q@rBq@rBcAbC}@`CcAlCkApC{@jBeAfCaAfBmAtAsA`AgCx@yAn@oBv@eCdAyBv@sBp@_Bl@aCdAwBx@eCx@cBz@s@xAm@rBO~A]pBKrAQxA??QbBWjCObCMjCKtBK`CMhCUnESjBYfC_@jBWlBg@hCc@zCa@fC_@vB[rCe@rCe@bDm@vCa@jDi@rCc@tCe@dDg@zDe@jC]pBc@xCe@vCm@vDc@nC??a@lCe@|Be@xC_@`C_@zCe@xBc@zC{@tFg@~Ck@rC[hCc@bCYpB]hB[zB[bCi@dDe@nB[dC_@vBc@lC]zB]tBUfAWrBe@rDg@`CSnB_@pBc@fCe@vCi@|Cc@lCY|Bk@|Ce@~CYvBa@`Co@dC";

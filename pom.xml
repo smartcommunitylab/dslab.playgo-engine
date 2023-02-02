@@ -42,6 +42,10 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
     </dependency>
+		<dependency>
+		  <groupId>org.springframework.boot</groupId>
+		  <artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
 		
 
 		<!-- SECURITY -->
@@ -53,6 +57,14 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
 		</dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webflux</artifactId>
+    </dependency>
 		<!-- for jwt -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -151,15 +163,6 @@
 		    <groupId>net.javacrumbs.shedlock</groupId>
 		    <artifactId>shedlock-provider-mongo</artifactId>
 		    <version>4.38.0</version>
-		</dependency>
-    
-    <!-- Smartplanner -->
-		<dependency>
-			<groupId>it.sayservice.platform.smartplanner</groupId>
-			<artifactId>smartplanner-beans</artifactId>
-			<version>1.1.13</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 
 	</dependencies>

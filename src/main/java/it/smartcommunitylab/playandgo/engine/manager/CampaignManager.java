@@ -240,7 +240,7 @@ public class CampaignManager {
 				sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
 				break;
 			case school:
-				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
 				break;
 		}
 		return campaignSubscriptionRepository.save(sub);
@@ -251,7 +251,7 @@ public class CampaignManager {
 		if(subscription != null) {
 			Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 			if(campaign != null) {
-				if(Type.personal.equals(campaign.getType())) {
+				if(Type.personal.equals(campaign.getType()) || Type.school.equals(campaign.getType())) {
 					throw new BadRequestException("operation not allowed", ErrorCode.OPERATION_NOT_ALLOWED);
 				}
 				switch (campaign.getType()) {
@@ -262,7 +262,6 @@ public class CampaignManager {
 						cityCampaignSubscription.unsubscribeCampaign(player, campaign);
 						break;
 					case school:
-						schoolCampaignSubscription.unsubscribeCampaign(player, campaign);
 						break;
 					case personal:
 						break;
