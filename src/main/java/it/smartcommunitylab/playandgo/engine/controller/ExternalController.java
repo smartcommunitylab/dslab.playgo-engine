@@ -205,12 +205,17 @@ public class ExternalController extends PlayAndGoController {
 	    if(campaign == null) {
 	        throw new NotFoundException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 	    }
-	    Player p = new Player();
-	    p.setPlayerId(playerId);
-	    p.setTerritoryId(campaign.getTerritoryId());
-	    p.setNickname(playerId);
-	    p.setGroup(true);
-	    return toPlayerInfo(playerRepository.save(p));
+	    Player dbPlayer = playerRepository.findById(playerId).orElse(null);
+	    if(dbPlayer == null) {
+	        Player p = new Player();
+	        p.setPlayerId(playerId);
+	        p.setTerritoryId(campaign.getTerritoryId());
+	        p.setNickname(playerId);
+	        p.setGroup(true);
+	        return toPlayerInfo(playerRepository.save(p));	        
+	    } else {
+	       return toPlayerInfo(dbPlayer);
+	    }
 	}
 	
 	@DeleteMapping("/api/ext/player/hsc")
