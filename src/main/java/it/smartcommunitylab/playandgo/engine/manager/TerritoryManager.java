@@ -33,7 +33,8 @@ public class TerritoryManager {
 			campaign.setCampaignId(territory.getTerritoryId() + ".personal");
 			campaign.setTerritoryId(territory.getTerritoryId());
 			campaign.setType(Type.personal);
-			campaign.setName(territory.getName());
+			campaign.getName().put("it", "Il mio Play&Go");
+			campaign.getName().put("en", "My Play&Go");
 			campaign.getValidationData().put("means", territory.getTerritoryData().get("means"));
 			//TODO compile other fields
 			campaignRepository.save(campaign);
