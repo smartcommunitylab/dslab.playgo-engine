@@ -186,12 +186,20 @@ public class CityGameDataConverter {
 		    return new ArrayList<>();
 		}
 	    List<BadgeCollectionConcept> badges = mapper.convertValue(rootNode, new TypeReference<List<BadgeCollectionConcept>>() {});
-		badges.forEach(x -> {
-			x.getBadgeEarned().forEach(y -> {
-				y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
-			});
-		});	
-		return badges;
+		return filterBadges(badges);
+	}
+	
+	private List<BadgeCollectionConcept> filterBadges(List<BadgeCollectionConcept> badges) {
+        if(badges == null) {
+            return new ArrayList<BadgeCollectionConcept>();
+        }
+	    List<BadgeCollectionConcept> filteredBadges = badges.stream().filter(x -> !x.isHidden()).map(x -> {
+            x.getBadgeEarned().forEach(y -> {
+                y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
+            });
+            return x;
+        }).collect(Collectors.toList());
+        return filteredBadges;	    
 	}
 	
 	public List<PlayerLevel> convertLevels(JsonNode rootNode) {
@@ -209,12 +217,7 @@ public class CityGameDataConverter {
 			
 			Map<String, Object> state = (Map<String, Object>)stateMap.get("state");
 			List<BadgeCollectionConcept> badges = mapper.convertValue(state.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
-			badges.forEach(x -> {
-				x.getBadgeEarned().forEach(y -> {
-					y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
-				});
-			});
-			ps.setBadgeCollectionConcept(badges);
+			ps.setBadgeCollectionConcept(filterBadges(badges));
 			
 			List<Map> gePointsMap = mapper.convertValue(state.get("PointConcept"), new TypeReference<List<Map>>() {});
 			List<PointConcept> points = convertGEPointConcept(gePointsMap);
@@ -253,13 +256,6 @@ public class CityGameDataConverter {
 			Map playerMap = mapper.readValue(playerStatus, Map.class);
 			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
 			List<BadgeCollectionConcept> badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
-			if(badges != null) {
-				badges.forEach(x -> {
-					x.getBadgeEarned().forEach(y -> {
-						y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
-					});
-				});				
-			}
 			
 			List<Map> gePointsMap = mapper.convertValue(stateMap.get("PointConcept"), new TypeReference<List<Map>>() {});
 			List<PointConcept> points = convertGEPointConcept(gePointsMap);
@@ -267,7 +263,7 @@ public class CityGameDataConverter {
 			List<ChallengeConcept> challengeList = mapper.readValue(jsonChallenges, new TypeReference<List<ChallengeConcept>>() {});
 					
 			ChallengeConceptInfo challenges = convertChallengeData(player.getPlayerId(), campaign.getGameId(), challType, player.getLanguage(),
-					points, badges, challengeList);
+					points, filterBadges(badges), challengeList);
 
 			challenges.setCanInvite(false);
 			Calendar c = Calendar.getInstance();
@@ -297,13 +293,6 @@ public class CityGameDataConverter {
 			Map playerMap = mapper.readValue(playerStatus, Map.class);
 			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
 			List<BadgeCollectionConcept> badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
-			if(badges != null) {
-				badges.forEach(x -> {
-					x.getBadgeEarned().forEach(y -> {
-						y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
-					});
-				});				
-			}
 			
 			List<Map> gePointsMap = mapper.convertValue(stateMap.get("PointConcept"), new TypeReference<List<Map>>() {});
 			List<PointConcept> points = convertGEPointConcept(gePointsMap);
@@ -315,7 +304,7 @@ public class CityGameDataConverter {
 			
 			final long now = System.currentTimeMillis();
 			
-			ChallengesData challengeData = extractChallengeData(player.getPlayerId(), campaign.getGameId(), player.getLanguage(), points, badges,
+			ChallengesData challengeData = extractChallengeData(player.getPlayerId(), campaign.getGameId(), player.getLanguage(), points, filterBadges(badges),
 					challenge, start, end, now);
 
 			return challengeData;	

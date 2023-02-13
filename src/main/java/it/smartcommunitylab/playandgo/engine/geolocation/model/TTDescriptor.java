@@ -509,22 +509,22 @@ public class TTDescriptor {
 	
 	public static class GTFSShape {
 		public String shape_id;
-		public Double shape_pt_lat,shape_pt_lon;
+		public Double shape_pt_lat, shape_pt_lon, shape_dist_traveled;
 		public Integer shape_pt_sequence;
 	}
 	public static class GTFSStop {
 		public String stop_id, stop_code, stop_desc, stop_name, location_type, parent_station, zone_id;
 		public Integer wheelchair_boarding;
-		public Double stop_lat,stop_lon;
+		public Double stop_lat, stop_lon;
 	}
 	public static class GTFSStopTime {
-		public String trip_id, arrival_time, departure_time, stop_id, stop_sequence;
+		public String trip_id, arrival_time, departure_time, stop_id, stop_sequence, shape_dist_traveled, stop_headsign, pickup_type, drop_off_type, timepoint;
 	}
 	public static class GTFSRoute {
-		public String route_id,agency_id,route_short_name,route_long_name,route_type,route_color,route_text_color;
+		public String route_id, agency_id, route_short_name, route_long_name, route_type, route_color, route_text_color;
 	}
 	public static class GTFSTrip {
-		public String route_id, service_id,trip_id,trip_headsign, direction_id,shape_id;
+		public String route_id, service_id, trip_id, trip_headsign, direction_id, shape_id, trip_short_name, block_id, drt_advance_book_min, peak_offpeak;
 		public Integer wheelchair_accessible;
 	}
 }

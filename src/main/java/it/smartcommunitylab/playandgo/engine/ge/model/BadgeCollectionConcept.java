@@ -7,6 +7,7 @@ public class BadgeCollectionConcept {
 	private String id;
 	private String name;
 	private List<BadgeConcept> badgeEarned;
+	private boolean hidden = false;
 
 	public String getName() {
 		return name;
@@ -41,5 +42,13 @@ public class BadgeCollectionConcept {
 	public void setId(String id) {
 		this.id = id;
 	}
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
 
 }
