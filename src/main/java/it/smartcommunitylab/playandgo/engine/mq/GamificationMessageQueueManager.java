@@ -175,7 +175,9 @@ public class GamificationMessageQueueManager {
             if(!forceConsumer && consumerTagMap.containsKey(gameId))
                 return;
 	        try {
-	            channel.queueDeclare(queueName, true, false, false, null);
+	            Map<String, Object> args = new HashMap<>();
+	            args.put("x-queue-type", "quorum");	            
+	            channel.queueDeclare(queueName, true, false, false, args);
 	            channel.queueBind(queueName, geExchangeName, routingKey);
 	            String consumerTag = channel.basicConsume(queueName, true, gameNotificationCallback, cTag -> {});
 	            consumerTagMap.put(gameId, consumerTag);
