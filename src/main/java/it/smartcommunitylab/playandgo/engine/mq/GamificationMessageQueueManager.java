@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -123,18 +122,6 @@ public class GamificationMessageQueueManager {
         }
     }
     
-    @Scheduled(cron="0 */15 * * * *")
-    public void checkChannel() {
-        logger.info("checkChannel");
-        try {
-            if(!channel.isOpen()) {
-                initChannel(true);
-            }
-        } catch (Exception e) {
-            logger.info(String.format("checkChannel init channel error:%s", e.getMessage()));
-        }
-    }
-	
 	@PreDestroy
 	public void destroy() {
 		if(channel != null) {
