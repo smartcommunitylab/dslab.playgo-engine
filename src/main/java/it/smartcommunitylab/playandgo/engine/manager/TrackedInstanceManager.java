@@ -439,7 +439,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("validateTripRequest error:" + e.getMessage());
+			logger.warn("validateTripRequest error" + e.getMessage(), e);
 			updateValidationResultAsError(track);
 		}	
 	}
