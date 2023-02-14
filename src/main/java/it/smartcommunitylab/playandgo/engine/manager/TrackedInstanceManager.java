@@ -464,9 +464,6 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			
 			ValidateTripRequest passRequest = new ValidateTripRequest(passengerId, territoryId, passengerTravel.getId());
 			storeAndValidateCampaigns(passRequest);
-		} else {
-			logger.warn("Validation result null");
-			updateValidationResultAsError(passengerTravel);
 		}
 	}
 	
