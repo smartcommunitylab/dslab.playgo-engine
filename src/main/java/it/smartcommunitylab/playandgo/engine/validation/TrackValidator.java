@@ -794,6 +794,7 @@ public class TrackValidator {
 		ValidationStatus status = new ValidationStatus();
 		// set parameters
 		status.setTripType(TRIP_TYPE.SHARED);
+		status.setModeType(MODE_TYPE.car);
 		status.setValidityThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD));
 		status.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
 
@@ -845,6 +846,7 @@ public class TrackValidator {
 		ValidationStatus status = new ValidationStatus();
 		// set parameters
 		status.setTripType(TRIP_TYPE.SHARED);
+		status.setModeType(MODE_TYPE.car);
 		status.setValidityThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD));
 		status.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
 

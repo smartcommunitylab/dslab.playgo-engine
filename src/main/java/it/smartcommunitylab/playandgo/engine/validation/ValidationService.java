@@ -100,6 +100,9 @@ public class ValidationService {
 
 		ValidationResult vr = new ValidationResult();
 		vr.setValidationStatus(TrackValidator.validateSharedPassenger(passengerTrip, driverTrip, territory));
+        if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
+            vr.setValid(true);
+        }       		
 		return vr;
 	}
 	
@@ -116,7 +119,9 @@ public class ValidationService {
 	
 		ValidationResult vr = new ValidationResult();
 		vr.setValidationStatus(TrackValidator.validateSharedDriver(driverTrip, territory));
-	
+        if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
+            vr.setValid(true);
+        }       
 		return vr;
 	}
 
