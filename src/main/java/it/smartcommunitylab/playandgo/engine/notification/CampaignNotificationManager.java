@@ -93,43 +93,53 @@ public class CampaignNotificationManager {
 			return;
 		}
 
+		NotificationGe not = null;
+		
 		Optional<String> opt = notificationClassesMap.keySet().stream().filter(x -> type.contains(x)).findFirst();
-
 		if (opt.isPresent()) {
 			Class clz = notificationClassesMap.get(opt.get());
-			NotificationGe not = (NotificationGe) mapper.convertValue(obj, clz);
+			not = (NotificationGe) mapper.convertValue(obj, clz);
+		} else {
+		    if(type.endsWith("MessageNotification")) {
+		        MessageNotification messageNotification = mapper.convertValue(obj, MessageNotification.class);
+		        not = (NotificationGe) messageNotification;
+	        }
+	    }
+		if(not == null) {
+		    logger.error("Bad notification type: " + type);
+		    return;
+		}
 	
-			Player p = playerRepository.findById(not.getPlayerId()).orElse(null);	
-			if (p != null) {
-				Territory territory = territoryRepository.findById(p.getTerritoryId()).orElse(null);
-				if(territory != null) {
-					Campaign campaign = campaignRepository.findByGameId(not.getGameId());
-					if(campaign != null) {
-						Notification notification = null;
-						
-						try {
-							notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
-						} catch (Exception e) {
-							logger.error("Error building notification", e);
-						}
-						if (notification != null) {
-								try {
-									logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + "):" 
-											+ mapper.writeValueAsString(notification));
-									notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
-								} catch (Exception e) {
-									logger.warn("Error sending notification:" + e.getMessage());
-								}
-						}											
-					} else {
-						logger.warn("Game " + not.getGameId() + " campaign not found");
+		Player p = playerRepository.findById(not.getPlayerId()).orElse(null);	
+		if (p != null) {
+			Territory territory = territoryRepository.findById(p.getTerritoryId()).orElse(null);
+			if(territory != null) {
+				Campaign campaign = campaignRepository.findByGameId(not.getGameId());
+				if(campaign != null) {
+					Notification notification = null;
+					
+					try {
+						notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
+					} catch (Exception e) {
+						logger.error("Error building notification", e);
 					}
+					if (notification != null) {
+							try {
+								logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + "):" 
+										+ mapper.writeValueAsString(notification));
+								notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
+							} catch (Exception e) {
+								logger.warn("Error sending notification:" + e.getMessage());
+							}
+					}											
 				} else {
-					logger.warn("Player " + not.getPlayerId() + " territory not found");
+					logger.warn("Game " + not.getGameId() + " campaign not found");
 				}
 			} else {
-				logger.warn("Player " + not.getPlayerId() + " not found");
+				logger.warn("Player " + not.getPlayerId() + " territory not found");
 			}
+		} else {
+			logger.warn("Player " + not.getPlayerId() + " not found");
 		}
 	}
 	
@@ -148,8 +158,12 @@ public class CampaignNotificationManager {
 	}
 	
 	private Notification buildNotification(String campaignId, String gameId, String playerId, String lang, NotificationGe not) {
-		String type = not.getClass().getSimpleName();
-		Map<String, String> extraData = buildExtraData(not, lang);
+	    String type = not.getClass().getSimpleName();
+	    if(not instanceof MessageNotification) {
+	        type = ((MessageNotification)not).getKey();
+	    }
+		
+		Map<String, String> extraData = buildExtraData(not, type, lang);
 		logger.debug("buildExtraData:" + extraData);
 		
 		Notification result = new Notification();
@@ -172,10 +186,10 @@ public class CampaignNotificationManager {
 		return result;
 	}	
 	
-	private Map<String, String> buildExtraData(NotificationGe not, String lang) {
+	private Map<String, String> buildExtraData(NotificationGe not, String type, String lang) {
 		Map<String, String> result = Maps.newTreeMap();
 
-		switch (not.getClass().getSimpleName()) {
+		switch (type) {
 			case "LevelGainedNotification": {
 				result.put("levelName", ((LevelGainedNotification) not).getLevelName());
 				result.put("levelIndex", ((LevelGainedNotification) not).getLevelIndex() != null ? ((LevelGainedNotification) not).getLevelIndex().toString() : "");
@@ -213,6 +227,15 @@ public class CampaignNotificationManager {
 					result.put("badgeName", badgesData.getText().get(lang));
 				}
 				break;
+			}
+			case "HSCRegistrationBonus": {
+			    String playerId = (String) ((MessageNotification)not).getData().get("registeredPlayerId");
+			    Player player = playerRepository.findById(playerId).orElse(null);
+			    if(player != null) {
+			        result.put("nickname", player.getNickname());
+			        result.put("points", String.valueOf(((MessageNotification)not).getData().get("points")));
+			    }
+			    break;
 			}
 		}
 		return result;
