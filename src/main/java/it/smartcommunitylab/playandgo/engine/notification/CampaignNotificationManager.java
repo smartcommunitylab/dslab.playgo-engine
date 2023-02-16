@@ -162,17 +162,19 @@ public class CampaignNotificationManager {
 	    if(not instanceof MessageNotification) {
 	        type = ((MessageNotification)not).getKey();
 	    }
+	    logger.info("buildNotification type:" + type);
+	    
+	    if(type == null) return null;
 		
 		Map<String, String> extraData = buildExtraData(not, type, lang);
-		logger.debug("buildExtraData:" + extraData);
+		logger.info("buildExtraData:" + extraData);
 		
 		Notification result = new Notification();
 		
 		NotificationMessage message = notificationsMessages.get(type);
-		logger.debug("NotificationMessage:" + message);
+		logger.info("NotificationMessage:" + message);
 			
 		fillNotification(result, lang, message, extraData);
-		
 		return result;
 	}
 	
