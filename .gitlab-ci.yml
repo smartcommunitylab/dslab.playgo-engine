@@ -5,8 +5,8 @@ services:
 
 stages:
   - build
-  - test
   - container-build
+  - test
   - deploy-dev
   - deploy-prod
 
