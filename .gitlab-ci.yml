@@ -1,4 +1,4 @@
-image: docker:19
+image: docker:latest
 
 services:
   - docker:dind
@@ -17,18 +17,48 @@ variables:
   DOCKER_DRIVER: overlay
   CONTAINER_IMAGE: smartcommunitylab/playngo-engine:v2-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA
   CONTAINER_IMAGE_LATEST: smartcommunitylab/playngo-engine:v2-$CI_COMMIT_REF_NAME-latest
+  CONTAINER_CACHE_IMAGE: smartcommunitylab/playngo-engine:cache
   SAST_JAVA_VERSION: 11
+
+include:
+  - template: Security/Container-Scanning.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+
+update-backend-cache-image:
+  stage: build
+  variables:
+    BUILDKIT_PROGRESS: plain
+    DOCKER_BUILDKIT: 1 
+  script:
+    - docker login -u $DHUB_USER -p $DHUB_PASS
+    - docker build -f Dockerfile-cache -t $CONTAINER_CACHE_IMAGE .
+    - docker push $CONTAINER_CACHE_IMAGE
+  rules:
+    - changes:
+      - pom.xml
 
 maven-build:
   image: maven:3-openjdk-11
   stage: build
   script:
     - mvn -DskipTests=true clean package
+  only:
+    - main
+
+gemnasium-maven-dependency_scanning:
+  rules:
+     - if: '$CI_COMMIT_REF_NAME == "main"'
+
+semgrep-sast:
+  rules:
+     - if: '$CI_COMMIT_REF_NAME == "main"'
 
 backend-container-build:
   stage: container-build
-  environment:
-    name: $CI_COMMIT_REF_NAME
+  variables:
+    BUILDKIT_PROGRESS: plain
+    DOCKER_BUILDKIT: 1 
   script:
     - docker login -u $DHUB_USER -p $DHUB_PASS
     - DOCKER_BUILDKIT=1 docker build -f Dockerfile --build-arg VER=1.0 -t $CONTAINER_IMAGE -t $CONTAINER_IMAGE_LATEST .
@@ -38,11 +68,6 @@ backend-container-build:
     - dev
     - prod
 
-include:
-  - template: Security/Container-Scanning.gitlab-ci.yml
-  - template: Security/Dependency-Scanning.gitlab-ci.yml
-  - template: Security/SAST.gitlab-ci.yml
-
 container_scanning:
   stage: container-scan
   variables:
@@ -51,6 +76,8 @@ container_scanning:
     GIT_STRATEGY: fetch
     DOCKER_USER: ""
     DOCKER_PASSWORD: ""
+  rules:
+     - if: '$CI_COMMIT_REF_NAME == "main"'
 
 deploy-dev:
   stage: deploy-dev
