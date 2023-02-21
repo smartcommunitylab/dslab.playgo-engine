@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,8 +55,8 @@ public class AppConfig implements WebMvcConfigurer {
 	private String username;
 	@Value("${mail.password}")
 	private String password;
-    @Value("${mail.from}")
-    private String mailFrom;
+    @Value("${mail.protocol}")
+    private String protocol;
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -74,10 +73,11 @@ public class AppConfig implements WebMvcConfigurer {
 		sender.setPort(Integer.parseInt(port));
 		sender.setUsername(username);
 		sender.setPassword(password);
-		Properties props = new Properties();
-		props.setProperty("mail.smtp.ssl.enable", "true");
-		props.setProperty("From", mailFrom);
-		sender.setJavaMailProperties(props);
+		sender.setProtocol(protocol);
+//		Properties props = new Properties();
+//		props.setProperty("mail.smtp.ssl.enable", "true");
+//		props.setProperty("mail.smtp.localhost", "backenddev.playngo.it");
+//		sender.setJavaMailProperties(props);
 		return sender;
 	}
 
