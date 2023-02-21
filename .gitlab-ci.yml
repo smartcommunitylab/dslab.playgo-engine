@@ -67,9 +67,12 @@ backend-container-build:
   only:
     - dev
     - prod
+    - main
 
 container_scanning:
   stage: container-scan
+  dependencies:
+    - backend-container-build
   variables:
     DOCKER_IMAGE: smartcommunitylab/playngo-engine:v2-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA
     DOCKERFILE_PATH: "Dockerfile"
