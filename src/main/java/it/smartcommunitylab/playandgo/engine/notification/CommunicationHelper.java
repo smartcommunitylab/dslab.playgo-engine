@@ -18,6 +18,7 @@ package it.smartcommunitylab.playandgo.engine.notification;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -141,7 +142,7 @@ public class CommunicationHelper {
 	 */
 	private void sendEmail(Notification not, String territoryId, String campaignId, List<String> players) {
 		if (players != null && players.size() > 0) {
-			emailSender.sendGenericMailToUsers((String)not.getContent().get("_html"), not.getTitle(), territoryId, campaignId, null);
+			emailSender.sendGenericMailToUsers((String)not.getContent().get("_html"), not.getTitle(), territoryId, campaignId, new HashSet<>(players));
 		} else {
 			emailSender.sendGenericMailToAll((String)not.getContent().get("_html"), not.getTitle(), territoryId, campaignId);
 		}
