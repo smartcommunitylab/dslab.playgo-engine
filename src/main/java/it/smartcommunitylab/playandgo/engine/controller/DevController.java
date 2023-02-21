@@ -28,7 +28,9 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
+import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
+import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
@@ -73,6 +75,9 @@ public class DevController extends PlayAndGoController {
 	
 	@Autowired
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
+	
+    @Autowired
+    MessageQueueManager queueManager;	
 	
 	static final Random RANDOM = new Random();
 	
@@ -160,6 +165,17 @@ public class DevController extends PlayAndGoController {
 			}
 			playerStatsTransportRepository.saveAll(list);
 		}
+	}
+	
+	@GetMapping("/api/dev/track/revalidate")
+	public void revalidateTrack(
+            @RequestParam String territoryId,
+            @RequestParam String playerId,
+            @RequestParam String trackedInstanceId,
+	        HttpServletRequest request) throws Exception {
+	    checkAdminRole(request);
+	    ValidateTripRequest msg = new ValidateTripRequest(playerId, territoryId, trackedInstanceId);
+	    queueManager.sendValidateTripRequest(msg);
 	}
 	
 	@PostMapping("/api/dev/stats")

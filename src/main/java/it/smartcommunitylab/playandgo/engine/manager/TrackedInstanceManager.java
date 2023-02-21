@@ -439,7 +439,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn("validateTripRequest error:" + e.getMessage());
+			logger.warn("validateTripRequest error" + e.getMessage(), e);
 			updateValidationResultAsError(track);
 		}	
 	}
@@ -464,9 +464,6 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			
 			ValidateTripRequest passRequest = new ValidateTripRequest(passengerId, territoryId, passengerTravel.getId());
 			storeAndValidateCampaigns(passRequest);
-		} else {
-			logger.warn("Validation result null");
-			updateValidationResultAsError(passengerTravel);
 		}
 	}
 	
