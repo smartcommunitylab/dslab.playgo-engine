@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -24,8 +22,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-
-import com.mongodb.client.MongoClient;
 
 import io.swagger.annotations.ApiParam;
 import net.javacrumbs.shedlock.core.LockProvider;
@@ -59,6 +55,8 @@ public class AppConfig implements WebMvcConfigurer {
 	private String username;
 	@Value("${mail.password}")
 	private String password;
+    @Value("${mail.protocol}")
+    private String protocol;
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -75,9 +73,11 @@ public class AppConfig implements WebMvcConfigurer {
 		sender.setPort(Integer.parseInt(port));
 		sender.setUsername(username);
 		sender.setPassword(password);
-		Properties props = new Properties();
-		props.setProperty("mail.smtp.ssl.enable", "true");
-		sender.setJavaMailProperties(props);
+		sender.setProtocol(protocol);
+//		Properties props = new Properties();
+//		props.setProperty("mail.smtp.ssl.enable", "true");
+//		props.setProperty("mail.smtp.localhost", "backenddev.playngo.it");
+//		sender.setJavaMailProperties(props);
 		return sender;
 	}
 
