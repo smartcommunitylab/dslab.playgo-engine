@@ -52,6 +52,8 @@ mail:
   password: ${MAIL_PASSWORD:}
   from: ${MAIL_FROM:}
   url: ${MAIL_URL:}
+  protocol: ${MAIL_PROTOCOL:}
+  localhost: ${MAIL_LOCALHOST:}
 
 gamification:
   url: ${GAMIFICATION_URL:}

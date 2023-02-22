@@ -49,7 +49,7 @@ public class EmailService {
     public void sendGenericMail(String body, String subject, final String recipientName, final String recipientEmail, 
     		final Locale locale) throws MessagingException {
         
-    	logger.debug(String.format("Gamification Generic Mail Prepare for %s - OK", recipientName));
+    	logger.info(String.format("Gamification Generic Mail Prepare for %s - OK (%s)", recipientName, mailFrom));
     	
         // Prepare the evaluation context
         final Context ctx = new Context(locale);

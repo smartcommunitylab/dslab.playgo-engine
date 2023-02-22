@@ -59,6 +59,7 @@ public class PlayerController extends PlayAndGoController {
 		player.setPlayerId(subject);
 		player.setGivenName(getGivenName(request));
 		player.setFamilyName(getFamilyName(request));
+		player.setSendMail(true);
 		return playerManager.registerPlayer(player);
 	}
 	
