@@ -7,7 +7,7 @@
 			"en": "Registration Bonus"
 		},
 		"description": {
-			"it": "'<nickname>' si è unito alla tua squadra. Avete guadagnato <points> eco-Leaves",
+			"it": "'<nickname>' ha tracciato il suo primo viaggio. Avete guadagnato <points> eco-Leaves",
 			"en": "'<nickname>' joined your team. You earn <points> eco-Leaves"
 		},
 		"extras": {
