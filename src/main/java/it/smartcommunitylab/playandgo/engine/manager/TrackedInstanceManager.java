@@ -577,6 +577,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				track.getValidationResult().getValidationStatus().setValidationOutcome(TravelValidity.VALID);
 				track.getValidationResult().getValidationStatus().setModeType(MODE_TYPE.valueOf(modeType));
 				track.getValidationResult().getValidationStatus().setDistance(distance);
+				track.getValidationResult().getValidationStatus().getEffectiveDistances().put(MODE_TYPE.valueOf(modeType), distance);
 				track.getValidationResult().getValidationStatus().setDuration(duration);
 				track.setFreeTrackingTransport(modeType);
 				track.getValidationResult().setValid(true);
@@ -588,8 +589,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				storeAndValidateCampaigns(msg);
 			} else if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
 				//update distance for a already validated track
-				double delta = distance - track.getValidationResult().getValidationStatus().getDistance();
+				double delta = distance - Utils.getTrackDistance(track);
 				track.getValidationResult().getValidationStatus().setDistance(distance);
+				track.getValidationResult().getValidationStatus().getEffectiveDistances().put(MODE_TYPE.valueOf(modeType), distance);
 				trackedInstanceRepository.save(track);
 				ValidateTripRequest msg = new ValidateTripRequest();
 				msg.setTerritoryId(track.getTerritoryId());
