@@ -166,7 +166,7 @@ public class TTDescriptor {
 
 	private Collection<TTLineDescriptor> filterDescriptors(Collection<Geolocation> track) {
 		if (stopDescriptors.size() == 0) {
-			return null;
+			return Collections.emptySet();
 		}
 		List<Geolocation> points = new ArrayList<>(track);
 		Map<TTLineDescriptor, int[]> occurences = new HashMap<>();
