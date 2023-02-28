@@ -569,7 +569,9 @@ public class TrackValidator {
 			}
 			return status;
 		} else {
-			status.setValidationOutcome(TravelValidity.INVALID);
+		    if ((status.getValidationOutcome() == null)) {
+		        status.setValidationOutcome(TravelValidity.VALID);
+		    }
 			return status;
 		}
 	}
