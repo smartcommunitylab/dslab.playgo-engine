@@ -117,7 +117,7 @@ public class ValidationConstants {
 		defaultValues.put(PARAM_BIKE_AVG_SPEED_THRESHOLD, 27d);
 		defaultValues.put(PARAM_BIKE_GUARANTEED_AVG_SPEED_THRESHOLD, 18d);
 		
-		defaultValues.put(PARAM_VALIDITY_THRESHOLD, 80d);
+		defaultValues.put(PARAM_VALIDITY_THRESHOLD, 60d);
 		defaultValues.put(PARAM_ACCURACY_THRESHOLD, 150d);
 		
 		defaultValues.put(PARAM_MIN_COVERAGE_THRESHOLD, 30d);
