@@ -170,11 +170,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
 		playerTrack.setModeType(validationStatus.getModeType().toString());
 		playerTrack.setDuration(validationStatus.getDuration());
-		if(validationStatus.getEffectiveDistances().containsKey(validationStatus.getModeType())) {
-			playerTrack.setDistance(validationStatus.getEffectiveDistances().get(validationStatus.getModeType()));
-		} else {
-			playerTrack.setDistance(validationStatus.getDistance());
-		}
+		playerTrack.setDistance(Utils.getTrackDistance(track));
 		playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), playerTrack.getDistance()));
 		
 		playerTrack.setStartTime(track.getStartTime());
@@ -237,16 +233,14 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	@Override
 	public void updateTripRequest(UpdateCampaignTripRequest msg) {
 		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
-		if(playerTrack != null) {
-			playerTrack.setDistance(playerTrack.getDistance() + msg.getDeltaDistance());
-			double co2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance()));
-			if(msg.getDeltaDistance() > 0) {
-				playerTrack.setCo2(playerTrack.getCo2() + co2);
-			} else if(msg.getDeltaDistance() < 0) {
-				playerTrack.setCo2(playerTrack.getCo2() - co2);
-			}
+		TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
+		if((playerTrack != null) && (track != null)) {
+		    double deltaDistance = Utils.getTrackDistance(track) - playerTrack.getDistance();
+		    double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(Utils.getTrackDistance(track))) - playerTrack.getCo2();
+			playerTrack.setDistance(Utils.getTrackDistance(track));
+			playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
 			campaignPlayerTrackRepository.save(playerTrack);
-			playerReportManager.updatePlayerCampaignPlacings(playerTrack, msg.getDeltaDistance(), co2);
+			playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
 			//TODO send action to GamificationEngine? 
 		}
 	}
