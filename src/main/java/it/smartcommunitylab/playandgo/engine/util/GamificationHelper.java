@@ -257,6 +257,38 @@ public class GamificationHelper {
 		return encodedPoints.toString();
 
 	}
+	
+	public static List<Geolocation> decodePoly(String encoded) {
+		List<Geolocation> legPositions = Lists.newArrayList();
+		int index = 0, len = encoded.length();
+		int lat = 0, lng = 0;
+		while (index < len) {
+			int b, shift = 0, result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lat += dlat;
+			shift = 0;
+			result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lng += dlng;
+
+			Geolocation onLeg = new Geolocation();
+			onLeg.setLatitude((((double) lat / 1E5)));
+			onLeg.setLongitude((((double) lng / 1E5)));
+			legPositions.add(onLeg);
+
+		}
+		return legPositions;
+	}
 
 	private static int floor1e5(double coordinate) {
 		return (int) Math.floor(coordinate * 1e5);
