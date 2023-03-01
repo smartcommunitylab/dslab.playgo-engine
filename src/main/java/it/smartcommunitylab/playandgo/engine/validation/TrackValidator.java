@@ -493,11 +493,17 @@ public class TrackValidator {
 		// split track into pieces. For train consider 15km/h threshold
 		TrackSplit trackSplit = TrackSplit.fastSplit(points, speedThreshold, timeThreshold, minTrackThreshold);
 		if (trackSplit.getFastIntervals().isEmpty()) {
-			status.setValidationOutcome(TravelValidity.VALID);
-			//status.setError(ERROR_TYPE.TOO_SLOW);
-			status.setToCheck(true);
-			// for consistency, put the whole distance
-			status.getEffectiveDistances().put(mode, status.getDistance());
+			// special handling for trips of type boat / train:
+			// check against reference tracks and estimate the points on track
+			if (MODE_TYPE.train.equals(mode) || MODE_TYPE.boat.equals(mode)) {
+				validateTrackOnRoute(track, referenceTracks, status);
+			} else {
+				status.setValidationOutcome(TravelValidity.VALID);
+				//status.setError(ERROR_TYPE.TOO_SLOW);
+				status.setToCheck(true);
+				// for consistency, put the whole distance
+				status.getEffectiveDistances().put(mode, status.getDistance());
+			}
 			return status;
 		}
 		status.updateFastSplit(trackSplit, maxAvgSpeedThteshold);
