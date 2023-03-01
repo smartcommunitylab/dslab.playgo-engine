@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
@@ -57,12 +58,26 @@ public class Utils {
 	}
 	
 	public static double getSavedCo2(String modeType, double distance) {
-		if(modeType.equalsIgnoreCase("WALK")) {
-			return (distance / 1000.0) * 0.24293;
-		} else if(modeType.equalsIgnoreCase("BIKE")) {
-			return (distance / 1000.0) * 0.24293;
-		} 
+		if(modeType.equalsIgnoreCase("walk")) {
+			return (distance / 1000.0) * 0.2417;
+		} else if(modeType.equalsIgnoreCase("bike")) {
+			return (distance / 1000.0) * 0.2417;
+        } else if(modeType.equalsIgnoreCase("bus")) {
+            return (distance / 1000.0) * 0.1296;
+        } else if(modeType.equalsIgnoreCase("train")) {
+            return (distance / 1000.0) * 0.1843;
+        } else if(modeType.equalsIgnoreCase("car")) {
+            return (distance / 1000.0) * 0.0806;
+        } 
 		return 0.0;
 	}
 	
+	public static double getTrackDistance(TrackedInstance track) {
+	    ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
+        if(validationStatus.getEffectiveDistances().containsKey(validationStatus.getModeType())) {
+            return validationStatus.getEffectiveDistances().get(validationStatus.getModeType());
+        }     
+        return validationStatus.getDistance();
+	}
+ 	
 }
