@@ -497,7 +497,8 @@ public class TrackValidator {
 			// check against reference tracks and estimate the points on track
 			if (MODE_TYPE.train.equals(mode) || MODE_TYPE.boat.equals(mode)) {
 				validateTrackOnRoute(track, referenceTracks, status);
-			} else {
+			}
+			if (!TravelValidity.VALID.equals(status.getValidationOutcome())) {
 				status.setValidationOutcome(TravelValidity.VALID);
 				//status.setError(ERROR_TYPE.TOO_SLOW);
 				status.setToCheck(true);
