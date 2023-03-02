@@ -479,7 +479,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			criteria = criteria.orOperator(Criteria.where("userId").is(playerId), Criteria.where("nickname").is(playerId));
 		}
 		if(Utils.isNotEmpty(modeType)) {
-			criteria = criteria.and("validationResult.validationStatus.modeType").is(modeType);
+			criteria = criteria.and("freeTrackingTransport").is(modeType);
 		}
 		if(Utils.isNotEmpty(validationStatus)) {
 			criteria = criteria.and("validationResult.validationStatus.validationOutcome").is(validationStatus);	
