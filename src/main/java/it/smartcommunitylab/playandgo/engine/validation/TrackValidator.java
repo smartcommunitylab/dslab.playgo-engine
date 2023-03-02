@@ -493,11 +493,18 @@ public class TrackValidator {
 		// split track into pieces. For train consider 15km/h threshold
 		TrackSplit trackSplit = TrackSplit.fastSplit(points, speedThreshold, timeThreshold, minTrackThreshold);
 		if (trackSplit.getFastIntervals().isEmpty()) {
-			status.setValidationOutcome(TravelValidity.VALID);
-			//status.setError(ERROR_TYPE.TOO_SLOW);
-			status.setToCheck(true);
-			// for consistency, put the whole distance
-			status.getEffectiveDistances().put(mode, status.getDistance());
+			// special handling for trips of type boat / train:
+			// check against reference tracks and estimate the points on track
+			if (MODE_TYPE.train.equals(mode) || MODE_TYPE.boat.equals(mode)) {
+				validateTrackOnRoute(track, referenceTracks, status);
+			}
+			if (!TravelValidity.VALID.equals(status.getValidationOutcome())) {
+				status.setValidationOutcome(TravelValidity.VALID);
+				//status.setError(ERROR_TYPE.TOO_SLOW);
+				status.setToCheck(true);
+				// for consistency, put the whole distance
+				status.getEffectiveDistances().put(mode, status.getDistance());
+			}
 			return status;
 		}
 		status.updateFastSplit(trackSplit, maxAvgSpeedThteshold);
@@ -567,6 +574,14 @@ public class TrackValidator {
 //					status.setValidationOutcome(TravelValidity.VALID);	
 //				}
 			}
+			
+			// special handling for invalid trips of type boat / train:
+			// check against reference tracks and estimate the points on track
+			if (TravelValidity.INVALID.equals(status.getValidationOutcome()) && 
+					(MODE_TYPE.train.equals(mode) || MODE_TYPE.boat.equals(mode))) {
+				validateTrackOnRoute(track, referenceTracks, status);
+			}
+			
 			return status;
 		} else {
 		    if ((status.getValidationOutcome() == null)) {
@@ -576,6 +591,50 @@ public class TrackValidator {
 		}
 	}
 	
+	/**
+	 * Check the track against reference tracks:
+	 * - Filter points on the track.
+	 * - Filter points with high precision.
+	 * - Order points on track according to time order and cut all before and after.
+	 * - If in between there exists points with high precision not on track, then the track is invalid.
+	 * @param track
+	 * @param referenceTracks
+	 * @param status
+	 */
+	private static void validateTrackOnRoute(Collection<Geolocation> track, List<List<Geolocation>> referenceTracks,
+			ValidationStatus status) 
+	{
+		List<Geolocation> points = new ArrayList<>(track);
+		Collections.sort(points, (o1, o2) -> (int)(o1.getRecorded_at().getTime() - o2.getRecorded_at().getTime()));
+		double maxMatched = 0d;
+		for (List<Geolocation> ref: referenceTracks) {
+			List<Geolocation> matched = trackMatchPoints(points, ref, status.getMatchThreshold());
+			if (matched != null) {
+				double dist = computeDist(matched);
+				// consider at least 1km of distance between two stations
+				if (dist > 1000 && dist > maxMatched) {
+					maxMatched = dist;
+				}
+			}
+		}
+		if (maxMatched > 0) {
+			status.setValidationOutcome(TravelValidity.VALID);
+			status.setError(null);
+			status.getEffectiveDistances().put(status.getModeType(), maxMatched);
+			status.setIntervals(Collections.emptyList());
+			// TODO status split intervals to be fixed.
+		}
+	}
+	
+	private static double computeDist(List<Geolocation> track) {
+		double distance = 0d;
+		for (int i = 1; i < track.size(); i++) {
+			double d = GamificationHelper.harvesineDistance(track.get(i), track.get(i - 1));
+			distance += 1000.0 * d;
+		}
+		return distance;
+	}
+
 	/**
 	 * @param track
 	 * @return true if the track contains certification markers in the points
@@ -743,6 +802,127 @@ public class TrackValidator {
 		}
 		return invalidCount;
 	}
+	/**
+	 * Extract a maximum subtrack of the reference track track2, for which the test track track1 matches.
+	 * If there exists too many points of track1 with high precision but not on track2 in between, then return null.  
+	 * @param model
+	 * @param track2
+	 * @return
+	 */
+	private static List<Geolocation> trackMatchPoints(List<Geolocation> track1, List<Geolocation> track2, double error) {
+		double distance = error / 1000 / 2 / Math.sqrt(2);
+		double[] nw = new double[]{Double.MIN_VALUE, Double.MAX_VALUE}, se = new double[]{Double.MAX_VALUE, Double.MIN_VALUE};
+		int width = 0, height = 0;
+		// sparse matrix of the track: index of cell to the index of point in the track 
+		Map<Integer,Integer> matrix = new HashMap<>();
+			
+		// matrix construction: identify matrix coordinates
+		track2.forEach(g -> {
+			nw[0] = Math.max(nw[0], g.getLatitude()); nw[1] = Math.min(nw[1], g.getLongitude());
+			se[0] = Math.min(se[0], g.getLatitude()); se[1] = Math.max(se[1], g.getLongitude());
+		});
+			
+		// add extra row/col to matrix 
+		width = 2 + (int) Math.ceil(GamificationHelper.harvesineDistance(nw[0],nw[1], nw[0], se[1]) / distance);
+		height = 2 + (int) Math.ceil(GamificationHelper.harvesineDistance(nw[0],nw[1], se[0], nw[1]) / distance);
+			
+		// represent the cells with values to avoid sparse matrix traversal
+		// fill in the matrix from test track
+		for (int i = 0; i < track2.size(); i++) {
+			Geolocation g = track2.get(i);
+			int row = row(se[0], g.getLatitude(), g.getLongitude(), distance);
+			int col = col(nw[1], g.getLatitude(), g.getLongitude(), distance);
+			if (row >= height || col >= width) continue; // should never happen
+			int idx = row * width + col;
+			// only first point present
+			if (!matrix.containsKey(idx)) {
+				// point and neighbors
+				matrix.put(idx, i); 
+				matrix.put(idx - 1		  , i); 
+				matrix.put(idx + 1		  , i); 
+				matrix.put(idx - width	  , i);
+				matrix.put(idx - width - 1, i);
+				matrix.put(idx - width + 1, i);
+				matrix.put(idx + width	  , i);
+				matrix.put(idx + width - 1, i);
+				matrix.put(idx + width + 1, i);
+			}
+		};		
+
+		
+		// scan the points of track1 and see whether there are matches with track2.
+		// compute the extreme points of the matched track
+		int first1 = -1, last1 = -1, first2 = -1, last2 = -1;
+		for (int i = 0; i < track1.size(); i++) {
+			Geolocation g = track1.get(i);
+			if (g.getLatitude() > nw[0] || g.getLatitude() < se[0] || g.getLongitude() < nw[1] || g.getLongitude() > se[1]) continue;
+			
+			int row = row(se[0], g.getLatitude(), g.getLongitude(), distance);
+			int col = col(nw[1], g.getLatitude(), g.getLongitude(), distance);
+			
+			if (row >= height || col >= width) continue; // should never happen
+			int idx = row * width + col;
+
+			if (matrix.containsKey(idx)) {
+				if (first1 < 0) {
+					first1 = i;
+					first2 = matrix.get(idx);
+				}
+				last1 = i;
+				last2 = matrix.get(idx);
+				if (last2 < first2) return null;
+			}
+		}
+		
+		if (first1 < 0 || first1 == last1) {
+			return null;
+		}
+		
+		
+		// see precise but outlining
+		int invalidPreciseCount = 0, preciseCount = 0;
+		Geolocation prev = null;
+		for (int i = first1; i <= last1; i++) {
+			Geolocation g = track1.get(i);
+			long accuracy = g.getAccuracy();
+			// consider precise points only
+			if (accuracy < 50) {
+				if (prev != null) {
+					double d =  GamificationHelper.harvesineDistance(g, prev) * 1000;
+					if (d < 500) {
+						continue;
+					}
+				} else {
+					prev = g;
+				}
+
+				preciseCount++;
+				if (g.getLatitude() > nw[0] || g.getLatitude() < se[0] || g.getLongitude() < nw[1] || g.getLongitude() > se[1]) {
+					invalidPreciseCount++;
+					continue;
+				}
+				int row = row(se[0], g.getLatitude(), g.getLongitude(), distance);
+				int col = col(nw[1], g.getLatitude(), g.getLongitude(), distance);
+				
+				if (row >= height || col >= width) {
+					invalidPreciseCount++;
+					continue; // should never happen
+				}
+				int idx = row * width + col;
+				if (!matrix.containsKey(idx)) {
+					invalidPreciseCount++;
+				}
+			}
+		}
+		double ratio = preciseCount > 0 ? ((double)invalidPreciseCount / preciseCount) : 0d;
+		if (preciseCount > 10 && ratio > 0.15) {
+			// too many unmatched precise points
+			return null;
+		}
+
+		return track2.subList(first2, last2 + 1);
+	}
+	
 	private static int col(double w, double lat, double lon, double distance) {
 		return (int) Math.ceil(GamificationHelper.harvesineDistance(lat, w, lat, lon) / distance);
 	}

@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class PTDataHelper {
 	@PostConstruct
 	public void init() {
 		_instance = this;
-		List<Territory> list = territoryRepository.findAll();
+		List<Territory> list = territoryRepository == null ? Collections.emptyList() : territoryRepository.findAll();
 		list.forEach(t -> {
 			try {
 				_instance.initValidationData(t.getTerritoryId());
@@ -79,6 +80,14 @@ public class PTDataHelper {
 		});
 	}
 	
+	public String getShapeFolder() {
+		return shapeFolder;
+	}
+
+	public void setShapeFolder(String shapeFolder) {
+		this.shapeFolder = shapeFolder;
+	}
+
 	/**
 	 * @param territoryId
 	 * @return
