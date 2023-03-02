@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.aggregation.SkipOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -292,6 +293,17 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	
 	private void updateValidationResult(TrackedInstance track, ValidationResult result) {
 		track.setValidationResult(result);
+        if(TravelValidity.VALID.equals(result.getTravelValidity())) {
+            track.setToCheck(Boolean.FALSE);
+        }
+        if(TravelValidity.INVALID.equals(result.getTravelValidity())) {
+            if(ValidationStatus.ERROR_TYPE.NO_DATA.equals(result.getValidationStatus().getError()) ||
+                    ValidationStatus.ERROR_TYPE.TOO_SHORT.equals(result.getValidationStatus().getError())) {
+                track.setToCheck(Boolean.FALSE);
+            } else {
+                track.setToCheck(Boolean.TRUE);
+            }
+        }
 		trackedInstanceRepository.save(track);
 	}
 
@@ -301,6 +313,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		status.setValidationOutcome(TravelValidity.INVALID);
 		vr.setValidationStatus(status);
 		track.setValidationResult(vr);
+		track.setToCheck(Boolean.TRUE);
 		trackedInstanceRepository.save(track);
 	}
 	
@@ -485,7 +498,11 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			criteria = criteria.and("validationResult.validationStatus.validationOutcome").is(validationStatus);	
 		}
 		if(toCheck != null) {
-			criteria = criteria.and("toCheck").is(toCheck);
+		    if(toCheck) {
+		        criteria = criteria.and("toCheck").ne(false);
+		    } else {
+		        criteria = criteria.and("toCheck").is(false);
+		    }
 		}
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
@@ -657,6 +674,13 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			}
 			revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstance.getId());
 		}			
+	}
+	
+	public void modifyToCheck(String trackId, boolean toCheck) {
+        Query query = new Query(Criteria.where("id").is(trackId));
+        Update update = new Update();
+        update.set("toCheck", toCheck);
+        mongoTemplate.updateFirst(query, update, TrackedInstance.class);
 	}
 	
 }
