@@ -443,18 +443,34 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 					for (TrackedInstance passengerTravel: list) {
 						validateSharedTripPair(passengerTravel, passengerTravel.getUserId(), track.getClientId(), msg.getTerritoryId(), track);
 					}
+				} else {
+				    setValidationStatusPending(track);
+				    trackedInstanceRepository.save(track);
 				}
 			} else {
 				String driverTravelId = ValidationConstants.getDriverTravelId(sharedId);
 				TrackedInstance driverTravel = trackedInstanceRepository.findDriverTrip(msg.getTerritoryId(), driverTravelId, msg.getPlayerId());
 				if (driverTravel != null) {
 					validateSharedTripPair(track, msg.getPlayerId(), track.getClientId(), msg.getTerritoryId(), driverTravel);
+				} else {
+                    setValidationStatusPending(track);
+                    trackedInstanceRepository.save(track);
 				}
 			}
 		} catch (Exception e) {
 			logger.warn("validateTripRequest error" + e.getMessage(), e);
 			updateValidationResultAsError(track);
 		}	
+	}
+	
+	private void setValidationStatusPending(TrackedInstance track) {
+	    if(track.getValidationResult() == null) {
+	        track.setValidationResult(new ValidationResult());
+	    }
+	    if(track.getValidationResult().getValidationStatus() == null) {
+	        track.getValidationResult().setValidationStatus(new ValidationStatus()); 
+	    }
+	    track.getValidationResult().getValidationStatus().setValidationOutcome(TravelValidity.PENDING);
 	}
 
 	private void validateSharedTripPair(TrackedInstance passengerTravel, String passengerId, String passengerTravelId, String territoryId, TrackedInstance driverTravel) throws Exception {
