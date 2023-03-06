@@ -522,8 +522,10 @@ public class TrackValidator {
 				MatchModel subtrackModel = new MatchModel(subtrack, status.getMatchThreshold());
 				for (List<Geolocation> ref: referenceTracks) {
 					invalid = Math.min(trackMatch(subtrackModel, ref),invalid); 
-					subtrackPrecision = 100.0 * (effectiveLength-invalid) / (effectiveLength);
-					if (subtrackPrecision >= status.getValidityThreshold()) break;
+					double currSubtrackPrecision = 100.0 * (effectiveLength-invalid) / (effectiveLength);
+					if (currSubtrackPrecision >= status.getValidityThreshold()) {
+						subtrackPrecision = Math.max(subtrackPrecision, currSubtrackPrecision);
+					}
 				}
 				interval.setMatch(subtrackPrecision);
 				transportDistance += interval.getDistance();

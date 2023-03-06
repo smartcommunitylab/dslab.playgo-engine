@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -229,6 +229,15 @@ public class ConsoleController extends PlayAndGoController {
 				trackedInstanceManager.revalidateTracks(territoryId, campaignId, dDateFrom, dDateTo);
 			}
 		}
+	}
+	
+	@PutMapping("/api/console/track/check")
+	public void modifyToCheck(
+	        @RequestParam String trackId,
+	        @RequestParam boolean toCheck,
+	        HttpServletRequest request) throws Exception {
+	    checkAdminRole(request);
+	    trackedInstanceManager.modifyToCheck(trackId, toCheck);
 	}
 
 }

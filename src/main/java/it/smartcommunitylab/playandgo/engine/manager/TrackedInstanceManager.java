@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.aggregation.SkipOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -292,6 +293,17 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	
 	private void updateValidationResult(TrackedInstance track, ValidationResult result) {
 		track.setValidationResult(result);
+        if(TravelValidity.VALID.equals(result.getTravelValidity())) {
+            track.setToCheck(Boolean.FALSE);
+        }
+        if(TravelValidity.INVALID.equals(result.getTravelValidity())) {
+            if(ValidationStatus.ERROR_TYPE.NO_DATA.equals(result.getValidationStatus().getError()) ||
+                    ValidationStatus.ERROR_TYPE.TOO_SHORT.equals(result.getValidationStatus().getError())) {
+                track.setToCheck(Boolean.FALSE);
+            } else {
+                track.setToCheck(Boolean.TRUE);
+            }
+        }
 		trackedInstanceRepository.save(track);
 	}
 
@@ -301,6 +313,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		status.setValidationOutcome(TravelValidity.INVALID);
 		vr.setValidationStatus(status);
 		track.setValidationResult(vr);
+		track.setToCheck(Boolean.TRUE);
 		trackedInstanceRepository.save(track);
 	}
 	
@@ -430,18 +443,34 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 					for (TrackedInstance passengerTravel: list) {
 						validateSharedTripPair(passengerTravel, passengerTravel.getUserId(), track.getClientId(), msg.getTerritoryId(), track);
 					}
+				} else {
+				    setValidationStatusPending(track);
+				    trackedInstanceRepository.save(track);
 				}
 			} else {
 				String driverTravelId = ValidationConstants.getDriverTravelId(sharedId);
 				TrackedInstance driverTravel = trackedInstanceRepository.findDriverTrip(msg.getTerritoryId(), driverTravelId, msg.getPlayerId());
 				if (driverTravel != null) {
 					validateSharedTripPair(track, msg.getPlayerId(), track.getClientId(), msg.getTerritoryId(), driverTravel);
+				} else {
+                    setValidationStatusPending(track);
+                    trackedInstanceRepository.save(track);
 				}
 			}
 		} catch (Exception e) {
 			logger.warn("validateTripRequest error" + e.getMessage(), e);
 			updateValidationResultAsError(track);
 		}	
+	}
+	
+	private void setValidationStatusPending(TrackedInstance track) {
+	    if(track.getValidationResult() == null) {
+	        track.setValidationResult(new ValidationResult());
+	    }
+	    if(track.getValidationResult().getValidationStatus() == null) {
+	        track.getValidationResult().setValidationStatus(new ValidationStatus()); 
+	    }
+	    track.getValidationResult().getValidationStatus().setValidationOutcome(TravelValidity.PENDING);
 	}
 
 	private void validateSharedTripPair(TrackedInstance passengerTravel, String passengerId, String passengerTravelId, String territoryId, TrackedInstance driverTravel) throws Exception {
@@ -485,7 +514,11 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			criteria = criteria.and("validationResult.validationStatus.validationOutcome").is(validationStatus);	
 		}
 		if(toCheck != null) {
-			criteria = criteria.and("toCheck").is(toCheck);
+		    if(toCheck) {
+		        criteria = criteria.and("toCheck").ne(false);
+		    } else {
+		        criteria = criteria.and("toCheck").is(false);
+		    }
 		}
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
@@ -657,6 +690,13 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			}
 			revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstance.getId());
 		}			
+	}
+	
+	public void modifyToCheck(String trackId, boolean toCheck) {
+        Query query = new Query(Criteria.where("id").is(trackId));
+        Update update = new Update();
+        update.set("toCheck", toCheck);
+        mongoTemplate.updateFirst(query, update, TrackedInstance.class);
 	}
 	
 }
