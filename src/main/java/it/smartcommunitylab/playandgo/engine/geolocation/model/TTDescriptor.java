@@ -59,7 +59,7 @@ import it.smartcommunitylab.playandgo.engine.validation.TrackValidator;
  */
 public class TTDescriptor {
 
-	private static final Pattern TIME_REG = Pattern.compile("(\\d{2}):(\\d{2}):\\d{2}");
+	private static final Pattern TIME_REG = Pattern.compile("(\\d{1,2}):(\\d{2}):\\d{2}");
 	
 	private static final Logger logger = LoggerFactory.getLogger(TTDescriptor.class);
 	
@@ -144,7 +144,8 @@ public class TTDescriptor {
 	 */
 	public List<List<Geolocation>> filterShapes(Collection<Geolocation> track){
 		Collection<TTLineDescriptor> descriptors = filterDescriptors(track);
-		
+		// everything is filtered out: should not match anything so return empty track
+		if (descriptors.size() == 0 && !routeMap.isEmpty()) return Collections.singletonList(Collections.emptyList());
 		return descriptors.stream().map(d -> shapeMap.get(d.shape)).collect(Collectors.toList());
 	}
 	
@@ -277,7 +278,9 @@ public class TTDescriptor {
 		List<int[]> intervals = shapeTimeMap.get(shape);
 		int[] passInterval = new int[]{timeToInt(from)-30, timeToInt(to)+30};
 		for (int[] interval: intervals) {
-			if (passInterval[1] >= interval[0] && passInterval[0] <= interval[1]) return true;
+			if (passInterval[1] >= interval[0] && passInterval[0] <= interval[1]) {
+				return true;
+			}
 		}
 		return false;
 	}

@@ -230,6 +230,20 @@ public class ExternalController extends PlayAndGoController {
 	    }
 	}	
 	
+    @DeleteMapping("/api/ext/player/campaign/sub")
+    public void deletePlayerSubscription(
+            @RequestParam String playerId,
+            @RequestParam String campaignId,
+            HttpServletRequest request) throws Exception {
+        checkAPIRole(request);
+        Player player = playerRepository.findById(playerId).orElse(null);
+        Campaign campaign = campaignManager.getCampaign(campaignId);
+        if((player != null) && (campaign != null)) {
+            campaignManager.removeCampaignSubscription(playerId, campaignId);
+            unregisterManager.deletePlayerStats(playerId, campaignId);
+        }
+    }
+    
 	/**
 	 * @param p
 	 * @return

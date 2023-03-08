@@ -30,6 +30,7 @@ import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.manager.highschool.PgHighSchoolManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
@@ -86,6 +87,14 @@ public class UnregisterManager {
 	        mongoTemplate.remove(query, PlayerGameStatus.class);
 	        mongoTemplate.remove(query, PlayerStatsGame.class);
 	    }
+	}
+	
+	public void deletePlayerStats(String playerId, String campaignId) {
+        Query query = new Query(new Criteria("playerId").is(playerId).and("campaignId").is(campaignId));
+        mongoTemplate.remove(query, PlayerGameStatus.class);
+        mongoTemplate.remove(query, PlayerStatsGame.class);
+        mongoTemplate.remove(query, PlayerStatsTransport.class);
+        mongoTemplate.remove(query, CampaignPlayerTrack.class);
 	}
 
 	public void unregisterPlayer(Player player) throws Exception {
