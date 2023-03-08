@@ -272,6 +272,13 @@ public class CampaignManager {
 		return subscription;
 	}
 	
+	public void removeCampaignSubscription(String playerId, String campaignId) {
+	    CampaignSubscription subscription = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, playerId);
+	    if(subscription != null) {
+	        campaignSubscriptionRepository.deleteById(subscription.getId());
+	    }
+	}
+	
 	public void unsubscribePlayer(String playerId) {
 		List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerId(playerId);
 		campaignSubscriptionRepository.deleteAll(list);
@@ -438,6 +445,10 @@ public class CampaignManager {
 	
 	public List<CampaignSubscription> getCampaignSubscriptions(String campaignId) {
 		return campaignSubscriptionRepository.findByCampaignId(campaignId);
+	}
+	
+	public CampaignSubscription getCampaignSubscriptionByPlayer(String campaignId, String playerId) {
+	    return campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, playerId);
 	}
 
 	public List<String> uploadWeekConfs(String campaignId, InputStreamReader contentReader) throws Exception {
