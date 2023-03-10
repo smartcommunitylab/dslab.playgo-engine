@@ -144,7 +144,8 @@ public class TTDescriptor {
 	 */
 	public List<List<Geolocation>> filterShapes(Collection<Geolocation> track){
 		Collection<TTLineDescriptor> descriptors = filterDescriptors(track);
-		
+		// everything is filtered out: should not match anything so return empty track
+		if (descriptors.size() == 0 && !routeMap.isEmpty()) return Collections.singletonList(Collections.emptyList());
 		return descriptors.stream().map(d -> shapeMap.get(d.shape)).collect(Collectors.toList());
 	}
 	
