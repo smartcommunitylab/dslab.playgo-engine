@@ -85,7 +85,7 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
                     //update global status 
                     JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
                     if(playerState != null) {
-                        updatePlayerState(playerState, gameStatus, p, trackDay);
+                        updatePlayerState(playerState, gameStatus, p, trackDay, delta);
                         gameStatus.setUpdateTime(new Date());
                         playerGameStatusRepository.save(gameStatus);
                         logger.debug("update playerState " + gameStatus.getId());
@@ -124,7 +124,7 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
         return ZonedDateTime.ofInstant(Utils.getUTCDate(timestamp).toInstant(), zoneId);
     }
 
-    protected void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus, Player p, ZonedDateTime day) throws Exception {
+    protected void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus, Player p, ZonedDateTime day, double delta) throws Exception {
         //score
         JsonNode concepts = root.findPath("PointConcept");
         for(JsonNode pointConcept : concepts) {
@@ -165,7 +165,7 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
                     statsGame.setWeekOfYear(day.format(dftWeek));
                     statsGame.setMonthOfYear(day.format(dftMonth));
                 }
-                statsGame.setScore(getDailyScore(pointConcept, dayString));
+                setDailyScore(statsGame, pointConcept, dayString, delta);
                 statsGameRepository.save(statsGame);                
             }
         }
@@ -179,8 +179,14 @@ public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusMana
         gameStatus.getBadges().addAll(gameDataConverter.convertBadgeCollection(badges));
     }
 	
-	private double getDailyScore(JsonNode pointConcept, String day) {
-	    return pointConcept.at("/periods/daily/instances/" + day + "T00:00:00/score").asDouble(0.0);
+	private void setDailyScore(PlayerStatsGame statsGame, JsonNode pointConcept, String day, double delta) {
+	    String path = "/periods/daily/instances/" + day + "T00:00:00/score";
+	    JsonNode node = pointConcept.at(path);
+	    if(node.isMissingNode()) {
+	        statsGame.setScore(statsGame.getScore() + delta);
+	    } else {
+	        statsGame.setScore(node.asDouble());
+	    }
 	}
 	
 	
