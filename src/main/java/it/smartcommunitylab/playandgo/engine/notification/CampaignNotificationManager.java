@@ -25,9 +25,11 @@ import com.google.common.collect.Maps;
 import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
@@ -55,6 +57,9 @@ public class CampaignNotificationManager {
 	
 	@Autowired
 	CampaignRepository campaignRepository;
+	
+	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
 	
 	@Autowired
 	private BadgeManager badgeManager;
@@ -116,22 +121,27 @@ public class CampaignNotificationManager {
 			if(territory != null) {
 				Campaign campaign = campaignRepository.findByGameId(not.getGameId());
 				if(campaign != null) {
-					Notification notification = null;
-					
-					try {
-						notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
-					} catch (Exception e) {
-						logger.error("Error building notification", e);
-					}
-					if (notification != null) {
-							try {
-								logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + "):" 
-										+ mapper.writeValueAsString(notification));
-								notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
-							} catch (Exception e) {
-								logger.warn("Error sending notification:" + e.getMessage());
-							}
-					}											
+				    CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), p.getPlayerId());
+				    if(cs != null) {
+				        Notification notification = null;
+	                    
+	                    try {
+	                        notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
+	                    } catch (Exception e) {
+	                        logger.error("Error building notification", e);
+	                    }
+	                    if (notification != null) {
+	                            try {
+	                                logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + "):" 
+	                                        + mapper.writeValueAsString(notification));
+	                                notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
+	                            } catch (Exception e) {
+	                                logger.warn("Error sending notification:" + e.getMessage());
+	                            }
+	                    }                                           				        
+				    } else {
+				        logger.warn("Player " + not.getPlayerId() + " not subscribed to campaign " + campaign.getCampaignId()); 
+				    }
 				} else {
 					logger.warn("Game " + not.getGameId() + " campaign not found");
 				}
