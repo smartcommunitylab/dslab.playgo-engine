@@ -2,12 +2,13 @@ package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronExpression;
@@ -24,12 +25,6 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 public class ChallengeNotificationTask {
     private static final Logger logger = LoggerFactory.getLogger(ChallengeNotificationTask.class);
     
-    @Value("${gamification.cronProposed}")
-    private String cronProposed;
-    
-    @Value("${gamification.cronAssigned}")
-    private String cronAssigned;
-    
     @Autowired
     GamificationEngineManager gamificationEngineManager;
     
@@ -38,32 +33,43 @@ public class ChallengeNotificationTask {
     
     @Autowired
     CampaignRepository campaignRepository;
-
-    @Scheduled(cron="${this.cronProposed}")
-    @SchedulerLock(name = "ChallengeNotificationTask.sendWeeklyNotificationProposed")
+    
+    @Scheduled(cron="${gamification.cron}")
+    @SchedulerLock(name = "ChallengeNotificationTask.sendWeeklyNotification")
     public void sendWeeklyNotificationProposed() {
+        sendNotifications(Campaign.challengePlayerProposed, "PROPOSED");
+        sendNotifications(Campaign.challengePlayerAssigned, "ASSIGNED");
+    }
+    
+    private void sendNotifications(String cronKey, String messageKey) {
         List<Campaign> campaigns = campaignRepository.findAll();
         for(Campaign campaign : campaigns) {
             if(campaign.currentlyActive() && Utils.isNotEmpty(campaign.getGameId()) 
-                    && Utils.isNotEmpty((String)campaign.getSpecificData().get(Campaign.challengePlayerProposed))) {
-                CronExpression expression = CronExpression.parse((String)campaign.getSpecificData().get(Campaign.challengePlayerProposed));
-                LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);;
-                LocalDateTime next = expression.next(now);
-                if(next.equals(now)) {
-                    logger.info(String.format("sendWeeklyNotificationProposed: %s - %s", campaign.getCampaignId(), campaign.getGameId()));
+                    && Utils.isNotEmpty((String)campaign.getSpecificData().get(cronKey))) {
+                CronExpression expression = CronExpression.parse((String)campaign.getSpecificData().get(cronKey));
+                LocalDateTime truncatedTime = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
+                LocalDateTime nextExpression = expression.next(truncatedTime.minusMinutes(1));
+                if(nextExpression.equals(truncatedTime)) {
+                    logger.info(String.format("sendNotification: %s - %s - %s", campaign.getCampaignId(), campaign.getGameId(), messageKey));
                     List<String> playerList = gamificationEngineManager.getProposedPlayerList(campaign.getGameId());
                     for(String playerId : playerList) {
-                        
+                        try {
+                            Map<String, Object> msg = new HashMap<>();
+                            Map<String, Object> obj = new HashMap<>();
+                            obj.put("gameId", campaign.getGameId());
+                            obj.put("playerId", playerId);
+                            obj.put("timestamp", System.currentTimeMillis());
+                            obj.put("key", messageKey);
+                            msg.put("type", "MessageNotification");
+                            msg.put("obj", obj);
+                            notificationManager.processNotification(msg);
+                        } catch (Exception e) {
+                            logger.error(String.format("sendNotification error:%s - %s", playerId, e.getMessage()));
+                        }                                               
                     }
                 }
             }
-        }
-    }
-    
-    @Scheduled(cron="${this.cronAssigned}")
-    @SchedulerLock(name = "ChallengeNotificationTask.sendWeeklyNotificationAssigned")
-    public void sendWeeklyNotificationAssigned() {
-        
+        }        
     }
     
 

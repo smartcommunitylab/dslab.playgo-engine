@@ -3,6 +3,7 @@ package it.smartcommunitylab.playandgo.engine.ge;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -401,7 +402,7 @@ public class GamificationEngineManager {
 	
 	public List<String> getProposedPlayerList(String gameId) {
 	    //TODO
-	    return new ArrayList<>();
+	    return Arrays.asList("u_fe939cab-1638-45b3-a604-80a3fb018e54");
 	}
 
 	public List<String> getAssignedPlayerList(String gameId) {
