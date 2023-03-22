@@ -1,11 +1,18 @@
 package it.smartcommunitylab.playandgo.engine.campaign.city;
 
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
@@ -53,7 +61,9 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.Inventory;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.OtherAttendeeData;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
 @Component
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -124,6 +134,9 @@ public class CityGameDataConverter {
 	
 	@Autowired
 	private PlayerRepository playerRepository;
+    
+	@Autowired
+    TerritoryRepository territoryRepository;
 	
 	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
@@ -239,6 +252,7 @@ public class CityGameDataConverter {
 			points.removeIf(x -> !PC_GREEN_LEAVES.equals(x.getName()) || !PC_WEEKLY.equals(x.getPeriodType()));
 			ps.setPointConcept(points);		
 			
+			
 			Calendar c = Calendar.getInstance();
 			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
 			Calendar to = Calendar.getInstance(); to.setTime(from.getTime()); to.add(Calendar.DAY_OF_MONTH, 2);
@@ -250,6 +264,29 @@ public class CityGameDataConverter {
 			throw e;
 		}
 	}
+	
+
+    private ZonedDateTime getDateTime(Campaign campaign, LocalDateTime ldt) {      
+        ZoneId zoneId = null;
+        Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+        if(territory == null) {
+            zoneId = ZoneId.systemDefault();
+        } else {
+            zoneId = ZoneId.of(territory.getTimezone());
+        }
+        return ldt.atZone(zoneId);
+    }
+    
+    private ZonedDateTime getZonedDateTime(Campaign campaign) {
+        ZoneId zoneId = null;
+        Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+        if(territory == null) {
+            zoneId = ZoneId.systemDefault();
+        } else {
+            zoneId = ZoneId.of(territory.getTimezone());
+        }
+        return ZonedDateTime.now(zoneId);        
+    }
 	
 	public ChallengeConceptInfo convertPlayerChallengesData(String jsonChallenges, String playerStatus, Player player, Campaign campaign, int challType) throws Exception {
 		try {
@@ -266,18 +303,39 @@ public class CityGameDataConverter {
 					points, filterBadges(badges), challengeList);
 
 			challenges.setCanInvite(false);
-			Calendar c = Calendar.getInstance();
-			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
-			Calendar to = Calendar.getInstance(); to.setTime(from.getTime()); to.add(Calendar.DAY_OF_MONTH, 2);
-			if(c.before(to) && c.after(from)) {
-				if(playerMap.containsKey("inventory")) {
-					Map inventory = (Map) playerMap.get("inventory");
-					List challengeChoices = (List) inventory.get("challengeChoices");
-					if((challengeChoices != null) && challengeChoices.size() > 0) {
-						challenges.setCanInvite(true);
-					}
-				}
-			}
+
+            CronExpression expressionFrom = CronExpression.parse((String)campaign.getSpecificData().get(Campaign.challengePlayerProposed));    
+            CronExpression expressionTo = CronExpression.parse((String)campaign.getSpecificData().get(Campaign.challengePlayerAssigned));
+            
+            ZonedDateTime nowZoned = getZonedDateTime(campaign);
+            ZonedDateTime truncatedTime = nowZoned.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
+                    .truncatedTo(ChronoUnit.DAYS);
+            
+            ZonedDateTime from = expressionFrom.next(truncatedTime);
+            ZonedDateTime to = expressionTo.next(truncatedTime); 
+            
+            if(nowZoned.isAfter(from) && nowZoned.isBefore(to)) {
+                if(playerMap.containsKey("inventory")) {
+                    Map inventory = (Map) playerMap.get("inventory");
+                    List challengeChoices = (List) inventory.get("challengeChoices");
+                    if((challengeChoices != null) && challengeChoices.size() > 0) {
+                        challenges.setCanInvite(true);
+                    }
+                }                
+            }
+            
+//			Calendar c = Calendar.getInstance();
+//			Calendar from = Calendar.getInstance(); from.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY); from.set(Calendar.HOUR_OF_DAY, 12); from.set(Calendar.MINUTE, 0); from.set(Calendar.SECOND, 0);
+//			Calendar to = Calendar.getInstance(); to.setTime(from.getTime()); to.add(Calendar.DAY_OF_MONTH, 2);
+//			if(c.before(to) && c.after(from)) {
+//				if(playerMap.containsKey("inventory")) {
+//					Map inventory = (Map) playerMap.get("inventory");
+//					List challengeChoices = (List) inventory.get("challengeChoices");
+//					if((challengeChoices != null) && challengeChoices.size() > 0) {
+//						challenges.setCanInvite(true);
+//					}
+//				}
+//			}
 			
 			return challenges;
 			
