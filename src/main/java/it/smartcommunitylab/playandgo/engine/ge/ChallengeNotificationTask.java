@@ -63,8 +63,8 @@ public class ChallengeNotificationTask {
         List<Campaign> campaigns = campaignRepository.findAll();
         for(Campaign campaign : campaigns) {
             if(campaign.currentlyActive() && Utils.isNotEmpty(campaign.getGameId()) 
-                    && Utils.isNotEmpty((String)campaign.getSpecificData().get(cronKey))) {
-                CronExpression expression = CronExpression.parse((String)campaign.getSpecificData().get(cronKey));
+                    && Utils.isNotEmpty(Utils.getCronExp(campaign, cronKey))) {
+                CronExpression expression = CronExpression.parse(Utils.getCronExp(campaign, cronKey));
                 ZonedDateTime nowZoned = getZonedDateTime(campaign);
                 ZonedDateTime truncatedTime = nowZoned.truncatedTo(ChronoUnit.HOURS);
                 ZonedDateTime nextExpression = expression.next(truncatedTime.minusMinutes(1));
