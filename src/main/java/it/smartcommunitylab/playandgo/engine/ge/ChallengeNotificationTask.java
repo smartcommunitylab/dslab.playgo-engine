@@ -1,6 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +17,10 @@ import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
@@ -34,11 +38,25 @@ public class ChallengeNotificationTask {
     @Autowired
     CampaignRepository campaignRepository;
     
+    @Autowired
+    TerritoryRepository territoryRepository;
+    
     @Scheduled(cron="${gamification.cron}")
     @SchedulerLock(name = "ChallengeNotificationTask.sendWeeklyNotification")
     public void sendWeeklyNotificationProposed() {
         sendNotifications(Campaign.challengePlayerProposed, "PROPOSED");
         sendNotifications(Campaign.challengePlayerAssigned, "ASSIGNED");
+    }
+    
+    private ZonedDateTime getZonedDateTime(Campaign campaign) {
+        ZoneId zoneId = null;
+        Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+        if(territory == null) {
+            zoneId = ZoneId.systemDefault();
+        } else {
+            zoneId = ZoneId.of(territory.getTimezone());
+        }
+        return ZonedDateTime.now(zoneId);        
     }
     
     private void sendNotifications(String cronKey, String messageKey) {
@@ -47,8 +65,9 @@ public class ChallengeNotificationTask {
             if(campaign.currentlyActive() && Utils.isNotEmpty(campaign.getGameId()) 
                     && Utils.isNotEmpty((String)campaign.getSpecificData().get(cronKey))) {
                 CronExpression expression = CronExpression.parse((String)campaign.getSpecificData().get(cronKey));
-                LocalDateTime truncatedTime = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
-                LocalDateTime nextExpression = expression.next(truncatedTime.minusMinutes(1));
+                ZonedDateTime nowZoned = getZonedDateTime(campaign);
+                ZonedDateTime truncatedTime = nowZoned.truncatedTo(ChronoUnit.HOURS);
+                ZonedDateTime nextExpression = expression.next(truncatedTime.minusMinutes(1));
                 if(nextExpression.equals(truncatedTime)) {
                     logger.info(String.format("sendNotification: %s - %s - %s", campaign.getCampaignId(), campaign.getGameId(), messageKey));
                     List<String> playerList = gamificationEngineManager.getProposedPlayerList(campaign.getGameId());
