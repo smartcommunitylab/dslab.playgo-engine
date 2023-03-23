@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
@@ -78,6 +79,18 @@ public class Utils {
             return validationStatus.getEffectiveDistances().get(validationStatus.getModeType());
         }     
         return validationStatus.getDistance();
+	}
+	
+	public static String getCronExp(Campaign campaign, String cronKey) {
+	    String exp = (String)campaign.getSpecificData().get(cronKey);
+	    if(Utils.isNotEmpty(exp)) {
+	        String[] items = exp.split(";");
+	        if(items.length > 1) {
+	            //0 0 14 * * WED
+	            return "0 0 " + items[0].trim() + " * * " + items[1].trim().toUpperCase();
+	        }
+	    }
+	    return null;
 	}
  	
 }

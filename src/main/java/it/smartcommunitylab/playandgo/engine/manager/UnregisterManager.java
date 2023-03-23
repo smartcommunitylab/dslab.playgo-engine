@@ -142,6 +142,7 @@ public class UnregisterManager {
                             break;
 	                }			        
 			    }
+			    campaignSubscriptionRepository.delete(cs);
 			}
 		}
 		logger.info(String.format("unregisterPlayer:%s", player.getPlayerId()));

@@ -116,7 +116,7 @@ public class CampaignNotificationManager {
 		}
 	
 		Player p = playerRepository.findById(not.getPlayerId()).orElse(null);	
-		if (p != null) {
+		if ((p != null) && (!p.getDeleted())) {
 			Territory territory = territoryRepository.findById(p.getTerritoryId()).orElse(null);
 			if(territory != null) {
 				Campaign campaign = campaignRepository.findByGameId(not.getGameId());
@@ -172,17 +172,17 @@ public class CampaignNotificationManager {
 	    if(not instanceof MessageNotification) {
 	        type = ((MessageNotification)not).getKey();
 	    }
-	    logger.info("buildNotification type:" + type);
+	    logger.debug("buildNotification type:" + type);
 	    
 	    if(type == null) return null;
 		
 		Map<String, String> extraData = buildExtraData(not, type, lang);
-		logger.info("buildExtraData:" + extraData);
+		logger.debug("buildExtraData:" + extraData);
 		
 		Notification result = new Notification();
 		
 		NotificationMessage message = notificationsMessages.get(type);
-		logger.info("NotificationMessage:" + message);
+		logger.debug("NotificationMessage:" + message);
 			
 		fillNotification(result, lang, message, extraData);
 		return result;

@@ -2,9 +2,12 @@ package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -397,4 +400,16 @@ public class GamificationEngineManager {
 		return false;		
 	}
 	
+	public String getProposedPlayerList(String gameId) {
+        try {
+            String url = gamificationUrl + "/data/game/" + gameId + "/proposedChallengePlayers";
+            String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+                    gamificationUser, gamificationPassword);
+            return json;
+        } catch (Exception e) {
+            logger.error(String.format("getProposedPlayerList error: %s - %s", gameId, e.getMessage()));
+        }
+        return null;                                
+	}
+
 }

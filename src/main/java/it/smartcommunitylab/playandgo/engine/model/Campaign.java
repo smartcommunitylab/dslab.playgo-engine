@@ -23,6 +23,8 @@ public class Campaign {
 	public static String defaultSurveyKey = "defaultSurvey";
 	public static String recommenderPlayerId = "recommenderPlayerId";
 	public static String recommendationPlayerToDo = "recommendationPlayerToDo";
+	public static String challengePlayerProposed = "challengePlayerProposed";
+	public static String challengePlayerAssigned = "challengePlayerAssigned";
 
 	@Id
 	private String campaignId;
