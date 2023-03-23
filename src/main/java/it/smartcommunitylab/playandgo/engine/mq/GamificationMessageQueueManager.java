@@ -83,30 +83,34 @@ public class GamificationMessageQueueManager {
 		connection = connectionFactory.newConnection();
 		
         gameNotificationCallback = (consumerTag, delivery) -> {
-            String msg = new String(delivery.getBody(), "UTF-8");
-            logger.info("gameNotificationCallback:" + msg);
-            @SuppressWarnings("unchecked")
-            Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
-            String type = (String) map.get("type");
-            String gameId = null;
-            @SuppressWarnings("unchecked")
-            Map<String, Object> obj = (Map<String, Object>) map.get("obj");
-            if(obj != null) {
-                gameId = (String) obj.get("gameId");
-            }
-            if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
-                Campaign campaign = campaignRepository.findByGameId(gameId);
-                if(campaign != null) {
-                    String routingKey = campaign.getType().toString(); 
-                    ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
-                    if(manager != null) {
-                        manager.manageGameNotification(map, routingKey);
-                    }                   
-                } else {
-                    logger.warn("campaign not found: " + gameId);
+            try {
+                String msg = new String(delivery.getBody(), "UTF-8");
+                logger.info("gameNotificationCallback:" + msg);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> map = (Map<String, Object>) mapper.readValue(msg, Map.class);
+                String type = (String) map.get("type");
+                String gameId = null;
+                @SuppressWarnings("unchecked")
+                Map<String, Object> obj = (Map<String, Object>) map.get("obj");
+                if(obj != null) {
+                    gameId = (String) obj.get("gameId");
                 }
-            } else {
-                logger.warn("Bad notification content: " + msg);
+                if(Utils.isNotEmpty(type) && Utils.isNotEmpty(gameId)) {
+                    Campaign campaign = campaignRepository.findByGameId(gameId);
+                    if(campaign != null) {
+                        String routingKey = campaign.getType().toString(); 
+                        ManageGameNotification manager = manageGameNotificationMap.get(routingKey);
+                        if(manager != null) {
+                            manager.manageGameNotification(map, routingKey);
+                        }                   
+                    } else {
+                        logger.warn("campaign not found: " + gameId);
+                    }
+                } else {
+                    logger.warn("Bad notification content: " + msg);
+                }                
+            } catch (Exception e) {
+                logger.error("gameNotificationCallback error", e);
             }
         };
         

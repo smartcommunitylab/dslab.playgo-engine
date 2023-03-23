@@ -311,8 +311,7 @@ public class CityGameDataConverter {
                 }                
             }
             
-			return challenges;
-			
+			return challenges;	
 		} catch (Exception e) {
 			logger.error("convertPlayerChallengesData:" + e.getMessage());
 			throw e;
