@@ -290,26 +290,31 @@ public class CityGameDataConverter {
 					points, filterBadges(badges), challengeList);
 
 			challenges.setCanInvite(false);
-
-            CronExpression expressionFrom = CronExpression.parse(Utils.getCronExp(campaign, Campaign.challengePlayerProposed));
-            CronExpression expressionTo = CronExpression.parse(Utils.getCronExp(campaign, Campaign.challengePlayerAssigned));
-            
-            ZonedDateTime nowZoned = getZonedDateTime(campaign);
-            ZonedDateTime truncatedTime = nowZoned.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
-                    .truncatedTo(ChronoUnit.DAYS);
-            
-            ZonedDateTime from = expressionFrom.next(truncatedTime);
-            ZonedDateTime to = expressionTo.next(truncatedTime); 
-            
-            if(nowZoned.isAfter(from) && nowZoned.isBefore(to)) {
-                if(playerMap.containsKey("inventory")) {
-                    Map inventory = (Map) playerMap.get("inventory");
-                    List challengeChoices = (List) inventory.get("challengeChoices");
-                    if((challengeChoices != null) && challengeChoices.size() > 0) {
-                        challenges.setCanInvite(true);
-                    }
-                }                
-            }
+			
+			String expressionFromString = Utils.getCronExp(campaign, Campaign.challengePlayerProposed);
+			String expressionToString = Utils.getCronExp(campaign, Campaign.challengePlayerAssigned);
+			
+			if(Utils.isNotEmpty(expressionFromString) && Utils.isNotEmpty(expressionToString)) {
+	            CronExpression expressionFrom = CronExpression.parse(expressionFromString);
+	            CronExpression expressionTo = CronExpression.parse(expressionToString);
+	            
+	            ZonedDateTime nowZoned = getZonedDateTime(campaign);
+	            ZonedDateTime truncatedTime = nowZoned.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
+	                    .truncatedTo(ChronoUnit.DAYS);
+	            
+	            ZonedDateTime from = expressionFrom.next(truncatedTime);
+	            ZonedDateTime to = expressionTo.next(truncatedTime); 
+	            
+	            if(nowZoned.isAfter(from) && nowZoned.isBefore(to)) {
+	                if(playerMap.containsKey("inventory")) {
+	                    Map inventory = (Map) playerMap.get("inventory");
+	                    List challengeChoices = (List) inventory.get("challengeChoices");
+	                    if((challengeChoices != null) && challengeChoices.size() > 0) {
+	                        challenges.setCanInvite(true);
+	                    }
+	                }                
+	            }			    
+			}
             
 			return challenges;	
 		} catch (Exception e) {
