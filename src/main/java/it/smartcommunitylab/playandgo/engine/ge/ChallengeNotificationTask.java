@@ -1,12 +1,13 @@
 package it.smartcommunitylab.playandgo.engine.ge;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
@@ -40,6 +45,13 @@ public class ChallengeNotificationTask {
     
     @Autowired
     TerritoryRepository territoryRepository;
+    
+    private ObjectMapper mapper = new ObjectMapper();
+    
+    @PostConstruct
+    private void init() throws Exception {
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
     
     @Scheduled(cron="${gamification.cron}")
     @SchedulerLock(name = "ChallengeNotificationTask.sendWeeklyNotification")
@@ -70,27 +82,32 @@ public class ChallengeNotificationTask {
                 ZonedDateTime nextExpression = expression.next(truncatedTime.minusMinutes(1));
                 if(nextExpression.equals(truncatedTime)) {
                     logger.info(String.format("sendNotification: %s - %s - %s", campaign.getCampaignId(), campaign.getGameId(), messageKey));
-                    List<String> playerList = gamificationEngineManager.getProposedPlayerList(campaign.getGameId());
-                    for(String playerId : playerList) {
-                        try {
-                            Map<String, Object> msg = new HashMap<>();
-                            Map<String, Object> obj = new HashMap<>();
-                            obj.put("gameId", campaign.getGameId());
-                            obj.put("playerId", playerId);
-                            obj.put("timestamp", System.currentTimeMillis());
-                            obj.put("key", messageKey);
-                            msg.put("type", "MessageNotification");
-                            msg.put("obj", obj);
-                            notificationManager.processNotification(msg);
-                        } catch (Exception e) {
-                            logger.error(String.format("sendNotification error:%s - %s", playerId, e.getMessage()));
-                        }                                               
+                    try {
+                        String json = gamificationEngineManager.getProposedPlayerList(campaign.getGameId());
+                        if(Utils.isNotEmpty(json)) {
+                            List<String> playerList = mapper.readValue(json, new TypeReference<List<String>>() {});
+                            for(String playerId : playerList) {
+                                try {
+                                    Map<String, Object> msg = new HashMap<>();
+                                    Map<String, Object> obj = new HashMap<>();
+                                    obj.put("gameId", campaign.getGameId());
+                                    obj.put("playerId", playerId);
+                                    obj.put("timestamp", System.currentTimeMillis());
+                                    obj.put("key", messageKey);
+                                    msg.put("type", "MessageNotification");
+                                    msg.put("obj", obj);
+                                    notificationManager.processNotification(msg);
+                                } catch (Exception e) {
+                                    logger.error(String.format("sendNotification error:%s - %s", playerId, e.getMessage()));
+                                }                                               
+                            }                                                    
+                        }
+                    } catch (Exception e) {
+                        logger.error(String.format("sendNotification error:%s - %s", campaign.getCampaignId(), e.getMessage()));
                     }
                 }
             }
         }        
     }
-    
-
-        
+          
 }

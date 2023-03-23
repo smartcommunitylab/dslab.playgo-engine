@@ -400,14 +400,16 @@ public class GamificationEngineManager {
 		return false;		
 	}
 	
-	public List<String> getProposedPlayerList(String gameId) {
-	    //TODO
-	    return Arrays.asList("u_fe939cab-1638-45b3-a604-80a3fb018e54");
+	public String getProposedPlayerList(String gameId) {
+        try {
+            String url = gamificationUrl + "/data/game/" + gameId + "/proposedChallengePlayers";
+            String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+                    gamificationUser, gamificationPassword);
+            return json;
+        } catch (Exception e) {
+            logger.error(String.format("getProposedPlayerList error: %s - %s", gameId, e.getMessage()));
+        }
+        return null;                                
 	}
-
-	public List<String> getAssignedPlayerList(String gameId) {
-        //TODO
-        return new ArrayList<>();
-    }
 
 }
