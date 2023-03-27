@@ -299,8 +299,13 @@ public class CityGameDataConverter {
 	            CronExpression expressionTo = CronExpression.parse(expressionToString);
 	            
 	            ZonedDateTime nowZoned = getZonedDateTime(campaign);
-	            ZonedDateTime truncatedTime = nowZoned.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
-	                    .truncatedTo(ChronoUnit.DAYS);
+	            ZonedDateTime truncatedTime = null;
+	            if(nowZoned.getDayOfWeek().getValue() == 1) {
+	                truncatedTime = nowZoned.truncatedTo(ChronoUnit.DAYS);
+	            } else {
+	                truncatedTime = nowZoned.with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
+	                        .truncatedTo(ChronoUnit.DAYS);	                
+	            }
 	            
 	            ZonedDateTime from = expressionFrom.next(truncatedTime);
 	            ZonedDateTime to = expressionTo.next(truncatedTime); 
