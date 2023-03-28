@@ -878,7 +878,7 @@ public class CityGameDataConverter {
 				challengeData.setProposerId(proposer);
 				
 				String otherPlayerId = (String)otherAttendeeScores.get(CHAL_FIELDS_PLAYER_ID); 
-				Player otherPlayer = playerRepository.findById(playerId).orElse(null);
+				Player otherPlayer = playerRepository.findById(otherPlayerId).orElse(null);
 				
 				String nickname = null;
 				if (otherPlayer != null) {
