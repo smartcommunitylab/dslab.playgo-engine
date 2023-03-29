@@ -56,7 +56,7 @@ public class CityCampaignSubscription {
 				String nickname = (String) campaignData.get(nickRecommendation);
 				Player recommender = playerRepository.findByNickname(nickname);
 				if(recommender != null) {
-					sub.getCampaignData().put(Campaign.recommenderPlayerId, player.getPlayerId());
+					sub.getCampaignData().put(Campaign.recommenderPlayerId, recommender.getPlayerId());
 					sub.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.TRUE);
 				}
 			}
