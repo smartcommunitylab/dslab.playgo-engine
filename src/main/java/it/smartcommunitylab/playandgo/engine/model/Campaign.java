@@ -25,6 +25,7 @@ public class Campaign {
 	public static String recommendationPlayerToDo = "recommendationPlayerToDo";
 	public static String challengePlayerProposed = "challengePlayerProposed";
 	public static String challengePlayerAssigned = "challengePlayerAssigned";
+	public static String registeredIds = "registeredIds";
 
 	@Id
 	private String campaignId;

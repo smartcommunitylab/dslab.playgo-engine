@@ -19,6 +19,8 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class SchoolCampaignSubscription {
@@ -37,6 +39,9 @@ public class SchoolCampaignSubscription {
 	
 	@Autowired
 	PgHighSchoolManager highSchoolManager;
+    
+	@Autowired
+    PlayerRepository playerRepository;
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData, boolean sendExtRequest) throws Exception {
@@ -56,11 +61,14 @@ public class SchoolCampaignSubscription {
 			sub.getCampaignData().putAll(campaignData);
 		}
         sub.getCampaignData().put(groupIdKey, groupId);
-		//check default survey
-		if(campaign.hasDefaultSurvey()) {
-			SurveyRequest sr = campaign.getDefaultSurvey();
-			surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
-		}
+        if(!Utils.checkPlayerAlreadyRegistered(player, campaign)) {
+            playerRepository.save(player);
+            //check default survey
+            if(campaign.hasDefaultSurvey()) {
+                SurveyRequest sr = campaign.getDefaultSurvey();
+                surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+            }            
+        }
 		sendRegisterWebhookRequest(sub);
 		return sub;
 	}
