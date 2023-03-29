@@ -249,6 +249,15 @@ public class CampaignNotificationManager {
 			    }
 			    break;
 			}
+            case "CityRegistrationBonus": {
+                String playerId = (String) ((MessageNotification)not).getData().get("recommenderPlayerId");
+                Player player = playerRepository.findById(playerId).orElse(null);
+                if(player != null) {
+                    result.put("nickname", player.getNickname());
+                    result.put("points", String.valueOf(((MessageNotification)not).getData().get("points")));
+                }
+                break;
+            }
 		}
 		return result;
 	}
