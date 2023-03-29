@@ -49,22 +49,25 @@ public class CityCampaignSubscription {
 		sub.setMail(player.getMail());
 		sub.setSendMail(player.getSendMail());
 		sub.setRegistrationDate(new Date());
-		if(campaignData != null) {
-			sub.setCampaignData(campaignData);
-			//check player recommendation
-			if(campaignData.containsKey(nickRecommendation)) {
-				String nickname = (String) campaignData.get(nickRecommendation);
-				Player recommender = playerRepository.findByNickname(nickname);
-				if(recommender != null) {
-					sub.getCampaignData().put(Campaign.recommenderPlayerId, recommender.getPlayerId());
-					sub.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.TRUE);
-				}
-			}
-		}
-		//check default survey
-		if(campaign.hasDefaultSurvey()) {
-			SurveyRequest sr = campaign.getDefaultSurvey();
-			surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+		if(!Utils.checkPlayerAlreadyRegistered(player, campaign)) {
+		    playerRepository.save(player);
+	        if(campaignData != null) {
+	            sub.setCampaignData(campaignData);
+	            //check player recommendation
+	            if(campaignData.containsKey(nickRecommendation)) {
+	                String nickname = (String) campaignData.get(nickRecommendation);
+	                Player recommender = playerRepository.findByNickname(nickname);
+	                if(recommender != null) {
+	                    sub.getCampaignData().put(Campaign.recommenderPlayerId, recommender.getPlayerId());
+	                    sub.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.TRUE);
+	                }
+	            }               
+	        }
+	        //check default survey
+	        if(campaign.hasDefaultSurvey()) {
+	            SurveyRequest sr = campaign.getDefaultSurvey();
+	            surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+	        }		    
 		}
 		//create player on GE
 		if(Utils.isNotEmpty(campaign.getGameId())) {

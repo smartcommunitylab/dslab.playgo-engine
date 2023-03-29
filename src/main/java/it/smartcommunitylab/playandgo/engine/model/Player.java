@@ -1,5 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,7 +23,7 @@ public class Player {
 	private String familyName;
 	private Boolean deleted = Boolean.FALSE;
 	private Boolean group = Boolean.FALSE;
-//	private Map<String, Object> personalData;
+	private Map<String, Object> personalData = new HashMap<>();
 //	private boolean checkedRecommendation;
 //	private List<Event> eventsCheckIn;
 	
@@ -106,6 +109,14 @@ public class Player {
 
     public void setGroup(Boolean group) {
         this.group = group;
+    }
+
+    public Map<String, Object> getPersonalData() {
+        return personalData;
+    }
+
+    public void setPersonalData(Map<String, Object> personalData) {
+        this.personalData = personalData;
     }
 
 	

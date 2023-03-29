@@ -1,7 +1,9 @@
 package it.smartcommunitylab.playandgo.engine.util;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
@@ -9,6 +11,7 @@ import java.util.UUID;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
@@ -91,6 +94,25 @@ public class Utils {
 	        }
 	    }
 	    return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+    public static boolean checkPlayerAlreadyRegistered(Player player, Campaign campaign) {
+	    boolean result = false;
+	    List<String> registeredIds = null;
+	    Object object = player.getPersonalData().get(Campaign.registeredIds);
+	    if(object == null) {
+	        registeredIds = new ArrayList<>();
+	        player.getPersonalData().put(Campaign.registeredIds, registeredIds);
+	    } else {
+	        registeredIds = (List<String>) object;
+	    }
+	    if(registeredIds.contains(campaign.getCampaignId())) {
+	        result = true;
+	    } else {
+	        registeredIds.add(campaign.getCampaignId()); 
+	    }
+	    return result;
 	}
  	
 }
