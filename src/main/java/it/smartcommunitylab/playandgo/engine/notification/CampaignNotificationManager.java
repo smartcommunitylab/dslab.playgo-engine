@@ -18,18 +18,23 @@ import org.stringtemplate.v4.ST;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
 import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
+import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerGameStatusRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
@@ -60,12 +65,21 @@ public class CampaignNotificationManager {
 	
 	@Autowired
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
+    
+	@Autowired
+    protected PlayerGameStatusRepository playerGameStatusRepository;
 	
 	@Autowired
 	private BadgeManager badgeManager;
+    
+	@Autowired
+    protected GamificationEngineManager gamificationEngineManager;
 
 	@Autowired
 	private CommunicationHelper notificatioHelper;
+    
+	@Autowired
+    protected CityGameDataConverter gameDataConverter;
 
 	private ObjectMapper mapper = new ObjectMapper(); {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -123,6 +137,9 @@ public class CampaignNotificationManager {
 				if(campaign != null) {
 				    CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), p.getPlayerId());
 				    if(cs != null) {
+				        if(not instanceof BadgeNotification) {
+				            updatePlayerBadges(campaign.getCampaignId(), (BadgeNotification)not);
+				        }
 				        Notification notification = null;
 	                    
 	                    try {
@@ -318,6 +335,26 @@ public class CampaignNotificationManager {
 		}
 
 		return result;
+	}
+	
+	private void updatePlayerBadges(String campaignId, BadgeNotification not) {
+	    try {
+	        if(not.getBadge().equalsIgnoreCase("1st_of_the_week") ||
+	                not.getBadge().equalsIgnoreCase("2nd_of_the_week") ||
+	                not.getBadge().equalsIgnoreCase("3rd_of_the_week")) {
+	            JsonNode playerState = gamificationEngineManager.getPlayerStatus(not.getPlayerId(), not.getGameId(), "green leaves");
+	            if(playerState != null) {
+	                PlayerGameStatus gameStatus = playerGameStatusRepository.findByPlayerIdAndCampaignId(not.getPlayerId(), campaignId);
+	                gameStatus.getBadges().clear();
+	                JsonNode badges = playerState.findPath("BadgeCollectionConcept");
+	                gameStatus.getBadges().addAll(gameDataConverter.convertBadgeCollection(badges));
+	                playerGameStatusRepository.save(gameStatus);
+	                logger.info(String.format("updatePlayerBadges:%s - %s - %s", not.getPlayerId(), campaignId, not.getGameId()));
+	            }            	            
+	        }
+        } catch (Exception e) {
+            logger.error(String.format("updatePlayerBadges:%s - %s - %s - %s", not.getPlayerId(), campaignId, not.getGameId(), e.getMessage()));
+        }
 	}
 	
 }
