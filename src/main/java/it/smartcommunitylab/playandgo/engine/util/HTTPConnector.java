@@ -15,6 +15,7 @@
  ******************************************************************************/
 package it.smartcommunitylab.playandgo.engine.util;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -25,6 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylab.playandgo.engine.exception.ConnectorException;
@@ -79,8 +81,30 @@ public class HTTPConnector {
 		}
 
 		return res.getBody();		
-	}	
+	}
 	
+    public static ResponseEntity<String> doBasicAuthenticationMethod(String address, String req, String accept, String contentType, String user, String password, HttpMethod method) {
+        RestTemplate restTemplate = buildRestTemplate();
+        Map<String, String> params = getHeaders(accept, contentType, user, password);
+        try {
+            return restTemplate.exchange(address, method, new HttpEntity<Object>(req, createHeaders(params)), String.class);
+        } catch(HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getRawStatusCode()).headers(e.getResponseHeaders()).body(e.getResponseBodyAsString());
+        }
+    }
+	
+    private static Map<String, String> getHeaders(String accept, String contentType, String user, String password) {
+        String s = user + ":" + password;
+        byte[] b = Base64.encodeBase64(s.getBytes());
+        String es = new String(b);
+        
+        Map<String, String> params = new HashMap<>();
+        params.put("Accept", accept);
+        params.put("Content-Type", contentType);
+        params.put("Authorization", "Basic " + es);
+        
+        return params;
+    }
 	
 	private static RestTemplate buildRestTemplate() {
 		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
