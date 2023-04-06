@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
@@ -78,6 +79,9 @@ public class UnregisterManager {
     
 	@Autowired
     PgHighSchoolManager highSchoolManager;
+    
+	@Autowired
+    CityCampaignSubscription cityCampaignSubscription;
 
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -138,10 +142,18 @@ public class UnregisterManager {
 	                        break;
 	                    case company:
 	                        break;
+	                    case city:
+	                        try {
+	                            cityCampaignSubscription.unsubscribeCampaign(playerDb, campaign);
+                            } catch (Exception e) {
+                                logger.warn(String.format("unregisterPlayer[%s] city:%s", player.getPlayerId(), e.getMessage()));
+                            }
+	                        break;
                         default:
                             break;
 	                }			        
 			    }
+			    campaignSubscriptionRepository.delete(cs);
 			}
 		}
 		logger.info(String.format("unregisterPlayer:%s", player.getPlayerId()));

@@ -18,16 +18,23 @@ import org.stringtemplate.v4.ST;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
 import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
+import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
+import it.smartcommunitylab.playandgo.engine.repository.PlayerGameStatusRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 
@@ -57,10 +64,22 @@ public class CampaignNotificationManager {
 	CampaignRepository campaignRepository;
 	
 	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
+    
+	@Autowired
+    protected PlayerGameStatusRepository playerGameStatusRepository;
+	
+	@Autowired
 	private BadgeManager badgeManager;
+    
+	@Autowired
+    protected GamificationEngineManager gamificationEngineManager;
 
 	@Autowired
 	private CommunicationHelper notificatioHelper;
+    
+	@Autowired
+    protected CityGameDataConverter gameDataConverter;
 
 	private ObjectMapper mapper = new ObjectMapper(); {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -111,27 +130,35 @@ public class CampaignNotificationManager {
 		}
 	
 		Player p = playerRepository.findById(not.getPlayerId()).orElse(null);	
-		if (p != null) {
+		if ((p != null) && (!p.getDeleted())) {
 			Territory territory = territoryRepository.findById(p.getTerritoryId()).orElse(null);
 			if(territory != null) {
 				Campaign campaign = campaignRepository.findByGameId(not.getGameId());
 				if(campaign != null) {
-					Notification notification = null;
-					
-					try {
-						notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
-					} catch (Exception e) {
-						logger.error("Error building notification", e);
-					}
-					if (notification != null) {
-							try {
-								logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + "):" 
-										+ mapper.writeValueAsString(notification));
-								notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
-							} catch (Exception e) {
-								logger.warn("Error sending notification:" + e.getMessage());
-							}
-					}											
+				    CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), p.getPlayerId());
+				    if(cs != null) {
+				        if(not instanceof BadgeNotification) {
+				            updatePlayerBadges(campaign.getCampaignId(), (BadgeNotification)not);
+				        }
+				        Notification notification = null;
+	                    
+	                    try {
+	                        notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
+	                    } catch (Exception e) {
+	                        logger.error("Error building notification", e);
+	                    }
+	                    if (notification != null) {
+	                            try {
+	                                logger.info("Sending '" + not.getClass().getSimpleName() + "' notification to " + not.getPlayerId() + " (" + territory.getTerritoryId() + "):" 
+	                                        + mapper.writeValueAsString(notification));
+	                                notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
+	                            } catch (Exception e) {
+	                                logger.warn("Error sending notification:" + e.getMessage());
+	                            }
+	                    }                                           				        
+				    } else {
+				        logger.warn("Player " + not.getPlayerId() + " not subscribed to campaign " + campaign.getCampaignId()); 
+				    }
 				} else {
 					logger.warn("Game " + not.getGameId() + " campaign not found");
 				}
@@ -162,17 +189,17 @@ public class CampaignNotificationManager {
 	    if(not instanceof MessageNotification) {
 	        type = ((MessageNotification)not).getKey();
 	    }
-	    logger.info("buildNotification type:" + type);
+	    logger.debug("buildNotification type:" + type);
 	    
 	    if(type == null) return null;
 		
 		Map<String, String> extraData = buildExtraData(not, type, lang);
-		logger.info("buildExtraData:" + extraData);
+		logger.debug("buildExtraData:" + extraData);
 		
 		Notification result = new Notification();
 		
 		NotificationMessage message = notificationsMessages.get(type);
-		logger.info("NotificationMessage:" + message);
+		logger.debug("NotificationMessage:" + message);
 			
 		fillNotification(result, lang, message, extraData);
 		return result;
@@ -239,6 +266,15 @@ public class CampaignNotificationManager {
 			    }
 			    break;
 			}
+            case "CityRegistrationBonus": {
+                String playerId = (String) ((MessageNotification)not).getData().get("recommenderPlayerId");
+                Player player = playerRepository.findById(playerId).orElse(null);
+                if(player != null) {
+                    result.put("nickname", player.getNickname());
+                    result.put("points", String.valueOf(((MessageNotification)not).getData().get("points")));
+                }
+                break;
+            }
 		}
 		return result;
 	}
@@ -299,6 +335,26 @@ public class CampaignNotificationManager {
 		}
 
 		return result;
+	}
+	
+	private void updatePlayerBadges(String campaignId, BadgeNotification not) {
+	    try {
+	        if(not.getBadge().equalsIgnoreCase("1st_of_the_week") ||
+	                not.getBadge().equalsIgnoreCase("2nd_of_the_week") ||
+	                not.getBadge().equalsIgnoreCase("3rd_of_the_week")) {
+	            JsonNode playerState = gamificationEngineManager.getPlayerStatus(not.getPlayerId(), not.getGameId(), "green leaves");
+	            if(playerState != null) {
+	                PlayerGameStatus gameStatus = playerGameStatusRepository.findByPlayerIdAndCampaignId(not.getPlayerId(), campaignId);
+	                gameStatus.getBadges().clear();
+	                JsonNode badges = playerState.findPath("BadgeCollectionConcept");
+	                gameStatus.getBadges().addAll(gameDataConverter.convertBadgeCollection(badges));
+	                playerGameStatusRepository.save(gameStatus);
+	                logger.info(String.format("updatePlayerBadges:%s - %s - %s", not.getPlayerId(), campaignId, not.getGameId()));
+	            }            	            
+	        }
+        } catch (Exception e) {
+            logger.error(String.format("updatePlayerBadges:%s - %s - %s - %s", not.getPlayerId(), campaignId, not.getGameId(), e.getMessage()));
+        }
 	}
 	
 }

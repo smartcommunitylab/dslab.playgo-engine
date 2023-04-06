@@ -42,6 +42,48 @@
 		}		
 	},
 	{
+		"id": "CityRegistrationBonus",
+		"type": "bonus",
+		"title": {
+			"it": "Bonus Iscrizione",
+			"en": "Registration Bonus"
+		},
+		"description": {
+			"it": "'<nickname>' ha tracciato il suo primo viaggio. Hai guadagnato <points> eco-Leaves",
+			"en": "'<nickname>' joined your team. You earn <points> eco-Leaves"
+		},
+		"extras": {
+			"it": [
+				{
+					"type": "REPLACE",
+					"key": "nickname",
+					"value": null,
+					"string": "nickname"
+				},
+				{
+					"type": "REPLACE",
+					"key": "points",
+					"value": null,
+					"string": "points"
+				}
+			],
+			"en": [
+				{
+					"type": "REPLACE",
+					"key": "nickname",
+					"value": null,
+					"string": "nickname"
+				},
+				{
+					"type": "REPLACE",
+					"key": "points",
+					"value": null,
+					"string": "points"
+				}
+			]
+		}		
+	},	
+	{
 		"id": "LevelGainedNotification",
 		"type": "level",
 		"title": {

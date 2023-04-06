@@ -12,6 +12,8 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -388,13 +390,42 @@ public class GamificationEngineManager {
 			data.put("playerId", playerId);			
 			String content = JsonUtils.toJSON(data);
 			String url = gamificationUrl + "/console/game/" + gameId + "/player";
-			HTTPConnector.doBasicAuthenticationPost(url, content, "application/json", 
-					"application/json", gamificationUser, gamificationPassword);
-			return true;
+			ResponseEntity<String> entity = HTTPConnector.doBasicAuthenticationMethod(url, content, "application/json", 
+					"application/json", gamificationUser, gamificationPassword, HttpMethod.POST);
+            if (entity.getStatusCode().is2xxSuccessful() || entity.getStatusCode().is4xxClientError()) {
+                return true;
+            }
 		} catch (Exception e) {
 			logger.error(String.format("createPlayer error: %s - %s - %s", gameId, playerId, e.getMessage()));
 		}
 		return false;		
 	}
 	
+	public String getProposedPlayerList(String gameId) {
+        try {
+            String url = gamificationUrl + "/data/game/" + gameId + "/proposedChallengePlayers";
+            String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+                    gamificationUser, gamificationPassword);
+            return json;
+        } catch (Exception e) {
+            logger.error(String.format("getProposedPlayerList error: %s - %s", gameId, e.getMessage()));
+        }
+        return null;                                
+	}
+	
+    public boolean changeCustomData(String playerId, String gameId, Map<String, Object> customData) {
+        try {
+            String content = JsonUtils.toJSON(customData);
+            String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/custom";
+            ResponseEntity<String> entity = HTTPConnector.doBasicAuthenticationMethod(url, content, "application/json", 
+                    "application/json", gamificationUser, gamificationPassword, HttpMethod.PUT);
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error(String.format("changeCustomData error: %s - %s - %s", gameId, playerId, e.getMessage()));
+        }
+        return false;       
+    }
+
 }

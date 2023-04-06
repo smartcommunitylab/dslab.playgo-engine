@@ -62,6 +62,7 @@ gamification:
   password: ${GAMIFICATION_PASSWORD:}
   secretKey1: ${GAMIFICATION_SK1:}
   secretKey2: ${GAMIFICATION_SK2:}
+  cron: ${GAMIFICATION_CRON:}
 
 rabbitmq_pg:
   host: ${RABBITMQ_PG_HOST:}
