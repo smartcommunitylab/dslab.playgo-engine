@@ -220,9 +220,13 @@ public class PgAziendaleManager {
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
 			url = url + "api/admin/report/player/transport/stats?campaignId=" + campaignId 
-					+ "&playerId=" + playerId
-					+ "&groupMode=" + groupMode
-					+ "&mean=" + mean;
+					+ "&playerId=" + playerId;
+			if(Utils.isNotEmpty(groupMode)) {
+			    url = url + "&groupMode=" + groupMode;  
+			}
+			if(Utils.isNotEmpty(mean)) {
+			    url = url + "&mean=" + mean;
+			}
 			if(Utils.isNotEmpty(dateFrom) && Utils.isNotEmpty(dateTo)) {
 			    url = url + "&dateFrom=" + dateFrom
 			            + "&dateTo=" + dateTo;
