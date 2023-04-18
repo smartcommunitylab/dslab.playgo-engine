@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +58,9 @@ public class GamificationEngineManager {
 	ObjectMapper mapper = new ObjectMapper();
 	
 	EncryptDecrypt cryptUtils;
+	
+	@Autowired
+	HTTPConnector httpConnector;
 	
 	@PostConstruct
 	public void init() throws Exception {
@@ -114,7 +118,7 @@ public class GamificationEngineManager {
 
 			String content = JsonUtils.toJSON(ed);
 			
-			HTTPConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
+			httpConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -127,7 +131,7 @@ public class GamificationEngineManager {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId
 					+ "?readChallenges=false&points=" + points;
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			JsonNode jsonNode = mapper.readTree(json);
 			return jsonNode;
@@ -141,7 +145,7 @@ public class GamificationEngineManager {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId
 					+ "?readChallenges=false";
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -162,7 +166,7 @@ public class GamificationEngineManager {
 			String content = JsonUtils.toJSON(challenge);
 			
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenges";
-			HTTPConnector.doBasicAuthenticationPost(url, content, "application/json", "application/json", 
+			httpConnector.doBasicAuthenticationPost(url, content, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -180,7 +184,7 @@ public class GamificationEngineManager {
 
 		String content = JsonUtils.toJSON(ed);
 		try {
-			HTTPConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
+		    httpConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -197,7 +201,7 @@ public class GamificationEngineManager {
 		data.put("data", new HashMap<String, Object>());
 		String content = JsonUtils.toJSON(data);
 		try {
-			HTTPConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
+		    httpConnector.doBasicAuthenticationPost(gamificationUrl + "/gengine/execute", content, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -209,7 +213,7 @@ public class GamificationEngineManager {
 	public String getChallengeStatus(String playerId, String gameId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/inventory";
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -225,7 +229,7 @@ public class GamificationEngineManager {
 		String content = JsonUtils.toJSON(data);
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/inventory/activate";
-			String json = HTTPConnector.doBasicAuthenticationPost(url, content, "application/json", 
+			String json = httpConnector.doBasicAuthenticationPost(url, content, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -237,7 +241,7 @@ public class GamificationEngineManager {
 	public String getGameStatus(String playerId, String gameId) {
 		try {
 			String url = gamificationUrl + "/gengine/state/" + gameId + "/" + playerId;
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -252,7 +256,7 @@ public class GamificationEngineManager {
 			if(active) {
 				url += "?inprogress=true";
 			}
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -264,7 +268,7 @@ public class GamificationEngineManager {
 	public String getChallenge(String playerId, String gameId, String challengeName) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenge/" + challengeName;
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -276,7 +280,7 @@ public class GamificationEngineManager {
 	public boolean chooseChallenge(String playerId, String gameId, String challengeId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challenges/" + challengeId + "/accept";
-			HTTPConnector.doBasicAuthenticationPost(url, null, "application/json", 
+			httpConnector.doBasicAuthenticationPost(url, null, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -289,7 +293,7 @@ public class GamificationEngineManager {
 		try {
 			String content = JsonUtils.toJSON(ci);
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/invitation";
-			HTTPConnector.doBasicAuthenticationPost(url, content, "application/json", 
+			httpConnector.doBasicAuthenticationPost(url, content, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -302,7 +306,7 @@ public class GamificationEngineManager {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/invitation/" 
 					+ status + "/" + URLEncoder.encode(challengeId, "UTF-8");
-			HTTPConnector.doBasicAuthenticationPost(url, null, "application/json", 
+			httpConnector.doBasicAuthenticationPost(url, null, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -314,7 +318,7 @@ public class GamificationEngineManager {
 	public String getChallengables(String playerId, String gameId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/challengers";
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -326,7 +330,7 @@ public class GamificationEngineManager {
 	public String getStatistics(String gameId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/statistics";
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -338,7 +342,7 @@ public class GamificationEngineManager {
 	public String getNotifications(String playerId, String gameId) {
 		try {
 			String url = gamificationUrl + "/notification/game/" + gameId + "/player/" + playerId + "/grouped?size=10000";
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -350,7 +354,7 @@ public class GamificationEngineManager {
 	public String getBlackList(String playerId, String gameId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/blacklist";
-			String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+			String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
 					gamificationUser, gamificationPassword);
 			return json;
 		} catch (Exception e) {
@@ -362,7 +366,7 @@ public class GamificationEngineManager {
 	public boolean addToBlackList(String playerId, String gameId, String blockedPlayerId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/block/" + blockedPlayerId;
-			HTTPConnector.doBasicAuthenticationPost(url, null, "application/json", 
+			httpConnector.doBasicAuthenticationPost(url, null, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -374,7 +378,7 @@ public class GamificationEngineManager {
 	public boolean deleteFromBlackList(String playerId, String gameId, String blockedPlayerId) {
 		try {
 			String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/unblock/" + blockedPlayerId;
-			HTTPConnector.doBasicAuthenticationPost(url, null, "application/json", 
+			httpConnector.doBasicAuthenticationPost(url, null, "application/json", 
 					"application/json", gamificationUser, gamificationPassword);
 			return true;
 		} catch (Exception e) {
@@ -390,7 +394,7 @@ public class GamificationEngineManager {
 			data.put("playerId", playerId);			
 			String content = JsonUtils.toJSON(data);
 			String url = gamificationUrl + "/console/game/" + gameId + "/player";
-			ResponseEntity<String> entity = HTTPConnector.doBasicAuthenticationMethod(url, content, "application/json", 
+			ResponseEntity<String> entity = httpConnector.doBasicAuthenticationMethod(url, content, "application/json", 
 					"application/json", gamificationUser, gamificationPassword, HttpMethod.POST);
             if (entity.getStatusCode().is2xxSuccessful() || entity.getStatusCode().is4xxClientError()) {
                 return true;
@@ -404,7 +408,7 @@ public class GamificationEngineManager {
 	public String getProposedPlayerList(String gameId) {
         try {
             String url = gamificationUrl + "/data/game/" + gameId + "/proposedChallengePlayers";
-            String json = HTTPConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
+            String json = httpConnector.doBasicAuthenticationGet(url, "application/json", "application/json", 
                     gamificationUser, gamificationPassword);
             return json;
         } catch (Exception e) {
@@ -417,7 +421,7 @@ public class GamificationEngineManager {
         try {
             String content = JsonUtils.toJSON(customData);
             String url = gamificationUrl + "/data/game/" + gameId + "/player/" + playerId + "/custom";
-            ResponseEntity<String> entity = HTTPConnector.doBasicAuthenticationMethod(url, content, "application/json", 
+            ResponseEntity<String> entity = httpConnector.doBasicAuthenticationMethod(url, content, "application/json", 
                     "application/json", gamificationUser, gamificationPassword, HttpMethod.PUT);
             if (entity.getStatusCode().is2xxSuccessful()) {
                 return true;

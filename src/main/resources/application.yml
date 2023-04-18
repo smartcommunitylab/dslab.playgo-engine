@@ -4,6 +4,8 @@ server:
     contextPath: /playandgo
 
 spring:
+  application:
+    name: play&go-engine
   data:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URL:}
