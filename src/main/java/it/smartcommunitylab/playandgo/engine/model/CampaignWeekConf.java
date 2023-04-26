@@ -2,13 +2,16 @@ package it.smartcommunitylab.playandgo.engine.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CampaignWeekConf {
 	private String campaignId;
 	private Date dateFrom;
 	private Date dateTo;
 	private int weekNumber;
+	private Map<String, String> desc = new HashMap<>();
 	private List<CampaignReward> rewards = new ArrayList<>();
 	
 	public String getCampaignId() {
@@ -41,5 +44,11 @@ public class CampaignWeekConf {
 	public void setRewards(List<CampaignReward> rewards) {
 		this.rewards = rewards;
 	}
+    public Map<String, String> getDesc() {
+        return desc;
+    }
+    public void setDesc(Map<String, String> desc) {
+        this.desc = desc;
+    }
 	
 }
