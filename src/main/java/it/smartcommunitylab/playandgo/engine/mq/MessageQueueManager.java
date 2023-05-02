@@ -3,57 +3,25 @@ package it.smartcommunitylab.playandgo.engine.mq;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
 
+import it.smartcommunitylab.playandgo.engine.config.RabbitConf;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 
 @Component
 public class MessageQueueManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(MessageQueueManager.class);
 	
-	public static final String validateTripRequest = "playgo-vt-request";
-	//public static final String validateTripResponse = "playgo-vt-response";
-	public static final String validateCampaignTripRequest = "playgo-campaign-vt-request";
-	public static final String invalidateCampaignTripRequest = "playgo-campaign-invt-request";
-	public static final String updateCampaignTripRequest = "playgo-campaign-updt-request";
-	public static final String revalidateCampaignTripRequest = "playgo-campaign-revt-request";
-	//public static final String validateCampaignTripResponse = "playgo-campaign-vt-r";
-	public static final String callWebhookRequest = "playgo-campaign-webhook-request";
-	
-	@Value("${rabbitmq_pg.host}")
-	private String rabbitMQHost;	
-
-	@Value("${rabbitmq_pg.virtualhost}")
-	private String rabbitMQVirtualHost;		
-	
-	@Value("${rabbitmq_pg.port}")
-	private Integer rabbitMQPort;
-	
-	@Value("${rabbitmq_pg.user}")
-	private String rabbitMQUser;
-	
-	@Value("${rabbitmq_pg.password}")
-	private String rabbitMQPassword;
-	
-	private Connection connection;
-	
-	private Channel validateTripChannel; 
-	private Channel validateCampaignTripChannel;
-	private Channel callWebhookChannel;
+	@Autowired
+	RabbitTemplate rabbitTemplate;
 	
 	private ManageValidateTripRequest manageValidateTripRequest;
 	
@@ -61,160 +29,105 @@ public class MessageQueueManager {
 	
 	private Map<String, ManageValidateCampaignTripRequest> manageValidateCampaignTripRequestMap = new HashMap<>();
 	
-	DeliverCallback validateTripRequestCallback;
-	DeliverCallback validateCampaignTripRequestCallback;
-	DeliverCallback invalidateCampaignTripRequestCallback;
-	DeliverCallback updateCampaignTripRequestCallback;
-	DeliverCallback revalidateCampaignTripRequestCallback;
-	DeliverCallback callWebhookCallback;
-	
-	private Map<String, String> consumerTagMap = new HashMap<>();
-	
 	ObjectMapper mapper = new ObjectMapper();
-	
-	@PostConstruct
-	public void init() throws Exception {
-		logger.info("Connecting to RabbitMQ");
-		ConnectionFactory connectionFactory = new ConnectionFactory();
-		connectionFactory.setUsername(rabbitMQUser);
-		connectionFactory.setPassword(rabbitMQPassword);
-		connectionFactory.setVirtualHost(rabbitMQVirtualHost);
-		connectionFactory.setHost(rabbitMQHost);
-		connectionFactory.setPort(rabbitMQPort);
-		connectionFactory.setAutomaticRecoveryEnabled(true);
-		connectionFactory.setTopologyRecoveryEnabled(true);
-		
-		connection = connectionFactory.newConnection();
-		
-		validateTripChannel = connection.createChannel();
-		validateTripChannel.basicQos(10, false);
-		validateTripRequestCallback = (consumerTag, delivery) -> {
-			String json = new String(delivery.getBody(), "UTF-8");
-			logger.info("validateTripRequestCallback:" + json);
-			ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
-			if(manageValidateTripRequest != null) {
-				manageValidateTripRequest.validateTripRequest(message);
-			}			
-		};
-		declareQueue(validateTripRequest, validateTripChannel, validateTripRequestCallback);
 
-		validateCampaignTripChannel = connection.createChannel();
-		validateCampaignTripChannel.basicQos(10, false);
-		validateCampaignTripRequestCallback = (consumerTag, delivery) -> {
-			String json = new String(delivery.getBody(), "UTF-8");
-			logger.info("validateCampaignTripRequestCallback:" + json);
-			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
-			String routingKey = message.getCampaignType();
-			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
-			if(manager != null) {
-				manager.validateTripRequest(message);
-			}
-		};
-		declareQueue(validateCampaignTripRequest, validateCampaignTripChannel, validateCampaignTripRequestCallback);
-		invalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
-			String json = new String(delivery.getBody(), "UTF-8");
-			logger.info("invalidateCampaignTripRequestCallback:" + json);
-			ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
-			String routingKey = message.getCampaignType();
-			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
-			if(manager != null) {
-				manager.invalidateTripRequest(message);
-			}
-		};
-		declareQueue(invalidateCampaignTripRequest, validateCampaignTripChannel, invalidateCampaignTripRequestCallback);
-		updateCampaignTripRequestCallback = (consumerTag, delivery) -> {
-			String json = new String(delivery.getBody(), "UTF-8");
-			logger.info("updateCampaignTripRequestCallback:" + json);
-			UpdateCampaignTripRequest message = mapper.readValue(json, UpdateCampaignTripRequest.class);
-			String routingKey = message.getCampaignType();
-			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
-			if(manager != null) {
-				manager.updateTripRequest(message);
-			}
-		};
-		declareQueue(updateCampaignTripRequest, validateCampaignTripChannel, updateCampaignTripRequestCallback);
-		revalidateCampaignTripRequestCallback = (consumerTag, delivery) -> {
-			String json = new String(delivery.getBody(), "UTF-8");
-			logger.info("revalidateCampaignTripRequestCallback:" + json);
-			UpdateCampaignTripRequest message = mapper.readValue(json, UpdateCampaignTripRequest.class);
-			String routingKey = message.getCampaignType();
-			ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
-			if(manager != null) {
-				manager.revalidateTripRequest(message);
-			}
-		};
-		declareQueue(revalidateCampaignTripRequest, validateCampaignTripChannel, revalidateCampaignTripRequestCallback);
-		
-		callWebhookChannel = connection.createChannel();
-		callWebhookChannel.basicQos(10, false);
-		callWebhookCallback = (consumerTag, delivery) -> {
-			String json = new String(delivery.getBody(), "UTF-8");
-			logger.info("callWebhookCallback:" + json);
-			WebhookRequest msg = mapper.readValue(json, WebhookRequest.class);
-			if(manageWebhookRequest != null) {
-				try {
-					manageWebhookRequest.sendMessage(msg);
-				} catch (Exception e) {
-					logger.error(String.format("callWebhookCallback error:%s - %s - %s", 
-							msg.getCampaignId(), msg.getPlayerId(), e.getMessage()));
-				}
-			}
-		};
-		declareQueue(callWebhookRequest, callWebhookChannel, callWebhookCallback);
+	@RabbitListener(queues = RabbitConf.validateTripRequest, concurrency = "1-5", ackMode = "AUTO")
+	public void validateTripRequestCallback(Message delivery) {
+        try {
+            String json = new String(delivery.getBody(), "UTF-8");
+            logger.info("validateTripRequestCallback:" + json);
+            ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
+            if(manageValidateTripRequest != null) {
+                manageValidateTripRequest.validateTripRequest(message);
+            }                   
+        } catch (Exception e) {
+            logger.warn(String.format("validateTripRequestCallback:", e.getMessage()));
+        }
 	}
-	
-	private void declareQueue(String queue, Channel channel, DeliverCallback deliverCallback) throws Exception {
-	    Map<String, Object> args = new HashMap<>();
-	    args.put("x-queue-type", "quorum");
-	    channel.queueDeclare(queue, true, false, false, args);
-        String consumerTag = reconnect(queue, channel, deliverCallback);
-        consumerTagMap.put(consumerTag, queue);
-	}
-	
-    @Retryable(value = Exception.class, 
-            maxAttempts = 10, backoff = @Backoff(delay = 60000, multiplier = 2))    	
-	private String reconnect(String queue, Channel channel, DeliverCallback deliverCallback) throws Exception {
-        String consumerTag = channel.basicConsume(queue, true, deliverCallback, cTag -> {});
-        logger.info(String.format("add consumer[%s]:%s", queue, consumerTag));
-        return consumerTag;	    
-	}
-	
-	@PreDestroy
-	public void destroy() {
-		if(validateTripChannel != null) {
-			try {
-				validateTripChannel.close();
-				logger.info("close validateTripChannel");
-			} catch (Exception e) {
-				logger.warn("destroy:" + e.getMessage());
-			}
-		}
-		if(validateCampaignTripChannel != null) {
-			try {
-				validateCampaignTripChannel.close();
-				logger.info("close validateCampaignTripChannel");
-			} catch (Exception e) {
-				logger.warn("destroy:" + e.getMessage());
-			}
-		}
-		if(callWebhookChannel != null) {
-			try {
-				callWebhookChannel.close();
-				logger.info("close callWebhookChannel");
-			} catch (Exception e) {
-				logger.warn("destroy:" + e.getMessage());
-			}			
-		}
-		if(connection != null) {
-			try {
-				connection.close();
-				logger.info("close connection");
-			} catch (Exception e) {
-				logger.warn("destroy:" + e.getMessage());
-			}
-		}
-	}
-	
+
+	@RabbitListener(queues = RabbitConf.validateCampaignTripRequest, concurrency = "1-5", ackMode = "AUTO")
+    public void validateCampaignTripRequestCallback(Message delivery) {
+        try {
+            String json = new String(delivery.getBody(), "UTF-8");
+            logger.info("validateCampaignTripRequestCallback:" + json);
+            ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
+            String routingKey = message.getCampaignType();
+            ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
+            if(manager != null) {
+                manager.validateTripRequest(message);
+            }            
+        } catch (Exception e) {
+            logger.warn(String.format("validateCampaignTripRequestCallback:", e.getMessage()));
+        }
+    };
+
+    @RabbitListener(queues = RabbitConf.invalidateCampaignTripRequest, concurrency = "1-5", ackMode = "AUTO")
+    public void invalidateCampaignTripRequestCallback(Message delivery) {
+        try {
+            String json = new String(delivery.getBody(), "UTF-8");
+            logger.info("invalidateCampaignTripRequestCallback:" + json);
+            ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
+            String routingKey = message.getCampaignType();
+            ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
+            if(manager != null) {
+                manager.invalidateTripRequest(message);
+            }            
+        } catch (Exception e) {
+            logger.warn(String.format("invalidateCampaignTripRequestCallback:", e.getMessage()));
+        }
+    };
+
+    @RabbitListener(queues = RabbitConf.updateCampaignTripRequest, concurrency = "1-5", ackMode = "AUTO")
+    public void updateCampaignTripRequestCallback(Message delivery) {
+        try {
+            String json = new String(delivery.getBody(), "UTF-8");
+            logger.info("updateCampaignTripRequestCallback:" + json);
+            UpdateCampaignTripRequest message = mapper.readValue(json, UpdateCampaignTripRequest.class);
+            String routingKey = message.getCampaignType();
+            ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
+            if(manager != null) {
+                manager.updateTripRequest(message);
+            }            
+        } catch (Exception e) {
+            logger.warn(String.format("updateCampaignTripRequestCallback:", e.getMessage()));
+        }
+    };
+
+    @RabbitListener(queues = RabbitConf.revalidateCampaignTripRequest, concurrency = "1-5", ackMode = "AUTO")
+    public void revalidateCampaignTripRequestCallback(Message delivery) {
+        try {
+            String json = new String(delivery.getBody(), "UTF-8");
+            logger.info("revalidateCampaignTripRequestCallback:" + json);
+            UpdateCampaignTripRequest message = mapper.readValue(json, UpdateCampaignTripRequest.class);
+            String routingKey = message.getCampaignType();
+            ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
+            if(manager != null) {
+                manager.revalidateTripRequest(message);
+            }            
+        } catch (Exception e) {
+            logger.warn(String.format("revalidateCampaignTripRequestCallback:", e.getMessage()));
+        }
+    };
+    
+    @RabbitListener(queues = RabbitConf.callWebhookRequest, concurrency = "1-5", ackMode = "AUTO")
+    public void callWebhookCallback(Message delivery) {
+        try {
+            String json = new String(delivery.getBody(), "UTF-8");
+            logger.info("callWebhookCallback:" + json);
+            WebhookRequest msg = mapper.readValue(json, WebhookRequest.class);
+            if(manageWebhookRequest != null) {
+                try {
+                    manageWebhookRequest.sendMessage(msg);
+                } catch (Exception e) {
+                    logger.error(String.format("callWebhookCallback error:%s - %s - %s", 
+                            msg.getCampaignId(), msg.getPlayerId(), e.getMessage()));
+                }
+            }            
+        } catch (Exception e) {
+            logger.warn(String.format("callWebhookCallback:", e.getMessage()));
+        }
+    };
+
 	public void setManageWebhookRequest(ManageWebhookRequest manager) {
 		this.manageWebhookRequest = manager;
 	}
@@ -225,7 +138,7 @@ public class MessageQueueManager {
 	
 	public void sendValidateTripRequest(ValidateTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
-		validateTripChannel.basicPublish("", validateTripRequest, null, msg.getBytes("UTF-8"));
+		rabbitTemplate.convertAndSend(RabbitConf.validateTripRequest, msg);
 	}
 	
 	public void setManageValidateCampaignTripRequest(ManageValidateCampaignTripRequest manager, Campaign.Type type) {
@@ -234,27 +147,27 @@ public class MessageQueueManager {
 	
 	public void sendValidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
-		validateTripChannel.basicPublish("", validateCampaignTripRequest, null, msg.getBytes("UTF-8"));
+		rabbitTemplate.convertAndSend(RabbitConf.validateCampaignTripRequest, msg);
 	}
 
 	public void sendInvalidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
-		validateTripChannel.basicPublish("", invalidateCampaignTripRequest, null, msg.getBytes("UTF-8"));
+		rabbitTemplate.convertAndSend(RabbitConf.invalidateCampaignTripRequest, msg);
 	}
 	
 	public void sendUpdateCampaignTripRequest(UpdateCampaignTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
-		validateTripChannel.basicPublish("", updateCampaignTripRequest, null, msg.getBytes("UTF-8"));
+		rabbitTemplate.convertAndSend(RabbitConf.updateCampaignTripRequest, msg);
 	}
 	
 	public void sendRevalidateCampaignTripRequest(UpdateCampaignTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
-		validateTripChannel.basicPublish("", revalidateCampaignTripRequest, null, msg.getBytes("UTF-8"));
+		rabbitTemplate.convertAndSend(RabbitConf.revalidateCampaignTripRequest, msg);
 	}
 	
 	public void sendCallWebhookRequest(WebhookRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
-		callWebhookChannel.basicPublish("", callWebhookRequest, null, msg.getBytes("UTF-8"));
+		rabbitTemplate.convertAndSend(RabbitConf.callWebhookRequest, msg);
 	}
 
 

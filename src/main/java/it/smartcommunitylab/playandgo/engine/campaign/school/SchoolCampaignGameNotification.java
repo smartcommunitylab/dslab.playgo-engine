@@ -1,13 +1,15 @@
 package it.smartcommunitylab.playandgo.engine.campaign.school;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -46,23 +48,22 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	@Autowired
 	SchoolCampaignGameStatusManager gameStatusManager;
 	
-	@PostConstruct
+	@EventListener(ContextRefreshedEvent.class)
 	public void init() {
 		gamificationMessageQueueManager.setManageGameNotification(this, Type.school);
 		List<Campaign> list = campaignRepository.findByType(Type.school, Sort.by(Sort.Direction.DESC, "dateFrom"));
-		list.forEach(c -> {
-			if(Utils.isNotEmpty(c.getGameId())) {
-				gamificationMessageQueueManager.setGameNotification(c.getGameId());
-				logger.info(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
-			}
-		});
+        List<String> gameIds = list.stream().filter(c -> Utils.isNotEmpty(c.getGameId())).map(c -> c.getGameId()).collect(Collectors.toList());
+        if(!gameIds.isEmpty()) {
+            gamificationMessageQueueManager.addGameQueue(gameIds);
+            logger.info(String.format("campaigns type %s subscribes to games", Type.school));
+        }
 	}
 	
 	public void subcribeCampaing(Campaign c) {
-		if(Utils.isNotEmpty(c.getGameId())) {
-			gamificationMessageQueueManager.setGameNotification(c.getGameId());
-			logger.info(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));					
-		}
+        if(Utils.isNotEmpty(c.getGameId())) {
+            gamificationMessageQueueManager.addGameQueue(Arrays.asList(c.getGameId()));
+            logger.info(String.format("campaign %s subscribe to game %s", c.getCampaignId(), c.getGameId()));                   
+        }
 	}
 	
 	@SuppressWarnings("unchecked")

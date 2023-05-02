@@ -21,7 +21,6 @@ spring:
     multipart:
       max-file-size: ${SPRING_HTTP_MULTIPART_MAX_FILE_SIZE:10MB}
       max-request-size: ${SPRING_HTTP_MULTIPART_MAX_REQUEST_SIZE:10MB}
-
   security:
     oauth2:
       client:
@@ -42,10 +41,13 @@ spring:
         opaque-token:
           introspection-uri: 
           client-id: 
-          client-secret: 
-        
-
-
+          client-secret:         
+  rabbitmq:
+    host: ${RABBITMQ_PG_HOST:}
+    port: ${RABBITMQ_PG_PORT:}
+    password: ${RABBITMQ_PG_PASSWORD:}
+    username: ${RABBITMQ_PG_USER:}
+    virtual-host: ${RABBITMQ_PG_VIRTUALHOST:}
 
 mail:
   host: ${MAIL_HOST:}
@@ -66,19 +68,7 @@ gamification:
   secretKey2: ${GAMIFICATION_SK2:}
   cron: ${GAMIFICATION_CRON:}
 
-rabbitmq_pg:
-  host: ${RABBITMQ_PG_HOST:}
-  port: ${RABBITMQ_PG_PORT:}
-  user: ${RABBITMQ_PG_USER:}
-  password: ${RABBITMQ_PG_PASSWORD:}
-  virtualhost: ${RABBITMQ_PG_VIRTUALHOST:}
-
 rabbitmq_ge:
-  host: ${RABBITMQ_GE_HOST:}
-  port: ${RABBITMQ_GE_PORT:}
-  user: ${RABBITMQ_GE_USER:}
-  password: ${RABBITMQ_GE_PASSWORD:}
-  virtualhost: ${RABBITMQ_GE_VIRTUALHOST:}
   geExchangeName: ${RABBITMQ_GE_EXCHANGE_NAME:}
   geRoutingKeyPrefix: ${RABBITMQ_GE_ROUTING_KEY_PREFIX:}
 
