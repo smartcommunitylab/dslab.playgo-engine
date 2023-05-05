@@ -2,8 +2,16 @@
 <configuration>
 
 	<!--property name="LOGS" value="./logs" /-->
-
-	<appender name="Console"
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+		
+		<property name="LOG_FILE" value="${LOGS}/playandgo.log"/>   
+		<property name="ROLLING_FILE_NAME_PATTERN" value="${LOGS}/archived/playandgo-%d{yyyy-MM-dd}.%i.log"/> 	
+    
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+	
+	
+	<!--appender name="Console"
 		class="ch.qos.logback.core.ConsoleAppender">
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
         <level>INFO</level>
@@ -13,9 +21,9 @@
 				%black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
 			</Pattern>
 		</layout>
-	</appender>
+	</appender-->
 
-	<appender name="RollingFile"
+	<!--appender name="RollingFile"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOGS}/playandgo.log</file>
 		<encoder
@@ -25,7 +33,6 @@
 
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<!-- rollover daily and when the file reaches 10 MegaBytes -->
 			<fileNamePattern>${LOGS}/archived/playandgo-%d{yyyy-MM-dd}.%i.log
 			</fileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy
@@ -33,18 +40,18 @@
 				<maxFileSize>10MB</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>
 		</rollingPolicy>
-	</appender>
+	</appender-->
 
 	<!-- LOG everything at INFO level -->
 	<root level="info">
-		<appender-ref ref="Console" />
-		<appender-ref ref="RollingFile" />
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
 	</root>
 
 	<!-- LOG "it.smartcommunitylab.playandgo" at DEBUG level -->
 	<logger name="it.smartcommunitylab.playandgo" level="debug" additivity="false">
-		<appender-ref ref="Console" />
-		<appender-ref ref="RollingFile" />
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
 	</logger>
 
 </configuration>
