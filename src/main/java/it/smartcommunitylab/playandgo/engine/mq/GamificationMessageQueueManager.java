@@ -70,7 +70,7 @@ public class GamificationMessageQueueManager {
     }
 	
 	public void addGameQueue(List<String> gameIds) {
-	    boolean newGames = false;
+	    List<String> newGames = new ArrayList<>();
 	    for(String gameId : gameIds) {
 	        try {
                 String queueName = "queue-" + gameId;
@@ -78,16 +78,16 @@ public class GamificationMessageQueueManager {
 	            if(!gameList.contains(queueName)) {
 	                addNewQueueToExchange(queueName, routingKey);
 	                gameList.add(queueName);
-	                newGames = true;
+	                newGames.add(queueName);
 	            }
             } catch (Exception e) {
                 logger.warn(String.format("addGameQueue[%s]:%s", gameId, e.getMessage())); 
             }
 	    }
-	    if(newGames) {
+	    if(newGames.size() > 0) {
 	        try {
-	            addQueueToListener("gameListener", gameList.toArray(new String[0]));
-	            logger.info(String.format("addGameQueue:%s", gameIds.toString()));
+	            addQueueToListener("gameListener", newGames.toArray(new String[0]));
+	            logger.info(String.format("addGameQueue:%s", newGames.toString()));
             } catch (Exception e) {
                 logger.error(String.format("addGameQueue - start listener:%s", e.getMessage()));
             }
