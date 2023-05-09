@@ -5,7 +5,7 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 		
 		<property name="LOG_FILE" value="${LOGS}/playandgo.log"/>   
-		<property name="ROLLING_FILE_NAME_PATTERN" value="${LOGS}/archived/playandgo-%d{yyyy-MM-dd}.%i.log"/> 	
+		<property name="LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN" value="${LOGS}/archived/playandgo-%d{yyyy-MM-dd}.%i.log"/> 	
     
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
     <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
