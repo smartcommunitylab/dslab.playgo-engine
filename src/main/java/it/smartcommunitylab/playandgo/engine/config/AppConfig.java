@@ -89,7 +89,7 @@ public class AppConfig implements WebMvcConfigurer {
     @Bean
     public RestTemplate restTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(15000);
+        factory.setConnectTimeout(5000);
         factory.setReadTimeout(25000);
         return new RestTemplate(factory);        
     }
