@@ -94,7 +94,7 @@ public class GamificationMessageQueueManager {
 	    }
     }
 	
-	@RabbitListener(id = "gameListener", concurrency = "1-5", ackMode = "AUTO")
+	@RabbitListener(id = "gameListener", concurrency = "1-5")
 	public void onMessage(Message delivery) {
         try {
             String msg = new String(delivery.getBody(), "UTF-8");
