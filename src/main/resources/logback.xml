@@ -49,7 +49,7 @@
 	</root>
 
 	<!-- LOG "it.smartcommunitylab.playandgo" at DEBUG level -->
-	<logger name="it.smartcommunitylab.playandgo" level="debug" additivity="false">
+	<logger name="it.smartcommunitylab.playandgo" level="${LOG_LEVEL}" additivity="false">
 		<appender-ref ref="CONSOLE" />
 		<appender-ref ref="FILE" />
 	</logger>
