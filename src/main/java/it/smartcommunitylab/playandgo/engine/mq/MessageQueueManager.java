@@ -61,7 +61,7 @@ public class MessageQueueManager {
         }
     };
 
-    @RabbitListener(queues = RabbitConf.invalidateCampaignTripRequest, concurrency = "1-5")
+    @RabbitListener(queues = RabbitConf.invalidateCampaignTripRequest, concurrency = "1")
     public void invalidateCampaignTripRequestCallback(Message delivery) {
         try {
             String json = new String(delivery.getBody(), "UTF-8");
@@ -77,7 +77,7 @@ public class MessageQueueManager {
         }
     };
 
-    @RabbitListener(queues = RabbitConf.updateCampaignTripRequest, concurrency = "1-5")
+    @RabbitListener(queues = RabbitConf.updateCampaignTripRequest, concurrency = "1")
     public void updateCampaignTripRequestCallback(Message delivery) {
         try {
             String json = new String(delivery.getBody(), "UTF-8");
@@ -93,7 +93,7 @@ public class MessageQueueManager {
         }
     };
 
-    @RabbitListener(queues = RabbitConf.revalidateCampaignTripRequest, concurrency = "1-5")
+    @RabbitListener(queues = RabbitConf.revalidateCampaignTripRequest, concurrency = "1")
     public void revalidateCampaignTripRequestCallback(Message delivery) {
         try {
             String json = new String(delivery.getBody(), "UTF-8");

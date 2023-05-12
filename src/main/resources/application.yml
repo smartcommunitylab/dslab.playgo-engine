@@ -48,6 +48,9 @@ spring:
     password: ${RABBITMQ_PG_PASSWORD:}
     username: ${RABBITMQ_PG_USER:}
     virtual-host: ${RABBITMQ_PG_VIRTUALHOST:}
+    listener:
+      simple:
+        prefetch: 1
   zipkin:
     base-url: ${ZIPKIN_ENDPOINT:}
     enabled: ${ZIPKIN_ENABLED:}
