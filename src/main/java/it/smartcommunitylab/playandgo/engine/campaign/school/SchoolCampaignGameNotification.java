@@ -46,6 +46,9 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	@Autowired
 	SchoolCampaignGameStatusManager gameStatusManager;
 	
+	@Autowired
+	SchoolCampaignChallengeNotification challengeNotification;
+	
 	@PostConstruct
 	public void init() {
 		gamificationMessageQueueManager.setManageGameNotification(this, Type.school);
@@ -99,6 +102,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			                });
 			            }
 			        } else {
+			            if(type.endsWith("ChallengeCompletedNotication")) {
+			                challengeNotification.challengeCompleted(msg);
+			            }
+			            if(type.endsWith("ChallengeFailedNotication")) {
+			                challengeNotification.challengeFailed(msg);
+			            }			            
 			            notificationManager.processNotification(msg); 
 			        }
 			    }
