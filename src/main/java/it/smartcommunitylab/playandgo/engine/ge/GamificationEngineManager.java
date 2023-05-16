@@ -67,10 +67,6 @@ public class GamificationEngineManager {
 		cryptUtils = new EncryptDecrypt(secretKey1, secretKey2);
 	}
 	
-	public String getPlaygoURL() {
-		return playgoURL;
-	}
-
 	/**
 	 * @param playerId
 	 * @return identity corresponding to the string

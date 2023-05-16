@@ -68,6 +68,9 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CityGameDataConverter {
 	private static final Logger logger = LoggerFactory.getLogger(CityGameDataConverter.class);
+    
+	@Value("${playgoURL}")
+    private String playgoURL;
 	
 	// point concept fields
 	public static final String STATE = "state";
@@ -207,7 +210,7 @@ public class CityGameDataConverter {
         }
 	    List<BadgeCollectionConcept> filteredBadges = badges.stream().filter(x -> !x.isHidden()).map(x -> {
             x.getBadgeEarned().forEach(y -> {
-                y.setUrl(getUrlFromBadgeName(gamificationEngineManager.getPlaygoURL(), y.getName()));
+                y.setUrl(getUrlFromBadgeName(playgoURL, y.getName()));
             });
             return x;
         }).collect(Collectors.toList());
