@@ -52,6 +52,19 @@ public class AdminController extends PlayAndGoController {
 	@Autowired
 	CompanyCampaignSubscription companyCampaignSubscription;
 	
+	@PostMapping("/api/admin/log")
+	public void changeApplicationLogLevel(
+	        @RequestParam String level,
+	        HttpServletRequest request) throws Exception {
+	    checkAdminRole(request);
+	    Logger loggerApp = LoggerFactory.getLogger("it.smartcommunitylab.playandgo");
+	    if((loggerApp != null) && (loggerApp instanceof ch.qos.logback.classic.Logger)) {
+	        ch.qos.logback.classic.Logger classicLogger = (ch.qos.logback.classic.Logger)loggerApp;
+	        classicLogger.setLevel(ch.qos.logback.classic.Level.toLevel(level));
+	        logger.info("set log level to " + level);
+	    }
+	}
+	
 	@PostMapping(value = "/api/admin/player/upload")
 	public List<String> uploadPlayers(
 			@RequestParam String territoryId,
