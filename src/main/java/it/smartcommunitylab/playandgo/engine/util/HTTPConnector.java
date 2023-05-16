@@ -21,21 +21,23 @@ import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.MapUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylab.playandgo.engine.exception.ConnectorException;
 
+@Component
 public class HTTPConnector {
-	
-	public static String doBasicAuthenticationGet(String address, String accept, String contentType, String user, String password) throws Exception {
-		RestTemplate restTemplate = buildRestTemplate();
-
+    @Autowired
+    RestTemplate restTemplate;
+    
+	public String doBasicAuthenticationGet(String address, String accept, String contentType, String user, String password) throws Exception {
 		String s = user + ":" + password;
 		byte[] b = Base64.encodeBase64(s.getBytes());
 		String es = new String(b);
@@ -51,9 +53,7 @@ public class HTTPConnector {
 		return res.getBody();		
 	}
 	
-	public static String doBasicAuthenticationPost(String address, String req, String accept, String contentType, String user, String password) throws Exception {
-		RestTemplate restTemplate = buildRestTemplate();
-
+	public String doBasicAuthenticationPost(String address, String req, String accept, String contentType, String user, String password) throws Exception {
 		String s = user + ":" + password;
 		byte[] b = Base64.encodeBase64(s.getBytes());
 		String es = new String(b);
@@ -69,9 +69,7 @@ public class HTTPConnector {
 		return res.getBody();		
 	}
 	
-	public static String doTokenAuthenticationPost(String address, String req, String accept, String contentType, String token) throws Exception {
-		RestTemplate restTemplate = buildRestTemplate();
-
+	public String doTokenAuthenticationPost(String address, String req, String accept, String contentType, String token) throws Exception {
 		ResponseEntity<String> res = restTemplate.exchange(address, HttpMethod.POST, new HttpEntity<Object>(req, 
 				createHeaders(MapUtils.putAll(new TreeMap<String, String>(), new String[][] {{"Accept", accept}, {"Content-Type", contentType}, 
 					{"Authorization", "Bearer " + token}}))), String.class);
@@ -83,8 +81,7 @@ public class HTTPConnector {
 		return res.getBody();		
 	}
 	
-    public static ResponseEntity<String> doBasicAuthenticationMethod(String address, String req, String accept, String contentType, String user, String password, HttpMethod method) {
-        RestTemplate restTemplate = buildRestTemplate();
+    public ResponseEntity<String> doBasicAuthenticationMethod(String address, String req, String accept, String contentType, String user, String password, HttpMethod method) {
         Map<String, String> params = getHeaders(accept, contentType, user, password);
         try {
             return restTemplate.exchange(address, method, new HttpEntity<Object>(req, createHeaders(params)), String.class);
@@ -93,7 +90,7 @@ public class HTTPConnector {
         }
     }
 	
-    private static Map<String, String> getHeaders(String accept, String contentType, String user, String password) {
+    private Map<String, String> getHeaders(String accept, String contentType, String user, String password) {
         String s = user + ":" + password;
         byte[] b = Base64.encodeBase64(s.getBytes());
         String es = new String(b);
@@ -106,15 +103,8 @@ public class HTTPConnector {
         return params;
     }
 	
-	private static RestTemplate buildRestTemplate() {
-		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-		factory.setConnectTimeout(5000);
-		factory.setReadTimeout(15000);
-		return new RestTemplate(factory);
-	}
-
 	@SuppressWarnings("serial")
-	static HttpHeaders createHeaders(Map<String, String> pars) {
+	HttpHeaders createHeaders(Map<String, String> pars) {
 		return new HttpHeaders() {
 			{
 				for (String key: pars.keySet()) {

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignTripValidator;
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
+import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -78,6 +81,9 @@ public class DevController extends PlayAndGoController {
 	
     @Autowired
     MessageQueueManager queueManager;	
+    
+    @Autowired
+    TrackedInstanceManager trackedInstanceManager;
 	
 	static final Random RANDOM = new Random();
 	
@@ -227,4 +233,15 @@ public class DevController extends PlayAndGoController {
 	    checkAdminRole(request);
 	    return campaignSubscriptionRepository.findByMetaData("TAA.school", SchoolCampaignSubscription.groupIdKey, "06d8f1a3-611d-4068-ad58-02f2a72f66db");
 	}
+	
+	@GetMapping("/api/dev/test/track/player")
+	public Page<TrackedInstanceInfo> getTrackedInstanceInfoList(
+	        @RequestParam String playerId,
+	        HttpServletRequest request) throws Exception {
+	    checkAdminRole(request);
+	    PageRequest pageRequest = PageRequest.of(RANDOM.nextInt(5), 20);
+	    return trackedInstanceManager.getTrackedInstanceInfoList(playerId, null, null, pageRequest);
+	    
+	}
+	        
 }
