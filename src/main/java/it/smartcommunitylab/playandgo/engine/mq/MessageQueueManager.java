@@ -31,7 +31,7 @@ public class MessageQueueManager {
 	
 	ObjectMapper mapper = new ObjectMapper();
 
-	@RabbitListener(queues = RabbitConf.validateTripRequest, concurrency = "1-5")
+	@RabbitListener(queues = RabbitConf.validateTripRequest, concurrency = "5")
 	public void validateTripRequestCallback(Message delivery) {
         try {
             String json = new String(delivery.getBody(), "UTF-8");
@@ -45,7 +45,7 @@ public class MessageQueueManager {
         }
 	}
 
-	@RabbitListener(queues = RabbitConf.validateCampaignTripRequest, concurrency = "1-5")
+	@RabbitListener(queues = RabbitConf.validateCampaignTripRequest, concurrency = "5")
     public void validateCampaignTripRequestCallback(Message delivery) {
         try {
             String json = new String(delivery.getBody(), "UTF-8");
@@ -109,7 +109,7 @@ public class MessageQueueManager {
         }
     };
     
-    @RabbitListener(queues = RabbitConf.callWebhookRequest, concurrency = "1-5")
+    @RabbitListener(queues = RabbitConf.callWebhookRequest, concurrency = "5")
     public void callWebhookCallback(Message delivery) {
         try {
             String json = new String(delivery.getBody(), "UTF-8");
