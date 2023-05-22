@@ -51,7 +51,6 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.ERROR_TYPE;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
-import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -624,7 +623,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				//update distance for a already validated track
 				double delta = distance - Utils.getTrackDistance(track);
 				track.getValidationResult().getValidationStatus().setDistance(distance);
-				track.getValidationResult().getValidationStatus().getEffectiveDistances().put(MODE_TYPE.valueOf(modeType), distance);
+				track.getValidationResult().getValidationStatus().getEffectiveDistances().put(MODE_TYPE.valueOf(track.getFreeTrackingTransport()), distance);
 				trackedInstanceRepository.save(track);
 				ValidateTripRequest msg = new ValidateTripRequest();
 				msg.setTerritoryId(track.getTerritoryId());
