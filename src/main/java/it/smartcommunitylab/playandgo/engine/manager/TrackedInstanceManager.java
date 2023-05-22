@@ -648,14 +648,6 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 	}
 
-	private void revalidateCampaign(String campaignId, String type, String playerId, String trackedInstanceId) throws Exception {
-		CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, campaignId, trackedInstanceId);
-		if(pTrack != null) {
-			UpdateCampaignTripRequest request = new UpdateCampaignTripRequest(type, pTrack.getId(), 0);
-			queueManager.sendRevalidateCampaignTripRequest(request);
-		}
-	}
-	
 	public void revalidateTrack(String territoryId, String campaignId, String trackedInstanceId) throws Exception {
 		TrackedInstance trackedInstance = trackedInstanceRepository.findById(trackedInstanceId).orElse(null);
 		if(trackedInstance == null) {
@@ -671,7 +663,12 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}	
-		revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstanceId);
+        CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(trackedInstance.getUserId(), 
+                campaignId, trackedInstanceId);
+        if(pTrack != null) {
+            UpdateCampaignTripRequest request = new UpdateCampaignTripRequest(campaign.getType().toString(), pTrack.getId(), 0);
+            queueManager.sendRevalidateCampaignTripRequest(request);
+        }
 	}
 	
 	public void revalidateTracks(String territoryId, String campaignId, Date dateFrom, Date dateTo) throws Exception {
@@ -679,15 +676,13 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		if(campaign == null) {
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
 		}
-		Criteria criteria = new Criteria("territoryId").is(territoryId).and("validationResult.valid").is(true);
+		Criteria criteria = new Criteria("territoryId").is(territoryId).and("campaignId").is(campaignId);
 		criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
 		Query query = new Query(criteria);
-		List<TrackedInstance> list = mongoTemplate.find(query, TrackedInstance.class);
-		for(TrackedInstance trackedInstance : list) {
-			if(!trackedInstance.getValidationResult().isValid()) {
-				continue;
-			}
-			revalidateCampaign(campaignId, campaign.getType().toString(), trackedInstance.getUserId(), trackedInstance.getId());
+		List<CampaignPlayerTrack> list = mongoTemplate.find(query, CampaignPlayerTrack.class);
+		for(CampaignPlayerTrack pTrack : list) {
+            UpdateCampaignTripRequest request = new UpdateCampaignTripRequest(campaign.getType().toString(), pTrack.getId(), 0);
+            queueManager.sendRevalidateCampaignTripRequest(request);
 		}			
 	}
 	
