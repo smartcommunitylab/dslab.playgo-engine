@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
@@ -164,9 +164,9 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam(required = false) String playerId,
 			@RequestParam(required = false) String modeType,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateFrom,
+			@Parameter(example = "UTC millis") Long dateFrom,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateTo,
+			@Parameter(example = "UTC millis") Long dateTo,
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
 			@RequestParam(required = false) Boolean toCheck,
@@ -213,9 +213,9 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam(required = false) String trackedInstanceId,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateFrom,
+			@Parameter(example = "UTC millis") Long dateFrom,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateTo,			
+			@Parameter(example = "UTC millis") Long dateTo,			
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
 		if(Utils.isNotEmpty(trackedInstanceId)) {

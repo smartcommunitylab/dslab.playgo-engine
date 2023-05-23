@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
@@ -114,8 +114,8 @@ public class ExternalController extends PlayAndGoController {
 	@GetMapping("/api/ext/campaign/game/group/placing")
 	public Page<CampaignPlacing> getCampaingGroupPlacingByGame(
 			@RequestParam String campaignId,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
@@ -128,8 +128,8 @@ public class ExternalController extends PlayAndGoController {
 	public CampaignGroupPlacing getPlayerCampaingGroupPlacingByGame(
 			@RequestParam String campaignId,
 			@RequestParam String groupId,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		CampaignGroupPlacing placing = placingManager.getCampaignGroupPlacingByGameAndPlayer(groupId, campaignId, 
@@ -142,8 +142,8 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam String groupId,
 			@RequestParam String groupMode,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		return placingManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);

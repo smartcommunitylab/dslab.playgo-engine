@@ -55,6 +55,10 @@ spring:
     base-url: ${ZIPKIN_ENDPOINT:}
     enabled: ${ZIPKIN_ENABLED:}
 
+springdoc:
+  packagesToScan: it.smartcommunitylab.playandgo.engine.controller
+  pathsToMatch: /api/** 
+  
 mail:
   host: ${MAIL_HOST:}
   port: ${MAIL_PORT:}

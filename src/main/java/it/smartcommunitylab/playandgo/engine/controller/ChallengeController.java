@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import it.smartcommunitylab.playandgo.engine.dto.ChallengeStatsInfo;
 import it.smartcommunitylab.playandgo.engine.manager.ChallengeStatsManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeChoice;
@@ -156,8 +156,8 @@ public class ChallengeController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
 			@RequestParam String groupMode,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		return challengeStatsManager.getPlayerChallengeStats(playerId, campaignId, groupMode, dateFrom, dateTo);
 	}
@@ -165,8 +165,8 @@ public class ChallengeController extends PlayAndGoController {
 	@GetMapping("/api/challenge/completed")
 	public @ResponseBody List<PlayerChallenge> getCompletedChallanges(
 			@RequestParam String campaignId,
-			@RequestParam @ApiParam(value = "UTC millis") Long dateFrom,
-			@RequestParam @ApiParam(value = "UTC millis") Long dateTo,
+			@RequestParam @Parameter(example = "UTC millis") Long dateFrom,
+			@RequestParam @Parameter(example = "UTC millis") Long dateTo,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		return challengeManager.getCompletedChallanges(player.getPlayerId(), campaignId, dateFrom, dateTo);
