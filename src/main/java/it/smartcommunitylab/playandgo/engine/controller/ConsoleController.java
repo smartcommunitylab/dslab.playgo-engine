@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -143,7 +144,7 @@ public class ConsoleController extends PlayAndGoController {
 	public Page<PlayerInfoConsole> searchPlayersByTerritory(
 			@RequestParam String territoryId,
 			@RequestParam(required = false) String text,
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
 		Page<Player> page = playerManager.searchPlayers(territoryId, text, pageRequest);
@@ -170,7 +171,7 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
 			@RequestParam(required = false) Boolean toCheck,
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
 		Date dDateFrom = null;

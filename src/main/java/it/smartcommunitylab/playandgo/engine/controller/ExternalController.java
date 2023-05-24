@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -116,7 +117,7 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		Page<CampaignPlacing> page = placingManager.getCampaignPlacingByGame(campaignId,  
@@ -153,7 +154,7 @@ public class ExternalController extends PlayAndGoController {
 	public Page<PlayerInfo> searchPlayers(
 			@RequestParam(required = false) String txt, 
 			@RequestParam String territory, 
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		if (StringUtils.hasText(txt)) {

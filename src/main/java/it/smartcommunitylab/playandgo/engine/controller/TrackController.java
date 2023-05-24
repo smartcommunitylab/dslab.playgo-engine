@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +46,7 @@ public class TrackController extends PlayAndGoController {
 			@RequestParam(required = false) 
 			@Parameter(example = "UTC millis") Long dateTo,
 			@RequestParam(required = false) String campaignId,
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		Date dDateFrom = null;
