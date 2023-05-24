@@ -51,6 +51,9 @@ spring:
     listener:
       simple:
         prefetch: 1
+  sleuth:
+    sampler:
+      probability: ${SAMPLER_PROB:}        
   zipkin:
     base-url: ${ZIPKIN_ENDPOINT:}
     enabled: ${ZIPKIN_ENABLED:}
