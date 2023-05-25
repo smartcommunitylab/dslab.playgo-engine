@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfo;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
@@ -114,9 +115,9 @@ public class ExternalController extends PlayAndGoController {
 	@GetMapping("/api/ext/campaign/game/group/placing")
 	public Page<CampaignPlacing> getCampaingGroupPlacingByGame(
 			@RequestParam String campaignId,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
-			Pageable pageRequest,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		Page<CampaignPlacing> page = placingManager.getCampaignPlacingByGame(campaignId,  
@@ -128,8 +129,8 @@ public class ExternalController extends PlayAndGoController {
 	public CampaignGroupPlacing getPlayerCampaingGroupPlacingByGame(
 			@RequestParam String campaignId,
 			@RequestParam String groupId,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		CampaignGroupPlacing placing = placingManager.getCampaignGroupPlacingByGameAndPlayer(groupId, campaignId, 
@@ -142,8 +143,8 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam String groupId,
 			@RequestParam String groupMode,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		return placingManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);
@@ -153,7 +154,7 @@ public class ExternalController extends PlayAndGoController {
 	public Page<PlayerInfo> searchPlayers(
 			@RequestParam(required = false) String txt, 
 			@RequestParam String territory, 
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
 		if (StringUtils.hasText(txt)) {

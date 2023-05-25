@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
@@ -42,10 +43,10 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam String metric,
 			@RequestParam(required = false) String mean,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			@RequestParam(required = false) boolean groupByGroupId,
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing(campaignId, metric, mean, 
 				dateFrom, dateTo, pageRequest, groupByGroupId);
@@ -58,8 +59,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam String playerId,
 			@RequestParam String metric,
 			@RequestParam(required = false) String mean,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayer(playerId, campaignId, 
 				metric, mean, dateFrom, dateTo);
@@ -72,8 +73,8 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String groupId,
             @RequestParam String metric,
             @RequestParam(required = false) String mean,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
             HttpServletRequest request) throws Exception {
         CampaignPlacing placing = playerReportManager.getCampaignPlacingByGroup(groupId, campaignId, 
                 metric, mean, dateFrom, dateTo);
@@ -87,8 +88,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam String metric,
 			@RequestParam(required = false) String groupMode,
 			@RequestParam(required = false) String mean,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
         return playerReportManager.getPlayerTransportStats(playerId, campaignId, groupMode, metric, 
                 mean, dateFrom, dateTo);
@@ -101,8 +102,8 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String metric,
             @RequestParam(required = false) String groupMode,
             @RequestParam(required = false) String mean,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
             HttpServletRequest request) throws Exception {
         return playerReportManager.getGroupTransportStats(groupId, campaignId, groupMode, metric, 
                 mean, dateFrom, dateTo);
@@ -113,8 +114,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
 			@RequestParam String metric,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		return playerReportManager.getPlayerTransportStatsGroupByMean(playerId, campaignId, metric, dateFrom, dateTo);
 	}
@@ -124,8 +125,8 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String campaignId,
             @RequestParam String groupId,
             @RequestParam String metric,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
             HttpServletRequest request) throws Exception {
         return playerReportManager.getGroupTransportStatsGroupByMean(groupId, campaignId, metric, dateFrom, dateTo);
     }
@@ -146,8 +147,8 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
 			@RequestParam String groupMode,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-			@RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateFrom,
+			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		return playerReportManager.getPlayerGameStats(playerId, campaignId, groupMode, dateFrom, dateTo);
 	}
@@ -157,8 +158,8 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String campaignId,
             @RequestParam String groupId,
             @RequestParam String groupMode,
-            @RequestParam @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-            @RequestParam @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            @RequestParam @Parameter(example = "yyyy-MM-dd") String dateFrom,
+            @RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
             HttpServletRequest request) throws Exception {
         return playerReportManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);
     }
@@ -166,10 +167,10 @@ public class ReportController extends PlayAndGoController {
     @GetMapping("/api/report/campaign/placing/game")
     public Page<CampaignPlacing> getCampaingPlacingByGame(
             @RequestParam String campaignId,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
             @RequestParam(required = false) boolean groupByGroupId,
-            Pageable pageRequest,
+            @ParameterObject Pageable pageRequest,
             HttpServletRequest request) throws Exception {
         Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByGame(campaignId,  
                 dateFrom, dateTo, pageRequest, groupByGroupId);
@@ -180,8 +181,8 @@ public class ReportController extends PlayAndGoController {
     public CampaignPlacing getPlayerCampaingPlacingByGame(
             @RequestParam String campaignId,
             @RequestParam String playerId,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
             HttpServletRequest request) throws Exception {
         CampaignPlacing placing = playerReportManager.getCampaignPlacingByGameAndPlayer(playerId, campaignId, 
                 dateFrom, dateTo);
@@ -192,8 +193,8 @@ public class ReportController extends PlayAndGoController {
     public CampaignPlacing getGroupCampaingPlacingByGame(
             @RequestParam String campaignId,
             @RequestParam String groupId,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateFrom,
-            @RequestParam(required = false) @ApiParam(value = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
+            @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
             HttpServletRequest request) throws Exception {
         CampaignPlacing placing = playerReportManager.getCampaignPlacingByGameAndGroup(groupId, campaignId, 
                 dateFrom, dateTo);
