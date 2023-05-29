@@ -120,7 +120,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
 			if(Utils.isNotEmpty(campaign.getGameId())) {			    
-				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData, true);
                 if(action) {
                     playerTrack.setScoreStatus(ScoreStatus.SENT);
                     campaignPlayerTrackRepository.save(playerTrack);
@@ -147,7 +147,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
 			if(Utils.isNotEmpty(campaign.getGameId())) {
-				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData, true);
 				if(action) {
 				    playerTrack.setScoreStatus(ScoreStatus.SENT);
 				    campaignPlayerTrackRepository.save(playerTrack);
@@ -247,11 +247,11 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	                playerTrack.setDistance(Utils.getTrackDistance(track));
 	                playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
 	                campaignPlayerTrackRepository.save(playerTrack);
-	                if(deltaDistance > 0) {
+	                if(deltaDistance != 0) {
 	                    playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
-	                    if(Utils.isNotEmpty(campaign.getGameId())) {
+	                    if(Utils.isNotEmpty(campaign.getGameId()) && (deltaDistance > 0)) {
 	                        Map<String,Object> trackingData = getTrackingData(track, deltaDistance);
-	                        gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData);
+	                        gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, false);
 	                    }                   
 	                }
 	            }
@@ -283,7 +283,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
                     populatePlayerTrack(playerTrack, track, trackingData);
                     campaignPlayerTrackRepository.save(playerTrack);
                     if(Utils.isNotEmpty(campaign.getGameId()) && (oldStatus.equals(ScoreStatus.UNASSIGNED) || oldStatus.equals(ScoreStatus.SENT))) {
-                        boolean action = gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData);
+                        boolean action = gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, true);
                         if(action) {
                             playerTrack.setScoreStatus(ScoreStatus.SENT);
                             campaignPlayerTrackRepository.save(playerTrack);
@@ -291,8 +291,8 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
                     } else {
                         playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
                         campaignPlayerTrackRepository.save(playerTrack);                   
-                        if(deltaDistance > 0) {
-                            double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), deltaDistance);
+                        if(deltaDistance != 0) {
+                            double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(deltaDistance));
                             playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
                         }
                     }
