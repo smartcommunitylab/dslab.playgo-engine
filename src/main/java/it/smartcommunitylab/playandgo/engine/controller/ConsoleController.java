@@ -170,6 +170,7 @@ public class ConsoleController extends PlayAndGoController {
 			@Parameter(example = "UTC millis") Long dateTo,
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
+			@RequestParam(required = false) String scoreStatus,
 			@RequestParam(required = false) Boolean toCheck,
 			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
@@ -180,7 +181,7 @@ public class ConsoleController extends PlayAndGoController {
 			dDateFrom = Utils.getUTCDate(dateFrom);
 			dDateTo = Utils.getUTCDate(dateTo);
 		}
-		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, playerId, modeType, campaignId, status, 
+		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, playerId, modeType, campaignId, status, scoreStatus,
 				toCheck, dDateFrom, dDateTo, pageRequest);
 	}
 	

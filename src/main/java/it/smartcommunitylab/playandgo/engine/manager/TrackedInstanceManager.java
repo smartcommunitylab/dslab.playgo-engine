@@ -496,7 +496,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	}
 	
 	public Page<TrackedInstanceConsole> searchTrackedInstance(String territoryId, String trackedInstanceId, String playerId, String modeType, 
-			String campaignId, String validationStatus, Boolean toCheck, Date dateFrom, Date dateTo, Pageable pageRequest) {
+			String campaignId, String validationStatus, String scoreStatus, Boolean toCheck, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		List<AggregationOperation> operations = new ArrayList<>();
 		Criteria criteria = new Criteria("territoryId").is(territoryId);
 		if(Utils.isNotEmpty(trackedInstanceId)) {
@@ -526,6 +526,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 			AddFieldsOperation addFields = AddFieldsOperation.addField("trackId").withValueOfExpression("{ \"$toString\": \"$_id\" }").build();
 			LookupOperation lookup = Aggregation.lookup("campaignPlayerTracks", "trackId", "trackedInstanceId", "campaignPlayerTracks");
 			criteria = criteria.and("campaignPlayerTracks.campaignId").is(campaignId);
+			if(Utils.isNotEmpty(scoreStatus)) {
+			    criteria = criteria.and("campaignPlayerTracks.scoreStatus").is(scoreStatus);
+			}
 			operations.add(addFields);
 			operations.add(lookup);
 		}
