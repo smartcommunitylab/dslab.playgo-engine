@@ -38,8 +38,7 @@ public class TestController extends PlayAndGoController {
             HttpServletRequest request) throws Exception {
         checkAdminRole(request);
         PageRequest pageRequest = PageRequest.of(RANDOM.nextInt(5), 20);
-        return trackedInstanceManager.getTrackedInstanceInfoList(playerId, null, null, pageRequest);
-        
+        return trackedInstanceManager.getTrackedInstanceInfoList(playerId, null, null, pageRequest);  
     }
     
     @GetMapping("/api/test/game/campaign")
