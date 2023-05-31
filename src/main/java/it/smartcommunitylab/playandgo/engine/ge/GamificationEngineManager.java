@@ -34,6 +34,7 @@ public class GamificationEngineManager {
 	
 	public static final String SAVE_ITINERARY = "save_itinerary";
 	public static final String START_TIME = "startTime";
+	public static final String NEW_ITINERARY = "new_itinerary";
 	
 	@Value("${gamification.url}")
 	private String gamificationUrl;
@@ -101,8 +102,9 @@ public class GamificationEngineManager {
 		return compileSurveyUrl;
 	}
 
-	public boolean sendSaveItineraryAction(String playerId, String gameId, Map<String, Object> trackingData) {
+	public boolean sendSaveItineraryAction(String playerId, String gameId, Map<String, Object> trackingData, boolean newTrip) {
 		try {
+		    trackingData.put(NEW_ITINERARY, newTrip);
 			ExecutionDataDTO ed = new ExecutionDataDTO();
 			ed.setGameId(gameId);
 			ed.setPlayerId(playerId);

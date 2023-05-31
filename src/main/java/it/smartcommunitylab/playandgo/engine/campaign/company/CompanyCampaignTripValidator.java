@@ -176,10 +176,10 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 					if(trackResult.getValid()) {
 						LegResult legResult = trackResult.getLegs().get(0);
 						double deltaDistance = legResult.getValidDistance() - playerTrack.getDistance();
-						if(deltaDistance > 0) {
-							double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), deltaDistance); 
+						if(deltaDistance != 0) {
+							double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), Math.abs(deltaDistance)); 
 							playerTrack.setDistance(legResult.getValidDistance());
-							playerTrack.setCo2(playerTrack.getCo2() + deltaCo2);
+							playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), playerTrack.getDistance()));
 							campaignPlayerTrackRepository.save(playerTrack);
 							playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);							
 						}
