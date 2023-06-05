@@ -73,17 +73,17 @@ public abstract class BasicCampaignGameStatusManager {
 
 	public abstract void updatePlayerGameStatus(Map<String, Object> msg);
 	
-	protected void updatePlayerGameStatus(Map<String, Object> msg, final String groupIdKey) {
+	@SuppressWarnings("unchecked")
+    protected void updatePlayerGameStatus(Map<String, Object> msg, final String groupIdKey) {
 		try {
-			@SuppressWarnings("unchecked")
 			Map<String, Object> obj = (Map<String, Object>) msg.get("obj");
 			if(obj != null) {
 				String gameId = (String) obj.get("gameId");
 				String playerId = (String) obj.get("playerId");
-				double delta = (double) obj.get("delta");
+				Map<String, Double> deltaMap = (Map<String, Double>) obj.get("deltaMap");
+				double delta = deltaMap.containsKey("green leaves") ? deltaMap.get("green leaves") : 0.0;
 				long timestamp = (long) obj.get("timestamp");
 				String trackId = null;
-				@SuppressWarnings("unchecked")
 				Map<String, Object> dataPayLoad = (Map<String, Object>) obj.get("dataPayLoad");
 				if(dataPayLoad != null) {
 					trackId = (String) dataPayLoad.get("trackId");

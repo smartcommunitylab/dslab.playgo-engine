@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
@@ -143,7 +144,7 @@ public class ConsoleController extends PlayAndGoController {
 	public Page<PlayerInfoConsole> searchPlayersByTerritory(
 			@RequestParam String territoryId,
 			@RequestParam(required = false) String text,
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
 		Page<Player> page = playerManager.searchPlayers(territoryId, text, pageRequest);
@@ -164,13 +165,14 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam(required = false) String playerId,
 			@RequestParam(required = false) String modeType,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateFrom,
+			@Parameter(example = "UTC millis") Long dateFrom,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateTo,
+			@Parameter(example = "UTC millis") Long dateTo,
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
+			@RequestParam(required = false) String scoreStatus,
 			@RequestParam(required = false) Boolean toCheck,
-			Pageable pageRequest,
+			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
 		Date dDateFrom = null;
@@ -179,7 +181,7 @@ public class ConsoleController extends PlayAndGoController {
 			dDateFrom = Utils.getUTCDate(dateFrom);
 			dDateTo = Utils.getUTCDate(dateTo);
 		}
-		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, playerId, modeType, campaignId, status, 
+		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, playerId, modeType, campaignId, status, scoreStatus,
 				toCheck, dDateFrom, dDateTo, pageRequest);
 	}
 	
@@ -213,9 +215,9 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam String campaignId,
 			@RequestParam(required = false) String trackedInstanceId,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateFrom,
+			@Parameter(example = "UTC millis") Long dateFrom,
 			@RequestParam(required = false) 
-			@ApiParam(value = "UTC millis") Long dateTo,			
+			@Parameter(example = "UTC millis") Long dateTo,			
 			HttpServletRequest request) throws Exception {
 		checkRole(request, Role.territory, territoryId);
 		if(Utils.isNotEmpty(trackedInstanceId)) {

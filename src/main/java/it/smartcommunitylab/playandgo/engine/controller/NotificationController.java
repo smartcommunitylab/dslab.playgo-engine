@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.controller;
 
 import java.util.List;
 
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +36,6 @@ public class NotificationController extends PlayAndGoController{
 			@PathVariable String territoryId, 
 			@RequestParam(required = false) String campaignId,
 			@RequestBody Announcement announcement) throws Exception {
-
 		helper.checkRole(territoryId, campaignId);
 		return notifier.notifyAnnouncement(announcement, territoryId, campaignId);
 	}
@@ -45,8 +45,7 @@ public class NotificationController extends PlayAndGoController{
 			@PathVariable String territoryId, 
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) List<String> channels,
-			Pageable pageRequest) throws Exception 
-	{
+			@ParameterObject Pageable pageRequest) throws Exception {
 		helper.checkRole(territoryId, campaignId);
 		Page<Announcement> result = notifier.getAnnouncements(territoryId, campaignId, channels, pageRequest);
 		return result;

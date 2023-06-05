@@ -23,6 +23,7 @@ import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignTri
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
+import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
@@ -78,6 +79,9 @@ public class DevController extends PlayAndGoController {
 	
     @Autowired
     MessageQueueManager queueManager;	
+    
+    @Autowired
+    TrackedInstanceManager trackedInstanceManager;
 	
 	static final Random RANDOM = new Random();
 	
@@ -227,4 +231,6 @@ public class DevController extends PlayAndGoController {
 	    checkAdminRole(request);
 	    return campaignSubscriptionRepository.findByMetaData("TAA.school", SchoolCampaignSubscription.groupIdKey, "06d8f1a3-611d-4068-ad58-02f2a72f66db");
 	}
+	
+	        
 }

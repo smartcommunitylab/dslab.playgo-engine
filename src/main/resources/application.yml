@@ -4,6 +4,8 @@ server:
     contextPath: /playandgo
 
 spring:
+  application:
+    name: play&go-engine
   data:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URL:}
@@ -19,7 +21,6 @@ spring:
     multipart:
       max-file-size: ${SPRING_HTTP_MULTIPART_MAX_FILE_SIZE:10MB}
       max-request-size: ${SPRING_HTTP_MULTIPART_MAX_REQUEST_SIZE:10MB}
-
   security:
     oauth2:
       client:
@@ -40,11 +41,27 @@ spring:
         opaque-token:
           introspection-uri: 
           client-id: 
-          client-secret: 
-        
+          client-secret:         
+  rabbitmq:
+    host: ${RABBITMQ_PG_HOST:}
+    port: ${RABBITMQ_PG_PORT:}
+    password: ${RABBITMQ_PG_PASSWORD:}
+    username: ${RABBITMQ_PG_USER:}
+    virtual-host: ${RABBITMQ_PG_VIRTUALHOST:}
+    listener:
+      simple:
+        prefetch: 1
+  sleuth:
+    sampler:
+      probability: ${SAMPLER_PROB:}        
+  zipkin:
+    base-url: ${ZIPKIN_ENDPOINT:}
+    enabled: ${ZIPKIN_ENABLED:}
 
-
-
+springdoc:
+  packagesToScan: it.smartcommunitylab.playandgo.engine.controller
+  pathsToMatch: /api/** 
+  
 mail:
   host: ${MAIL_HOST:}
   port: ${MAIL_PORT:}
@@ -64,19 +81,7 @@ gamification:
   secretKey2: ${GAMIFICATION_SK2:}
   cron: ${GAMIFICATION_CRON:}
 
-rabbitmq_pg:
-  host: ${RABBITMQ_PG_HOST:}
-  port: ${RABBITMQ_PG_PORT:}
-  user: ${RABBITMQ_PG_USER:}
-  password: ${RABBITMQ_PG_PASSWORD:}
-  virtualhost: ${RABBITMQ_PG_VIRTUALHOST:}
-
 rabbitmq_ge:
-  host: ${RABBITMQ_GE_HOST:}
-  port: ${RABBITMQ_GE_PORT:}
-  user: ${RABBITMQ_GE_USER:}
-  password: ${RABBITMQ_GE_PASSWORD:}
-  virtualhost: ${RABBITMQ_GE_VIRTUALHOST:}
   geExchangeName: ${RABBITMQ_GE_EXCHANGE_NAME:}
   geRoutingKeyPrefix: ${RABBITMQ_GE_ROUTING_KEY_PREFIX:}
 

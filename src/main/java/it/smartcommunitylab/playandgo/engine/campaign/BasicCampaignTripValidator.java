@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -119,7 +120,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
 			if(Utils.isNotEmpty(campaign.getGameId())) {			    
-				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData, true);
                 if(action) {
                     playerTrack.setScoreStatus(ScoreStatus.SENT);
                     campaignPlayerTrackRepository.save(playerTrack);
@@ -146,7 +147,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
 			if(Utils.isNotEmpty(campaign.getGameId())) {
-				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData);
+				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData, true);
 				if(action) {
 				    playerTrack.setScoreStatus(ScoreStatus.SENT);
 				    campaignPlayerTrackRepository.save(playerTrack);
@@ -233,16 +234,38 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	@Override
 	public void updateTripRequest(UpdateCampaignTripRequest msg) {
 		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
-		TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
-		if((playerTrack != null) && (track != null)) {
-		    double deltaDistance = Utils.getTrackDistance(track) - playerTrack.getDistance();
-		    double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(Utils.getTrackDistance(track))) - playerTrack.getCo2();
-			playerTrack.setDistance(Utils.getTrackDistance(track));
-			playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
-			campaignPlayerTrackRepository.save(playerTrack);
-			playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
-			//TODO send action to GamificationEngine? 
+		if(playerTrack != null) {
+	        TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
+	        Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
+	        if((track != null) && (campaign != null)) {
+	            double deltaDistance = Utils.getTrackDistance(track) - playerTrack.getDistance();
+	            double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(Utils.getTrackDistance(track))) - playerTrack.getCo2();
+	            ScoreStatus oldStatus = playerTrack.getScoreStatus();
+	            if(oldStatus.equals(ScoreStatus.UNASSIGNED) || oldStatus.equals(ScoreStatus.SENT)) {
+	                revalidateTripRequest(msg);
+	            } else if(oldStatus.equals(ScoreStatus.COMPUTED)) {
+	                playerTrack.setDistance(Utils.getTrackDistance(track));
+	                playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
+	                campaignPlayerTrackRepository.save(playerTrack);
+	                if(deltaDistance != 0) {
+	                    playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
+	                    if(Utils.isNotEmpty(campaign.getGameId()) && (deltaDistance > 0)) {
+	                        Map<String,Object> trackingData = getTrackingData(track, deltaDistance);
+	                        gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, false);
+	                    }                   
+	                }
+	            }
+	        }		    
 		}
+	}
+	
+	private Map<String, Object> getTrackingData(TrackedInstance track, double deltaDistance) {
+	    Map<String, Object> trackingData = new HashMap<>();
+	    trackingData.put(track.getFreeTrackingTransport() + "Distance", deltaDistance / 1000.0);
+        trackingData.put(TRAVEL_ID, track.getClientId());
+        trackingData.put(TRACK_ID, track.getId());
+        trackingData.put(START_TIME, track.getStartTime().getTime());
+	    return trackingData;
 	}
 
 	@Override
@@ -250,28 +273,26 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
         CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
         if(playerTrack != null) {
             Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
-            if(campaign != null) {
+            TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
+            if((campaign != null) && (track != null)) {
                 try {
-                    double oldDistance =  playerTrack.getDistance();
                     ScoreStatus oldStatus = playerTrack.getScoreStatus();
-                    
-                    TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
+                    double deltaDistance = Utils.getTrackDistance(track) - playerTrack.getDistance();
                     Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(track.getTerritoryId(), 
                             track.getGeolocationEvents(), track.getFreeTrackingTransport(), track.getValidationResult().getValidationStatus(), track.getOverriddenDistances());
                     populatePlayerTrack(playerTrack, track, trackingData);
-                    if(Utils.isNotEmpty(campaign.getGameId()) && oldStatus.equals(ScoreStatus.UNASSIGNED)) {
-                        campaignPlayerTrackRepository.save(playerTrack);
-                        boolean action = gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData);
+                    campaignPlayerTrackRepository.save(playerTrack);
+                    if(Utils.isNotEmpty(campaign.getGameId()) && (oldStatus.equals(ScoreStatus.UNASSIGNED) || oldStatus.equals(ScoreStatus.SENT))) {
+                        boolean action = gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, true);
                         if(action) {
                             playerTrack.setScoreStatus(ScoreStatus.SENT);
                             campaignPlayerTrackRepository.save(playerTrack);
                         }
                     } else {
                         playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
-                        campaignPlayerTrackRepository.save(playerTrack);
-                        double deltaDistance = playerTrack.getDistance() - oldDistance;                        
-                        if(deltaDistance > 0) {
-                            double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), deltaDistance);
+                        campaignPlayerTrackRepository.save(playerTrack);                   
+                        if(deltaDistance != 0) {
+                            double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(deltaDistance));
                             playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
                         }
                     }
