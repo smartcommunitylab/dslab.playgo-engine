@@ -22,6 +22,7 @@ public class CampaignPlayerTrack {
 	@Indexed
 	private String campaignId;
 	private String campaignSubscriptionId;
+	@Indexed
 	private String trackedInstanceId;
 	private String territoryId;
     private String groupId;    

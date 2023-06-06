@@ -498,6 +498,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	public Page<TrackedInstanceConsole> searchTrackedInstance(String territoryId, String trackedInstanceId, String playerId, String modeType, 
 			String campaignId, String validationStatus, String scoreStatus, Boolean toCheck, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		List<AggregationOperation> operations = new ArrayList<>();
+        
 		Criteria criteria = new Criteria("territoryId").is(territoryId);
 		if(Utils.isNotEmpty(trackedInstanceId)) {
 			criteria = criteria.and("id").is(trackedInstanceId);
@@ -522,20 +523,27 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		if((dateFrom != null) && (dateTo != null)) {
 			criteria = criteria.andOperator(Criteria.where("startTime").gte(dateFrom), Criteria.where("startTime").lte(dateTo));
 		}
+        MatchOperation match = Aggregation.match(criteria);
+        operations.add(match);
+        
+        ProjectionOperation project = Aggregation.project().andExclude("geolocationEvents");
+        operations.add(project);        
+        
+        
 		if(Utils.isNotEmpty(campaignId)) {
-			AddFieldsOperation addFields = AddFieldsOperation.addField("trackId").withValueOfExpression("{ \"$toString\": \"$_id\" }").build();
-			LookupOperation lookup = Aggregation.lookup("campaignPlayerTracks", "trackId", "trackedInstanceId", "campaignPlayerTracks");
-			criteria = criteria.and("campaignPlayerTracks.campaignId").is(campaignId);
+	        AddFieldsOperation addFields = AddFieldsOperation.addField("trackId").withValueOfExpression("{ \"$toString\": \"$_id\" }").build();
+	        operations.add(addFields);
+
+            LookupOperation lookup = Aggregation.lookup("campaignPlayerTracks", "trackId", "trackedInstanceId", "campaignPlayerTracks");
+            operations.add(lookup);
+            
+            Criteria criteriaLookup = new Criteria("campaignPlayerTracks.campaignId").is(campaignId);
 			if(Utils.isNotEmpty(scoreStatus)) {
-			    criteria = criteria.and("campaignPlayerTracks.scoreStatus").is(scoreStatus);
+			    criteriaLookup = criteriaLookup.and("campaignPlayerTracks.scoreStatus").is(scoreStatus);
 			}
-			operations.add(addFields);
-			operations.add(lookup);
+			operations.add(Aggregation.match(criteriaLookup));
 		}
-		MatchOperation match = Aggregation.match(criteria);
-		operations.add(match);
-		ProjectionOperation project = Aggregation.project().andExclude("geolocationEvents");
-		operations.add(project);
+		
 		SortOperation sort = Aggregation.sort(pageRequest.getSort());
 		SkipOperation skip = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
 		LimitOperation limit = Aggregation.limit(pageRequest.getPageSize());
@@ -546,6 +554,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 		operationsPaged.add(skip);
 		operationsPaged.add(limit);
+		
 		Aggregation aggregation = Aggregation.newAggregation(operationsPaged);
 		AggregationResults<TrackedInstance> trips = mongoTemplate.aggregate(aggregation, TrackedInstance.class, TrackedInstance.class);
 		List<TrackedInstanceConsole> result = new ArrayList<>();
@@ -559,10 +568,16 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	}
 	
 	private long countRecords(List<AggregationOperation> operations, String collectionName) {
+	    operations.add(Aggregation.count().as("totalNum"));
+	    operations.add(Aggregation.project("totalNum"));
 		Aggregation aggregation = Aggregation.newAggregation(operations);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
 				collectionName, Document.class);
-		return aggregationResults.getMappedResults().size();
+		List<Document> list = aggregationResults.getMappedResults();
+		if(list.size() == 1) {
+		    return list.get(0).getInteger("totalNum");
+		}
+		return 0;
 	}
 	
 	private PlayerInfo getPlayerInfo(String playerId) {
