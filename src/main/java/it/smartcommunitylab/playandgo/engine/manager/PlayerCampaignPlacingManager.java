@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.CountOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LimitOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -286,10 +287,16 @@ public class PlayerCampaignPlacingManager {
 	private long countTransportDistincPlayers(Criteria criteria, String groupField) {
 		MatchOperation matchOperation = Aggregation.match(criteria);
 		GroupOperation groupOperation = Aggregation.group(groupField);
-		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+        CountOperation countOperation = Aggregation.count().as("totalNum");
+        ProjectionOperation projectionOperation = Aggregation.project("totalNum");		
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, countOperation, projectionOperation);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
 				PlayerStatsTransport.class, Document.class);
-		return aggregationResults.getMappedResults().size();
+        List<Document> list = aggregationResults.getMappedResults();
+        if(list.size() == 1) {
+            return list.get(0).getInteger("totalNum");
+        }
+        return 0;
 	}
 
 	public Page<CampaignPlacing> getCampaignPlacing(String campaignId, String metric, String mean,  
@@ -341,7 +348,12 @@ public class PlayerCampaignPlacingManager {
                     cp.setAvatar(avatarManager.getPlayerSmallAvatar(player.getPlayerId()));
                 }               
             }
-            cp.setValue(doc.getDouble("value"));
+            if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
+                Long l = doc.getLong("value");
+                cp.setValue(l.doubleValue());
+            } else {
+                cp.setValue(doc.getDouble("value"));
+            }            
             cp.setPosition(index + 1);
             result.add(cp);
             index++;		    
@@ -676,10 +688,16 @@ public class PlayerCampaignPlacingManager {
     private long countGameDistincPlayers(Criteria criteria, String groupField) {
         MatchOperation matchOperation = Aggregation.match(criteria);
         GroupOperation groupOperation = Aggregation.group(groupField);
-        Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+        CountOperation countOperation = Aggregation.count().as("totalNum");
+        ProjectionOperation projectionOperation = Aggregation.project("totalNum");
+        Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, countOperation, projectionOperation);
         AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
                 PlayerStatsGame.class, Document.class);
-        return aggregationResults.getMappedResults().size();
+        List<Document> list = aggregationResults.getMappedResults();
+        if(list.size() == 1) {
+            return list.get(0).getInteger("totalNum");
+        }
+        return 0;
     }
 	
 	public CampaignPlacing getCampaignPlacingByGameAndPlayer(String playerId, String campaignId,
