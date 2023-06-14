@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <<title th:remove="all">Play&amp;Go - Questionario</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+    	<div class="container-fluid">
+    		<div class="row" style="width:700px">
+    			<div class="col-md-6" >
+				    <div style="margin: 50px 5px 5px 5px" align="center">
+				    	<table style="padding: 20px;">
+				    		<tr>
+				    			<td valign="middle" align="center">
+				    				<img src="img/foglie03.png" th:src="'cid:' + ${imageRNFoglie03}" width="60px" alt="" title="" />
+				    			</td>
+				    			<td rowspan="2" valign="middle" align="center">
+									<h2>
+										<font face="Raleway" th:text="${campaignTitle}">App Name</font>
+									</h2>				    			
+								</td>
+				    			<td></td>
+				    		</tr>
+				    		<tr>
+				    			<td></td>		
+								<td valign="middle" align="center">
+									<img src="img/foglie04.png" th:src="'cid:' + ${imageRNFoglie04}" width="60px" alt="" title="" />
+				    			</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+	    	</div>
+	    	<div class="row" style="width:700px">
+	    		<div class="col-md-6 col-md-offset-1">
+			        <h3>
+			           Caro utente,
+			        </h3>
+			        <h3>
+			        	nell'ambito della campagna <strong th:text="${campaignTitle}">titolo</strong> ti chiediamo di compilare il questionario che troverai al seguente <a th:href="${surveylink}" target="_system"><strong>indirizzo</strong></a>.
+			        </h3>
+			        			        
+			        <h3><em>Lo staff di Play&amp;Go</em>
+			        </h3>
+		        </div>
+	        </div>
+        </div>
+        <footer>
+        	<br />
+        	<br />
+        	<br />
+		</footer>    
+	</body>
+</html>

@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.campaign.company;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
@@ -28,6 +31,9 @@ public class CompanyCampaignSubscription {
 	
 	@Autowired
 	MessageQueueManager queueManager;
+	
+    @Autowired
+    SurveyManager surveyManager;
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData, boolean sendExtRequest) throws Exception {
@@ -45,6 +51,11 @@ public class CompanyCampaignSubscription {
 		if(campaignData != null) {
 			sub.setCampaignData(campaignData);
 		}
+        //check default survey
+        if(campaign.hasDefaultSurvey()) {
+            SurveyRequest sr = campaign.getDefaultSurvey();
+            surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+        }            
 		sendRegisterWebhookRequest(sub);
 		return sub;			
 	}
