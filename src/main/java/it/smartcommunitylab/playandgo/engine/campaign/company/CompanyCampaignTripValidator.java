@@ -16,11 +16,11 @@ import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackData;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.TrackResult;
 import it.smartcommunitylab.playandgo.engine.manager.ext.CampaignMsgManager;
-import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
-import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
+import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
+import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.UpdateCampaignTripRequest;
@@ -50,9 +50,6 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	PlayerCampaignPlacingManager playerReportManager;
 	
 	@Autowired
-	CompanyCampaignGameStatusManager gameStatusManager;
-	
-	@Autowired
 	CampaignMsgManager campaignMsgManager;
 
 	@PostConstruct
@@ -73,9 +70,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 						errorPlayerTrack(track, playerTrack, trackResult.getErrorCode());
 					} else {
 						LegResult legResult = trackResult.getLegs().get(0);
-						populatePlayerTrack(track, playerTrack, legResult.getMean(), legResult.getValidDistance(), legResult.getScore());
+						populatePlayerTrack(track, playerTrack, legResult);
 						playerReportManager.updatePlayerCampaignPlacings(playerTrack);
-						gameStatusManager.updatePlayerGameStatus(playerTrack);
 						sendWebhookRequest(playerTrack);
 					}
 				} catch (ServiceException e) {
@@ -86,14 +82,15 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		}	
 	}
 	
-	private void populatePlayerTrack(TrackedInstance track, CampaignPlayerTrack playerTrack, String modeType, double distance, double score) {
+	private void populatePlayerTrack(TrackedInstance track, CampaignPlayerTrack playerTrack, LegResult legResult) {
 	    playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
-	    playerTrack.setScore(score);
+	    playerTrack.setVirtualScore(legResult.getVirtualScore());
+	    playerTrack.setVirtualTrack(legResult.isVirtualTrack());
 		playerTrack.setValid(true);
-		playerTrack.setModeType(modeType);
-		playerTrack.setDistance(distance);
+		playerTrack.setModeType(legResult.getMean());
+		playerTrack.setDistance(legResult.getValidDistance());
 		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
-		playerTrack.setCo2(Utils.getSavedCo2(modeType, distance));
+		playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), legResult.getValidDistance()));
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));		
 		campaignPlayerTrackRepository.save(playerTrack);
@@ -107,6 +104,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
         playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
         playerTrack.setDistance(0.0);
         playerTrack.setCo2(0.0);
+        playerTrack.setVirtualScore(0.0);
+        playerTrack.setVirtualTrack(false);
         playerTrack.setStartTime(track.getStartTime());
         playerTrack.setEndTime(Utils.getEndTime(track));        
 		campaignPlayerTrackRepository.save(playerTrack);
@@ -162,7 +161,6 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 			TrackedInstance track = trackedInstanceRepository.findById(msg.getTrackedInstanceId()).orElse(null);
 			errorPlayerTrack(playerTrack, track.getValidationResult().getValidationStatus().getError().toString());
 			playerReportManager.removePlayerCampaignPlacings(playerTrack);	
-			gameStatusManager.removePlayerGameStatus(playerTrack);
 		}
 	}
 
@@ -178,17 +176,12 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 					if(trackResult.getValid()) {
 						LegResult legResult = trackResult.getLegs().get(0);
 						double deltaDistance = legResult.getValidDistance() - playerTrack.getDistance();
-						if(deltaDistance != 0) {
-							double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), Math.abs(deltaDistance)); 
-							playerTrack.setDistance(legResult.getValidDistance());
-							playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), playerTrack.getDistance()));
-							campaignPlayerTrackRepository.save(playerTrack);
-							playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);							
-						}
-                        double deltaScore = legResult.getScore() - playerTrack.getScore();
-                        if(deltaScore != 0) {
-                            gameStatusManager.updatePlayerGameStatus(playerTrack, deltaScore);
-                        }
+						double deltaVirtualScore = legResult.getVirtualScore() - playerTrack.getVirtualScore();
+						double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), Math.abs(deltaDistance)); 
+						playerTrack.setDistance(legResult.getValidDistance());
+						playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), playerTrack.getDistance()));
+						campaignPlayerTrackRepository.save(playerTrack);
+						playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, deltaVirtualScore);							
 					}
 				} catch (ServiceException e) {
 					logger.warn("updateTripRequest error:" + e.getMessage());
@@ -215,17 +208,12 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 				        campaignPlayerTrackRepository.save(playerTrack);
 						LegResult legResult = trackResult.getLegs().get(0);
 						double deltaDistance = legResult.getValidDistance() - playerTrack.getDistance();
-						if(deltaDistance != 0) {
-							double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), Math.abs(deltaDistance)); 
-							playerTrack.setDistance(legResult.getValidDistance());
-							playerTrack.setCo2((Utils.getSavedCo2(legResult.getMean(), playerTrack.getDistance())));
-							campaignPlayerTrackRepository.save(playerTrack);
-							playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);							
-						}
-                        double deltaScore = legResult.getScore() - playerTrack.getScore();
-                        if(deltaScore != 0) {
-                            gameStatusManager.updatePlayerGameStatus(playerTrack, deltaScore);
-                        }						
+						double deltaVirtualScore = legResult.getVirtualScore() - playerTrack.getVirtualScore();
+						double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), Math.abs(deltaDistance)); 
+						playerTrack.setDistance(legResult.getValidDistance());
+						playerTrack.setCo2((Utils.getSavedCo2(legResult.getMean(), playerTrack.getDistance())));
+						campaignPlayerTrackRepository.save(playerTrack);
+						playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, deltaVirtualScore);							
 					}
 				} catch (ServiceException e) {
 					logger.warn("revalidateTripRequest error:" + e.getMessage());

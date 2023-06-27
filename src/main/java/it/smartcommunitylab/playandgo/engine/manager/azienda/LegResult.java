@@ -5,7 +5,8 @@ public class LegResult {
 	private String id;
 	private String mean;
 	private double validDistance;
-	private double score;
+	private double virtualScore;
+	private boolean virtualTrack;
 	
 	public double getDistance() {
 		return distance;
@@ -31,10 +32,16 @@ public class LegResult {
 	public void setValidDistance(double validDistance) {
 		this.validDistance = validDistance;
 	}
-    public double getScore() {
-        return score;
+    public double getVirtualScore() {
+        return virtualScore;
     }
-    public void setScore(double score) {
-        this.score = score;
+    public void setVirtualScore(double virtualScore) {
+        this.virtualScore = virtualScore;
+    }
+    public boolean isVirtualTrack() {
+        return virtualTrack;
+    }
+    public void setVirtualTrack(boolean virtualTrack) {
+        this.virtualTrack = virtualTrack;
     }
 }

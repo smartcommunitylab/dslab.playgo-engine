@@ -177,6 +177,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));
 		
+		playerTrack.setVirtualScore(0.0);
+		playerTrack.setVirtualTrack(false);
+		
         if(Utils.isNotEmpty(groupIdKey)) {
             CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(playerTrack.getCampaignId(), playerTrack.getPlayerId());
             if(cs != null) {
@@ -248,7 +251,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	                playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
 	                campaignPlayerTrackRepository.save(playerTrack);
 	                if(deltaDistance != 0) {
-	                    playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
+	                    playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, 0.0);
 	                    if(Utils.isNotEmpty(campaign.getGameId()) && (deltaDistance > 0)) {
 	                        Map<String,Object> trackingData = getTrackingData(track, deltaDistance);
 	                        gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, false);
@@ -293,7 +296,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
                         campaignPlayerTrackRepository.save(playerTrack);                   
                         if(deltaDistance != 0) {
                             double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(deltaDistance));
-                            playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
+                            playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, 0.0);
                         }
                     }
                 } catch (Exception e) {

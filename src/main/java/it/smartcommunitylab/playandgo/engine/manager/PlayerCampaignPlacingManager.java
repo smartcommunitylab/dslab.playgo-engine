@@ -129,6 +129,10 @@ public class PlayerCampaignPlacingManager {
 			globalByMode.addDuration(pt.getDuration());
 			globalByMode.addCo2(pt.getCo2());
 			globalByMode.addTrack();
+			globalByMode.addVirtualScore(pt.getVirtualScore());
+			if(pt.isVirtualTrack()) {
+			    globalByMode.addVirtualTrack();
+			}
 			playerStatsTransportRepository.save(globalByMode);
 			
 			//transport daily placing
@@ -146,6 +150,10 @@ public class PlayerCampaignPlacingManager {
 			dayByMode.addDuration(pt.getDuration());
 			dayByMode.addCo2(pt.getCo2());
 			dayByMode.addTrack();
+			dayByMode.addVirtualScore(pt.getVirtualScore());
+            if(pt.isVirtualTrack()) {
+                dayByMode.addVirtualTrack();
+            }
 			playerStatsTransportRepository.save(dayByMode);			
 		}
 	}
@@ -159,6 +167,10 @@ public class PlayerCampaignPlacingManager {
 			globalByMode.subDuration(pt.getDuration());
 			globalByMode.subCo2(pt.getCo2());
 			globalByMode.subTrack();
+            globalByMode.subVirtualScore(pt.getVirtualScore());
+            if(pt.isVirtualTrack()) {
+                globalByMode.subVirtualTrack();
+            }			
 			playerStatsTransportRepository.save(globalByMode);
 		}
 		
@@ -173,11 +185,15 @@ public class PlayerCampaignPlacingManager {
 			dayByMode.subDuration(pt.getDuration());
 			dayByMode.subCo2(pt.getCo2());
 			dayByMode.subTrack();
+            dayByMode.subVirtualScore(pt.getVirtualScore());
+            if(pt.isVirtualTrack()) {
+                dayByMode.subVirtualTrack();
+            }			
 			playerStatsTransportRepository.save(dayByMode);					
 		}
 	}
 	
-	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2) {
+	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2, double deltaVirtualScore) {
 		//transport global placing
 		PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
 				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
@@ -188,6 +204,11 @@ public class PlayerCampaignPlacingManager {
 			} else if (deltaDistance < 0) {
 				globalByMode.subDistance(Math.abs(deltaDistance));
 				globalByMode.subCo2(Math.abs(deltaCo2));
+			}
+			if(deltaVirtualScore > 0) {
+			    globalByMode.addVirtualScore(deltaVirtualScore); 
+			} else if(deltaVirtualScore < 0) {
+			    globalByMode.subVirtualScore(Math.abs(deltaVirtualScore));
 			}
 			playerStatsTransportRepository.save(globalByMode);
 		}
@@ -206,6 +227,11 @@ public class PlayerCampaignPlacingManager {
 				dayByMode.subDistance(Math.abs(deltaDistance));
 				dayByMode.subCo2(Math.abs(deltaCo2));
 			}
+            if(deltaVirtualScore > 0) {
+                dayByMode.addVirtualScore(deltaVirtualScore); 
+            } else if(deltaVirtualScore < 0) {
+                dayByMode.subVirtualScore(Math.abs(deltaVirtualScore));
+            }
 			playerStatsTransportRepository.save(dayByMode);			
 		}
 	}
@@ -324,6 +350,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        } else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}
@@ -348,7 +378,7 @@ public class PlayerCampaignPlacingManager {
                     cp.setAvatar(avatarManager.getPlayerSmallAvatar(player.getPlayerId()));
                 }               
             }
-            if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
+            if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
                 Long l = doc.getLong("value");
                 cp.setValue(l.doubleValue());
             } else {
@@ -403,6 +433,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        } else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}
@@ -473,11 +507,11 @@ public class PlayerCampaignPlacingManager {
 			String mean, String dateFrom, String dateTo, boolean group) {
 		List<TransportStat> result = new ArrayList<>();
 		
-		Campaign campaign = campaignManager.getCampaign(campaignId);
-		if((campaign != null) && (Type.company.equals(campaign.getType()))) {
-			return getPlayerTransportStatsCompanyCampaign(ownerId, campaignId, Utils.isEmpty(groupMode) ? "total" : groupMode, 
-			        metric, mean, dateFrom, dateTo);
-		}
+//		Campaign campaign = campaignManager.getCampaign(campaignId);
+//		if((campaign != null) && (Type.company.equals(campaign.getType()))) {
+//			return getPlayerTransportStatsCompanyCampaign(ownerId, campaignId, Utils.isEmpty(groupMode) ? "total" : groupMode, 
+//			        metric, mean, dateFrom, dateTo);
+//		}
 		
 		String selectId = "playerId";
 		if(group) {
@@ -509,7 +543,11 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
 		    sumField = "duration";
-		} else {
+		} else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
+        } else {
 			sumField = "distance";
 		}		
 		GroupOperation groupOperation = Aggregation.group(groupField).sum(sumField).as("value");
@@ -521,7 +559,7 @@ public class PlayerCampaignPlacingManager {
 			if(Utils.isNotEmpty(groupMode)) {
 			    stat.setPeriod(doc.getString("_id"));
 			}
-			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
@@ -565,6 +603,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        }  else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}		
@@ -575,7 +617,7 @@ public class PlayerCampaignPlacingManager {
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
 			stat.setMean(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
@@ -613,6 +655,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        }  else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}		
@@ -624,7 +670,7 @@ public class PlayerCampaignPlacingManager {
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
 			stat.setPeriod(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
