@@ -1,6 +1,5 @@
 package it.smartcommunitylab.playandgo.engine.manager.azienda;
 
-import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.List;
 

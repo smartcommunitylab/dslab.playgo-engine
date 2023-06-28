@@ -127,6 +127,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 			ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
 			legData.setMean(validationStatus.getModeType().toString());
 			legData.setDistance(Utils.getTrackDistance(track));
+			legData.setDuration(validationStatus.getDuration());
+			legData.setCo2(Utils.getSavedCo2(validationStatus.getModeType().toString(), Utils.getTrackDistance(track)));
 			legData.getPoints().addAll(track.getGeolocationEvents());
 			trackData.getLegs().add(legData);
 			return trackData;
