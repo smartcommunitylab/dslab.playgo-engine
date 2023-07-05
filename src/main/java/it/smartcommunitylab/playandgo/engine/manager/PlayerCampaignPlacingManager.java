@@ -477,21 +477,21 @@ public class PlayerCampaignPlacingManager {
 		return placing;
 	}
 	
-	private List<TransportStat> getPlayerTransportStatsCompanyCampaign(String playerId, String campaignId, String groupMode, String metric,
-			String mean, String dateFrom, String dateTo) {
-		List<TransportStat> result = new ArrayList<>();
-		try {
-			result = pgAziendaleManager.getPlayerTransportStats(playerId, campaignId, groupMode, metric, mean, dateFrom, dateTo);
-			if(metric.equalsIgnoreCase("co2")) {
-				result.forEach(ts -> {
-					ts.setValue(Utils.getSavedCo2(mean, ts.getValue()));
-				});
-			}
-		} catch (Exception e) {
-			logger.error(String.format("getPlayerTransportStatsCompanyCampaign[%s][%s]:%s", playerId, campaignId, e.getMessage()));
-		}
-		return result;
-	}
+//	private List<TransportStat> getPlayerTransportStatsCompanyCampaign(String playerId, String campaignId, String groupMode, String metric,
+//			String mean, String dateFrom, String dateTo) {
+//		List<TransportStat> result = new ArrayList<>();
+//		try {
+//			result = pgAziendaleManager.getPlayerTransportStats(playerId, campaignId, groupMode, metric, mean, dateFrom, dateTo);
+//			if(metric.equalsIgnoreCase("co2")) {
+//				result.forEach(ts -> {
+//					ts.setValue(Utils.getSavedCo2(mean, ts.getValue()));
+//				});
+//			}
+//		} catch (Exception e) {
+//			logger.error(String.format("getPlayerTransportStatsCompanyCampaign[%s][%s]:%s", playerId, campaignId, e.getMessage()));
+//		}
+//		return result;
+//	}
 
    public List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String groupMode, String metric,
            String mean, String dateFrom, String dateTo) {
