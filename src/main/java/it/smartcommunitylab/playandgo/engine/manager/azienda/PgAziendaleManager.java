@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +36,9 @@ public class PgAziendaleManager {
 	
 	@Value("${aziende.password}")
 	private String password;
+    
+	@Autowired
+    RestTemplate restTemplate;
 	
 	private String jwt = null;
 	private long expiration;
@@ -43,7 +47,6 @@ public class PgAziendaleManager {
 	
 	private String getJwt() throws Exception {
 		if((jwt == null) || (System.currentTimeMillis() > (expiration - 5000))) {
-			RestTemplate restTemplate = new RestTemplate();
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			AuthRequest authRequest = new AuthRequest(user, password);
@@ -71,7 +74,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -97,7 +99,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -121,7 +122,6 @@ public class PgAziendaleManager {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
 		}
 		HttpEntity<TrackData> request = new HttpEntity<>(trackData, headers);
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;		
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -151,7 +151,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -182,7 +181,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -214,7 +212,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
