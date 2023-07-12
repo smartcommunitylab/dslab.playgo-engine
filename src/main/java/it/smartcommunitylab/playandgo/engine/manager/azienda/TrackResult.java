@@ -7,6 +7,7 @@ public class TrackResult {
 	private Boolean valid;
 	private String errorCode;
 	private List<LegResult> legs = new ArrayList<>();
+    private boolean virtualTrack;	
 	
 	public Boolean getValid() {
 		return valid;
@@ -26,4 +27,10 @@ public class TrackResult {
 	public void setLegs(List<LegResult> legs) {
 		this.legs = legs;
 	}
+    public boolean isVirtualTrack() {
+        return virtualTrack;
+    }
+    public void setVirtualTrack(boolean virtualTrack) {
+        this.virtualTrack = virtualTrack;
+    }
 }
