@@ -10,6 +10,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
+import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
@@ -113,6 +114,15 @@ public class Utils {
 	        registeredIds.add(campaign.getCampaignId()); 
 	    }
 	    return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+    public static boolean checkMean(Campaign campaign, String mean) {
+        if((campaign.getValidationData() != null) && (campaign.getValidationData().get(TrackedInstanceManager.meansKey) != null)) {
+            List<String> means = (List<String>) campaign.getValidationData().get(TrackedInstanceManager.meansKey);
+            return means.contains(mean);
+        }
+        return false;	    
 	}
  	
 }

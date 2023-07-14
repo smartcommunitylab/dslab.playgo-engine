@@ -64,6 +64,10 @@ public class PlayerCampaignPlacingManager {
 		day, week, month
 	};
 	
+	public static enum VirtualTrackOp {
+	   add, sub, nothing 
+	}
+	
 	@Autowired
 	MongoTemplate mongoTemplate;
 	
@@ -193,7 +197,8 @@ public class PlayerCampaignPlacingManager {
 		}
 	}
 	
-	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2, double deltaVirtualScore) {
+	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2, 
+	        double deltaVirtualScore, VirtualTrackOp virtualTrackOp) {
 		//transport global placing
 		PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
 				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
@@ -209,6 +214,13 @@ public class PlayerCampaignPlacingManager {
 			    globalByMode.addVirtualScore(deltaVirtualScore); 
 			} else if(deltaVirtualScore < 0) {
 			    globalByMode.subVirtualScore(Math.abs(deltaVirtualScore));
+			}
+			if(virtualTrackOp != null) {
+	            if(virtualTrackOp.equals(VirtualTrackOp.add)) {
+	                globalByMode.addVirtualTrack(); 
+	            } else if(virtualTrackOp.equals(VirtualTrackOp.sub)) {
+	                globalByMode.subVirtualTrack();
+	            }
 			}
 			playerStatsTransportRepository.save(globalByMode);
 		}
@@ -232,6 +244,13 @@ public class PlayerCampaignPlacingManager {
             } else if(deltaVirtualScore < 0) {
                 dayByMode.subVirtualScore(Math.abs(deltaVirtualScore));
             }
+            if(virtualTrackOp != null) {
+                if(virtualTrackOp.equals(VirtualTrackOp.add)) {
+                    dayByMode.addVirtualTrack(); 
+                } else if(virtualTrackOp.equals(VirtualTrackOp.sub)) {
+                    dayByMode.subVirtualTrack();
+                }
+            }            
 			playerStatsTransportRepository.save(dayByMode);			
 		}
 	}
