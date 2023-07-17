@@ -18,6 +18,8 @@ import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
+import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 
 @RestController
 public class TestController extends PlayAndGoController {
@@ -57,6 +59,18 @@ public class TestController extends PlayAndGoController {
             HttpServletRequest request) throws Exception {
         checkAdminRole(request);
         return challengeManager.getChallenges(playerId, campaignId, null);
-    }   
+    }
+    
+    @GetMapping("/api/test/track/validate")
+    public void validateTrack(
+            @RequestParam(required = false) String trackedInstanceId,
+            HttpServletRequest request) throws Exception {
+        checkAdminRole(request);
+        TrackedInstance ti = trackedInstanceManager.getTrackedInstance(trackedInstanceId);
+        if(ti != null) {
+            ValidateTripRequest msg = new ValidateTripRequest(ti.getUserId(), ti.getTerritoryId(), ti.getMultimodalId());
+            trackedInstanceManager.validateTripRequest(msg);
+        }
+    }
 
 }
