@@ -24,6 +24,8 @@ public interface TrackedInstanceRepository extends MongoRepository<TrackedInstan
 	
 	public List<TrackedInstance> findByMultimodalId(String multimodalId, Sort sort);
 	
+	public List<TrackedInstance> findByUserIdAndMultimodalId(String userId, String multimodalId);
+	
 	@Query("{territoryId: ?0, sharedTravelId: ?1, userId: {$ne: ?2}}")
 	public List<TrackedInstance> findPassengerTrips(String territoryId, String sharedTravelId, String driverId);
 

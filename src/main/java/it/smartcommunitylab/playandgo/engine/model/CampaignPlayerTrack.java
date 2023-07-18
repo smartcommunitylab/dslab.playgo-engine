@@ -38,6 +38,8 @@ public class CampaignPlayerTrack {
 	private double distance; //meters
 	private long duration; //seconds
 	private double co2;	//Kgr
+	private double virtualScore;
+	private boolean virtualTrack;
 	
 	private Map<String, Object> trackingData = new HashMap<>();
 	
@@ -149,6 +151,18 @@ public class CampaignPlayerTrack {
     }
     public void setGroupId(String groupId) {
         this.groupId = groupId;
+    }
+    public double getVirtualScore() {
+        return virtualScore;
+    }
+    public void setVirtualScore(double virtualScore) {
+        this.virtualScore = virtualScore;
+    }
+    public boolean isVirtualTrack() {
+        return virtualTrack;
+    }
+    public void setVirtualTrack(boolean virtualTrack) {
+        this.virtualTrack = virtualTrack;
     }
 
 }

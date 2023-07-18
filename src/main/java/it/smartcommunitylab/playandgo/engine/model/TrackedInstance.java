@@ -30,7 +30,9 @@ public class TrackedInstance {
 	@Indexed
 	private String territoryId;
 	
+	@Indexed
 	private String multimodalId;
+	
 	private String sharedTravelId;
 	
 	private String freeTrackingTransport;

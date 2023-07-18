@@ -5,6 +5,7 @@ public class LegResult {
 	private String id;
 	private String mean;
 	private double validDistance;
+	private double virtualScore;
 	
 	public double getDistance() {
 		return distance;
@@ -30,4 +31,10 @@ public class LegResult {
 	public void setValidDistance(double validDistance) {
 		this.validDistance = validDistance;
 	}
+    public double getVirtualScore() {
+        return virtualScore;
+    }
+    public void setVirtualScore(double virtualScore) {
+        this.virtualScore = virtualScore;
+    }
 }

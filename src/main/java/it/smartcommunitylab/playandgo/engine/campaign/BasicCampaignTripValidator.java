@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.util.StringUtils;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
+import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager.VirtualTrackOp;
 import it.smartcommunitylab.playandgo.engine.manager.ext.CampaignMsgManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
@@ -82,41 +84,43 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	
 	@Override
 	public void validateTripRequest(ValidateCampaignTripRequest msg) {
-		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
-		if(playerTrack != null) {
-			TrackedInstance track = trackedInstanceRepository.findById(msg.getTrackedInstanceId()).orElse(null);
-			if(track != null) {
-				try {
-					if (!StringUtils.hasText(track.getSharedTravelId())) {
-						validateFreeTrackingTripRequest(msg, playerTrack, track);
-					} else {
-						validateSharedTripRequest(msg, playerTrack, track);
-					}
-				} catch (Exception e) {
-					logger.warn(String.format("error in validateTripRequest[%s]:%s", msg.getCampaignPlayerTrackId(), e.getMessage()));
-				}
-			}
-		}
+	    List<TrackedInstance> trackList = getTrackedInstance(msg.getPlayerId(), msg.getMultimodalId());
+	    for(TrackedInstance track : trackList) {
+	        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
+	                msg.getCampaignId(), track.getId());
+	        if((playerTrack != null) && ScoreStatus.UNASSIGNED.equals(playerTrack.getScoreStatus())) {
+                try {
+                    if (!StringUtils.hasText(track.getSharedTravelId())) {
+                        validateFreeTrackingTripRequest(msg, playerTrack, track);
+                    } else {
+                        validateSharedTripRequest(msg, playerTrack, track);
+                    }
+                } catch (Exception e) {
+                    logger.warn(String.format("error in validateTripRequest[%s]:%s", track.getId(), e.getMessage()));
+                }
+	        }
+	    }		
 	}
+	
+    private List<TrackedInstance> getTrackedInstance(String userId, String multimodalId) {
+        return trackedInstanceRepository.findByUserIdAndMultimodalId(userId, multimodalId);
+    }
 
 	private void validateSharedTripRequest(ValidateCampaignTripRequest msg, CampaignPlayerTrack playerTrack, TrackedInstance track) throws ParseException {
 		String sharedId = track.getSharedTravelId();
 		Map<String, Object> trackingData = null;
 		if (ValidationConstants.isDriver(sharedId)) {
-			boolean firstTime = !ScoreStatus.SENT.equals(playerTrack.getScoreStatus()) && !ScoreStatus.ASSIGNED.equals(playerTrack.getScoreStatus());
-			trackingData = validationService.computeSharedTravelDistanceForDriver(track.getTerritoryId(), track.getGeolocationEvents(), track.getValidationResult().getValidationStatus(), track.getOverriddenDistances(), firstTime);
-			populatePlayerTrack(playerTrack, track, trackingData);
-			if (firstTime) {
-				campaignPlayerTrackRepository.save(playerTrack);
-				playerReportManager.updatePlayerCampaignPlacings(playerTrack);
-			}
+			//TODO check firstPair
+		    trackingData = validationService.computeSharedTravelDistanceForDriver(track.getTerritoryId(), track.getGeolocationEvents(), 
+		            track.getValidationResult().getValidationStatus(), track.getOverriddenDistances(), true);
 		} else {
-			trackingData = validationService.computeSharedTravelDistanceForPassenger(track.getTerritoryId(), track.getGeolocationEvents(), track.getValidationResult().getValidationStatus(), track.getOverriddenDistances());
-			populatePlayerTrack(playerTrack, track, trackingData);
-			campaignPlayerTrackRepository.save(playerTrack);
-			playerReportManager.updatePlayerCampaignPlacings(playerTrack);
-			sendWebhookRequest(playerTrack);
+			trackingData = validationService.computeSharedTravelDistanceForPassenger(track.getTerritoryId(), track.getGeolocationEvents(), 
+			        track.getValidationResult().getValidationStatus(), track.getOverriddenDistances());
 		}
+        populatePlayerTrack(playerTrack, track, trackingData);
+        campaignPlayerTrackRepository.save(playerTrack);
+        playerReportManager.updatePlayerCampaignPlacings(playerTrack);
+        sendWebhookRequest(playerTrack);
 		Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign != null) {
 			if(Utils.isNotEmpty(campaign.getGameId())) {			    
@@ -177,6 +181,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));
 		
+		playerTrack.setVirtualScore(0.0);
+		playerTrack.setVirtualTrack(false);
+		
         if(Utils.isNotEmpty(groupIdKey)) {
             CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(playerTrack.getCampaignId(), playerTrack.getPlayerId());
             if(cs != null) {
@@ -217,11 +224,11 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 //	}
 
 	@Override
-	public void invalidateTripRequest(ValidateCampaignTripRequest msg) {
+	public void invalidateTripRequest(UpdateCampaignTripRequest msg) {
 		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
 		if(playerTrack != null) {
 			playerTrack.setValid(false);
-			TrackedInstance track = trackedInstanceRepository.findById(msg.getTrackedInstanceId()).orElse(null);
+			TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
 			if(track != null) {
 				playerTrack.setErrorCode(track.getValidationResult().getValidationStatus().getError().toString());
 			}
@@ -248,7 +255,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	                playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
 	                campaignPlayerTrackRepository.save(playerTrack);
 	                if(deltaDistance != 0) {
-	                    playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
+	                    playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, 0.0, VirtualTrackOp.nothing);
 	                    if(Utils.isNotEmpty(campaign.getGameId()) && (deltaDistance > 0)) {
 	                        Map<String,Object> trackingData = getTrackingData(track, deltaDistance);
 	                        gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, false);
@@ -293,7 +300,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
                         campaignPlayerTrackRepository.save(playerTrack);                   
                         if(deltaDistance != 0) {
                             double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(deltaDistance));
-                            playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2);
+                            playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, 0.0, VirtualTrackOp.nothing);
                         }
                     }
                 } catch (Exception e) {

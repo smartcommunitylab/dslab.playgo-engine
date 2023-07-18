@@ -4,20 +4,18 @@ public class ValidateCampaignTripRequest {
 	private String playerId;
 	private String campaignId;
 	private String campaignSubscriptionId;
-	private String trackedInstanceId;
-	private String campaignPlayerTrackId;
+	private String multimodalId;
 	private String territoryId;
 	private String campaignType;
 	
 	public ValidateCampaignTripRequest() {}
 	
-	public ValidateCampaignTripRequest(String playerId, String territoryId, String trackedInstanceId, 
-			String campaignId, String campaignSubscriptionId, String campaignPlayerTrackId, String campaignType) {
+	public ValidateCampaignTripRequest(String playerId, String territoryId, String multimodalId, 
+			String campaignId, String campaignSubscriptionId, String campaignType) {
 		this.playerId = playerId;
 		this.territoryId = territoryId;
-		this.trackedInstanceId = trackedInstanceId;
+		this.multimodalId = multimodalId;
 		this.campaignId = campaignId;
-		this.campaignPlayerTrackId = campaignPlayerTrackId;
 		this.campaignSubscriptionId = campaignSubscriptionId;
 		this.campaignType = campaignType;
 	}
@@ -27,12 +25,6 @@ public class ValidateCampaignTripRequest {
 	}
 	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
-	}
-	public String getTrackedInstanceId() {
-		return trackedInstanceId;
-	}
-	public void setTrackedInstanceId(String trackedInstanceId) {
-		this.trackedInstanceId = trackedInstanceId;
 	}
 	public String getTerritoryId() {
 		return territoryId;
@@ -57,14 +49,6 @@ public class ValidateCampaignTripRequest {
 		this.campaignSubscriptionId = campaignSubscriptionId;
 	}
 
-	public String getCampaignPlayerTrackId() {
-		return campaignPlayerTrackId;
-	}
-
-	public void setCampaignPlayerTrackId(String campaignPlayerTrackId) {
-		this.campaignPlayerTrackId = campaignPlayerTrackId;
-	}
-
 	public String getCampaignType() {
 		return campaignType;
 	}
@@ -72,4 +56,12 @@ public class ValidateCampaignTripRequest {
 	public void setCampaignType(String campaignType) {
 		this.campaignType = campaignType;
 	}
+
+    public String getMultimodalId() {
+        return multimodalId;
+    }
+
+    public void setMultimodalId(String multimodalId) {
+        this.multimodalId = multimodalId;
+    }
 }	

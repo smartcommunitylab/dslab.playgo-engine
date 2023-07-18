@@ -123,15 +123,13 @@ public class DevController extends PlayAndGoController {
 	public void validateAziendale(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
-			@RequestParam String trackedInstanceId,
-			@RequestParam String campaignPlayerTrackId,
+			@RequestParam String multimodalId,
 			HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
 		ValidateCampaignTripRequest msg = new ValidateCampaignTripRequest();
 		msg.setCampaignId(campaignId);
 		msg.setPlayerId(playerId);
-		msg.setTrackedInstanceId(trackedInstanceId);
-		msg.setCampaignPlayerTrackId(campaignPlayerTrackId);
+		msg.setMultimodalId(multimodalId);
 		companyCampaignTripValidator.validateTripRequest(msg);
 	}
 	

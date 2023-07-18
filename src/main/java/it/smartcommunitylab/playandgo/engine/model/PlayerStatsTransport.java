@@ -28,6 +28,8 @@ public class PlayerStatsTransport {
 	private long duration = 0L; // seconds
 	private double co2 = 0.0;
 	private long trackNumber = 0L;
+	private double virtualScore = 0.0;
+	private long virtualTrack = 0L;
 	
 	public void addTrack() {
 		this.trackNumber++;
@@ -37,6 +39,22 @@ public class PlayerStatsTransport {
 		this.trackNumber--;
 	}
 	
+	public void addVirtualTrack() {
+	    this.virtualTrack++;
+	}
+	
+    public void subVirtualTrack() {
+        this.virtualTrack--;
+    }
+    
+    public void addVirtualScore(double virtualScore) {
+        this.virtualScore += virtualScore;
+    }
+    
+    public void subVirtualScore(double virtualScore) {
+        this.virtualScore -= virtualScore;
+    }
+    
 	public void addDistance(double distance) {
 		this.distance += distance;
 	}
@@ -154,6 +172,22 @@ public class PlayerStatsTransport {
 
     public void setGroupId(String groupId) {
         this.groupId = groupId;
+    }
+
+    public double getVirtualScore() {
+        return virtualScore;
+    }
+
+    public void setVirtualScore(double virtualScore) {
+        this.virtualScore = virtualScore;
+    }
+
+    public long getVirtualTrack() {
+        return virtualTrack;
+    }
+
+    public void setVirtualTrack(long virtualTrack) {
+        this.virtualTrack = virtualTrack;
     }
 	
 	

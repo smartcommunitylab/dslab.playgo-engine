@@ -42,10 +42,10 @@ public class CampaignMsgManager {
 	}
 	
 	public void addValidateTripRequest(ValidateCampaignTripRequest msg, Type type, String errorMsg, String errorCode) {
-		addRequest(msg.getCampaignPlayerTrackId(), type, Operation.validate, errorMsg, errorCode, msg);
+		addRequest(msg.getMultimodalId(), type, Operation.validate, errorMsg, errorCode, msg);
 	}
 	
-	public void addInvalidateTripRequest(ValidateCampaignTripRequest msg, Type type, String errorMsg, String errorCode) {
+	public void addInvalidateTripRequest(UpdateCampaignTripRequest msg, Type type, String errorMsg, String errorCode) {
 		addRequest(msg.getCampaignPlayerTrackId(), type, Operation.invalidate, errorMsg, errorCode, msg);
 	}
 	
