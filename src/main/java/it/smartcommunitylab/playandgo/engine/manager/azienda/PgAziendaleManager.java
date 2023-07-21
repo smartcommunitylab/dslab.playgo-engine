@@ -135,6 +135,7 @@ public class PgAziendaleManager {
 					ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 		try {
+		    logger.info(String.format("validateTrack response:%s - %s - %s", playerId, trackData.toString(), response.getBody()));
 			TrackResult trackResult = mapper.readValue(response.getBody(), TrackResult.class);
 			return trackResult;
 		} catch (Exception e) {
