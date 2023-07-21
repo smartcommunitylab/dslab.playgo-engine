@@ -136,6 +136,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                 }
             }
             trackData.setStartTime(startTime.getTime());
+            logger.info("filltTrackData:" + trackData.toString());
             return sendValidation;
         } else {
             return false;
@@ -153,9 +154,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	    playerTrack.setVirtualTrack(virtualTrack);
 		playerTrack.setValid(true);
 		playerTrack.setModeType(legResult.getMean());
-		playerTrack.setDistance(legResult.getValidDistance());
+		playerTrack.setDistance(Utils.getTrackDistance(track));
 		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
-		playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), legResult.getValidDistance()));
+		playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), Utils.getTrackDistance(track)));
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));		
 		campaignPlayerTrackRepository.save(playerTrack);

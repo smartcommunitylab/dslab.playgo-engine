@@ -33,4 +33,9 @@ public class TrackData {
     public void setFirstTrackId(String firstTrackId) {
         this.firstTrackId = firstTrackId;
     }
+    
+    @Override
+    public String toString() {
+        return startTime + "_" + multimodalId + "_" + firstTrackId;
+    }
 }
