@@ -536,8 +536,12 @@ public class PlayerCampaignPlacingManager {
 		if(group) {
 		    selectId = "groupId";  
 		}
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and(selectId).is(ownerId)
-				.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and(selectId).is(ownerId);
+        if((dateFrom != null) && (dateTo != null)) {
+            criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+        } else {
+            criteria = criteria.and("global").is(Boolean.TRUE);
+        }		
 		if(Utils.isNotEmpty(mean)) {
 			criteria = criteria.and("modeType").is(mean);
 		}
