@@ -578,17 +578,22 @@ public class PlayerCampaignPlacingManager {
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
-			TransportStat stat = new TransportStat();
-			if(Utils.isNotEmpty(groupMode)) {
-			    stat.setPeriod(doc.getString("_id"));
-			}
-			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
-				Long l = doc.getLong("value");
-				stat.setValue(l.doubleValue());
-			} else {
-				stat.setValue(doc.getDouble("value"));
-			}
-			result.add(stat);
+		    try {
+	            TransportStat stat = new TransportStat();
+	            if(Utils.isNotEmpty(groupMode)) {
+	                stat.setPeriod(doc.getString("_id"));
+	            }
+	            if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
+	                Long l = doc.getLong("value");
+	                stat.setValue(l.doubleValue());
+	            } else {
+	                stat.setValue(doc.getDouble("value"));
+	            }
+	            result.add(stat);                
+            } catch (Exception e) {
+                logger.warn(String.format("getOwnerTransportStats error[%s - %s]:%s - %s", ownerId, campaignId, 
+                        doc.toString(), e.getMessage()));
+            }
 		}
 		return result;
 	}
