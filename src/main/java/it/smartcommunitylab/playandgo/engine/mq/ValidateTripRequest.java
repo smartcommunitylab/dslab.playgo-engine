@@ -4,13 +4,15 @@ public class ValidateTripRequest {
 	private String playerId;
 	private String multimodalId;
 	private String territoryId;
+	private boolean forceValidation = false;
 	
 	public ValidateTripRequest() {}
 	
-	public ValidateTripRequest(String playerId, String territoryId, String multimodalId) {
+	public ValidateTripRequest(String playerId, String territoryId, String multimodalId, boolean forceValidation) {
 		this.playerId = playerId;
 		this.territoryId = territoryId;
 		this.multimodalId = multimodalId;
+		this.forceValidation = forceValidation;
 	}
 	
 	public String getPlayerId() {
@@ -32,5 +34,13 @@ public class ValidateTripRequest {
 
     public void setMultimodalId(String multimodalId) {
         this.multimodalId = multimodalId;
+    }
+
+    public boolean isForceValidation() {
+        return forceValidation;
+    }
+
+    public void setForceValidation(boolean forceValidation) {
+        this.forceValidation = forceValidation;
     }
 }	
