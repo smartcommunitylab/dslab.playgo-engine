@@ -68,7 +68,7 @@ public class TestController extends PlayAndGoController {
         checkAdminRole(request);
         TrackedInstance ti = trackedInstanceManager.getTrackedInstance(trackedInstanceId);
         if(ti != null) {
-            ValidateTripRequest msg = new ValidateTripRequest(ti.getUserId(), ti.getTerritoryId(), ti.getMultimodalId());
+            ValidateTripRequest msg = new ValidateTripRequest(ti.getUserId(), ti.getTerritoryId(), ti.getMultimodalId(), false);
             trackedInstanceManager.validateTripRequest(msg);
         }
     }
