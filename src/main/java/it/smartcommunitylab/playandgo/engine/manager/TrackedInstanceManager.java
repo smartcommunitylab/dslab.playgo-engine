@@ -276,8 +276,13 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	
 	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, Player player) throws Exception {
 		List<TrackedInstance> list = geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, player);
-		if(list.size() > 0) {
-		    String multimodalId = list.get(0).getMultimodalId();
+		List<String> multimodalIds = new ArrayList<>();
+		for(TrackedInstance ti : list) {
+		    if(!multimodalIds.contains(ti.getMultimodalId())) {
+		        multimodalIds.add(ti.getMultimodalId());
+		    }
+		}
+		for(String multimodalId : multimodalIds) {
 	        ValidateTripRequest request = new ValidateTripRequest(player.getPlayerId(), player.getTerritoryId(), multimodalId);
 	        queueManager.sendValidateTripRequest(request);		    
 		}
