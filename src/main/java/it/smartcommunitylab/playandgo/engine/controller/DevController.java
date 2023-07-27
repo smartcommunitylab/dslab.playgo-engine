@@ -176,7 +176,7 @@ public class DevController extends PlayAndGoController {
             @RequestParam String trackedInstanceId,
 	        HttpServletRequest request) throws Exception {
 	    checkAdminRole(request);
-	    ValidateTripRequest msg = new ValidateTripRequest(playerId, territoryId, trackedInstanceId);
+	    ValidateTripRequest msg = new ValidateTripRequest(playerId, territoryId, trackedInstanceId, false);
 	    queueManager.sendValidateTripRequest(msg);
 	}
 	
