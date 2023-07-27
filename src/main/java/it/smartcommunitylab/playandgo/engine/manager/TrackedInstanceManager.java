@@ -283,7 +283,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		    }
 		}
 		for(String multimodalId : multimodalIds) {
-	        ValidateTripRequest request = new ValidateTripRequest(player.getPlayerId(), player.getTerritoryId(), multimodalId);
+	        ValidateTripRequest request = new ValidateTripRequest(player.getPlayerId(), player.getTerritoryId(), multimodalId, false);
 	        queueManager.sendValidateTripRequest(request);		    
 		}
 	}
@@ -335,15 +335,15 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		for(TrackedInstance track : list) {
             if (!StringUtils.hasText(track.getSharedTravelId())) {
                 // free tracking
-                validateFreeTrackingTripRequest(track);
+                validateFreeTrackingTripRequest(track, msg.isForceValidation());
             } else {
                 // carsharing
-                List<Pair<String, String>> validateSharedTravelRequest = validateSharedTravelRequest(track);
+                List<Pair<String, String>> validateSharedTravelRequest = validateSharedTravelRequest(track, msg.isForceValidation());
                 mergePair(validatePairList, validateSharedTravelRequest);
             }		    
 		}
 		for(Pair<String, String> pair : validatePairList) {
-		    ValidateTripRequest newMsg = new ValidateTripRequest(pair.getLeft(), msg.getTerritoryId(), pair.getRight());
+		    ValidateTripRequest newMsg = new ValidateTripRequest(pair.getLeft(), msg.getTerritoryId(), pair.getRight(), msg.isForceValidation());
 		    sendValidateCampaignRequest(newMsg);
 		}
 	}
@@ -402,15 +402,17 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	 * @param msg
 	 * @param track
 	 */
-	private void validateFreeTrackingTripRequest(TrackedInstance track) {
-		try {
-			ValidationResult validationResult = validationService.validateFreeTracking(track.getGeolocationEvents(), 
-					track.getFreeTrackingTransport(), track.getTerritoryId());
-			updateValidationResult(track, validationResult);
-		} catch (Exception e) {
-			logger.warn("validateTripRequest error:" + e.getMessage());
-			updateValidationResultAsError(track);
-		}			
+	private void validateFreeTrackingTripRequest(TrackedInstance track, boolean forceValidation) {
+		if(!forceValidation) {
+	        try {
+	            ValidationResult validationResult = validationService.validateFreeTracking(track.getGeolocationEvents(), 
+	                    track.getFreeTrackingTransport(), track.getTerritoryId());
+	            updateValidationResult(track, validationResult);
+	        } catch (Exception e) {
+	            logger.warn("validateTripRequest error:" + e.getMessage());
+	            updateValidationResultAsError(track);
+	        }           		    
+		}
 	}
 
 	private void storeCampaignPlayerTrack(String territoryId, String playerId, String trackedInstanceId,
@@ -470,7 +472,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 	}
 	
-	private List<Pair<String, String>> validateSharedTravelRequest(TrackedInstance track) {
+	private List<Pair<String, String>> validateSharedTravelRequest(TrackedInstance track, boolean forceValidation) {
 	    List<Pair<String, String>> travelToValidateList = new ArrayList<>(); 
 		String sharedId = track.getSharedTravelId();
 		try {
@@ -672,6 +674,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				msg.setTerritoryId(track.getTerritoryId());
 				msg.setPlayerId(track.getUserId());
 				msg.setMultimodalId(track.getMultimodalId());
+				msg.setForceValidation(true);
 				validateTripRequest(msg);
 			} else if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
 				//update distance for a already validated track
