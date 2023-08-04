@@ -110,7 +110,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	private boolean filltTrackData(String playerId, String multimodalId, String campaignId, TrackData trackData) {
         Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
         if(campaign != null) {
-            boolean sendValidation = true;            
+            boolean sendValidation = false;            
             List<TrackedInstance> trackList = getTrackedInstance(playerId, multimodalId);
             trackData.setMultimodalId(multimodalId);
             Date startTime = new Date(4102358400000L); //2099-12-31
@@ -129,9 +129,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                     trackData.getLegs().add(legData);
                 }                   
                 if(Utils.checkMean(campaign, track.getFreeTrackingTransport())) {
-                    if(!TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
-                        //track not valid but to considered in multimodal trip
-                        sendValidation = false;                         
+                    if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
+                        //send if at least one track is valid
+                        sendValidation = true;                         
                     }
                 }
             }
@@ -194,6 +194,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 			legData.setDuration(validationStatus.getDuration());
 			legData.setCo2(Utils.getSavedCo2(validationStatus.getModeType().toString(), Utils.getTrackDistance(track)));
 			legData.getPoints().addAll(track.getGeolocationEvents());
+			legData.setValid(true);
 			return legData;
 		}
 		return null;
@@ -205,6 +206,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
             legData.setId(track.getId());
             legData.setMean(track.getFreeTrackingTransport());
             legData.getPoints().addAll(track.getGeolocationEvents());
+            legData.setValid(false);
             return legData;
         }
         return null;
