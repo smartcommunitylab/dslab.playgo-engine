@@ -11,6 +11,7 @@ public class LegData {
 	private String mean;
 	private long duration;
 	private double co2;
+	private boolean valid = false; 
 	private List<Geolocation> points = new ArrayList<>();
 	
 	public double getDistance() {
@@ -48,5 +49,11 @@ public class LegData {
     }
     public void setCo2(double co2) {
         this.co2 = co2;
+    }
+    public boolean isValid() {
+        return valid;
+    }
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 }
