@@ -54,6 +54,11 @@ public class TerritoryController extends PlayAndGoController {
 		return territoryManager.getTerritories();
 	}
 	
+    @GetMapping("/publicapi/territory")
+    public List<Territory> getPublicTerritories(HttpServletRequest request) throws Exception {
+        return territoryManager.getTerritories();
+    }
+    
 	@DeleteMapping("/api/territory/{territoryId}")
 	public Territory deleteTerritory(
 			@PathVariable String territoryId,
