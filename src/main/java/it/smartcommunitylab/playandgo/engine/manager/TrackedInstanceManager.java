@@ -533,7 +533,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	    track.getValidationResult().getValidationStatus().setValidationOutcome(TravelValidity.PENDING);
 	}
 	
-	public Page<TrackedInstanceConsole> searchTrackedInstance(String territoryId, String trackedInstanceId, String playerId, String modeType, 
+	public Page<TrackedInstanceConsole> searchTrackedInstance(String territoryId, String trackedInstanceId, String multimodalId, String playerId, String modeType, 
 			String campaignId, String validationStatus, String scoreStatus, Boolean toCheck, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		List<AggregationOperation> operations = new ArrayList<>();
         
@@ -541,6 +541,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		if(Utils.isNotEmpty(trackedInstanceId)) {
 			criteria = criteria.and("id").is(trackedInstanceId);
 		}
+        if(Utils.isNotEmpty(multimodalId)) {
+            criteria = criteria.and("multimodalId").is(multimodalId);
+        }		
 		if(Utils.isNotEmpty(playerId)) {
 			//criteria = criteria.and("userId").is(playerId);
 			criteria = criteria.orOperator(Criteria.where("userId").is(playerId), Criteria.where("nickname").is(playerId));
