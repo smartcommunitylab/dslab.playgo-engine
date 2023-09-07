@@ -12,6 +12,7 @@ public class CampaignTripInfo {
 	private Type type;
 	private double score = 0.0;
 	private double distance = 0.0;
+	private double virtualScore = 0.0;
 	private ScoreStatus scoreStatus = ScoreStatus.UNASSIGNED;
 	private boolean valid;
 	private String errorCode;
@@ -64,4 +65,10 @@ public class CampaignTripInfo {
 	public void setCampaignName(Map<String, String> campaignName) {
 		this.campaignName = campaignName;
 	}
+    public double getVirtualScore() {
+        return virtualScore;
+    }
+    public void setVirtualScore(double virtualScore) {
+        this.virtualScore = virtualScore;
+    }
 }

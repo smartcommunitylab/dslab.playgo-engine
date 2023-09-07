@@ -7,8 +7,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +34,7 @@ import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.dto.CampaignPeriodStatsInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
@@ -108,6 +111,18 @@ public class PlayerCampaignPlacingManager {
 			zoneId = ZoneId.of(territory.getTimezone());
 		}
 		return ZonedDateTime.ofInstant(pt.getStartTime().toInstant(), zoneId);
+	}
+	
+	private String getDay(Campaign campaign, Date date) {
+        ZoneId zoneId = null;
+        Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+        if(territory == null) {
+            zoneId = ZoneId.systemDefault();
+        } else {
+            zoneId = ZoneId.of(territory.getTimezone());
+        }
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(date.toInstant(), zoneId);
+        return zdt.format(dtf);
 	}
 	
 	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt) {
@@ -969,6 +984,51 @@ public class PlayerCampaignPlacingManager {
 		placing.setPosition(aggregationPositionResults.getMappedResults().size() + 1);
 		
 		return placing;
+	}
+	
+	@SuppressWarnings("unchecked")
+    public List<CampaignPeriodStatsInfo> getCampaignPeriodStatsInfo(String campaignId, String playerId) {
+	    List<CampaignPeriodStatsInfo> result = new ArrayList<>();
+	    Campaign campaign = campaignManager.getCampaign(campaignId);
+	    if((campaign != null) && (campaign.getSpecificData().get("periods") != null)) {
+	        try {
+	            List<Map<String, Object>> periods = (List<Map<String, Object>>) campaign.getSpecificData().get("periods");
+	            periods.forEach(p -> {
+	                Long start = 0L;
+	                Long end = 0L;
+	                if(p.get("start") instanceof Long) {
+	                    start = (Long)p.get("start");
+	                } else if(p.get("start") instanceof String) {
+	                    start = Long.valueOf((String)p.get("start"));
+	                }
+                    if(p.get("end") instanceof Long) {
+                        end = (Long)p.get("end");
+                    } else if(p.get("end") instanceof String) {
+                        end = Long.valueOf((String)p.get("end"));
+                    }
+	                CampaignPeriodStatsInfo info = new CampaignPeriodStatsInfo();
+	                info.setDateFrom(start);
+	                info.setDateTo(end);
+	                info.setDateFromS(getDay(campaign, new Date(start)));
+	                info.setDateToS(getDay(campaign, new Date(end)));
+	                result.add(info);
+	            });
+	            String dateFrom = getDay(campaign, campaign.getDateFrom());
+	            String dateTo = getDay(campaign, campaign.getDateTo());
+	            List<TransportStat> stats = getOwnerTransportStats(playerId, campaignId, "day", "virtualScore", null, dateFrom, dateTo, false);
+                stats.forEach(s -> {
+                    for(CampaignPeriodStatsInfo info : result) {
+                        if((s.getPeriod().compareTo(info.getDateFromS()) >= 0) &&
+                                (s.getPeriod().compareTo(info.getDateToS()) <= 0)) {
+                            info.addValue(s.getValue());
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                logger.warn(String.format("getCampaignPeriodStatsInfo[%s,%s]:%s", campaignId, playerId, e.getMessage()));
+            }  
+	    }
+	    return result;
 	}
 
 }
