@@ -292,7 +292,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		                            playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 		                            playerTrack.setValid(true);
 		                            campaignPlayerTrackRepository.save(playerTrack);
-		                            double deltaDistance = legResult.getValidDistance() - playerTrack.getDistance();
+		                            double deltaDistance = legResult.getDistance() - playerTrack.getDistance();
 		                            double deltaVirtualScore = legResult.getVirtualScore() - playerTrack.getVirtualScore();
 		                            double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), Math.abs(deltaDistance)); 
 		                            playerTrack.setDistance(legResult.getDistance());
