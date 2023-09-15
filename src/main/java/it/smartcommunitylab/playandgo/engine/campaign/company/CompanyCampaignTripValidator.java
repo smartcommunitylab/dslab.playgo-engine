@@ -8,6 +8,8 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
@@ -144,7 +146,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	}
 	
     private List<TrackedInstance> getTrackedInstance(String userId, String multimodalId) {
-        return trackedInstanceRepository.findByUserIdAndMultimodalId(userId, multimodalId);
+        return trackedInstanceRepository.findByUserIdAndMultimodalId(userId, multimodalId, Sort.by(Direction.ASC, "startTime"));
     }
 	
 	private void populatePlayerTrack(TrackedInstance track, CampaignPlayerTrack playerTrack, 
@@ -293,8 +295,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		                            double deltaDistance = legResult.getValidDistance() - playerTrack.getDistance();
 		                            double deltaVirtualScore = legResult.getVirtualScore() - playerTrack.getVirtualScore();
 		                            double deltaCo2 = Utils.getSavedCo2(legResult.getMean(), Math.abs(deltaDistance)); 
-		                            playerTrack.setDistance(legResult.getValidDistance());
+		                            playerTrack.setDistance(legResult.getDistance());
 		                            playerTrack.setCo2((Utils.getSavedCo2(legResult.getMean(), playerTrack.getDistance())));
+		                            playerTrack.setVirtualScore(legResult.getVirtualScore());
 		                            VirtualTrackOp deltaVirtualTrack = VirtualTrackOp.nothing;
 		                            if(track.getId().equals(trackData.getFirstTrackId())) {
 		                               if(playerTrack.isVirtualTrack() && !trackResult.isVirtualTrack()) {
