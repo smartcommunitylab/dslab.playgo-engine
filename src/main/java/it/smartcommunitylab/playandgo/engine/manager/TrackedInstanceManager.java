@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -295,7 +296,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	}
 	
 	public List<TrackedInstance> getTrackedInstance(String userId, String multimodalId) {
-		return trackedInstanceRepository.findByUserIdAndMultimodalId(userId, multimodalId);
+		return trackedInstanceRepository.findByUserIdAndMultimodalId(userId, multimodalId, Sort.by(Direction.ASC, "startTime"));
 	}
 	
 	public TrackedInstance getTrackedInstance(String trackedInstanceId) {

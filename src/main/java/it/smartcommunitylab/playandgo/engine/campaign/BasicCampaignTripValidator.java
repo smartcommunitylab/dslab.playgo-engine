@@ -8,6 +8,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -103,7 +105,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	}
 	
     private List<TrackedInstance> getTrackedInstance(String userId, String multimodalId) {
-        return trackedInstanceRepository.findByUserIdAndMultimodalId(userId, multimodalId);
+        return trackedInstanceRepository.findByUserIdAndMultimodalId(userId, multimodalId, Sort.by(Direction.ASC, "startTime"));
     }
 
 	private void validateSharedTripRequest(ValidateCampaignTripRequest msg, CampaignPlayerTrack playerTrack, TrackedInstance track) throws ParseException {
