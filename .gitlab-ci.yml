@@ -5,10 +5,8 @@ services:
 
 stages:
   - build
-  - container-build
   - test
-  - deploy-dev
-  - deploy-prod
+  - deploy
 
 variables:
   SECURE_LOG_LEVEL: info
@@ -18,6 +16,7 @@ variables:
   CONTAINER_IMAGE_LATEST: smartcommunitylab/playngo-engine:v2-$CI_COMMIT_REF_NAME-latest
   CONTAINER_CACHE_IMAGE: smartcommunitylab/playngo-engine:cache
   SAST_JAVA_VERSION: 11
+  CS_IMAGE: smartcommunitylab/playngo-engine:v2-$CI_COMMIT_REF_NAME-latest
 
 include:
   - template: Security/Container-Scanning.gitlab-ci.yml
@@ -36,14 +35,6 @@ update-backend-cache-image:
   rules:
     - changes:
       - pom.xml
-
-maven-build:
-  image: maven:3-openjdk-11
-  stage: build
-  script:
-    - mvn -DskipTests=true clean package
-  only:
-    - main
 
 gemnasium-maven-dependency_scanning:
   rules:
@@ -82,12 +73,12 @@ container_scanning:
      - if: '$CI_COMMIT_REF_NAME == "main"'
 
 deploy-dev:
-  stage: deploy-dev
+  stage: deploy
   image: 
     name: bitnami/kubectl:latest
     entrypoint: ['']
   environment:
-    name: platform-new
+    name: dslab
   script:
     - echo "deploy backend"
     - kubectl -n playngo-dev set image deployments/playngo-engine playngo-engine=$CONTAINER_IMAGE --record=true
@@ -96,12 +87,12 @@ deploy-dev:
     - dev
 
 deploy-prod:
-  stage: deploy-prod
+  stage: deploy
   image: 
     name: bitnami/kubectl:latest
     entrypoint: ['']
   environment:
-    name: platform-new
+    name: dslab
   script:
     - echo "deploy backend"
     - kubectl -n playngo-prod set image deployments/playngo-engine playngo-engine=$CONTAINER_IMAGE --record=true
