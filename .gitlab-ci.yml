@@ -45,7 +45,7 @@ semgrep-sast:
      - if: '$CI_COMMIT_REF_NAME == "main"'
 
 backend-container-build:
-  stage: container-build
+  stage: test
   variables:
     BUILDKIT_PROGRESS: plain
     DOCKER_BUILDKIT: 1 
