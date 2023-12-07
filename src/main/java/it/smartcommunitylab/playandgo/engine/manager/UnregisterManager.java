@@ -141,6 +141,11 @@ public class UnregisterManager {
                             }
 	                        break;
 	                    case company:
+	                        try {
+                                aziendaleManager.unregisterPlayer(playerDb.getPlayerId());
+                            } catch (Exception e) {
+                                logger.warn(String.format("unregisterPlayer[%s] company:%s", player.getPlayerId(), e.getMessage()));
+                            }
 	                        break;
 	                    case city:
 	                        try {

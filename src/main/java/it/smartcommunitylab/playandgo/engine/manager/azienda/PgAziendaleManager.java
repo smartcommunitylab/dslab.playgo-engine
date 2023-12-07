@@ -244,4 +244,27 @@ public class PgAziendaleManager {
 		}
 	}
 
+    public void unregisterPlayer(String playerId) throws ServiceException {
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setBearerAuth(getJwt());
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
+        }
+        HttpEntity<Object> request = new HttpEntity<>(headers);
+        
+        ResponseEntity<String> response = null;
+        try {
+            String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
+            url = url + "api/admin/unregister/player/" + playerId; 
+            response = restTemplate.postForEntity(url, request, String.class);
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);   
+        }
+        if(!response.getStatusCode().is2xxSuccessful()) {
+            throw new ServiceException("External Service invocation result:" + response.getStatusCodeValue(), 
+                    ErrorCode.EXT_SERVICE_INVOCATION);
+        } 
+    }
+
 }
