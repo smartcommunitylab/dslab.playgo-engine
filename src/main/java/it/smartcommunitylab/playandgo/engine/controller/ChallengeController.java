@@ -91,15 +91,8 @@ public class ChallengeController extends PlayAndGoController {
 			@RequestParam(required=false) ChallengeDataType filter, 
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		CampaignSubscription sub = campaignManager.getCampaignSubscriptionByPlayer(campaignId, player.getPlayerId());
-		if(sub != null) {
-			String groupId = (String) sub.getCampaignData().get(SchoolCampaignSubscription.groupIdKey);
-			if(Utils.isNotEmpty(groupId) && groupId.equals(teamId)) {
-				return challengeManager.getChallenges(teamId, campaignId, filter);
-			}
-			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
-		}
-		throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
+		checkTeam(player, campaignId, teamId);
+		return challengeManager.getChallenges(teamId, campaignId, filter);
 	}	
 	
 	@PutMapping("/api/challenge/choose/{challengeId}")
@@ -199,4 +192,29 @@ public class ChallengeController extends PlayAndGoController {
 		Player player = getCurrentPlayer(request);
 		return challengeManager.getCompletedChallanges(player.getPlayerId(), campaignId, dateFrom, dateTo);
 	}
+
+	@GetMapping("/api/challenge/completed/team")
+	public @ResponseBody List<PlayerChallenge> getCompletedChallangesByTeam(
+			@RequestParam String campaignId,
+			@RequestParam String teamId,
+			@RequestParam @Parameter(example = "UTC millis") Long dateFrom,
+			@RequestParam @Parameter(example = "UTC millis") Long dateTo,
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		checkTeam(player, campaignId, teamId);
+		return challengeManager.getCompletedChallanges(player.getPlayerId(), campaignId, dateFrom, dateTo);
+	}
+
+	private void checkTeam(Player player, String campaignId, String teamId) throws Exception {
+		CampaignSubscription sub = campaignManager.getCampaignSubscriptionByPlayer(campaignId, player.getPlayerId());
+		if(sub != null) {
+			String groupId = (String) sub.getCampaignData().get(SchoolCampaignSubscription.groupIdKey);
+			if(Utils.isNotEmpty(groupId) && groupId.equals(teamId)) {
+				return;
+			}
+			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
+		}
+		throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
+	}
+
 }
