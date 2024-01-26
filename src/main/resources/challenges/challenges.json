@@ -61,6 +61,14 @@
 		}
 	},
 	{
+		"name": "absoluteIncrementTeam",
+		"filter": "_Trips",
+		"description": {
+			"it": "Fate almeno <target> viaggi <counterNameA> e avrete un bonus di <bonusScore> punti eco-Leaves.",
+			"en": "Do at least <target> trips <counterNameA> and you will get a bonus of <bonusScore> eco-Leaves points."
+		}
+	},
+	{
 		"name": "absoluteIncrement",
 		"filter": "_NoTrips",
 		"description": {
@@ -185,8 +193,14 @@
 			"en": "Walk more km than your opponent <opponent>. The winner will get a <rewardPercentage>% bonus of all the points got during the week."
 		}
 	},
-	
-	
+	{
+		"name": "groupCompetitivePerformanceTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "Fate più kilometri a piedi del vostro avversario <opponent>. Otterrete un bonus del <rewardPercentage>% sul totale dei punti guadagnati in settimana.",
+			"en": "Walk more km than your opponent <opponent>. The winner will get a <rewardPercentage>% bonus of all the points got during the week."
+		}
+	},	
 	{
 		"name": "groupCompetitiveTime",
 		"filter": "green leaves",
