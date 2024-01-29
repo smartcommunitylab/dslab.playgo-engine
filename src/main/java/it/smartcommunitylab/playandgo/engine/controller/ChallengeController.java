@@ -23,7 +23,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.dto.ChallengeStatsInfo;
+import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.exception.UnauthorizedException;
+import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.ChallengeStatsManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeChoice;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
@@ -31,8 +35,11 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptI
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeInvitation.Reward;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.Invitation;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerChallenge;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
 public class ChallengeController extends PlayAndGoController {
@@ -43,6 +50,9 @@ public class ChallengeController extends PlayAndGoController {
 	
 	@Autowired
 	private ChallengeStatsManager challengeStatsManager;
+
+	@Autowired
+	private CampaignManager campaignManager;
 	
 	private ObjectMapper mapper = new ObjectMapper(); {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -72,6 +82,17 @@ public class ChallengeController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		return challengeManager.getChallenges(player.getPlayerId(), campaignId, filter);
+	}	
+
+	@GetMapping("/api/challenge/team")
+	public @ResponseBody ChallengeConceptInfo getChallengesByTeam(
+			@RequestParam String campaignId,
+			@RequestParam String teamId,
+			@RequestParam(required=false) ChallengeDataType filter, 
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		checkTeam(player, campaignId, teamId);
+		return challengeManager.getChallenges(teamId, campaignId, filter);
 	}	
 	
 	@PutMapping("/api/challenge/choose/{challengeId}")
@@ -171,4 +192,29 @@ public class ChallengeController extends PlayAndGoController {
 		Player player = getCurrentPlayer(request);
 		return challengeManager.getCompletedChallanges(player.getPlayerId(), campaignId, dateFrom, dateTo);
 	}
+
+	@GetMapping("/api/challenge/completed/team")
+	public @ResponseBody List<PlayerChallenge> getCompletedChallangesByTeam(
+			@RequestParam String campaignId,
+			@RequestParam String teamId,
+			@RequestParam @Parameter(example = "UTC millis") Long dateFrom,
+			@RequestParam @Parameter(example = "UTC millis") Long dateTo,
+			HttpServletRequest request) throws Exception {
+		Player player = getCurrentPlayer(request);
+		checkTeam(player, campaignId, teamId);
+		return challengeManager.getCompletedChallanges(player.getPlayerId(), campaignId, dateFrom, dateTo);
+	}
+
+	private void checkTeam(Player player, String campaignId, String teamId) throws Exception {
+		CampaignSubscription sub = campaignManager.getCampaignSubscriptionByPlayer(campaignId, player.getPlayerId());
+		if(sub != null) {
+			String groupId = (String) sub.getCampaignData().get(SchoolCampaignSubscription.groupIdKey);
+			if(Utils.isNotEmpty(groupId) && groupId.equals(teamId)) {
+				return;
+			}
+			throw new UnauthorizedException("role not found", ErrorCode.ROLE_NOT_FOUND);
+		}
+		throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
+	}
+
 }

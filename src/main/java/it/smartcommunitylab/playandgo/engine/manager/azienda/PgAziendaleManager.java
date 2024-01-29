@@ -28,6 +28,9 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 public class PgAziendaleManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(PgAziendaleManager.class);
 	
+	public static final String useMultiLocationKey = "useMultiLocation";
+	public static final String useEmployeeLocationKey = "useEmployeeLocation";
+	
 	@Value("${aziende.endpoint}")
 	private String endpoint;
 	
