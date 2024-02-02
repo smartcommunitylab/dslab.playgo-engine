@@ -202,7 +202,7 @@ public class ChallengeController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
 		checkTeam(player, campaignId, teamId);
-		return challengeManager.getCompletedChallanges(player.getPlayerId(), campaignId, dateFrom, dateTo);
+		return challengeManager.getCompletedChallanges(teamId, campaignId, dateFrom, dateTo);
 	}
 
 	private void checkTeam(Player player, String campaignId, String teamId) throws Exception {
