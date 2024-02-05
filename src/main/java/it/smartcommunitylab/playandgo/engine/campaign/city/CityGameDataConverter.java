@@ -339,7 +339,10 @@ public class CityGameDataConverter {
 		try {
 			Map playerMap = mapper.readValue(playerStatus, Map.class);
 			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
-			List<BadgeCollectionConcept> badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			List<BadgeCollectionConcept> badges = Collections.emptyList();
+			if(stateMap.containsKey("BadgeCollectionConcept"))	{
+				badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			}
 			
 			List<Map> gePointsMap = mapper.convertValue(stateMap.get("PointConcept"), new TypeReference<List<Map>>() {});
 			List<PointConcept> points = convertGEPointConcept(gePointsMap);
