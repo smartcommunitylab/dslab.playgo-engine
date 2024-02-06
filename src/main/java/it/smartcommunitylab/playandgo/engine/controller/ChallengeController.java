@@ -207,7 +207,7 @@ public class ChallengeController extends PlayAndGoController {
 
 	private void checkTeam(Player player, String campaignId, String teamId) throws Exception {
 		CampaignSubscription sub = campaignManager.getCampaignSubscriptionByPlayer(campaignId, player.getPlayerId());
-		logger.info(String.format("checkTeam[%s]:%s - %s", campaignId, player.getPlayerId(), teamId));
+		//logger.info(String.format("checkTeam[%s]:%s - %s", campaignId, player.getPlayerId(), teamId));
 		if(sub != null) {
 			String groupId = (String) sub.getCampaignData().get(SchoolCampaignSubscription.groupIdKey);
 			if(Utils.isNotEmpty(groupId) && groupId.equals(teamId)) {
