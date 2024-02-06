@@ -147,6 +147,7 @@ public class ChallengeManager {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 		String jsonChallenges = gamificationEngineManager.getChallenges(playerId, campaign.getGameId(), true);
+		logger.info(String.format("getChallenges[%s][%s]: %s", playerId, campaignId, jsonChallenges));
 		if(jsonChallenges == null) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
