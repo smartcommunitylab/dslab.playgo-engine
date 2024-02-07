@@ -9,12 +9,30 @@
 		}
 	},
 	{
+		"name": "repetitiveBehaviourTeam",
+		"filter": "green leaves",
+		"periodName": "daily",
+		"description": {
+			"it": "Ottenete almeno <target> punti eco-Leaves al giorno per <periodTarget> giorni e la vostra squadra riceverà un bonus di <bonusScore> punti eco-Leaves.",
+			"en": "Get at least <target> eco-Leaves points daily for <periodTarget> days and your team will get a bonus of <bonusScore> eco-Leaves points."
+		}
+	},
+	{
 		"name": "repetitiveBehaviour",
 		"filter": "_Km",
 		"periodName": "daily",
 		"description": {
 			"it": "Fai almeno <target> km <counterNameA> al giorno per <periodTarget> giorni e avrai un bonus di <bonusScore> punti eco-Leaves.",
 			"en": "Do at least <target> km <counterNameA> daily for <periodTarget> days and you will get a bonus of <bonusScore> eco-Leaves points."
+		}
+	},
+	{
+		"name": "repetitiveBehaviourTeam",
+		"filter": "_Km",
+		"periodName": "daily",
+		"description": {
+			"it": "Fate almeno <target> km <counterNameA> al giorno per <periodTarget> giorni e la vostra squadra riceverà un bonus di <bonusScore> punti eco-Leaves.",
+			"en": "Do at least <target> km <counterNameA> daily for <periodTarget> days and your team will get a bonus of <bonusScore> eco-Leaves points."
 		}
 	},
 	{
@@ -53,6 +71,14 @@
 		}
 	},
 	{
+		"name": "absoluteIncrementTeam",
+		"filter": "_Km",
+		"description": {
+			"it": "Fate almeno <target> km <counterNameA> e la vostra squadra riceverà un bonus di <bonusScore> punti eco-Leaves.",
+			"en": "Do at least <target> km <counterNameA> and your team will get a bonus of <bonusScore> eco-Leaves points."
+		}
+	},
+	{
 		"name": "absoluteIncrement",
 		"filter": "_Trips",
 		"description": {
@@ -85,6 +111,14 @@
 		}
 	},
 	{
+		"name": "absoluteIncrementTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Ottenete almeno <target> punti eco-Leaves e la vostra squadra riceverà <bonusScore> punti eco-Leaves in bonus.",
+			"en": "Get at least <target> <counterNameA> points and your team will have <bonusScore> additional eco-Leaves bonus points."
+		}
+	},
+	{
 		"name": "absoluteIncrement",
 		"filter": "Recommendations",
 		"description": {
@@ -98,6 +132,14 @@
 		"description": {
 			"it": "Fai almeno altri <target> km <counterNameA> e avrai un bonus di <bonusScore> punti eco-Leaves.",
 			"en": "Do at least <target> more km <counterNameA> and you will get a bonus of <bonusScore> eco-Leaves points."
+		}
+	},
+	{
+		"name": "percentageIncrementTeam",
+		"filter": "_Km",
+		"description": {
+			"it": "Fate almeno altri <target> km <counterNameA> e la vostra squadra riceverà un bonus di <bonusScore> punti eco-Leaves.",
+			"en": "Do at least <target> more km <counterNameA> and your team will get a bonus of <bonusScore> eco-Leaves points."
 		}
 	},
 	{
@@ -125,6 +167,14 @@
 		}
 	},
 	{
+		"name": "percentageIncrementTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Ottenete almeno altri <target> punti eco-Leaves e la vostra squadra riceverà ulteriori <bonusScore> punti eco-Leaves in bonus.",
+			"en": "Get at least <target> more <counterNameA> points and your team will get <bonusScore> additional eco-Leaves bonus points."
+		}
+	},
+	{
 		"name": "nextBadge",
 		"description": {
 			"it": "Ottieni almeno <target> badge nella Badge Collection \"<badgeCollectionName>\" e vinci un bonus di <bonusScore> punti eco-Leaves.",
@@ -136,6 +186,13 @@
 		"description": {
 			"it": "Raggiungi una posizione compresa tra il <posMin>° e il <posMax>° posto nella classifica finale di questa settimana e vinci un bonus di <bonusScore> punti eco-Leaves.",
 			"en": "Rank in between place <posMin> and place <posMax> in the final leaderboard of the current week and you will win a bonus of <bonusScore> eco-Leaves points."
+		}
+	},
+	{
+		"name": "leaderboardPositionTeam",
+		"description": {
+			"it": "Raggiungete una posizione compresa tra il <posMin>° e il <posMax>° posto nella classifica finale di questa settimana e la vostra squadra vincerà un bonus di <bonusScore> punti eco-Leaves.",
+			"en": "Rank in between place <posMin> and place <posMax> in the final leaderboard of the current week and your team will win a bonus of <bonusScore> eco-Leaves points."
 		}
 	},
 	{
@@ -178,11 +235,27 @@
 		}
 	},
 	{
+		"name": "groupCompetitivePerformanceTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Guadagnate più punti eco-Leaves della squadra avversaria <opponent>. Otterrete un bonus del <rewardPercentage>% sul totale dei punti guadagnati in settimana.",
+			"en": "To win this challenge, gain with your team more eco-Leaves points than your opponent team <opponent>. The winner will get a <rewardPercentage>% bonus of all the points obtained during the week."
+		}
+	},
+	{
 		"name": "groupCompetitivePerformance",
 		"filter": "Bike_Km",
 		"description": {
 			"it": "Fai più kilometri in bici del tuo avversario <opponent>. Otterrai un bonus del <rewardPercentage>% sul totale dei punti guadagnati in settimana.",
 			"en": "Do more bike km than your opponent <opponent>. The winner will get a <rewardPercentage>% bonus of all the points got during the week."
+		}
+	},
+	{
+		"name": "groupCompetitivePerformanceTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Fate più kilometri in bici della squadra avversaria <opponent>. Otterrete un bonus del <rewardPercentage>% sul totale dei punti guadagnati in settimana.",
+			"en": "Do more bike km than your opponent team <opponent>. The winner will get a <rewardPercentage>% bonus of all the points obtained during the week."
 		}
 	},
 	{
@@ -209,13 +282,28 @@
 			"en": "Gain <challengeTarget> eco-Leaves point faster than your opponent <opponent>. If you win, you'll get <rewardBonusScore> eco-Leaves. If you lose, <opponent> will get <challengerBonusScore> eco-Leaves."
 		}
 	},
-	
+	{
+		"name": "groupCompetitiveTimeTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Guadagnate <challengeTarget> eco-Leaves prima della squadra avversaria <opponent>. Se vincete otterrete un bonus di <rewardBonusScore> eco-Leaves, se vince <opponent> otterrà <challengerBonusScore> eco-Leaves.",
+			"en": "Gain <challengeTarget> eco-Leaves point faster than your opponent team <opponent>. If your team wins, you'll get <rewardBonusScore> eco-Leaves. If your team loses, <opponent> will get <challengerBonusScore> eco-Leaves."
+		}
+	},	
 	{
 		"name": "groupCompetitiveTime",
 		"filter": "Bike_Km",
 		"description": {
 			"it": "Fai <challengeTarget> km in bici prima del tuo avversario <opponent>. Se vinci otterrai un bonus di <rewardBonusScore> eco-Leaves, se vince <opponent> otterrà <challengerBonusScore> eco-Leaves.",
 			"en": "Bike <challengeTarget> km before your opponent <opponent>. If you win, you'll get <rewardBonusScore> eco-Leaves. If you lose, <opponent> will get <challengerBonusScore> eco-Leaves."
+		}
+	},
+	{
+		"name": "groupCompetitiveTimeTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Fate <challengeTarget> km in bici prima della squadra avversaria <opponent>. Se vincete otterrete un bonus di <rewardBonusScore> eco-Leaves, se vince <opponent> otterrà <challengerBonusScore> eco-Leaves.",
+			"en": "Bike <challengeTarget> km before your opponent team <opponent>. If your team wins, you'll get <rewardBonusScore> eco-Leaves. If your team loses, <opponent> will get <challengerBonusScore> eco-Leaves."
 		}
 	},
 	{
@@ -226,14 +314,28 @@
 			"en": "Walk <challengeTarget> km before your opponent <opponent>. If you win, you'll get <rewardBonusScore> eco-Leaves. If you lose, <opponent> will get <challengerBonusScore> eco-Leaves."
 		}
 	},
-	
-	
+	{
+		"name": "groupCompetitiveTimeTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "Fate <challengeTarget> km a piedi prima della squadra avversaria <opponent>. Se vincete otterrete un bonus di <rewardBonusScore> eco-Leaves, se vince <opponent> otterrà <challengerBonusScore> eco-Leaves.",
+			"en": "Walk <challengeTarget> km before your opponent team <opponent>. If your team wins, you'll get <rewardBonusScore> eco-Leaves. If your team loses, <opponent> will get <challengerBonusScore> eco-Leaves."
+		}
+	},	
 	{
 		"name": "groupCooperative",
 		"filter": "green leaves",
 		"description": {
 			"it": "Unite le forze e guadagnate almeno <target> eco-Leaves. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> eco-Leaves.",
 			"en": "Join the forces: gain at least <target> eco-Leaves together with <opponent>. If you win, you'll both get <reward> eco-Leaves."
+		}
+	},
+	{
+		"name": "groupCooperativeTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Unite le forze e guadagnate almeno <target> eco-Leaves. Se vincete la sfida, sia la tua squadra che <opponent> otterrete un bonus di <reward> eco-Leaves.",
+			"en": "Join the forces: gain at least <target> eco-Leaves together with <opponent>. If you win, both teams will get <reward> eco-Leaves."
 		}
 	},
 	{
@@ -245,11 +347,27 @@
 		}
 	},
 	{
+		"name": "groupCooperativeTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Unite le forze e fate almeno <target> km in bici. Se vincete la sfida, sia la vostra squadra che <opponent> otterrete un bonus di <reward> eco-Leaves.",
+			"en": "Join forces: bike at least <target> km between your team and <opponent>. If you win, both teams will get <reward> eco-Leaves."
+		}
+	},
+	{
 		"name": "groupCooperative",
 		"filter": "Walk_Km",
 		"description": {
 			"it": "Unite le forze e fate almeno <target> km a piedi. Se vincete la sfida, sia tu che <opponent> otterrete un bonus di <reward> eco-Leaves.",
 			"en": "Join forces: walk at least <target> km between you and <opponent>. If you win, you'll both get <reward> eco-Leaves."
+		}
+	},
+	{
+		"name": "groupCooperativeTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "Unite le forze e fate almeno <target> km a piedi. Se vincete la sfida, sia la tua squadra che <opponent> otterrete un bonus di <reward> eco-Leaves.",
+			"en": "Join forces: walk at least <target> km between your team and <opponent>. If you win, both teams will get <reward> eco-Leaves."
 		}
 	},
 	{

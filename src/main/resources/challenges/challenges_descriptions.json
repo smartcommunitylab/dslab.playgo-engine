@@ -8,6 +8,14 @@
 		}
 	},
 	{
+		"modelName": "repetitiveBehaviourTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Per vincere la sfida accumulate come squadra almeno <target> punti eco-Leaves al giorno per <periodTarget> giorni nel corso del periodo di validita' della sfida.",
+			"en": "To win this challenge your team needs to earn at least <target> eco-Leaves points daily for <periodTarget> days in between the beginning and end time of the challenge."
+		}
+	},
+	{
 		"modelName": "repetitiveBehaviour",
 		"filter": "Recommendations",
 		"description": {
@@ -120,6 +128,14 @@
 		}
 	},
 	{
+		"modelName": "repetitiveBehaviourTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Per vincere la sfida vale la somma dei Km effettuati in bici da tutti i membri della vostra squadra nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km. all members of your team have walked within the day during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+		}
+	},
+	{
 		"modelName": "repetitiveBehaviour",
 		"filter": "BikeSharing_Km",
 		"description": {
@@ -133,6 +149,14 @@
 		"description": {
 			"it": "Per vincere la sfida vale la somma dei Km camminati al giorno (solo tratte superiori a 250 metri) nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
 			"en": "To win this challenge, we take into account the total number of Km. you have walked within the day (with distance greater than 250m) during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+		}
+	},
+	{
+		"modelName": "repetitiveBehaviourTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "Per vincere la sfida vale la somma dei Km camminati al giorno da tutti i membri della vostra squadra nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km. all members of your team have walked within the day during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
 		}
 	},
 	{
@@ -160,6 +184,14 @@
 		}
 	},
 	{
+		"modelName": "percentageIncrementTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Per vincere la sfida vale la somma dei Km effettuati in bici da tutti i membri della vostra squadra nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km. all members of your team have traveled by bike or bike sharing during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+		}
+	},
+	{
 		"modelName": "percentageIncrement",
 		"filter": "BikeSharing_Km",
 		"description": {
@@ -173,6 +205,14 @@
 		"description": {
 			"it": "Per vincere la sfida vale la somma dei Km camminati (solo tratte superiori a 250 metri) nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
 			"en": "To win this challenge, we take into account the total number of Km. you have walked (with distance greater than 250m) during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+		}
+	},
+	{
+		"modelName": "percentageIncrementTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "Per vincere la sfida vale la somma dei Km camminati da tutti i membri della vostra squadra nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km. all members of your team have walked during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
 		}
 	},
 	{
@@ -252,6 +292,14 @@
 		"filter": "green leaves",
 		"description": {
 			"it": "Per vincere la sfida vale il numero di punti eco-Leaves guadagnati durante il periodo di validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of eco-Leaves points you have earned in between the beginning and end time for this challenge."
+		}
+	},	
+	{
+		"modelName": "percentageIncrementTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Per vincere la sfida vale il numero di punti eco-Leaves guadagnati da tutti i membri della vostra squadra durante il periodo di validita' della sfida.",
 			"en": "To win this challenge, we take into account the total number of eco-Leaves points you have earned in between the beginning and end time for this challenge."
 		}
 	},	
@@ -392,6 +440,14 @@
 		}
 	},
 	{
+		"modelName": "absoluteIncrementTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Per vincere la sfida vale la somma dei Km effettuati in bici da tutti i membri della vostra squadra durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km all members of your team have traveled by bike during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+		}
+	},
+	{
 		"modelName": "absoluteIncrement",
 		"filter": "BikeSharing_Km",
 		"description": {
@@ -408,6 +464,14 @@
 		}
 	},
 	{
+		"modelName": "absoluteIncrementTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "Per vincere la sfida vale la somma dei Km camminati da tutti i membri della vostra squadra nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km all members of your team have walked during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+		}
+	},
+	{
 		"modelName": "absoluteIncrement",
 		"filter": "ParkAndRide_Trips",
 		"description": {
@@ -421,6 +485,14 @@
 		"description": {
 			"it": "Per vincere la sfida accumula almeno <target> punti eco-Leaves nel corso del periodo di validita' della sfida.",
 			"en": "To win this challenge you need to earn at least <target> eco-Leaves points in between the beginning and end time of the challenge."
+		}
+	},	
+	{
+		"modelName": "absoluteIncrementTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Per vincere la sfida accumulate come squadra almeno <target> punti eco-Leaves nel corso del periodo di validita' della sfida.",
+			"en": "To win this challenge your team needs to earn at least <target> eco-Leaves points in between the beginning and end time of the challenge."
 		}
 	},	
 	{
@@ -543,6 +615,14 @@
 		}
 	},
 	{
+		"modelName": "leaderboardPositionTeam",
+		"filter": null,
+		"description": {
+			"it": "Per vincere la sfida la posizione della vostra squadra nella classifica settimanale dovra' essere compresa tra il <posMin>° e il <posMax>° posto alla fine di questa settimana di gioco.",
+			"en": "To succeed in this challenge, the position of your team in the weekly leaderboard must be in between place <posMin> and place <posMax> at the end of the current game week."
+		}
+	},
+	{
 		"modelName": "groupCompetitivePerformance",
 		"filter": "green leaves",
 		"description": {
@@ -551,11 +631,27 @@
 		}
 	},
 	{
+		"modelName": "groupCompetitivePerformanceTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Al termine della settimana, la squadra che avrà guadagnato più punti eco-Leaves tra la vostra squadra e <opponent> vincerà la sfida e guadagnerà un bonus del <rewardPercentage>% sui punti eco-Leaves totali ottenuti in settimana, con un limite massimo di <rewardThreshold> eco-Leaves.",
+			"en": "At the end of the week, the team that gets more eco-Leaves points between your team and <opponent> will be the winner of the challenge and will get a <rewardPercentage>% bonus of all the points obtained during the week, with a threshold of <rewardThreshold> eco-Leaves."
+		}
+	},
+	{
 		"modelName": "groupCompetitivePerformance",
 		"filter": "Bike_Km",
 		"description": {
 			"it": "Al termine della settimana, il giocatore che avrà percorso più kilometri in bici tra te e <opponent> sarà il vincitore della sfida e guadagnerà un bonus del <rewardPercentage>% sui punti eco-Leaves totali ottenuti in settimana, con un limite massimo di <rewardThreshold> eco-Leaves.",
 			"en": "At the end of the week, the player that does more bike kilometers between you and <opponent> will be the winner of the challenge and will get a <rewardPercentage>% bonus of all the points obtained during the week, with a treshold of <rewardThreshold> eco-Leaves."
+		}
+	},
+	{
+		"modelName": "groupCompetitivePerformanceTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Al termine della settimana, la squadra che avrà percorso più kilometri in bici tra la vostra squadra e <opponent> vincerà la sfida e guadagnerà un bonus del <rewardPercentage>% sui punti eco-Leaves totali ottenuti in settimana, con un limite massimo di <rewardThreshold> eco-Leaves.",
+			"en": "At the end of the week, the team that does more bike kilometers between your team and <opponent> will be the winner of the challenge and will get a <rewardPercentage>% bonus of all the points obtained during the week, with a threshold of <rewardThreshold> eco-Leaves."
 		}
 	},
 	{
@@ -570,8 +666,8 @@
 		"modelName": "groupCompetitivePerformanceTeam",
 		"filter": "Walk_Km",
 		"description": {
-			"it": "Al termine della settimana, il team che avrà percorso più kilometri a piedi tra voi e <opponent> sarà il vincitore della sfida e guadagnerà un bonus del <rewardPercentage>% sui punti eco-Leaves totali ottenuti in settimana, con un limite massimo di <rewardThreshold> eco-Leaves.",
-			"en": "At the end of the week, the player that walks for more kilometers between you and <opponent> will be the winner of the challenge and will get a <rewardPercentage>% bonus of all the points obtained during the week, with a treshold of <rewardThreshold> eco-Leaves."
+			"it": "Al termine della settimana, la squadra che avrà percorso più kilometri a piedi tra la vostra squadra e <opponent> vincerà la sfida e guadagnerà un bonus del <rewardPercentage>% sui punti eco-Leaves totali ottenuti in settimana, con un limite massimo di <rewardThreshold> eco-Leaves.",
+			"en": "At the end of the week, the team that walks for more kilometers between your team and <opponent> will be the winner of the challenge and will get a <rewardPercentage>% bonus of all the points obtained during the week, with a threshold of <rewardThreshold> eco-Leaves."
 		}
 	},
 	{
@@ -583,11 +679,27 @@
 		}
 	},
 	{
+		"modelName": "groupCompetitiveTimeTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "La squadra che avrà guadagnato per prima <challengeTarget> eco-Leaves si aggiudicherà la sfida. Il bonus in punti eco-Leaves è calcolato in base alla difficoltà della sfida e per questo motivo può essere diverso per la vostra squadra e <opponent>.",
+			"en": "The fastest team to earn <challengeTarget> eco-Leaves will be the winner of the challenge. The eco-Leaves reward depends on the difficulty of the challenge and thus might be different for your team and <opponent>."
+		}
+	},
+	{
 		"modelName": "groupCompetitiveTime",
 		"filter": "Bike_Km",
 		"description": {
 			"it": "Il giocatore che avrà fatto per primo <challengeTarget> km in bici si aggiudicherà la sfida. Il bonus in punti eco-Leaves è calcolato in base alla difficoltà della sfida e per questo motivo pùo essere diverso per te e <opponent>.",
 			"en": "The fastest player to do <challengeTarget> km by bike will be the winner of the challenge. The eco-Leaves reward depends on the difficulty of the challenge and thus might be different for you and <opponent>."
+		}
+	},
+	{
+		"modelName": "groupCompetitiveTimeTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "La squadra che avrà fatto per prima <challengeTarget> km in bici si aggiudicherà la sfida. Il bonus in punti eco-Leaves è calcolato in base alla difficoltà della sfida e per questo motivo può essere diverso per la vostra squadra e <opponent>.",
+			"en": "The fastest team to do <challengeTarget> km by bike will be the winner of the challenge. The eco-Leaves reward depends on the difficulty of the challenge and thus might be different for your team and <opponent>."
 		}
 	},
 	{
@@ -599,11 +711,27 @@
 		}
 	},
 	{
+		"modelName": "groupCompetitiveTimeTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "La squadra che avrà fatto per prima <challengeTarget> km a piedi si aggiudicherà la sfida. Il bonus in punti eco-Leaves è calcolato in base alla difficoltà della sfida e per questo motivo può essere diverso per la vostra squadra e <opponent>.",
+			"en": "The fastest team to do <challengeTarget> km walking will be the winner of the challenge. The eco-Leaves reward depends on the difficulty of the challenge and thus might be different for your team and <opponent>."
+		}
+	},
+	{
 		"modelName": "groupCooperative",
 		"filter": "green leaves",
 		"description": {
 			"it": "Se riuscirete a guadagnare almeno <challengeTarget> eco-Leaves, sommando le eco-Leaves tue e di <opponent>, vi aggiudicherete la sfida e vincerete entrambi il premio di <reward> eco-Leaves.",
 			"en": "You will win the challenge if the sum of eco-Leaves earned by you and <opponent> is higher than <challengeTarget>. In case of challenge completion, both of you will earn <reward> eco-Leaves."
+		}
+	},
+	{
+		"modelName": "groupCooperativeTeam",
+		"filter": "green leaves",
+		"description": {
+			"it": "Se riuscirete a guadagnare come squadra almeno <challengeTarget> eco-Leaves, sommando le eco-Leaves della tua squadra e di <opponent>, vi aggiudicherete la sfida e vincerete entrambi il premio di <reward> eco-Leaves.",
+			"en": "You will win the challenge if the sum of eco-Leaves earned by your team and <opponent> is higher than <challengeTarget>. In case of challenge completion, both teams will earn <reward> eco-Leaves."
 		}
 	},
 	{
@@ -615,11 +743,27 @@
 		}
 	},
 	{
+		"modelName": "groupCooperativeTeam",
+		"filter": "Bike_Km",
+		"description": {
+			"it": "Se riuscirete a fare almeno <target> km in bici, sommando i km fatti dalla tua squadra e da <opponent>, vi aggiudicherete la sfida e entrambe le squadre vinceranno il premio di <reward> eco-Leaves.",
+			"en": "You will win the challenge if the sum of bike km done by your team and <opponent> is higher than <target>. In case of challenge completion, both teams will earn <reward> eco-Leaves."
+		}
+	},
+	{
 		"modelName": "groupCooperative",
 		"filter": "Walk_Km",
 		"description": {
 			"it": "Se riuscirete a fare almeno <target> km a piedi, sommando i km fatti da te e da <opponent>, vi aggiudicherete la sfida e vincerete entrambi il premio di <reward> eco-Leaves.",
 			"en": "You will win the challenge if the sum of walking km done by you and <opponent> is higher than <target>. In case of challenge completion, both of you will earn <reward> eco-Leaves."
+		}
+	},
+	{
+		"modelName": "groupCooperativeTeam",
+		"filter": "Walk_Km",
+		"description": {
+			"it": "Se riuscirete a fare almeno <target> km a piedi, sommando i km fatti dalla tua squadra e da <opponent>, vi aggiudicherete la sfida e entrambe le squadre vinceranno il premio di <reward> eco-Leaves.",
+			"en": "You will win the challenge if the sum of walking km done by your team and <opponent> is higher than <target>. In case of challenge completion, both teams will earn <reward> eco-Leaves."
 		}
 	},
 	{
