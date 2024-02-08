@@ -83,6 +83,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			    Player player = playerRepository.findById(playerId).orElse(null);
 			    if(player != null) {
 			        if(player.getGroup()) {
+						if(type.endsWith("ChallengeCompletedNotication")) {
+							challengeNotification.challengeCompleted(msg);
+						}
+						if(type.endsWith("ChallengeFailedNotication")) {
+							challengeNotification.challengeFailed(msg);
+						}			            
 			            String gameId = (String) obj.get("gameId");
 			            Campaign campaign = campaignRepository.findByGameId(gameId);
 			            if(campaign != null) {
@@ -96,10 +102,10 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	                                    Map<String, Object> copyObj = (Map<String, Object>) copyMsg.get("obj"); 
 	                                    copyObj.put("playerId", cs.getPlayerId());
 										if(type.endsWith("ChallengeCompletedNotication")) {
-											challengeNotification.challengeCompleted(msg);
+											challengeNotification.challengeCompleted(copyMsg);
 										}
 										if(type.endsWith("ChallengeFailedNotication")) {
-											challengeNotification.challengeFailed(msg);
+											challengeNotification.challengeFailed(copyMsg);
 										}			            																								
 	                                    notificationManager.processNotification(copyMsg);	                                    
 	                                }
