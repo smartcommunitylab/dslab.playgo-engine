@@ -95,6 +95,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	                                if(copyMsg != null) {
 	                                    Map<String, Object> copyObj = (Map<String, Object>) copyMsg.get("obj"); 
 	                                    copyObj.put("playerId", cs.getPlayerId());
+										if(type.endsWith("ChallengeCompletedNotication")) {
+											challengeNotification.challengeCompleted(msg);
+										}
+										if(type.endsWith("ChallengeFailedNotication")) {
+											challengeNotification.challengeFailed(msg);
+										}			            																								
 	                                    notificationManager.processNotification(copyMsg);	                                    
 	                                }
                                 } catch (Exception e) {
@@ -103,13 +109,13 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			                });
 			            }
 			        } else {
-			            if(type.endsWith("ChallengeCompletedNotication")) {
-			                challengeNotification.challengeCompleted(msg);
-			            }
-			            if(type.endsWith("ChallengeFailedNotication")) {
-			                challengeNotification.challengeFailed(msg);
-			            }			            
-			            notificationManager.processNotification(msg); 
+						if(type.endsWith("ChallengeCompletedNotication")) {
+							challengeNotification.challengeCompleted(msg);
+						}
+						if(type.endsWith("ChallengeFailedNotication")) {
+							challengeNotification.challengeFailed(msg);
+						}			            
+						notificationManager.processNotification(msg); 
 			        }
 			    }
 			} catch (Exception e) {
