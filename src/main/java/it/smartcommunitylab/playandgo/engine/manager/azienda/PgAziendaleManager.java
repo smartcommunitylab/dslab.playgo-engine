@@ -1,11 +1,11 @@
 package it.smartcommunitylab.playandgo.engine.manager.azienda;
 
-import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +28,9 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 public class PgAziendaleManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(PgAziendaleManager.class);
 	
+	public static final String useMultiLocationKey = "useMultiLocation";
+	public static final String useEmployeeLocationKey = "useEmployeeLocation";
+	
 	@Value("${aziende.endpoint}")
 	private String endpoint;
 	
@@ -36,6 +39,9 @@ public class PgAziendaleManager {
 	
 	@Value("${aziende.password}")
 	private String password;
+    
+	@Autowired
+    RestTemplate restTemplate;
 	
 	private String jwt = null;
 	private long expiration;
@@ -44,7 +50,6 @@ public class PgAziendaleManager {
 	
 	private String getJwt() throws Exception {
 		if((jwt == null) || (System.currentTimeMillis() > (expiration - 5000))) {
-			RestTemplate restTemplate = new RestTemplate();
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			AuthRequest authRequest = new AuthRequest(user, password);
@@ -72,7 +77,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -98,7 +102,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -122,7 +125,6 @@ public class PgAziendaleManager {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
 		}
 		HttpEntity<TrackData> request = new HttpEntity<>(trackData, headers);
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;		
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -136,6 +138,7 @@ public class PgAziendaleManager {
 					ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 		try {
+		    logger.info(String.format("validateTrack response:%s - %s - %s", playerId, trackData.toString(), response.getBody()));
 			TrackResult trackResult = mapper.readValue(response.getBody(), TrackResult.class);
 			return trackResult;
 		} catch (Exception e) {
@@ -152,7 +155,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -183,7 +185,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -215,7 +216,6 @@ public class PgAziendaleManager {
 		}
 		HttpEntity<Object> request = new HttpEntity<>(headers);
 		
-		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = null;
 		try {
 			String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
@@ -246,5 +246,28 @@ public class PgAziendaleManager {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 	}
+
+    public void unregisterPlayer(String playerId) throws ServiceException {
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setBearerAuth(getJwt());
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_AUTH);
+        }
+        HttpEntity<Object> request = new HttpEntity<>(headers);
+        
+        ResponseEntity<String> response = null;
+        try {
+            String url = endpoint.endsWith("/") ? endpoint : endpoint + "/";
+            url = url + "api/admin/unregister/player/" + playerId; 
+            response = restTemplate.postForEntity(url, request, String.class);
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);   
+        }
+        if(!response.getStatusCode().is2xxSuccessful()) {
+            throw new ServiceException("External Service invocation result:" + response.getStatusCodeValue(), 
+                    ErrorCode.EXT_SERVICE_INVOCATION);
+        } 
+    }
 
 }

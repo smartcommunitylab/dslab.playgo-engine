@@ -83,6 +83,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			    Player player = playerRepository.findById(playerId).orElse(null);
 			    if(player != null) {
 			        if(player.getGroup()) {
+						if(type.endsWith("ChallengeCompletedNotication")) {
+							challengeNotification.challengeCompleted(msg);
+						}
+						if(type.endsWith("ChallengeFailedNotication")) {
+							challengeNotification.challengeFailed(msg);
+						}			            
 			            String gameId = (String) obj.get("gameId");
 			            Campaign campaign = campaignRepository.findByGameId(gameId);
 			            if(campaign != null) {
@@ -95,6 +101,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	                                if(copyMsg != null) {
 	                                    Map<String, Object> copyObj = (Map<String, Object>) copyMsg.get("obj"); 
 	                                    copyObj.put("playerId", cs.getPlayerId());
+										if(type.endsWith("ChallengeCompletedNotication")) {
+											challengeNotification.challengeCompleted(copyMsg);
+										}
+										if(type.endsWith("ChallengeFailedNotication")) {
+											challengeNotification.challengeFailed(copyMsg);
+										}			            																								
 	                                    notificationManager.processNotification(copyMsg);	                                    
 	                                }
                                 } catch (Exception e) {
@@ -103,13 +115,13 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			                });
 			            }
 			        } else {
-			            if(type.endsWith("ChallengeCompletedNotication")) {
-			                challengeNotification.challengeCompleted(msg);
-			            }
-			            if(type.endsWith("ChallengeFailedNotication")) {
-			                challengeNotification.challengeFailed(msg);
-			            }			            
-			            notificationManager.processNotification(msg); 
+						if(type.endsWith("ChallengeCompletedNotication")) {
+							challengeNotification.challengeCompleted(msg);
+						}
+						if(type.endsWith("ChallengeFailedNotication")) {
+							challengeNotification.challengeFailed(msg);
+						}			            
+						notificationManager.processNotification(msg); 
 			        }
 			    }
 			} catch (Exception e) {

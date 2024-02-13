@@ -45,7 +45,6 @@ public class EmailService {
     
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
   
-
     public void sendGenericMail(String body, String subject, final String recipientName, final String recipientEmail, 
     		final Locale locale) throws MessagingException {
         
@@ -144,7 +143,7 @@ public class EmailService {
 
         // Create the HTML body using Thymeleaf
         String htmlContent = (locale == Locale.ITALIAN) ? this.templateEngine.process("mail/email-gamification-it", ctx) 
-        		: this.templateEngine.process("mail/email-gamification-eng", ctx);
+        		: this.templateEngine.process("mail/email-gamification-en", ctx);
         message.setText(htmlContent, true /* isHtml */);
         
         final InputStreamSource imageSourceFoglia03 = new ByteArrayResource(standardImages.get(0).getImageByte());
@@ -172,6 +171,32 @@ public class EmailService {
         // Send mail
         this.mailSender.send(mimeMessage);
         logger.info(String.format("Gamification Mail Sent to %s - OK", recipientName));
+    }
+    
+    public void sendSurveyInvite(String link, String campaignName, String email, String lang) throws MessagingException {
+        logger.info(String.format("sendSurveyInvite to %s", email));
+        
+        // Prepare the evaluation context
+        final Context ctx = new Context();
+        ctx.setVariable("surveylink", link);
+        ctx.setVariable("campaignTitle", campaignName);
+        ctx.setVariable("name", email);
+                
+        // Prepare message using a Spring helper
+        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
+        final MimeMessageHelper message = 
+                new MimeMessageHelper(mimeMessage, true /* multipart */, "UTF-8");
+        message.setSubject("Play&Go - Notifica");
+        message.setFrom(mailFrom);
+        message.setTo(email);
+
+        // Create the HTML body using Thymeleaf
+        String htmlContent = (lang.equals("it")) ? this.templateEngine.process("mail/email-survey-it", ctx) 
+                : this.templateEngine.process("mail/email-survey-en", ctx);
+        message.setText(htmlContent, true /* isHtml */);
+        
+        // Send mail
+        this.mailSender.send(mimeMessage);
     }
     
 }

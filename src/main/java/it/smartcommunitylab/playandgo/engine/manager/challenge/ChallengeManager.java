@@ -134,6 +134,7 @@ public class ChallengeManager {
 	}
 	
 	public ChallengeConceptInfo getChallenges(String playerId, String campaignId, ChallengeDataType filter) throws Exception {
+		logger.debug(String.format("getChallenges[%s][%s]", playerId, campaignId));
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
@@ -143,10 +144,12 @@ public class ChallengeManager {
 			throw new BadRequestException("player not found", ErrorCode.PLAYER_NOT_FOUND);
 		}
 		String playerStatus = gamificationEngineManager.getPlayerStatus(playerId, campaign.getGameId());
+		logger.debug(String.format("getChallenges[%s][%s] status response: %s", playerId, campaignId, playerStatus));
 		if(playerStatus == null) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 		String jsonChallenges = gamificationEngineManager.getChallenges(playerId, campaign.getGameId(), true);
+		logger.debug(String.format("getChallenges[%s][%s] challenges response: %s", playerId, campaignId, jsonChallenges));
 		if(jsonChallenges == null) {
 			throw new BadRequestException("error in GE invocation", ErrorCode.EXT_SERVICE_INVOCATION);
 		}

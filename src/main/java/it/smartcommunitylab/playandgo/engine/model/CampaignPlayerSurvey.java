@@ -16,6 +16,7 @@ public class CampaignPlayerSurvey {
 	private String surveyName;
 	private String surveyLink;
 	private Date timestamp;
+	private boolean completed = false;
 
 	public String getId() {
 		return id;
@@ -72,4 +73,12 @@ public class CampaignPlayerSurvey {
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
 }

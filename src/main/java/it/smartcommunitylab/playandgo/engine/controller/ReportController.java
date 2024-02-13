@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import it.smartcommunitylab.playandgo.engine.dto.CampaignPeriodStatsInfo;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
@@ -200,4 +201,13 @@ public class ReportController extends PlayAndGoController {
                 dateFrom, dateTo);
         return placing;
     }
+    
+    @GetMapping("/api/report/player/transport/period")
+    public List<CampaignPeriodStatsInfo> getPlayerCampaignPeriodStatsInfo(
+            @RequestParam String campaignId,
+            @RequestParam String playerId,
+            HttpServletRequest request) throws Exception {
+        return playerReportManager.getCampaignPeriodStatsInfo(campaignId, playerId);
+    }
+    
  }

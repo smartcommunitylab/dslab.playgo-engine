@@ -123,15 +123,13 @@ public class DevController extends PlayAndGoController {
 	public void validateAziendale(
 			@RequestParam String campaignId,
 			@RequestParam String playerId,
-			@RequestParam String trackedInstanceId,
-			@RequestParam String campaignPlayerTrackId,
+			@RequestParam String multimodalId,
 			HttpServletRequest request) throws Exception {
 		checkAdminRole(request);
 		ValidateCampaignTripRequest msg = new ValidateCampaignTripRequest();
 		msg.setCampaignId(campaignId);
 		msg.setPlayerId(playerId);
-		msg.setTrackedInstanceId(trackedInstanceId);
-		msg.setCampaignPlayerTrackId(campaignPlayerTrackId);
+		msg.setMultimodalId(multimodalId);
 		companyCampaignTripValidator.validateTripRequest(msg);
 	}
 	
@@ -178,7 +176,7 @@ public class DevController extends PlayAndGoController {
             @RequestParam String trackedInstanceId,
 	        HttpServletRequest request) throws Exception {
 	    checkAdminRole(request);
-	    ValidateTripRequest msg = new ValidateTripRequest(playerId, territoryId, trackedInstanceId);
+	    ValidateTripRequest msg = new ValidateTripRequest(playerId, territoryId, trackedInstanceId, false);
 	    queueManager.sendValidateTripRequest(msg);
 	}
 	

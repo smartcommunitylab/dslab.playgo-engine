@@ -239,7 +239,7 @@ public class CityGameDataConverter {
 			
 			List<ChallengeConcept> challengeList = mapper.convertValue(state.get("ChallengeConcept"), new TypeReference<List<ChallengeConcept>>() {});
 			
-			ChallengeConceptInfo challenges = convertChallengeData(playerId, gameId, challType, language, points, badges, challengeList);
+			ChallengeConceptInfo challenges = convertChallengeData(playerId, false, gameId, challType, language, points, badges, challengeList);
 			ps.setChallengeConcept(challenges);
 
 			List<PlayerLevel> levels = mapper.convertValue((List)stateMap.get("levels"), new TypeReference<List<PlayerLevel>>() {});
@@ -282,14 +282,17 @@ public class CityGameDataConverter {
 		try {
 			Map playerMap = mapper.readValue(playerStatus, Map.class);
 			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
-			List<BadgeCollectionConcept> badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			List<BadgeCollectionConcept> badges = Collections.emptyList();
+			if(!player.getGroup() || Campaign.Type.city.equals(campaign.getType())) {
+				badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			}
 			
 			List<Map> gePointsMap = mapper.convertValue(stateMap.get("PointConcept"), new TypeReference<List<Map>>() {});
 			List<PointConcept> points = convertGEPointConcept(gePointsMap);
 			
 			List<ChallengeConcept> challengeList = mapper.readValue(jsonChallenges, new TypeReference<List<ChallengeConcept>>() {});
 					
-			ChallengeConceptInfo challenges = convertChallengeData(player.getPlayerId(), campaign.getGameId(), challType, player.getLanguage(),
+			ChallengeConceptInfo challenges = convertChallengeData(player.getPlayerId(), player.getGroup(), campaign.getGameId(), challType, player.getLanguage(),
 					points, filterBadges(badges), challengeList);
 
 			challenges.setCanInvite(false);
@@ -336,7 +339,10 @@ public class CityGameDataConverter {
 		try {
 			Map playerMap = mapper.readValue(playerStatus, Map.class);
 			Map stateMap = mapper.convertValue(playerMap.get("state"), Map.class);
-			List<BadgeCollectionConcept> badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			List<BadgeCollectionConcept> badges = Collections.emptyList();
+			if(stateMap.containsKey("BadgeCollectionConcept"))	{
+				badges = mapper.convertValue(stateMap.get("BadgeCollectionConcept"), new TypeReference<List<BadgeCollectionConcept>>() {});
+			}
 			
 			List<Map> gePointsMap = mapper.convertValue(stateMap.get("PointConcept"), new TypeReference<List<Map>>() {});
 			List<PointConcept> points = convertGEPointConcept(gePointsMap);
@@ -348,7 +354,7 @@ public class CityGameDataConverter {
 			
 			final long now = System.currentTimeMillis();
 			
-			ChallengesData challengeData = extractChallengeData(player.getPlayerId(), campaign.getGameId(), player.getLanguage(), points, filterBadges(badges),
+			ChallengesData challengeData = extractChallengeData(player.getPlayerId(), player.getGroup(), campaign.getGameId(), player.getLanguage(), points, filterBadges(badges),
 					challenge, start, end, now);
 
 			return challengeData;	
@@ -554,10 +560,13 @@ public class CityGameDataConverter {
 		return word;
 	}
 
-	private String fillDescription(ChallengeConcept challenge, String lang) {
+	private String fillDescription(ChallengeConcept challenge, String lang, boolean isGroup) {
 		String filter = getFilterByType(challenge.getModelName());
 		String description = null;
 		String name = challenge.getModelName();
+		if(isGroup) {
+			name = name + "Team";
+		}
 		String filterField = (String) challenge.getFields().get(filter);
 
 		String counterNameA = null;
@@ -638,9 +647,12 @@ public class CityGameDataConverter {
 		return st.render();
 	}
 
-	private String fillLongDescription(ChallengeConcept challenge, String filterField, String lang) {
+	private String fillLongDescription(ChallengeConcept challenge, String filterField, String lang, boolean isGroup) {
 		String description = null;
 		String name = challenge.getModelName();
+		if(isGroup) {
+			name = name + "Team";
+		}
 		String counterName = filterField != null ? (String) challenge.getFields().get(filterField) : null;
 
 		ChallengeLongDescrStructure challengeStructure = challengeLongStructureMap.getOrDefault(name + "#" + counterName, challengeLongStructureMap.getOrDefault(name, null));
@@ -694,7 +706,7 @@ public class CityGameDataConverter {
 	}	
 
 	// Method correctChallengeData: used to retrieve the challenge data objects from the user profile data
-	private ChallengeConceptInfo convertChallengeData(String playerId, String gameId, int type, String language, 
+	private ChallengeConceptInfo convertChallengeData(String playerId, boolean isGroup, String gameId, int type, String language, 
 			List<PointConcept> pointConcept, List<BadgeCollectionConcept> bcc_list, List<ChallengeConcept> challengeList) throws Exception {
     	ListMultimap<ChallengeDataType, ChallengesData> challengesMap = ArrayListMultimap.create();
     	
@@ -710,7 +722,7 @@ public class CityGameDataConverter {
 //						final String ch_point_type = challData.getBonusPointType();
 				final long now = System.currentTimeMillis();
 				
-    			ChallengesData challengeData = extractChallengeData(playerId, gameId, language, pointConcept, bcc_list,
+    			ChallengesData challengeData = extractChallengeData(playerId, isGroup, gameId, language, pointConcept, bcc_list,
 						challenge, start, end, now);
 				
 				if (type == 0) {
@@ -768,7 +780,7 @@ public class CityGameDataConverter {
     	return result;
     }
 
-	public ChallengesData extractChallengeData(String playerId, String gameId, String language,
+	public ChallengesData extractChallengeData(String playerId, boolean isGroup, String gameId, String language,
 			List<PointConcept> pointConcept, List<BadgeCollectionConcept> bcc_list, ChallengeConcept challenge,
 			final long start, final long end, final long now) throws Exception {
 		
@@ -1025,8 +1037,8 @@ public class CityGameDataConverter {
 		
 		challengeData.setChallTarget((int)target);
 		for(String lang : languages) {
-			challengeData.getChallDesc().put(lang, fillDescription(challenge, lang));
-			challengeData.getChallCompleteDesc().put(lang, fillLongDescription(challenge, getFilterByType(challengeData.getType()), lang));
+			challengeData.getChallDesc().put(lang, fillDescription(challenge, lang, isGroup));
+			challengeData.getChallCompleteDesc().put(lang, fillLongDescription(challenge, getFilterByType(challengeData.getType()), lang, isGroup));
 		}
 
 		challengeData.setBonus(bonusScore);

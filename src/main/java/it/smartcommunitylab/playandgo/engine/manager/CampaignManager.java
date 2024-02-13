@@ -192,8 +192,7 @@ public class CampaignManager {
 		} else {
 			list = campaignRepository.findAll(sort); 
 		}
-		Date now = new Date();
-		return list.stream().filter(c -> Boolean.TRUE.equals(c.getActive()) && c.getDateTo().after(now)).collect(Collectors.toList());
+		return list.stream().filter(c -> c.getActive()).collect(Collectors.toList());
 	}
 	
 	public Campaign deleteCampaign(String campaignId) throws Exception {

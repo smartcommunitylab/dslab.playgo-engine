@@ -6,9 +6,12 @@ import java.util.List;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 
 public class LegData {
+    private String id;
 	private double distance;
-	private String id;
 	private String mean;
+	private long duration;
+	private double co2;
+	private boolean valid = false; 
 	private List<Geolocation> points = new ArrayList<>();
 	
 	public double getDistance() {
@@ -35,4 +38,22 @@ public class LegData {
 	public void setPoints(List<Geolocation> points) {
 		this.points = points;
 	}
+    public long getDuration() {
+        return duration;
+    }
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+    public double getCo2() {
+        return co2;
+    }
+    public void setCo2(double co2) {
+        this.co2 = co2;
+    }
+    public boolean isValid() {
+        return valid;
+    }
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
 }

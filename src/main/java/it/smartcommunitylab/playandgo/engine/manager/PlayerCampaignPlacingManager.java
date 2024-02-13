@@ -7,8 +7,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.CountOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.LimitOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -31,6 +34,7 @@ import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.dto.CampaignPeriodStatsInfo;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
@@ -62,6 +66,10 @@ public class PlayerCampaignPlacingManager {
 	public static enum GroupMode {
 		day, week, month
 	};
+	
+	public static enum VirtualTrackOp {
+	   add, sub, nothing 
+	}
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -105,6 +113,18 @@ public class PlayerCampaignPlacingManager {
 		return ZonedDateTime.ofInstant(pt.getStartTime().toInstant(), zoneId);
 	}
 	
+	private String getDay(Campaign campaign, Date date) {
+        ZoneId zoneId = null;
+        Territory territory = territoryRepository.findById(campaign.getTerritoryId()).orElse(null);
+        if(territory == null) {
+            zoneId = ZoneId.systemDefault();
+        } else {
+            zoneId = ZoneId.of(territory.getTimezone());
+        }
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(date.toInstant(), zoneId);
+        return zdt.format(dtf);
+	}
+	
 	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt) {
 		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
 		if(campaign != null) {
@@ -128,6 +148,10 @@ public class PlayerCampaignPlacingManager {
 			globalByMode.addDuration(pt.getDuration());
 			globalByMode.addCo2(pt.getCo2());
 			globalByMode.addTrack();
+			globalByMode.addVirtualScore(pt.getVirtualScore());
+			if(pt.isVirtualTrack()) {
+			    globalByMode.addVirtualTrack();
+			}
 			playerStatsTransportRepository.save(globalByMode);
 			
 			//transport daily placing
@@ -145,6 +169,10 @@ public class PlayerCampaignPlacingManager {
 			dayByMode.addDuration(pt.getDuration());
 			dayByMode.addCo2(pt.getCo2());
 			dayByMode.addTrack();
+			dayByMode.addVirtualScore(pt.getVirtualScore());
+            if(pt.isVirtualTrack()) {
+                dayByMode.addVirtualTrack();
+            }
 			playerStatsTransportRepository.save(dayByMode);			
 		}
 	}
@@ -158,6 +186,10 @@ public class PlayerCampaignPlacingManager {
 			globalByMode.subDuration(pt.getDuration());
 			globalByMode.subCo2(pt.getCo2());
 			globalByMode.subTrack();
+            globalByMode.subVirtualScore(pt.getVirtualScore());
+            if(pt.isVirtualTrack()) {
+                globalByMode.subVirtualTrack();
+            }			
 			playerStatsTransportRepository.save(globalByMode);
 		}
 		
@@ -172,11 +204,16 @@ public class PlayerCampaignPlacingManager {
 			dayByMode.subDuration(pt.getDuration());
 			dayByMode.subCo2(pt.getCo2());
 			dayByMode.subTrack();
+            dayByMode.subVirtualScore(pt.getVirtualScore());
+            if(pt.isVirtualTrack()) {
+                dayByMode.subVirtualTrack();
+            }			
 			playerStatsTransportRepository.save(dayByMode);					
 		}
 	}
 	
-	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2) {
+	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2, 
+	        double deltaVirtualScore, VirtualTrackOp virtualTrackOp) {
 		//transport global placing
 		PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
 				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
@@ -187,6 +224,18 @@ public class PlayerCampaignPlacingManager {
 			} else if (deltaDistance < 0) {
 				globalByMode.subDistance(Math.abs(deltaDistance));
 				globalByMode.subCo2(Math.abs(deltaCo2));
+			}
+			if(deltaVirtualScore > 0) {
+			    globalByMode.addVirtualScore(deltaVirtualScore); 
+			} else if(deltaVirtualScore < 0) {
+			    globalByMode.subVirtualScore(Math.abs(deltaVirtualScore));
+			}
+			if(virtualTrackOp != null) {
+	            if(virtualTrackOp.equals(VirtualTrackOp.add)) {
+	                globalByMode.addVirtualTrack(); 
+	            } else if(virtualTrackOp.equals(VirtualTrackOp.sub)) {
+	                globalByMode.subVirtualTrack();
+	            }
 			}
 			playerStatsTransportRepository.save(globalByMode);
 		}
@@ -205,6 +254,18 @@ public class PlayerCampaignPlacingManager {
 				dayByMode.subDistance(Math.abs(deltaDistance));
 				dayByMode.subCo2(Math.abs(deltaCo2));
 			}
+            if(deltaVirtualScore > 0) {
+                dayByMode.addVirtualScore(deltaVirtualScore); 
+            } else if(deltaVirtualScore < 0) {
+                dayByMode.subVirtualScore(Math.abs(deltaVirtualScore));
+            }
+            if(virtualTrackOp != null) {
+                if(virtualTrackOp.equals(VirtualTrackOp.add)) {
+                    dayByMode.addVirtualTrack(); 
+                } else if(virtualTrackOp.equals(VirtualTrackOp.sub)) {
+                    dayByMode.subVirtualTrack();
+                }
+            }            
 			playerStatsTransportRepository.save(dayByMode);			
 		}
 	}
@@ -286,10 +347,16 @@ public class PlayerCampaignPlacingManager {
 	private long countTransportDistincPlayers(Criteria criteria, String groupField) {
 		MatchOperation matchOperation = Aggregation.match(criteria);
 		GroupOperation groupOperation = Aggregation.group(groupField);
-		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+        CountOperation countOperation = Aggregation.count().as("totalNum");
+        ProjectionOperation projectionOperation = Aggregation.project("totalNum");		
+		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, countOperation, projectionOperation);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
 				PlayerStatsTransport.class, Document.class);
-		return aggregationResults.getMappedResults().size();
+        List<Document> list = aggregationResults.getMappedResults();
+        if(list.size() == 1) {
+            return list.get(0).getInteger("totalNum");
+        }
+        return 0;
 	}
 
 	public Page<CampaignPlacing> getCampaignPlacing(String campaignId, String metric, String mean,  
@@ -317,6 +384,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        } else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}
@@ -341,7 +412,12 @@ public class PlayerCampaignPlacingManager {
                     cp.setAvatar(avatarManager.getPlayerSmallAvatar(player.getPlayerId()));
                 }               
             }
-            cp.setValue(doc.getDouble("value"));
+            if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
+                Long l = doc.getLong("value");
+                cp.setValue(l.doubleValue());
+            } else {
+                cp.setValue(doc.getDouble("value"));
+            }            
             cp.setPosition(index + 1);
             result.add(cp);
             index++;		    
@@ -391,6 +467,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        } else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}
@@ -431,21 +511,21 @@ public class PlayerCampaignPlacingManager {
 		return placing;
 	}
 	
-	private List<TransportStat> getPlayerTransportStatsCompanyCampaign(String playerId, String campaignId, String groupMode, String metric,
-			String mean, String dateFrom, String dateTo) {
-		List<TransportStat> result = new ArrayList<>();
-		try {
-			result = pgAziendaleManager.getPlayerTransportStats(playerId, campaignId, groupMode, metric, mean, dateFrom, dateTo);
-			if(metric.equalsIgnoreCase("co2")) {
-				result.forEach(ts -> {
-					ts.setValue(Utils.getSavedCo2(mean, ts.getValue()));
-				});
-			}
-		} catch (Exception e) {
-			logger.error(String.format("getPlayerTransportStatsCompanyCampaign[%s][%s]:%s", playerId, campaignId, e.getMessage()));
-		}
-		return result;
-	}
+//	private List<TransportStat> getPlayerTransportStatsCompanyCampaign(String playerId, String campaignId, String groupMode, String metric,
+//			String mean, String dateFrom, String dateTo) {
+//		List<TransportStat> result = new ArrayList<>();
+//		try {
+//			result = pgAziendaleManager.getPlayerTransportStats(playerId, campaignId, groupMode, metric, mean, dateFrom, dateTo);
+//			if(metric.equalsIgnoreCase("co2")) {
+//				result.forEach(ts -> {
+//					ts.setValue(Utils.getSavedCo2(mean, ts.getValue()));
+//				});
+//			}
+//		} catch (Exception e) {
+//			logger.error(String.format("getPlayerTransportStatsCompanyCampaign[%s][%s]:%s", playerId, campaignId, e.getMessage()));
+//		}
+//		return result;
+//	}
 
    public List<TransportStat> getPlayerTransportStats(String playerId, String campaignId, String groupMode, String metric,
            String mean, String dateFrom, String dateTo) {
@@ -461,18 +541,22 @@ public class PlayerCampaignPlacingManager {
 			String mean, String dateFrom, String dateTo, boolean group) {
 		List<TransportStat> result = new ArrayList<>();
 		
-		Campaign campaign = campaignManager.getCampaign(campaignId);
-		if((campaign != null) && (Type.company.equals(campaign.getType()))) {
-			return getPlayerTransportStatsCompanyCampaign(ownerId, campaignId, Utils.isEmpty(groupMode) ? "total" : groupMode, 
-			        metric, mean, dateFrom, dateTo);
-		}
+//		Campaign campaign = campaignManager.getCampaign(campaignId);
+//		if((campaign != null) && (Type.company.equals(campaign.getType()))) {
+//			return getPlayerTransportStatsCompanyCampaign(ownerId, campaignId, Utils.isEmpty(groupMode) ? "total" : groupMode, 
+//			        metric, mean, dateFrom, dateTo);
+//		}
 		
 		String selectId = "playerId";
 		if(group) {
 		    selectId = "groupId";  
 		}
-		Criteria criteria = new Criteria("campaignId").is(campaignId).and(selectId).is(ownerId)
-				.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+		Criteria criteria = new Criteria("campaignId").is(campaignId).and(selectId).is(ownerId);
+        if((dateFrom != null) && (dateTo != null)) {
+            criteria = criteria.and("global").is(Boolean.FALSE).andOperator(Criteria.where("day").gte(dateFrom), Criteria.where("day").lte(dateTo));
+        } else {
+            criteria = criteria.and("global").is(Boolean.TRUE);
+        }		
 		if(Utils.isNotEmpty(mean)) {
 			criteria = criteria.and("modeType").is(mean);
 		}
@@ -497,7 +581,11 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
 		    sumField = "duration";
-		} else {
+		} else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
+        } else {
 			sumField = "distance";
 		}		
 		GroupOperation groupOperation = Aggregation.group(groupField).sum(sumField).as("value");
@@ -505,17 +593,22 @@ public class PlayerCampaignPlacingManager {
 		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation);
 		AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, PlayerStatsTransport.class, Document.class);
 		for(Document doc : aggregationResults.getMappedResults()) {
-			TransportStat stat = new TransportStat();
-			if(Utils.isNotEmpty(groupMode)) {
-			    stat.setPeriod(doc.getString("_id"));
-			}
-			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
-				Long l = doc.getLong("value");
-				stat.setValue(l.doubleValue());
-			} else {
-				stat.setValue(doc.getDouble("value"));
-			}
-			result.add(stat);
+		    try {
+	            TransportStat stat = new TransportStat();
+	            if(Utils.isNotEmpty(groupMode)) {
+	                stat.setPeriod(doc.getString("_id"));
+	            }
+	            if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
+	                Long l = doc.getLong("value");
+	                stat.setValue(l.doubleValue());
+	            } else {
+	                stat.setValue(doc.getDouble("value"));
+	            }
+	            result.add(stat);                
+            } catch (Exception e) {
+                logger.warn(String.format("getOwnerTransportStats error[%s - %s]:%s - %s", ownerId, campaignId, 
+                        doc.toString(), e.getMessage()));
+            }
 		}
 		return result;
 	}
@@ -553,6 +646,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        }  else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}		
@@ -563,7 +660,7 @@ public class PlayerCampaignPlacingManager {
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
 			stat.setMean(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
@@ -601,6 +698,10 @@ public class PlayerCampaignPlacingManager {
 			sumField = "trackNumber";
 		} else if(metric.equalsIgnoreCase("time")) {
             sumField = "duration";
+        }  else if(metric.equalsIgnoreCase("virtualScore")) {
+            sumField = "virtualScore";
+        } else if(metric.equalsIgnoreCase("virtualTrack")) {
+            sumField = "virtualTrack";
         } else {
 			sumField = "distance";
 		}		
@@ -612,7 +713,7 @@ public class PlayerCampaignPlacingManager {
 		for(Document doc : aggregationResults.getMappedResults()) {
 			TransportStat stat = new TransportStat();
 			stat.setPeriod(doc.getString("_id"));
-			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time")) {
+			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
 				Long l = doc.getLong("value");
 				stat.setValue(l.doubleValue());
 			} else {
@@ -676,10 +777,16 @@ public class PlayerCampaignPlacingManager {
     private long countGameDistincPlayers(Criteria criteria, String groupField) {
         MatchOperation matchOperation = Aggregation.match(criteria);
         GroupOperation groupOperation = Aggregation.group(groupField);
-        Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+        CountOperation countOperation = Aggregation.count().as("totalNum");
+        ProjectionOperation projectionOperation = Aggregation.project("totalNum");
+        Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, countOperation, projectionOperation);
         AggregationResults<Document> aggregationResults = mongoTemplate.aggregate(aggregation, 
                 PlayerStatsGame.class, Document.class);
-        return aggregationResults.getMappedResults().size();
+        List<Document> list = aggregationResults.getMappedResults();
+        if(list.size() == 1) {
+            return list.get(0).getInteger("totalNum");
+        }
+        return 0;
     }
 	
 	public CampaignPlacing getCampaignPlacingByGameAndPlayer(String playerId, String campaignId,
@@ -877,6 +984,51 @@ public class PlayerCampaignPlacingManager {
 		placing.setPosition(aggregationPositionResults.getMappedResults().size() + 1);
 		
 		return placing;
+	}
+	
+	@SuppressWarnings("unchecked")
+    public List<CampaignPeriodStatsInfo> getCampaignPeriodStatsInfo(String campaignId, String playerId) {
+	    List<CampaignPeriodStatsInfo> result = new ArrayList<>();
+	    Campaign campaign = campaignManager.getCampaign(campaignId);
+	    if((campaign != null) && (campaign.getSpecificData().get("periods") != null)) {
+	        try {
+	            List<Map<String, Object>> periods = (List<Map<String, Object>>) campaign.getSpecificData().get("periods");
+	            periods.forEach(p -> {
+	                Long start = 0L;
+	                Long end = 0L;
+	                if(p.get("start") instanceof Long) {
+	                    start = (Long)p.get("start");
+	                } else if(p.get("start") instanceof String) {
+	                    start = Long.valueOf((String)p.get("start"));
+	                }
+                    if(p.get("end") instanceof Long) {
+                        end = (Long)p.get("end");
+                    } else if(p.get("end") instanceof String) {
+                        end = Long.valueOf((String)p.get("end"));
+                    }
+	                CampaignPeriodStatsInfo info = new CampaignPeriodStatsInfo();
+	                info.setDateFrom(start);
+	                info.setDateTo(end);
+	                info.setDateFromS(getDay(campaign, new Date(start)));
+	                info.setDateToS(getDay(campaign, new Date(end)));
+	                result.add(info);
+	            });
+	            String dateFrom = getDay(campaign, campaign.getDateFrom());
+	            String dateTo = getDay(campaign, campaign.getDateTo());
+	            List<TransportStat> stats = getOwnerTransportStats(playerId, campaignId, "day", "virtualScore", null, dateFrom, dateTo, false);
+                stats.forEach(s -> {
+                    for(CampaignPeriodStatsInfo info : result) {
+                        if((s.getPeriod().compareTo(info.getDateFromS()) >= 0) &&
+                                (s.getPeriod().compareTo(info.getDateToS()) <= 0)) {
+                            info.addValue(s.getValue());
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                logger.warn(String.format("getCampaignPeriodStatsInfo[%s,%s]:%s", campaignId, playerId, e.getMessage()));
+            }  
+	    }
+	    return result;
 	}
 
 }

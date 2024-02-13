@@ -66,7 +66,7 @@ public class MessageQueueManager {
         try {
             String json = new String(delivery.getBody(), "UTF-8");
             logger.info("invalidateCampaignTripRequestCallback:" + json);
-            ValidateCampaignTripRequest message = mapper.readValue(json, ValidateCampaignTripRequest.class);
+            UpdateCampaignTripRequest message = mapper.readValue(json, UpdateCampaignTripRequest.class);
             String routingKey = message.getCampaignType();
             ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
             if(manager != null) {
@@ -150,7 +150,7 @@ public class MessageQueueManager {
 		rabbitTemplate.convertAndSend(RabbitConf.validateCampaignTripRequest, msg);
 	}
 
-	public void sendInvalidateCampaignTripRequest(ValidateCampaignTripRequest message) throws Exception {
+	public void sendInvalidateCampaignTripRequest(UpdateCampaignTripRequest message) throws Exception {
 		String msg = mapper.writeValueAsString(message);
 		rabbitTemplate.convertAndSend(RabbitConf.invalidateCampaignTripRequest, msg);
 	}
