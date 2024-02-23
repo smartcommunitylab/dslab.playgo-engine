@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.model;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,6 +18,7 @@ public class CampaignPlayerSurvey {
 	private String surveyLink;
 	private Date timestamp;
 	private boolean completed = false;
+	private Map<String, Object> data;
 
 	public String getId() {
 		return id;
@@ -81,4 +83,14 @@ public class CampaignPlayerSurvey {
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
+
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public void setData(Map<String, Object> data) {
+		this.data = data;
+	}
+
+	
 }
