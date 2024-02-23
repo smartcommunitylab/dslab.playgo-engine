@@ -65,7 +65,12 @@ public class CompanyCampaignSurveyManager {
 		        if((campaign != null) && (player != null)) {
 		            try {
 	                    String surveyUrl = gamificationManager.createSurveyUrl(playerId, campaignId, sr.getSurveyName(), player.getLanguage());
-	                    emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
+						if(Utils.isNotEmpty(sr.getMailSubject()) && Utils.isNotEmpty(sr.getMailBody())) {
+							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage(), 
+								sr.getMailSubject(), sr.getMailBody());
+						} else {
+							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
+						}
 	                    survey = new CampaignPlayerSurvey();
 	                    survey.setPlayerId(playerId);
 	                    survey.setCampaignId(campaignId);
@@ -84,7 +89,7 @@ public class CompanyCampaignSurveyManager {
 	public boolean compileSurvey(String surveyName, Map<String,Object> formData) {
 		boolean complete = false;
 		try {
-			String id = (String)formData.get("playerId");
+			String id = (String)formData.getOrDefault("playerId", (String)formData.get("AuthorizationCode"));
 			PlayerIdentity identity = gamificationManager.decryptIdentity(id);
 			String playerId = identity.getPlayerId();
 			String campaignId = identity.getGameId();
@@ -100,6 +105,7 @@ public class CompanyCampaignSurveyManager {
                 if(campaign.currentlyActive()) {
                     complete = true;
                     survey.setCompleted(true);
+					survey.setData(formData);
                     surveyRepository.save(survey);
                 }
 			}			
@@ -120,7 +126,7 @@ public class CompanyCampaignSurveyManager {
 				if(campaign != null) {
 					CampaignPlayerSurvey survey = surveyRepository.findByPlayerIdAndCampaignIdAndSurveyName(playerId, campaignId, surveyName);
 					info.setCompleted(survey.isCompleted());
-					info.setUrl(survey.getSurveyLink().replace("playerId", id));
+					info.setUrl(survey.getSurveyLink().replace("playerId", id).replace("AuthorizationCode", id));
 				}
 			}
 		} catch (Exception e) {

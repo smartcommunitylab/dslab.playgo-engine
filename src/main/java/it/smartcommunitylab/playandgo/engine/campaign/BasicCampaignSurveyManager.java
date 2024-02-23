@@ -83,7 +83,7 @@ public class BasicCampaignSurveyManager {
 		boolean complete = false;
 		logger.info("compileSurvey:" + surveyName + " - " + formData);
 		try {
-			String id = (String)formData.get("playerId");
+			String id = (String)formData.getOrDefault("playerId", (String)formData.get("AuthorizationCode"));
 			PlayerIdentity identity = gamificationManager.decryptIdentity(id);
 			String playerId = identity.getPlayerId();
 			String gameId = identity.getGameId();
@@ -150,7 +150,7 @@ public class BasicCampaignSurveyManager {
 					} else {
 						SurveyRequest sr = campaign.getSurveyByName(surveyName);
 						if(sr != null) {
-							info.setUrl(sr.getSurveyLink().replace("playerId", id));
+							info.setUrl(sr.getSurveyLink().replace("playerId", id).replace("AuthorizationCode", id));
 						}
 					}
 				}

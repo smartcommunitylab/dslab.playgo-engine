@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
@@ -21,6 +22,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.templateresolver.StringTemplateResolver;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -28,6 +30,7 @@ import com.google.common.collect.Sets;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.ge.model.MailImage;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengesData;
+import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWeekConf;
 
 @Service
@@ -44,7 +47,12 @@ public class EmailService {
     private String mailFrom;
     
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-  
+  	
+    @PostConstruct
+	public void init() {
+		templateEngine.addTemplateResolver(new StringTemplateResolver());
+	}
+
     public void sendGenericMail(String body, String subject, final String recipientName, final String recipientEmail, 
     		final Locale locale) throws MessagingException {
         
@@ -197,6 +205,32 @@ public class EmailService {
         
         // Send mail
         this.mailSender.send(mimeMessage);
+    }
+
+    public void sendSurveyInvite(String link, String campaignName, String email, String lang,
+        String subject, String template) throws MessagingException {
+            logger.info(String.format("sendSurveyInvite to %s", email));
+        
+            // Prepare the evaluation context
+            final Context ctx = new Context();
+            ctx.setVariable("surveylink", link);
+            ctx.setVariable("campaignTitle", campaignName);
+            ctx.setVariable("name", email);
+                    
+            // Prepare message using a Spring helper
+            final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
+            final MimeMessageHelper message = 
+                    new MimeMessageHelper(mimeMessage, true /* multipart */, "UTF-8");
+            message.setSubject(subject);
+            message.setFrom(mailFrom);
+            message.setTo(email);
+    
+            // Create the HTML body using Thymeleaf
+            String htmlContent = this.templateEngine.process(template, ctx);
+            message.setText(htmlContent, true /* isHtml */);
+            
+            // Send mail
+            this.mailSender.send(mimeMessage);        
     }
     
 }

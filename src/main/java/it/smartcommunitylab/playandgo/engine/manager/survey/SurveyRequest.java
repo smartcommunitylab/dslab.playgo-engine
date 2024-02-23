@@ -9,6 +9,8 @@ public class SurveyRequest {
 	private long start;
 	private long end;
 	private boolean defaultSurvey;
+	private String mailSubject;
+	private String mailBody;
 	
 	public Map<String, Object> getData() {
 		return data;
@@ -45,6 +47,18 @@ public class SurveyRequest {
 	}
 	public void setDefaultSurvey(boolean defaultSurvey) {
 		this.defaultSurvey = defaultSurvey;
+	}
+	public String getMailSubject() {
+		return mailSubject;
+	}
+	public void setMailSubject(String mailSubject) {
+		this.mailSubject = mailSubject;
+	}
+	public String getMailBody() {
+		return mailBody;
+	}
+	public void setMailBody(String mailBody) {
+		this.mailBody = mailBody;
 	}
 
 }
