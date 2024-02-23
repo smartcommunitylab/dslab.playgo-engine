@@ -89,7 +89,7 @@ public class CompanyCampaignSurveyManager {
 	public boolean compileSurvey(String surveyName, Map<String,Object> formData) {
 		boolean complete = false;
 		try {
-			String id = (String)formData.get("playerId");
+			String id = (String)formData.getOrDefault("playerId", (String)formData.get("AuthorizationCode"));
 			PlayerIdentity identity = gamificationManager.decryptIdentity(id);
 			String playerId = identity.getPlayerId();
 			String campaignId = identity.getGameId();
