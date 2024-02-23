@@ -150,7 +150,7 @@ public class BasicCampaignSurveyManager {
 					} else {
 						SurveyRequest sr = campaign.getSurveyByName(surveyName);
 						if(sr != null) {
-							info.setUrl(sr.getSurveyLink().replace("playerId", id));
+							info.setUrl(sr.getSurveyLink().replace("playerId", id).replace("AuthorizationCode", id));
 						}
 					}
 				}
