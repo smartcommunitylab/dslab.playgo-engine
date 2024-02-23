@@ -730,7 +730,7 @@
 		"modelName": "groupCooperativeTeam",
 		"filter": "green leaves",
 		"description": {
-			"it": "Se riuscirete a guadagnare come squadra almeno <challengeTarget> eco-Leaves, sommando le eco-Leaves della tua squadra e di <opponent>, vi aggiudicherete la sfida e vincerete entrambi il premio di <reward> eco-Leaves.",
+			"it": "Se riuscirete a guadagnare almeno <challengeTarget> eco-Leaves, sommando le eco-Leaves della tua squadra e di <opponent>, vi aggiudicherete la sfida e vincerete entrambi il premio di <reward> eco-Leaves.",
 			"en": "You will win the challenge if the sum of eco-Leaves earned by your team and <opponent> is higher than <challengeTarget>. In case of challenge completion, both teams will earn <reward> eco-Leaves."
 		}
 	},
