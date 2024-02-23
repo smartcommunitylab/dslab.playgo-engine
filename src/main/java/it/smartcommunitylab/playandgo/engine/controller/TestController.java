@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.templateresolver.StringTemplateResolver;
 
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.manager.GameManager;
@@ -20,6 +23,7 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
+import it.smartcommunitylab.playandgo.engine.notification.EmailService;
 
 @RestController
 public class TestController extends PlayAndGoController {
@@ -31,7 +35,10 @@ public class TestController extends PlayAndGoController {
     
     @Autowired
     private ChallengeManager challengeManager;      
-  
+
+    @Autowired
+    EmailService emailService;
+
     static final Random RANDOM = new Random();
   
     @GetMapping("/api/test/track/player")
@@ -73,4 +80,13 @@ public class TestController extends PlayAndGoController {
         }
     }
 
+    @GetMapping("/api/test/email/survey")
+    public void sendSurveyInvite(
+            @RequestParam String email,
+            @RequestParam String subject,
+            @RequestParam String template,
+            HttpServletRequest request) throws Exception {
+        checkAdminRole(request);
+        emailService.sendSurveyInvite("http://localhost/web", "Campagna test", email, "it", subject, template);
+    }    
 }

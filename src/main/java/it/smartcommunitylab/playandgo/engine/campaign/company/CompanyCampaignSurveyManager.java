@@ -65,7 +65,12 @@ public class CompanyCampaignSurveyManager {
 		        if((campaign != null) && (player != null)) {
 		            try {
 	                    String surveyUrl = gamificationManager.createSurveyUrl(playerId, campaignId, sr.getSurveyName(), player.getLanguage());
-	                    emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
+						if(Utils.isNotEmpty(sr.getMailSubject()) && Utils.isNotEmpty(sr.getMailBody())) {
+							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage(), 
+								sr.getMailSubject(), sr.getMailBody());
+						} else {
+							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
+						}
 	                    survey = new CampaignPlayerSurvey();
 	                    survey.setPlayerId(playerId);
 	                    survey.setCampaignId(campaignId);
