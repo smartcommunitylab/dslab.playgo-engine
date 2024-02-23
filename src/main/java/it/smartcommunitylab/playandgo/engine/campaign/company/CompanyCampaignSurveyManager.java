@@ -105,6 +105,7 @@ public class CompanyCampaignSurveyManager {
                 if(campaign.currentlyActive()) {
                     complete = true;
                     survey.setCompleted(true);
+					survey.setData(formData);
                     surveyRepository.save(survey);
                 }
 			}			
@@ -125,7 +126,7 @@ public class CompanyCampaignSurveyManager {
 				if(campaign != null) {
 					CampaignPlayerSurvey survey = surveyRepository.findByPlayerIdAndCampaignIdAndSurveyName(playerId, campaignId, surveyName);
 					info.setCompleted(survey.isCompleted());
-					info.setUrl(survey.getSurveyLink().replace("playerId", id));
+					info.setUrl(survey.getSurveyLink().replace("playerId", id).replace("AuthorizationCode", id));
 				}
 			}
 		} catch (Exception e) {
