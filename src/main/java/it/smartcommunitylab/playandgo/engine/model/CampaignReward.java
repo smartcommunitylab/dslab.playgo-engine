@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class CampaignReward {
 	private Map<String, String> desc = new HashMap<>();
+    private Map<String, String> label = new HashMap<>();
 	private Map<String, String> rewardNote = new HashMap<>();
 	private Map<String, String> sponsorDesc = new HashMap<>();
 	private String sponsor;
@@ -53,5 +54,11 @@ public class CampaignReward {
     }
     public void setWinner(String winner) {
         this.winner = winner;
+    }
+    public Map<String, String> getLabel() {
+        return label;
+    }
+    public void setLabel(Map<String, String> label) {
+        this.label = label;
     }
 }
