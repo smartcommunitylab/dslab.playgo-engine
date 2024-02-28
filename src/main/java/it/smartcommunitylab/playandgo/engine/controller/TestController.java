@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,18 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.templateresolver.StringTemplateResolver;
 
+import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignSurveyManager;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceInfo;
 import it.smartcommunitylab.playandgo.engine.manager.GameManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeConceptInfo;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengeManager;
+import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
@@ -38,6 +40,9 @@ public class TestController extends PlayAndGoController {
 
     @Autowired
     EmailService emailService;
+
+    @Autowired
+    CompanyCampaignSurveyManager companySurveyManager;
 
     static final Random RANDOM = new Random();
   
@@ -81,7 +86,7 @@ public class TestController extends PlayAndGoController {
     }
 
     @GetMapping("/api/test/email/survey")
-    public void sendSurveyInvite(
+    public void sendSurveyInviteByMail(
             @RequestParam String email,
             @RequestParam String subject,
             @RequestParam String template,
@@ -89,4 +94,15 @@ public class TestController extends PlayAndGoController {
         checkAdminRole(request);
         emailService.sendSurveyInvite("http://localhost/web", "Campagna test", email, "it", subject, template);
     }    
+
+    @PostMapping("/api/test/notification/survey")
+    public void sendSurveyInviteByNotification(
+            @RequestParam String campaignId,
+            @RequestParam String playerId,
+            @RequestBody SurveyRequest sr,
+            HttpServletRequest request) throws Exception {
+        checkAdminRole(request);
+        companySurveyManager.assignSurvey(campaignId, Arrays.asList(new String[]{playerId}), sr);
+    }    
+
 }
