@@ -32,6 +32,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.exception.NotFoundException;
 import it.smartcommunitylab.playandgo.engine.exception.PushException;
@@ -58,6 +63,13 @@ public class CommunicationHelper {
 	
 	@Autowired
 	private EmailSender emailSender;
+    
+	@Autowired 
+    private TemplateEngine templateEngine;
+	
+	private ObjectMapper mapper = new ObjectMapper(); {
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}	
 
 	/**
 	 * Save notification entity and notify the user if needed. 
@@ -153,5 +165,14 @@ public class CommunicationHelper {
 		if (StringUtils.hasText(campaignId)) return announcementRepository.searchAnnouncements(territoryId, campaignId, channels, pageRequest);
 		else return announcementRepository.searchAnnouncements(territoryId, channels, pageRequest);
 	} 
+
+    public String getNotificationByTemplate(String template, String lang, Map<String, Object> vars) throws Exception {
+        final Context ctx = new Context();
+		ctx.setVariables(vars);
+
+        String htmlContent = (lang.equals("it")) ? this.templateEngine.process("notification/" + template + "-it", ctx) 
+                : this.templateEngine.process("notification/" + template + "-en", ctx);
+		return htmlContent;
+    }
 	
 }

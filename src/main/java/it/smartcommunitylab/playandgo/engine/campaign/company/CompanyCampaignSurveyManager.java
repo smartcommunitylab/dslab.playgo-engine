@@ -1,8 +1,10 @@
 package it.smartcommunitylab.playandgo.engine.campaign.company;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,10 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerSurvey;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.notification.Announcement.CHANNEL;
+import it.smartcommunitylab.playandgo.engine.notification.CommunicationHelper;
 import it.smartcommunitylab.playandgo.engine.notification.EmailService;
+import it.smartcommunitylab.playandgo.engine.notification.Notification;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerSurveyRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
@@ -46,6 +51,9 @@ public class CompanyCampaignSurveyManager {
 	
 	@Autowired
 	EmailService emailService;
+
+	@Autowired
+	CommunicationHelper commHelper;
 	
 	EncryptDecrypt cryptUtils;
 
@@ -65,12 +73,6 @@ public class CompanyCampaignSurveyManager {
 		        if((campaign != null) && (player != null)) {
 		            try {
 	                    String surveyUrl = gamificationManager.createSurveyUrl(playerId, campaignId, sr.getSurveyName(), player.getLanguage());
-						if(Utils.isNotEmpty(sr.getMailSubject()) && Utils.isNotEmpty(sr.getMailBody())) {
-							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage(), 
-								sr.getMailSubject(), sr.getMailBody());
-						} else {
-							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
-						}
 	                    survey = new CampaignPlayerSurvey();
 	                    survey.setPlayerId(playerId);
 	                    survey.setCampaignId(campaignId);
@@ -78,6 +80,31 @@ public class CompanyCampaignSurveyManager {
 	                    survey.setSurveyLink(sr.getSurveyLink());
 	                    survey.setSurveyName(sr.getSurveyName());
 	                    surveyRepository.save(survey);                                          
+						if(Utils.isNotEmpty(sr.getMailSubject()) && Utils.isNotEmpty(sr.getMailBody())) {
+							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage(), 
+								sr.getMailSubject(), sr.getMailBody());
+						} else {
+							emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
+						}
+						//send notification
+						String lang = player.getLanguage();
+						Map<String, Object> vars = new HashMap<>();
+						vars.put("surveylink", surveyUrl);
+						vars.put("campaignTitle", campaign.getName().get(lang));
+						String html = commHelper.getNotificationByTemplate("survey", lang, vars);
+
+						Map<String, Object> content = new TreeMap<String, Object>();
+						content.put("type", "announcement");
+						content.put("_html", html);
+						content.put("from", -1);
+						content.put("to", -1);
+						content.put("channels", new String[]{CHANNEL.news.name()});
+						Notification not = new Notification();
+						not.setTitle(campaign.getName().get(lang));
+						not.setDescription(lang.equals("it") ? "Questionario" : "Survey" );
+						not.setContent(content);
+						logger.info("sending survey invite to " + player.getMail() + " - " + sr.getSurveyName());
+						commHelper.notify(not, playerId, player.getTerritoryId(), campaignId, true);
                     } catch (Exception e) {
                         logger.warn(String.format("assignSurvey error:%s - %s - %s", playerId, sr.getSurveyName(), e.getMessage()));
                     }
