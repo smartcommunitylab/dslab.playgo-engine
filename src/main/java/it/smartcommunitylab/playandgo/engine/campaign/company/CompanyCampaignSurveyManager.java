@@ -103,8 +103,9 @@ public class CompanyCampaignSurveyManager {
 						not.setTitle(campaign.getName().get(lang));
 						not.setDescription(lang.equals("it") ? "Questionario" : "Survey" );
 						not.setContent(content);
-						logger.info("sending survey invite to " + player.getMail() + " - " + sr.getSurveyName());
-						commHelper.notify(not, playerId, player.getTerritoryId(), campaignId, true);
+						logger.info("sending survey invite to " + player.getMail() + " - " + sr.getSurveyName()
+							+ " - " + surveyUrl);
+						commHelper.notify(not, playerId, player.getTerritoryId(), campaignId, false);
                     } catch (Exception e) {
                         logger.warn(String.format("assignSurvey error:%s - %s - %s", playerId, sr.getSurveyName(), e.getMessage()));
                     }
