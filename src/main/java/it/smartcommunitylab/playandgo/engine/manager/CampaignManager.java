@@ -521,6 +521,8 @@ public class CampaignManager {
 				int position;
 				String descIt;
 				String descEn;
+				String labelIt;
+				String labelEn;
 				String sponsor;
 				String website;
 				String winner;
@@ -532,6 +534,8 @@ public class CampaignManager {
 				position = Integer.valueOf(map.get("posizione").trim());
 				descIt = map.get("desc_it").trim();
 				descEn = map.get("desc_en").trim();
+				labelIt = map.get("label_it").trim();
+				labelEn = map.get("label_en").trim();
 				sponsor = map.get("nome_sponsor").trim();
 				website = map.get("website_sponsor").trim();
 				winner = map.get("assegnato_a").trim();
@@ -552,6 +556,8 @@ public class CampaignManager {
 					reward.getSponsorDesc().put("en", sponsorDescEn);
 					reward.getDesc().put("it", descIt);
 					reward.getDesc().put("en", descEn);
+					reward.getLabel().put("it", labelIt);
+					reward.getLabel().put("en", labelEn);
 					conf.getRewards().add(reward);
 					result.add("add conf " + weekNumber + " - " + lineCount);
 				} else {
