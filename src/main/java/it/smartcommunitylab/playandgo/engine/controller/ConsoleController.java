@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignSurveyManager;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
@@ -49,6 +50,9 @@ public class ConsoleController extends PlayAndGoController {
 	
 	@Autowired
 	TrackedInstanceManager trackedInstanceManager;
+
+	@Autowired
+	CompanyCampaignSurveyManager companySurveyManager;
 	
 	@PostMapping("/api/console/role/territory")
 	public void addTerritoryManager(
@@ -241,6 +245,16 @@ public class ConsoleController extends PlayAndGoController {
 	        HttpServletRequest request) throws Exception {
 	    checkAdminRole(request);
 	    trackedInstanceManager.modifyToCheck(trackId, toCheck);
+	}
+
+	@PutMapping("/api/console/survey/company/sendmail")
+	public void sendSurveyMail(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam String surveyName,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		companySurveyManager.sendSurveyInviteMail(campaignId, playerId, surveyName);	
 	}
 
 }

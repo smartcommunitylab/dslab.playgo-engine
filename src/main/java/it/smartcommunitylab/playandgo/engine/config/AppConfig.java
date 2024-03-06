@@ -70,9 +70,11 @@ public class AppConfig implements WebMvcConfigurer {
 		sender.setUsername(username);
 		sender.setPassword(password);
 		sender.setProtocol(protocol);
+		
 		Properties props = new Properties();
 		//props.setProperty("mail.smtp.ssl.enable", "true");
 		props.setProperty("mail." + protocol + ".localhost", localhost);
+		props.setProperty("mail." + protocol + ".connectiontimeout", "5000");
 		sender.setJavaMailProperties(props);
 		return sender;
 	}
