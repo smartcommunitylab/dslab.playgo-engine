@@ -162,5 +162,19 @@ public class CompanyCampaignSurveyManager {
 		}
 		return info;
 	}
+
+	public void sendSurveyInviteMail(String campaignId, String playerId, String surveyName) throws Exception {
+		CampaignPlayerSurvey survey = surveyRepository.findByPlayerIdAndCampaignIdAndSurveyName(playerId, campaignId, surveyName);
+		if(survey != null) {
+			try {
+				Player player = playerRepository.findById(playerId).orElse(null);
+				Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+				String surveyUrl = gamificationManager.createSurveyUrl(playerId, campaignId, surveyName, player.getLanguage());
+				emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
+			} catch (Exception e) {
+				logger.warn(String.format("sendSurveyInviteMail error:%s - %s - %s - $s", surveyName, campaignId, playerId, e.getMessage()));
+			}
+		}
+	}
 	
 }
