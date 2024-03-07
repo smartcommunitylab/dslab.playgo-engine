@@ -393,7 +393,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
                 try {
                     queueManager.sendValidateCampaignTripRequest(request);
                 } catch (Exception e) {
-                    logger.error("validateTripRequest error:" + e.getMessage());
+                    logger.error("sendValidateCampaignRequest error:" + e.getMessage());
                 }                                               
             }
         }	    
@@ -411,7 +411,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	                    track.getFreeTrackingTransport(), track.getTerritoryId());
 	            updateValidationResult(track, validationResult);
 	        } catch (Exception e) {
-	            logger.error("validateTripRequest error:" + e.getMessage());
+	            logger.error("validateFreeTrackingTripRequest error:" + e.getMessage());
 	            updateValidationResultAsError(track);
 	        }           		    
 		}
@@ -519,7 +519,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("validateTripRequest error" + e.getMessage(), e);
+			logger.error("validateSharedTravelRequest error" + e.getMessage(), e);
 			updateValidationResultAsError(track);
 		}
 		return travelToValidateList;
