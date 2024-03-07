@@ -81,7 +81,7 @@ public class GamificationMessageQueueManager {
 	                newGames.add(queueName);
 	            }
             } catch (Exception e) {
-                logger.warn(String.format("addGameQueue[%s]:%s", gameId, e.getMessage())); 
+                logger.error(String.format("addGameQueue[%s]:%s", gameId, e.getMessage())); 
             }
 	    }
 	    if(newGames.size() > 0) {
@@ -117,10 +117,10 @@ public class GamificationMessageQueueManager {
                         manager.manageGameNotification(map, routingKey);
                     }                   
                 } else {
-                    logger.warn("campaign not found: " + gameId);
+                    logger.error("campaign not found: " + gameId);
                 }
             } else {
-                logger.warn("Bad notification content: " + msg);
+                logger.error("Bad notification content: " + msg);
             }                
         } catch (Exception e) {
             logger.error("gameNotificationCallback error", e);
