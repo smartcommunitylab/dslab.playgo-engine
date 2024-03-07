@@ -107,7 +107,7 @@ public class CompanyCampaignSurveyManager {
 							+ " - " + surveyUrl);
 						commHelper.notify(not, playerId, player.getTerritoryId(), campaignId, false);
                     } catch (Exception e) {
-                        logger.warn(String.format("assignSurvey error:%s - %s - %s", playerId, sr.getSurveyName(), e.getMessage()));
+                        logger.error(String.format("assignSurvey error:%s - %s - %s", playerId, sr.getSurveyName(), e.getMessage()));
                     }
 		        }
 		    }
@@ -138,7 +138,7 @@ public class CompanyCampaignSurveyManager {
                 }
 			}			
 		} catch (Exception e) {
-			logger.warn(String.format("compileSurvey error:%s - %s - %s", surveyName, formData, e.getMessage()));
+			logger.error(String.format("compileSurvey error:%s - %s - %s", surveyName, formData, e.getMessage()));
 		}
 		return complete;
 	}
@@ -158,9 +158,23 @@ public class CompanyCampaignSurveyManager {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn(String.format("getSurveyUrl error:%s - %s - %s", surveyName, id, e.getMessage()));
+			logger.error(String.format("getSurveyUrl error:%s - %s - %s", surveyName, id, e.getMessage()));
 		}
 		return info;
+	}
+
+	public void sendSurveyInviteMail(String campaignId, String playerId, String surveyName) throws Exception {
+		CampaignPlayerSurvey survey = surveyRepository.findByPlayerIdAndCampaignIdAndSurveyName(playerId, campaignId, surveyName);
+		if(survey != null) {
+			try {
+				Player player = playerRepository.findById(playerId).orElse(null);
+				Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
+				String surveyUrl = gamificationManager.createSurveyUrl(playerId, campaignId, surveyName, player.getLanguage());
+				emailService.sendSurveyInvite(surveyUrl, campaign.getName().get(player.getLanguage()), player.getMail(), player.getLanguage());
+			} catch (Exception e) {
+				logger.error(String.format("sendSurveyInviteMail error:%s - %s - %s - $s", surveyName, campaignId, playerId, e.getMessage()));
+			}
+		}
 	}
 	
 }

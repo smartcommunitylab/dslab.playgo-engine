@@ -110,7 +110,7 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	                                    notificationManager.processNotification(copyMsg);	                                    
 	                                }
                                 } catch (Exception e) {
-                                    logger.warn(String.format("manageGameNotification group error:%s - %s", routingKey, e.getMessage())); 
+                                    logger.error(String.format("manageGameNotification group error:%s - %s", routingKey, e.getMessage())); 
                                 }
 			                });
 			            }

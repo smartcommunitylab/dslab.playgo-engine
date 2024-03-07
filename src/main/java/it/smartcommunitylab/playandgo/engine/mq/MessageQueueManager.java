@@ -41,7 +41,7 @@ public class MessageQueueManager {
                 manageValidateTripRequest.validateTripRequest(message);
             }                   
         } catch (Exception e) {
-            logger.warn(String.format("validateTripRequestCallback:", e.getMessage()));
+            logger.error(String.format("validateTripRequestCallback:", e.getMessage()));
         }
 	}
 
@@ -57,7 +57,7 @@ public class MessageQueueManager {
                 manager.validateTripRequest(message);
             }            
         } catch (Exception e) {
-            logger.warn(String.format("validateCampaignTripRequestCallback:", e.getMessage()));
+            logger.error(String.format("validateCampaignTripRequestCallback:", e.getMessage()));
         }
     };
 
@@ -73,7 +73,7 @@ public class MessageQueueManager {
                 manager.invalidateTripRequest(message);
             }            
         } catch (Exception e) {
-            logger.warn(String.format("invalidateCampaignTripRequestCallback:", e.getMessage()));
+            logger.error(String.format("invalidateCampaignTripRequestCallback:", e.getMessage()));
         }
     };
 
@@ -89,7 +89,7 @@ public class MessageQueueManager {
                 manager.updateTripRequest(message);
             }            
         } catch (Exception e) {
-            logger.warn(String.format("updateCampaignTripRequestCallback:", e.getMessage()));
+            logger.error(String.format("updateCampaignTripRequestCallback:", e.getMessage()));
         }
     };
 
@@ -105,7 +105,7 @@ public class MessageQueueManager {
                 manager.revalidateTripRequest(message);
             }            
         } catch (Exception e) {
-            logger.warn(String.format("revalidateCampaignTripRequestCallback:", e.getMessage()));
+            logger.error(String.format("revalidateCampaignTripRequestCallback:", e.getMessage()));
         }
     };
     
@@ -124,7 +124,7 @@ public class MessageQueueManager {
                 }
             }            
         } catch (Exception e) {
-            logger.warn(String.format("callWebhookCallback:", e.getMessage()));
+            logger.error(String.format("callWebhookCallback:", e.getMessage()));
         }
     };
 

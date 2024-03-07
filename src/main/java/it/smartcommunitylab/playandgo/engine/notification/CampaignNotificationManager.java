@@ -153,20 +153,20 @@ public class CampaignNotificationManager {
 	                                        + mapper.writeValueAsString(notification));
 	                                notificatioHelper.notify(notification, not.getPlayerId(), territory.getTerritoryId(), campaign.getCampaignId(), true);
 	                            } catch (Exception e) {
-	                                logger.warn("Error sending notification:" + e.getMessage());
+	                                logger.error("Error sending notification:" + e.getMessage());
 	                            }
 	                    }                                           				        
 				    } else {
-				        logger.warn("Player " + not.getPlayerId() + " not subscribed to campaign " + campaign.getCampaignId()); 
+				        logger.error("Player " + not.getPlayerId() + " not subscribed to campaign " + campaign.getCampaignId()); 
 				    }
 				} else {
-					logger.warn("Game " + not.getGameId() + " campaign not found");
+					logger.error("Game " + not.getGameId() + " campaign not found");
 				}
 			} else {
-				logger.warn("Player " + not.getPlayerId() + " territory not found");
+				logger.error("Player " + not.getPlayerId() + " territory not found");
 			}
 		} else {
-			logger.warn("Player " + not.getPlayerId() + " not found");
+			logger.error("Player " + not.getPlayerId() + " not found");
 		}
 	}
 	
@@ -177,7 +177,7 @@ public class CampaignNotificationManager {
 			try {
 				notificatioHelper.notify(notification, playerId, player.getTerritoryId(), campaignId, true);
 			} catch (Exception e) {
-				logger.warn(String.format("sendDirectNotification error: %s - %s - %s - %s", 
+				logger.error(String.format("sendDirectNotification error: %s - %s - %s - %s", 
 						playerId, campaignId, type, e.getMessage()));
 			}
 		}

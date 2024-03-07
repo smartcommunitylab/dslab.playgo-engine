@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignSurveyManager;
 import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
@@ -31,6 +32,8 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
+import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRoleRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
@@ -49,6 +52,9 @@ public class ConsoleController extends PlayAndGoController {
 	
 	@Autowired
 	TrackedInstanceManager trackedInstanceManager;
+
+	@Autowired
+	CompanyCampaignSurveyManager companySurveyManager;
 	
 	@PostMapping("/api/console/role/territory")
 	public void addTerritoryManager(
@@ -242,5 +248,27 @@ public class ConsoleController extends PlayAndGoController {
 	    checkAdminRole(request);
 	    trackedInstanceManager.modifyToCheck(trackId, toCheck);
 	}
+
+	@PutMapping("/api/console/survey/company/sendmail")
+	public void sendSurveyMail(
+			@RequestParam String campaignId,
+			@RequestParam String playerId,
+			@RequestParam String surveyName,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		companySurveyManager.sendSurveyInviteMail(campaignId, playerId, surveyName);	
+	}
+
+	@GetMapping("/api/console/track/validate")
+    public void validateTrack(
+            @RequestParam(required = false) String trackedInstanceId,
+            HttpServletRequest request) throws Exception {
+        checkAdminRole(request);
+        TrackedInstance ti = trackedInstanceManager.getTrackedInstance(trackedInstanceId);
+        if(ti != null) {
+            ValidateTripRequest msg = new ValidateTripRequest(ti.getUserId(), ti.getTerritoryId(), ti.getMultimodalId(), false);
+            trackedInstanceManager.validateTripRequest(msg);
+        }
+    }
 
 }

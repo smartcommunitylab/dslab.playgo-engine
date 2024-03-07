@@ -76,7 +76,7 @@ public class EmailSender {
 				if (campaignId != null) {
 					CampaignSubscription s = subscriptionRepo.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
 					if (s == null) {
-						logger.warn("Unsubscribed player " + player.getPlayerId());
+						logger.error("Unsubscribed player " + player.getPlayerId());
 						continue;
 					}
 				}

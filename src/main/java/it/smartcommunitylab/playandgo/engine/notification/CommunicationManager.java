@@ -52,7 +52,7 @@ public class CommunicationManager {
 			try {
 				googleManager.sendToCloud(notification);
 			} catch (NoUserAccount e) {
-				logger.warn("create notify:" + e.getMessage());
+				logger.error("create notify:" + e.getMessage());
 			}
 		}
 		return notification;
