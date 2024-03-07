@@ -606,7 +606,7 @@ public class PlayerCampaignPlacingManager {
 	            }
 	            result.add(stat);                
             } catch (Exception e) {
-                logger.warn(String.format("getOwnerTransportStats error[%s - %s]:%s - %s", ownerId, campaignId, 
+                logger.error(String.format("getOwnerTransportStats error[%s - %s]:%s - %s", ownerId, campaignId, 
                         doc.toString(), e.getMessage()));
             }
 		}
@@ -1025,7 +1025,7 @@ public class PlayerCampaignPlacingManager {
                     }
                 });
             } catch (Exception e) {
-                logger.warn(String.format("getCampaignPeriodStatsInfo[%s,%s]:%s", campaignId, playerId, e.getMessage()));
+                logger.error(String.format("getCampaignPeriodStatsInfo[%s,%s]:%s", campaignId, playerId, e.getMessage()));
             }  
 	    }
 	    return result;

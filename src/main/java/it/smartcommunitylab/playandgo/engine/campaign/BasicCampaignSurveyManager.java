@@ -121,7 +121,7 @@ public class BasicCampaignSurveyManager {
 				}
 			}			
 		} catch (Exception e) {
-			logger.warn(String.format("compileSurvey error:%s - %s - %s", surveyName, formData, e.getMessage()));
+			logger.error(String.format("compileSurvey error:%s - %s - %s", surveyName, formData, e.getMessage()));
 		}
 		return complete;
 	}
@@ -156,7 +156,7 @@ public class BasicCampaignSurveyManager {
 				}
 			}
 		} catch (Exception e) {
-			logger.warn(String.format("getSurveyUrl error:%s - %s - %s", surveyName, id, e.getMessage()));
+			logger.error(String.format("getSurveyUrl error:%s - %s - %s", surveyName, id, e.getMessage()));
 		}
 		return info;
 	}

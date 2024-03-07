@@ -126,7 +126,7 @@ public class UnregisterManager {
 			try {
 				avatarManager.deleteAvatar(player.getPlayerId());
 			} catch (Exception e) {
-				logger.warn(String.format("unregisterPlayer[%s] avatar:%s", player.getPlayerId(), e.getMessage()));
+				logger.error(String.format("unregisterPlayer[%s] avatar:%s", player.getPlayerId(), e.getMessage()));
 			}
 			List<CampaignSubscription> list = campaignSubscriptionRepository.findByPlayerId(playerDb.getPlayerId());
 			for(CampaignSubscription cs : list) {
@@ -137,21 +137,21 @@ public class UnregisterManager {
 	                        try {
 	                            highSchoolManager.unregisterPlayer(campaign.getCampaignId(), playerDb.getPlayerId(), playerDb.getNickname());                                
                             } catch (Exception e) {
-                                logger.warn(String.format("unregisterPlayer[%s] hsc:%s", player.getPlayerId(), e.getMessage())); 
+                                logger.error(String.format("unregisterPlayer[%s] hsc:%s", player.getPlayerId(), e.getMessage())); 
                             }
 	                        break;
 	                    case company:
 	                        try {
                                 aziendaleManager.unregisterPlayer(playerDb.getPlayerId());
                             } catch (Exception e) {
-                                logger.warn(String.format("unregisterPlayer[%s] company:%s", player.getPlayerId(), e.getMessage()));
+                                logger.error(String.format("unregisterPlayer[%s] company:%s", player.getPlayerId(), e.getMessage()));
                             }
 	                        break;
 	                    case city:
 	                        try {
 	                            cityCampaignSubscription.unsubscribeCampaign(playerDb, campaign);
                             } catch (Exception e) {
-                                logger.warn(String.format("unregisterPlayer[%s] city:%s", player.getPlayerId(), e.getMessage()));
+                                logger.error(String.format("unregisterPlayer[%s] city:%s", player.getPlayerId(), e.getMessage()));
                             }
 	                        break;
                         default:
@@ -175,7 +175,7 @@ public class UnregisterManager {
 	private void deleteAccount(String userId) throws Exception {
 		ResponseEntity<String> token = getToken();
 		if(!token.getStatusCode().is2xxSuccessful()) {
-			logger.warn(String.format("deleteAccount[%s]: error getting token - %s", userId, token.getStatusCodeValue()));
+			logger.error(String.format("deleteAccount[%s]: error getting token - %s", userId, token.getStatusCodeValue()));
 			throw new ServiceException("error getting token", ErrorCode.EXT_SERVICE_INVOCATION);
 		}
 		String json = token.getBody();
@@ -183,7 +183,7 @@ public class UnregisterManager {
 		if(jsonNode.has("access_token")) {
 			ResponseEntity<String> response = deleteAccountApi(userId, jsonNode.get("access_token").asText());
 			if(!response.getStatusCode().is2xxSuccessful()) {
-				logger.warn(String.format("deleteAccount[%s]: error calling api - %s", userId, response.getStatusCodeValue()));
+				logger.error(String.format("deleteAccount[%s]: error calling api - %s", userId, response.getStatusCodeValue()));
 				throw new ServiceException("error calling api", ErrorCode.EXT_SERVICE_INVOCATION);			
 			}			
 		}
@@ -215,7 +215,7 @@ public class UnregisterManager {
 	public String getBearerToken() throws Exception {
         ResponseEntity<String> token = getToken();
         if(!token.getStatusCode().is2xxSuccessful()) {
-            logger.warn(String.format("getBearerToken: error getting token - %s", token.getStatusCodeValue()));
+            logger.error(String.format("getBearerToken: error getting token - %s", token.getStatusCodeValue()));
             throw new ServiceException("error getting token", ErrorCode.EXT_SERVICE_INVOCATION);
         }
         String json = token.getBody();

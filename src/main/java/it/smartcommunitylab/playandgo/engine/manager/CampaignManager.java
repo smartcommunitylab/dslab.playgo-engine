@@ -382,12 +382,12 @@ public class CampaignManager {
 	private Image uploadCampaignImage(String campaignId, ImageType type, MultipartFile data) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {
-			logger.warn("campaign not found");
+			logger.error("campaign not found");
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
 		}
 		MediaType mediaType = MediaType.parseMediaType(data.getContentType());
 		if (!mediaType.isCompatibleWith(MediaType.IMAGE_GIF) && !mediaType.isCompatibleWith(MediaType.IMAGE_JPEG) && !mediaType.isCompatibleWith(MediaType.IMAGE_PNG)) {
-			logger.warn("Image format not supported");
+			logger.error("Image format not supported");
 			throw new BadRequestException("Image format not supported", ErrorCode.IMAGE_WRONG_FORMAT);
 		}
 		byte[] targetArray = new byte[data.getInputStream().available()];
@@ -413,7 +413,7 @@ public class CampaignManager {
 	public List<SurveyRequest> addSurvey(String campaignId, SurveyRequest sr) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {
-			logger.warn("campaign not found");
+			logger.error("campaign not found");
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
 		}
 		if(Utils.isNotEmpty(sr.getSurveyLink()) && Utils.isNotEmpty(sr.getSurveyName())) {
@@ -429,7 +429,7 @@ public class CampaignManager {
 	public List<SurveyRequest> deleteSurvey(String campaignId, String name) throws Exception {
 		Campaign campaign = getCampaign(campaignId);
 		if(campaign == null) {
-			logger.warn("campaign not found");
+			logger.error("campaign not found");
 			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);			
 		}
 		if(Utils.isNotEmpty(name)) {

@@ -103,7 +103,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                     }
                 }
             } catch (ServiceException e) {
-                logger.warn("validateTripRequest error:" + e.getMessage());
+                logger.error("validateTripRequest error:" + e.getMessage());
                 campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
             }                           
         }	    
@@ -247,7 +247,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                         }
 	                }
 	            } catch (ServiceException e) {
-	                logger.warn("invalidateTripRequest error:" + e.getMessage());
+	                logger.error("invalidateTripRequest error:" + e.getMessage());
 	                campaignMsgManager.addInvalidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
 	            }
 		    }
@@ -314,7 +314,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		                    }
 		                }
 		            } catch (ServiceException e) {
-		                logger.warn("revalidateTripRequest error:" + e.getMessage());
+		                logger.error("revalidateTripRequest error:" + e.getMessage());
 		                campaignMsgManager.addRevalidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
 		            }                           
 		        }   		        
