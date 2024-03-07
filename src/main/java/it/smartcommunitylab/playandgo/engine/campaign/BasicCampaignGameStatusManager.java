@@ -135,7 +135,7 @@ public abstract class BasicCampaignGameStatusManager {
 	                        logger.debug("update playerState " + gameStatus.getId());
 	                    }
 					} catch (Exception e) {
-						logger.warn("updatePlayerState error:" + e.getMessage());
+						logger.error("updatePlayerState error:" + e.getMessage());
 					}
 					
 					//check recommendation

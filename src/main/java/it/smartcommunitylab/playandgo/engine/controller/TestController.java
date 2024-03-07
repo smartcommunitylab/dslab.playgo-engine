@@ -73,17 +73,6 @@ public class TestController extends PlayAndGoController {
         return challengeManager.getChallenges(playerId, campaignId, null);
     }
     
-    @GetMapping("/api/test/track/validate")
-    public void validateTrack(
-            @RequestParam(required = false) String trackedInstanceId,
-            HttpServletRequest request) throws Exception {
-        checkAdminRole(request);
-        TrackedInstance ti = trackedInstanceManager.getTrackedInstance(trackedInstanceId);
-        if(ti != null) {
-            ValidateTripRequest msg = new ValidateTripRequest(ti.getUserId(), ti.getTerritoryId(), ti.getMultimodalId(), false);
-            trackedInstanceManager.validateTripRequest(msg);
-        }
-    }
 
     @GetMapping("/api/test/email/survey")
     public void sendSurveyInviteByMail(

@@ -50,12 +50,12 @@ public class AvatarManager {
 	
 	public Avatar uploadPlayerAvatar(Player player, MultipartFile data) throws Exception {
 		if (data.getSize() > 10 * 1024 * 1024) {
-			logger.warn("Image too big.");
+			logger.error("Image too big.");
 			throw new BadRequestException("image too big", ErrorCode.IMAGE_TOO_BIG);
 		}
 		MediaType mediaType = MediaType.parseMediaType(data.getContentType());
 		if (!mediaType.isCompatibleWith(MediaType.IMAGE_GIF) && !mediaType.isCompatibleWith(MediaType.IMAGE_JPEG) && !mediaType.isCompatibleWith(MediaType.IMAGE_PNG)) {
-			logger.warn("Image format not supported");
+			logger.error("Image format not supported");
 			throw new BadRequestException("Image format not supported", ErrorCode.IMAGE_WRONG_FORMAT);
 		}
 		Avatar avatar = getPlayerAvatar(player.getPlayerId());

@@ -98,7 +98,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
                         validateSharedTripRequest(msg, playerTrack, track);
                     }
                 } catch (Exception e) {
-                    logger.warn(String.format("error in validateTripRequest[%s]:%s", track.getId(), e.getMessage()));
+                    logger.error(String.format("error in validateTripRequest[%s]:%s", track.getId(), e.getMessage()));
                 }
 	        }
 	    }		
@@ -306,7 +306,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
                         }
                     }
                 } catch (Exception e) {
-                    logger.warn("revalidateTripRequest error:" + e.getMessage());
+                    logger.error("revalidateTripRequest error:" + e.getMessage());
                     campaignMsgManager.addRevalidateTripRequest(msg, campaign.getType(), e.getMessage(), ErrorCode.OPERATION_ERROR);
                 }                
             }

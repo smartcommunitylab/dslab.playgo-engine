@@ -69,8 +69,6 @@ container_scanning:
     GIT_STRATEGY: fetch
     DOCKER_USER: ""
     DOCKER_PASSWORD: ""
-  dependencies:
-    - backend-container-build
   rules:
      - if: '$CI_COMMIT_REF_NAME == "main"'
 
@@ -99,5 +97,5 @@ deploy-prod:
     - echo "deploy backend"
     - kubectl -n playngo-prod set image deployments/playngo-engine playngo-engine=$CONTAINER_IMAGE --record=true
     - kubectl -n playngo-prod rollout status deployment playngo-engine
-  only:
-    - prod
+  rules:
+    - if: $DEPLOY == "true"
