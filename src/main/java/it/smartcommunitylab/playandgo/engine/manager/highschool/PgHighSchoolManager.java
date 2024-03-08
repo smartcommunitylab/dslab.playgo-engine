@@ -2,6 +2,8 @@ package it.smartcommunitylab.playandgo.engine.manager.highschool;
 
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
+import java.net.URLEncoder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,7 @@ public class PgHighSchoolManager {
 		try {
 	        String url ="/api/admin/initiatives/" 
 	                + campaignId 
-	                + "/player/subscribe?nickname=" + nickname + "&teamId=" + teamId;
+	                + "/player/subscribe?nickname=" + URLEncoder.encode(nickname, "UTF-8") + "&teamId=" + teamId;
 	        logger.info(String.format("subscribeCampaign uri:%s", url));
 
 			return 
@@ -46,7 +48,7 @@ public class PgHighSchoolManager {
 		try {
 	    	String url ="/api/admin/initiatives/" 
 	    			+ campaignId 
-	    			+ "/player/unsubscribe?nickname=" + nickname;
+	    			+ "/player/unsubscribe?nickname=" + URLEncoder.encode(nickname, "UTF-8");
 	    	logger.info(String.format("unsubscribeCampaign uri:%s", url));
 
 			hscWebClient.post()
@@ -65,7 +67,7 @@ public class PgHighSchoolManager {
         try {
             String url ="/api/admin/initiatives/" 
                     + campaignId 
-                    + "/player/unregister?nickname=" + nickname
+                    + "/player/unregister?nickname=" + URLEncoder.encode(nickname, "UTF-8")
                     + "&playerId=" + playerId;
             logger.info(String.format("unregisterPlayer uri:%s", url));
 
