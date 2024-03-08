@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.campaign;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -106,11 +107,9 @@ public class BasicCampaignSurveyManager {
 					survey.setSurveyLink(sr.getSurveyLink());
 					survey.setSurveyName(surveyName);
 					survey.setCompleted(true);
-					
+					survey.setData(Collections.singletonMap("id", id));
+                    					
 					if(campaign.currentlyActive()) {
-						Map<String, Object> data = new HashMap<>(formData);
-						data.remove("playerId");
-						data = correctData(data);
 						complete = gamificationManager.sendSurvey(playerId, gameId, surveyName);
 						if(complete) {
 							surveyRepository.save(survey);
