@@ -8,6 +8,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode;
 
 @Configuration
 public class PgHighSchoolConfig {
@@ -28,9 +30,12 @@ public class PgHighSchoolConfig {
 				authorizedClientManager
 	    );
 		oauth.setDefaultClientRegistrationId("oauthprovider");
+		DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(endpoint);
+		factory.setEncodingMode(EncodingMode.NONE);
 	    return WebClient.builder()
 	      .baseUrl(endpoint)
 	      .apply(oauth.oauth2Configuration())
+		  .uriBuilderFactory(factory)
 	      .build();
 	}
 }
