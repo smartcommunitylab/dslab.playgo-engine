@@ -117,23 +117,19 @@ public abstract class BasicCampaignGameStatusManager {
 						logger.info("updatePlayerGameStatus: update playerTrack " + playerTrack.getId());
 					}
 					
-					try {
-						ZonedDateTime trackDay = null;
-						if(playerTrack != null) {
-							trackDay = getTrackDay(campaign, playerTrack);
-						} else if(p.getGroup() && Utils.isNotEmpty(trackId)) {
-	                        trackDay = getTrackDay(campaign, trackId, timestamp);
-	                    } else {
-							trackDay = getTrackDay(campaign, timestamp);
-						}
-						
-	                    //update game stats and status
-	                    JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
-						updatePlayerState(playerState, p, campaign, trackDay, delta);
-                        logger.info("updatePlayerGameStatus: update player state and stats " + playerId + " - " + gameId);
-					} catch (Exception e) {
-						logger.error("updatePlayerGameStatus: updatePlayerState error:" + e.getMessage());
+					ZonedDateTime trackDay = null;
+					if(playerTrack != null) {
+						trackDay = getTrackDay(campaign, playerTrack);
+					} else if(p.getGroup() && Utils.isNotEmpty(trackId)) {
+						trackDay = getTrackDay(campaign, trackId, timestamp);
+					} else {
+						trackDay = getTrackDay(campaign, timestamp);
 					}
+					
+					//update game stats and status
+					JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
+					updatePlayerState(playerState, p, campaign, trackDay, delta);
+					logger.info("updatePlayerGameStatus: update player state and stats " + playerId + " - " + gameId);
 					
 					//check recommendation
 					if(delta > 0) {
