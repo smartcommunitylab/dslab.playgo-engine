@@ -291,12 +291,6 @@ public class PlayerCampaignPlacingManager {
 		if(Utils.isNotEmpty(day)) update.setOnInsert("day", day);
 		if(Utils.isNotEmpty(monthOfYear)) update.setOnInsert("monthOfYear", monthOfYear);
 		if(Utils.isNotEmpty(weekOfYear)) update.setOnInsert("weekOfYear", weekOfYear);
-		//update.setOnInsert("distance", 0.0);
-		//update.setOnInsert("duration", 0L);
-		//update.setOnInsert("co2", 0.0);
-		//update.setOnInsert("trackNumber", 0L);
-		//update.setOnInsert("virtualScore", 0.0);
-		//update.setOnInsert("virtualTrack", 0L);
 		update.inc("distance", pt.getDistance());
 		update.inc("duration", pt.getDuration());
 		update.inc("co2", pt.getCo2());

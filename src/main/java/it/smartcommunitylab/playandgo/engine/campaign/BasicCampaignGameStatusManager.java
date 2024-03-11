@@ -3,13 +3,20 @@ package it.smartcommunitylab.playandgo.engine.campaign;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
+import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
+import it.smartcommunitylab.playandgo.engine.ge.model.PlayerLevel;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
@@ -70,6 +79,9 @@ public abstract class BasicCampaignGameStatusManager {
 	@Autowired
 	protected CityGameDataConverter gameDataConverter;
 	
+	@Autowired
+	MongoTemplate mongoTemplate;
+	
 	ObjectMapper mapper = new ObjectMapper();
 	
 	protected DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -102,20 +114,9 @@ public abstract class BasicCampaignGameStatusManager {
 						playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 						playerTrack.setScore(playerTrack.getScore() + delta);
 						campaignPlayerTrackRepository.save(playerTrack);
-						logger.debug("update playerTrack " + playerTrack.getId());
+						logger.info("updatePlayerGameStatus: update playerTrack " + playerTrack.getId());
 					}
 					
-					PlayerGameStatus gameStatus = playerGameStatusRepository.findByPlayerIdAndCampaignId(playerId, campaignId);
-					if(gameStatus == null) {
-						gameStatus = new PlayerGameStatus();
-						gameStatus.setPlayerId(playerId);
-						gameStatus.setNickname(p.getNickname());
-						gameStatus.setCampaignId(campaignId);
-						playerGameStatusRepository.save(gameStatus);
-						logger.debug("add gameStatus " + gameStatus.getId());
-					}
-					
-					//update daily points
 					try {
 						ZonedDateTime trackDay = null;
 						if(playerTrack != null) {
@@ -126,16 +127,12 @@ public abstract class BasicCampaignGameStatusManager {
 							trackDay = getTrackDay(campaign, timestamp);
 						}
 						
-	                    //update game stats 
+	                    //update game stats and status
 	                    JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
-	                    if(playerState != null) {
-	                        updatePlayerState(playerState, gameStatus, p, trackDay, delta);
-	                        gameStatus.setUpdateTime(new Date());
-	                        playerGameStatusRepository.save(gameStatus);
-	                        logger.debug("update playerState " + gameStatus.getId());
-	                    }
+						updatePlayerState(playerState, p, campaign, trackDay, delta);
+                        logger.info("updatePlayerGameStatus: update player state and stats " + playerId + " - " + gameId);
 					} catch (Exception e) {
-						logger.warn("updatePlayerState error:" + e.getMessage());
+						logger.error("updatePlayerGameStatus: updatePlayerState error:" + e.getMessage());
 					}
 					
 					//check recommendation
@@ -146,7 +143,6 @@ public abstract class BasicCampaignGameStatusManager {
 							gamificationEngineManager.sendRecommendation(recommenderPlayerId, gameId);
 							cs.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.FALSE);
 							campaignSubscriptionRepository.save(cs);
-							
 						}
 					}
 				}
@@ -193,60 +189,60 @@ public abstract class BasicCampaignGameStatusManager {
         return ZonedDateTime.ofInstant(Utils.getUTCDate(timestamp).toInstant(), zoneId);
     }
 	
-    protected void updatePlayerState(JsonNode root, PlayerGameStatus gameStatus, Player p, ZonedDateTime day, double delta) throws Exception {
+    protected void updatePlayerState(JsonNode root, Player p, Campaign c, ZonedDateTime day, double delta) throws Exception {
+		FindAndModifyOptions findAndModifyOptions = FindAndModifyOptions.options().upsert(true).returnNew(true);
+
+		//levels
+        JsonNode levelsNode = root.path("levels"); 
+		List<PlayerLevel> levels = new ArrayList<>();
+		if(!levelsNode.isMissingNode()) {
+			levels = gameDataConverter.convertLevels(levelsNode);
+		}
+
+		//badges
+		JsonNode badgesNode = root.findPath("BadgeCollectionConcept");
+		List<BadgeCollectionConcept> badges = new ArrayList<>();
+		if(!badgesNode.isMissingNode()) {
+			badges = gameDataConverter.convertBadgeCollection(badgesNode);
+		}
+
         //score
         JsonNode concepts = root.findPath("PointConcept");
         for(JsonNode pointConcept : concepts) {
             if(pointConcept.path("name").asText().equals("green leaves")) {
-                gameStatus.setScore(pointConcept.path("score").asDouble());
-                
-                //update generale
-                PlayerStatsGame statsGlobal = statsGameRepository.findGlobalByPlayerIdAndCampaignId(
-                        gameStatus.getPlayerId(), gameStatus.getCampaignId());
-                if(statsGlobal == null) {
-                    statsGlobal = new PlayerStatsGame();
-                    statsGlobal.setPlayerId(gameStatus.getPlayerId());
-                    statsGlobal.setNickname(gameStatus.getNickname());
-                    statsGlobal.setCampaignId(gameStatus.getCampaignId());
-                    statsGlobal.setGlobal(Boolean.TRUE);
-                    if(p.getGroup()) {
-                        statsGlobal.setGroupId(p.getPlayerId()); 
-                    }                    
-                    statsGameRepository.save(statsGlobal);
-                }
-                statsGlobal.setScore(pointConcept.path("score").asDouble());
-                statsGameRepository.save(statsGlobal);
-                
-                //update daily
-                String dayString = day.format(dtf);
-                PlayerStatsGame statsGame = statsGameRepository.findByPlayerIdAndCampaignIdAndDayAndGlobal(gameStatus.getPlayerId(), gameStatus.getCampaignId(), 
-                        dayString, Boolean.FALSE);
-                if(statsGame == null) {
-                    statsGame = new PlayerStatsGame();
-                    statsGame.setPlayerId(gameStatus.getPlayerId());
-                    statsGame.setNickname(gameStatus.getNickname());
-                    statsGame.setCampaignId(gameStatus.getCampaignId());
-                    statsGame.setGlobal(Boolean.FALSE);
-                    if(p.getGroup()) {
-                        statsGame.setGroupId(p.getPlayerId()); 
-                    }                    
-                    statsGame.setDay(dayString);
-                    statsGame.setWeekOfYear(day.format(dftWeek));
-                    statsGame.setMonthOfYear(day.format(dftMonth));
-                }
-                setDailyScore(statsGame, pointConcept, dayString, delta);
-                statsGameRepository.save(statsGame);                
+				double score = pointConcept.path("score").asDouble();
+
+				//update status
+				Query gameStatusQuery = new Query(new Criteria("playerId").is(p.getPlayerId()).and("campaignId").is(c.getCampaignId())); 
+				Update gameStatusUpdate = upsertGameStatus(p, c, levels, badges, score);
+				mongoTemplate.findAndModify(gameStatusQuery, gameStatusUpdate, findAndModifyOptions, PlayerGameStatus.class);
+
+				//update global
+				Query globalStatsQuery = new Query(new Criteria("playerId").is(p.getPlayerId()).and("campaignId").is(c.getCampaignId())
+					.and("global").is(Boolean.TRUE));
+				Update globalStatsUpdate = upsertGameStats(p, c, Boolean.TRUE, null, null, null, score, false);
+				mongoTemplate.findAndModify(globalStatsQuery, globalStatsUpdate, findAndModifyOptions, PlayerStatsGame.class);
+				
+				//update daily
+				String dayString = day.format(dtf);
+				String weekOfYear = day.format(dftWeek);
+				String monthOfYear = day.format(dftMonth);
+				double dailyScore = 0.0;
+				boolean isDelta = false;
+				JsonNode node = pointConcept.at("/periods/daily/instances/" + dayString + "T00:00:00/score");
+				if(node.isMissingNode()) {
+					isDelta = true;
+					dailyScore = delta;
+				} else {
+					dailyScore = node.asDouble();
+				}
+				Query dailyStatsQuery = new Query(new Criteria("playerId").is(p.getPlayerId()).and("campaignId").is(c.getCampaignId())
+					.and("global").is(Boolean.FALSE).and("day").is(dayString));
+				Update dailyStatsUpdate = upsertGameStats(p, c, Boolean.FALSE, dayString, weekOfYear, monthOfYear, dailyScore, isDelta);
+				mongoTemplate.findAndModify(dailyStatsQuery, dailyStatsUpdate, findAndModifyOptions, PlayerStatsGame.class);                
             }
         }
-        //level
-        gameStatus.getLevels().clear();
-        JsonNode levels = root.path("levels"); 
-        gameStatus.getLevels().addAll(gameDataConverter.convertLevels(levels));
-        //badges
-        gameStatus.getBadges().clear();
-        JsonNode badges = root.findPath("BadgeCollectionConcept");
-        gameStatus.getBadges().addAll(gameDataConverter.convertBadgeCollection(badges));
-    }
+	}
     
     private void setDailyScore(PlayerStatsGame statsGame, JsonNode pointConcept, String day, double delta) {
         String path = "/periods/daily/instances/" + day + "T00:00:00/score";
@@ -257,5 +253,35 @@ public abstract class BasicCampaignGameStatusManager {
             statsGame.setScore(node.asDouble());
         }
     }
+
+	private Update upsertGameStatus(Player p, Campaign c, List<PlayerLevel> levels, List<BadgeCollectionConcept> badges, double score) {
+		Update update = new Update();
+		update.setOnInsert("playerId", p.getPlayerId());
+		update.setOnInsert("nickname", p.getNickname());
+		update.setOnInsert("campaignId", c.getCampaignId());
+		update.set("levels", levels);
+		update.set("badges", badges);
+		update.set("updateTime", new Date());
+		update.set("score", score);
+		return update;
+	}
+
+	private Update upsertGameStats(Player p, Campaign c, Boolean global, String day, String weekOfYear, String monthOfYear, double score, boolean isDelta) {
+		Update update = new Update();
+		update.setOnInsert("playerId", p.getPlayerId());
+		update.setOnInsert("nickname", p.getNickname());
+		update.setOnInsert("campaignId", c.getCampaignId());
+		update.setOnInsert("global", global);
+		if(Utils.isNotEmpty(day)) update.setOnInsert("day", day);
+		if(Utils.isNotEmpty(monthOfYear)) update.setOnInsert("monthOfYear", monthOfYear);
+		if(Utils.isNotEmpty(weekOfYear)) update.setOnInsert("weekOfYear", weekOfYear);
+		if(p.getGroup()) update.setOnInsert("groupId", p.getPlayerId());
+		if(isDelta) {
+			update.inc("score", score);
+		} else {
+			update.set("score", score);
+		}
+		return update;
+	}
  
 }
