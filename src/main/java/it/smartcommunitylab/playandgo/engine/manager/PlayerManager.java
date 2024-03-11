@@ -45,6 +45,9 @@ public class PlayerManager {
 			throw new BadRequestException("player already exists", ErrorCode.PLAYER_EXISTS);
 		}
 		player.setNickname(player.getNickname().trim());
+		if(!player.getNickname().matches("[A-Za-z0-9]+")) {
+			throw new BadRequestException("nickname not accepted", ErrorCode.PLAYER_EXISTS);
+		}
 		playerDb = playerRepository.findByNicknameIgnoreCase(player.getNickname());
 		if(playerDb != null) {
 			throw new BadRequestException("nickname already exists", ErrorCode.PLAYER_NICK_EXISTS);
