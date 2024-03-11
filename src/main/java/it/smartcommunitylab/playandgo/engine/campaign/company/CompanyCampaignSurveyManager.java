@@ -1,6 +1,7 @@
 package it.smartcommunitylab.playandgo.engine.campaign.company;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,8 +134,8 @@ public class CompanyCampaignSurveyManager {
                 if(campaign.currentlyActive()) {
                     complete = true;
                     survey.setCompleted(true);
-					survey.setData(formData);
-                    surveyRepository.save(survey);
+					survey.setData(Collections.singletonMap("id", id));
+					surveyRepository.save(survey);
                 }
 			}			
 		} catch (Exception e) {
