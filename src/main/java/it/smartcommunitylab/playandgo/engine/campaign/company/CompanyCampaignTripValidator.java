@@ -132,8 +132,12 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                 }                   
                 if(Utils.checkMean(campaign, track.getFreeTrackingTransport())) {
                     if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
-                        //send if at least one track is valid
-                        sendValidation = true;                         
+						CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, 
+							campaignId, track.getId());
+						if(playerTrack != null) {
+							//send if at least one track is valid
+							sendValidation = true;                         							
+						}
                     }
                 }
             }
