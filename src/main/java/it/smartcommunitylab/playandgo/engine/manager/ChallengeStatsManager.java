@@ -11,6 +11,7 @@ import java.util.Locale;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -18,6 +19,8 @@ import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.dto.ChallengeStatsInfo;
@@ -28,6 +31,7 @@ import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatChallengeRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class ChallengeStatsManager {
@@ -64,28 +68,33 @@ public class ChallengeStatsManager {
 		
 		ZonedDateTime trackDay = getDay(campaign, timestamp);
 		String day = trackDay.format(dtf);
-		
-		PlayerStatChallenge psc = playerStatChallengeRepository.findByPlayerIdAndCampaignIdAndTypeAndDay(playerId, 
-				campaign.getCampaignId(), type, day);
-		if(psc == null) {
-			psc = new PlayerStatChallenge();
-			psc.setCampaignId(campaign.getCampaignId());
-			psc.setPlayerId(playerId);
-			//psc.setChallengeName(challengeName);
-			psc.setType(type);
-			psc.setCounterName(counterName);
-			psc.setDay(day);
-			psc.setWeekOfYear(trackDay.format(dftWeek));
-			psc.setMonthOfYear(trackDay.format(dftMonth));
-			playerStatChallengeRepository.save(psc);
-		}
-		
+		String weekOfYear = trackDay.format(dftWeek);
+		String monthOfYear = trackDay.format(dftMonth);
+
+		FindAndModifyOptions findAndModifyOptions = FindAndModifyOptions.options().upsert(true).returnNew(true);
+		Query dayByModeQuery = new Query(new Criteria("playerId").is(playerId).and("campaignId").is(campaign.getCampaignId())
+				.and("type").is(type).and("day").is(day)); 
+		Update dayByModeUpdate = upsertNewPlacing(playerId, campaign.getCampaignId(), type, counterName,
+				day, weekOfYear, monthOfYear, completed);
+		mongoTemplate.findAndModify(dayByModeQuery, dayByModeUpdate, findAndModifyOptions, PlayerStatChallenge.class);	
+	}
+
+	private Update upsertNewPlacing(String playerId, String campaignId, String type, 
+			String counterName, String day, String weekOfYear, String monthOfYear, boolean completed) {
+		Update update = new Update();
+		update.setOnInsert("playerId", playerId);
+		update.setOnInsert("campaignId", campaignId);
+		update.setOnInsert("type", type);
+		if(Utils.isNotEmpty(counterName)) update.setOnInsert("counterName", counterName);
+		if(Utils.isNotEmpty(day)) update.setOnInsert("day", day);
+		if(Utils.isNotEmpty(monthOfYear)) update.setOnInsert("monthOfYear", monthOfYear);
+		if(Utils.isNotEmpty(weekOfYear)) update.setOnInsert("weekOfYear", weekOfYear);
 		if(completed) {
-			psc.setCompleted(psc.getCompleted() + 1);
+			update.inc("completed", 1);
 		} else {
-			psc.setFailed(psc.getFailed() + 1);
+			update.inc("failed", 1);
 		}
-		playerStatChallengeRepository.save(psc);
+		return update;
 	}
 	
 	public List<ChallengeStatsInfo> getPlayerChallengeStats(String playerId, String campaignId, String groupMode, String dateFrom, String dateTo) {

@@ -381,11 +381,13 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
             List<CampaignSubscription> listSub = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(msg.getPlayerId(), msg.getTerritoryId());
             for(CampaignSubscription sub : listSub) {
                 Campaign campaign = campaignRepository.findById(sub.getCampaignId()).orElse(null);
-                // skip non-active campaigns
-                if (!campaign.currentlyActive() && !msg.isForceValidation()) continue;
                 for(TrackedInstance track : list) {
                     if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
-                        storeCampaignPlayerTrack(msg.getTerritoryId(), msg.getPlayerId(), track.getId(), campaign, sub.getId());
+	        	        // skip non-active campaigns
+						if((campaign.validTrack(track.getStartTime()) && campaign.currentlyActive()) || 
+								(campaign.validTrack(track.getStartTime()) && msg.isForceValidation())) {
+							storeCampaignPlayerTrack(msg.getTerritoryId(), msg.getPlayerId(), track.getId(), campaign, sub.getId());
+						} 
                     }
                 }
                 ValidateCampaignTripRequest request = new ValidateCampaignTripRequest(msg.getPlayerId(), 
