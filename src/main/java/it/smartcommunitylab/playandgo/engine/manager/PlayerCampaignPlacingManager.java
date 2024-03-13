@@ -158,6 +158,9 @@ public class PlayerCampaignPlacingManager {
 			Update dayByModeUpdate = upsertNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
 				pt.getGroupId(), Boolean.FALSE, day, weekOfYear, monthOfYear, pt);
 			mongoTemplate.findAndModify(dayByModeQuery, dayByModeUpdate, findAndModifyOptions, PlayerStatsTransport.class);
+			
+			logger.info(String.format("updatePlayerCampaignPlacings: update player[%s] stats[%s] for campaign[%s]", 
+				pt.getPlayerId(), pt.getModeType(), pt.getCampaignId()));
 		}
 	}
 	
