@@ -162,6 +162,11 @@ public class Campaign {
 				(getDateTo() == null || !getDateTo().before(now));
 	}
 
+	public boolean validTrack(Date date) {
+		return (getDateFrom() == null || getDateFrom().before(date)) && 
+			(getDateTo() == null || getDateTo().after(date));
+	}
+
 	public Image getBanner() {
 		return banner;
 	}

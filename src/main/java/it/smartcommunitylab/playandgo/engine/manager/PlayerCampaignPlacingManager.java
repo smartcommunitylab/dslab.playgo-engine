@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -32,6 +33,8 @@ import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SkipOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.dto.CampaignPeriodStatsInfo;
@@ -137,43 +140,27 @@ public class PlayerCampaignPlacingManager {
 			if(player == null) {
 				return;
 			}
+			FindAndModifyOptions findAndModifyOptions = FindAndModifyOptions.options().upsert(true).returnNew(true);
 			//transport global placing
-			PlayerStatsTransport globalByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobal(
-					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.TRUE);
-			if(globalByMode == null) {
-				globalByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
-						pt.getGroupId(), Boolean.TRUE, null, null, null);
-			}
-			globalByMode.addDistance(pt.getDistance());
-			globalByMode.addDuration(pt.getDuration());
-			globalByMode.addCo2(pt.getCo2());
-			globalByMode.addTrack();
-			globalByMode.addVirtualScore(pt.getVirtualScore());
-			if(pt.isVirtualTrack()) {
-			    globalByMode.addVirtualTrack();
-			}
-			playerStatsTransportRepository.save(globalByMode);
+			Query globalByModeQuery = new Query(new Criteria("playerId").is(pt.getPlayerId()).and("campaignId").is(pt.getCampaignId())
+				.and("modeType").is(pt.getModeType()).and("global").is(Boolean.TRUE)); 
+			Update globalByModeUpdate = upsertNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
+				pt.getGroupId(), Boolean.TRUE, null, null, null, pt);
+			mongoTemplate.findAndModify(globalByModeQuery, globalByModeUpdate, findAndModifyOptions, PlayerStatsTransport.class);
 			
 			//transport daily placing
 			ZonedDateTime trackDay = getTrackDay(campaign, pt);
 			String day = trackDay.format(dtf);
 			String weekOfYear = trackDay.format(dftWeek);
 			String monthOfYear = trackDay.format(dftMonth);
-			PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
-					pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, day);
-			if(dayByMode == null) {
-				dayByMode = addNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
-				        pt.getGroupId(), Boolean.FALSE, day, weekOfYear, monthOfYear);
-			}
-			dayByMode.addDistance(pt.getDistance());
-			dayByMode.addDuration(pt.getDuration());
-			dayByMode.addCo2(pt.getCo2());
-			dayByMode.addTrack();
-			dayByMode.addVirtualScore(pt.getVirtualScore());
-            if(pt.isVirtualTrack()) {
-                dayByMode.addVirtualTrack();
-            }
-			playerStatsTransportRepository.save(dayByMode);			
+			Query dayByModeQuery = new Query(new Criteria("playerId").is(pt.getPlayerId()).and("campaignId").is(pt.getCampaignId())
+				.and("modeType").is(pt.getModeType()).and("global").is(Boolean.FALSE).and("day").is(day)); 
+			Update dayByModeUpdate = upsertNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
+				pt.getGroupId(), Boolean.FALSE, day, weekOfYear, monthOfYear, pt);
+			mongoTemplate.findAndModify(dayByModeQuery, dayByModeUpdate, findAndModifyOptions, PlayerStatsTransport.class);
+			
+			logger.info(String.format("updatePlayerCampaignPlacings: update player[%s] stats[%s] for campaign[%s]", 
+				pt.getPlayerId(), pt.getModeType(), pt.getCampaignId()));
 		}
 	}
 	
@@ -293,6 +280,27 @@ public class PlayerCampaignPlacingManager {
 		}
 		playerStatsTransportRepository.save(pst);
 		return pst;
+	}
+
+	private Update upsertNewPlacing(String playerId, String nickname, String campaignId, String modeType, 
+			String groupId, Boolean global, String day, String weekOfYear, String monthOfYear, CampaignPlayerTrack pt) {
+		Update update = new Update();
+		update.setOnInsert("playerId", playerId);
+		update.setOnInsert("nickname", nickname);
+		update.setOnInsert("campaignId", campaignId);
+		update.setOnInsert("modeType", modeType);
+		if(Utils.isNotEmpty(groupId)) update.setOnInsert("groupId", groupId);
+		update.setOnInsert("global", global);
+		if(Utils.isNotEmpty(day)) update.setOnInsert("day", day);
+		if(Utils.isNotEmpty(monthOfYear)) update.setOnInsert("monthOfYear", monthOfYear);
+		if(Utils.isNotEmpty(weekOfYear)) update.setOnInsert("weekOfYear", weekOfYear);
+		update.inc("distance", pt.getDistance());
+		update.inc("duration", pt.getDuration());
+		update.inc("co2", pt.getCo2());
+		update.inc("trackNumber", 1);
+		update.inc("virtualScore", pt.getVirtualScore());
+		if(pt.isVirtualTrack()) update.inc("virtualTrack", 1);
+		return update;
 	}
 	
 	public PlayerStatusReport getPlayerStatus(Player player) {
