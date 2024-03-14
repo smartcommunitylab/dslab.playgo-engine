@@ -299,7 +299,11 @@ public class PlayerCampaignPlacingManager {
 		update.inc("co2", pt.getCo2());
 		update.inc("trackNumber", 1L);
 		update.inc("virtualScore", pt.getVirtualScore());
-		if(pt.isVirtualTrack()) update.inc("virtualTrack", 1L);
+		if(pt.isVirtualTrack()) {
+			update.inc("virtualTrack", 1L);
+		} else {
+			update.inc("virtualTrack", 0L);
+		}
 		return update;
 	}
 	
@@ -421,8 +425,7 @@ public class PlayerCampaignPlacingManager {
                 }               
             }
             if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
-                Long l = doc.getLong("value");
-                cp.setValue(l.doubleValue());
+				cp.setValue(getDoubleValue(doc, "value"));
             } else {
                 cp.setValue(doc.getDouble("value"));
             }            
@@ -544,6 +547,16 @@ public class PlayerCampaignPlacingManager {
            String mean, String dateFrom, String dateTo) {
       return getOwnerTransportStats(groupId, campaignId, groupMode, metric, mean, dateFrom, dateTo, true);
    }
+
+   private double getDoubleValue(Document doc, String field) {
+		if(doc.get(field) instanceof Long) {
+			return doc.getLong(field).doubleValue();
+		}
+		if(doc.get(field) instanceof Integer) {
+			return doc.getInteger(field).doubleValue();
+		}
+		return 0.0;
+   }
    
    private List<TransportStat> getOwnerTransportStats(String ownerId, String campaignId, String groupMode, String metric,
 			String mean, String dateFrom, String dateTo, boolean group) {
@@ -607,8 +620,7 @@ public class PlayerCampaignPlacingManager {
 	                stat.setPeriod(doc.getString("_id"));
 	            }
 	            if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
-	                Long l = doc.getLong("value");
-	                stat.setValue(l.doubleValue());
+	                stat.setValue(getDoubleValue(doc, "value"));
 	            } else {
 	                stat.setValue(doc.getDouble("value"));
 	            }
@@ -669,8 +681,7 @@ public class PlayerCampaignPlacingManager {
 			TransportStat stat = new TransportStat();
 			stat.setMean(doc.getString("_id"));
 			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
-				Long l = doc.getLong("value");
-				stat.setValue(l.doubleValue());
+				stat.setValue(getDoubleValue(doc, "value"));
 			} else {
 				stat.setValue(doc.getDouble("value"));
 			}
@@ -722,8 +733,7 @@ public class PlayerCampaignPlacingManager {
 			TransportStat stat = new TransportStat();
 			stat.setPeriod(doc.getString("_id"));
 			if(metric.equalsIgnoreCase("tracks") || metric.equalsIgnoreCase("time") || metric.equalsIgnoreCase("virtualTrack")) {
-				Long l = doc.getLong("value");
-				stat.setValue(l.doubleValue());
+				stat.setValue(getDoubleValue(doc, "value"));
 			} else {
 				stat.setValue(doc.getDouble("value"));
 			}
