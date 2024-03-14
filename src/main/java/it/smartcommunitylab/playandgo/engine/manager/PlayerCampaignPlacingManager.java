@@ -297,9 +297,9 @@ public class PlayerCampaignPlacingManager {
 		update.inc("distance", pt.getDistance());
 		update.inc("duration", pt.getDuration());
 		update.inc("co2", pt.getCo2());
-		update.inc("trackNumber", 1);
+		update.inc("trackNumber", 1L);
 		update.inc("virtualScore", pt.getVirtualScore());
-		if(pt.isVirtualTrack()) update.inc("virtualTrack", 1);
+		if(pt.isVirtualTrack()) update.inc("virtualTrack", 1L);
 		return update;
 	}
 	
