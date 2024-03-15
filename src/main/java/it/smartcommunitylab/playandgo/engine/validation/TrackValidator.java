@@ -622,7 +622,7 @@ public class TrackValidator {
 		if (maxMatched > 0) {
 			status.setValidationOutcome(TravelValidity.VALID);
 			status.setError(null);
-			status.getEffectiveDistances().put(status.getModeType(), maxMatched);
+			status.getEffectiveDistances().put(status.getModeType(), maxMatched < status.getDistance() ? maxMatched : status.getDistance());
 			status.setIntervals(Collections.emptyList());
 			// TODO status split intervals to be fixed.
 		}
