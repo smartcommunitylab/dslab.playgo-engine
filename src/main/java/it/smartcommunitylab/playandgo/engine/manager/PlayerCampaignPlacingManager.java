@@ -225,9 +225,28 @@ public class PlayerCampaignPlacingManager {
 	            }
 			}
 			playerStatsTransportRepository.save(globalByMode);
+		} else {
+		    globalByMode = new PlayerStatsTransport();
+            globalByMode.setGlobal(Boolean.TRUE);
+            globalByMode.setModeType(pt.getModeType());
+		    globalByMode.setCampaignId(pt.getCampaignId());
+		    globalByMode.setPlayerId(pt.getPlayerId());
+		    Player player = playerRepository.findById(pt.getPlayerId()).orElse(null);
+		    if(player != null) {
+		        globalByMode.setNickname(player.getNickname());
+		        if(player.getGroup()) globalByMode.setGroupId(player.getPlayerId());
+		    }
+		    globalByMode.addDistance(deltaDistance);
+		    globalByMode.addDuration(pt.getDuration());
+		    globalByMode.addCo2(deltaCo2);
+		    globalByMode.addTrack();
+		    globalByMode.addVirtualScore(deltaVirtualScore);
+		    if(pt.isVirtualTrack()) globalByMode.addVirtualTrack();
+		    playerStatsTransportRepository.save(globalByMode);
 		}
 		
 		//transport daily placing
+		Player player = playerRepository.findById(pt.getPlayerId()).orElse(null);
 		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
 		ZonedDateTime trackDay = getTrackDay(campaign, pt);
 		String day = trackDay.format(dtf);
@@ -254,6 +273,28 @@ public class PlayerCampaignPlacingManager {
                 }
             }            
 			playerStatsTransportRepository.save(dayByMode);			
+		} else {
+		    dayByMode = new PlayerStatsTransport();
+		    dayByMode.setGlobal(Boolean.FALSE);
+		    dayByMode.setModeType(pt.getModeType());
+		    dayByMode.setCampaignId(pt.getCampaignId());
+		    dayByMode.setPlayerId(pt.getPlayerId());
+            if(player != null) {
+                dayByMode.setNickname(player.getNickname());
+                if(player.getGroup()) dayByMode.setGroupId(player.getPlayerId());
+            }
+            dayByMode.addDistance(deltaDistance);
+            dayByMode.addDuration(pt.getDuration());
+            dayByMode.addCo2(deltaCo2);
+            dayByMode.addTrack();
+            dayByMode.addVirtualScore(deltaVirtualScore);
+            if(pt.isVirtualTrack()) dayByMode.addVirtualTrack();
+            String weekOfYear = trackDay.format(dftWeek);
+            String monthOfYear = trackDay.format(dftMonth);
+            dayByMode.setDay(day);
+            dayByMode.setMonthOfYear(monthOfYear);
+            dayByMode.setWeekOfYear(weekOfYear);
+            playerStatsTransportRepository.save(dayByMode);
 		}
 	}
 	
