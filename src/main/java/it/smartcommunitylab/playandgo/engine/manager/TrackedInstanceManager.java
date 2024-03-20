@@ -286,7 +286,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		}
 		for(String multimodalId : multimodalIds) {
 	        ValidateTripRequest request = new ValidateTripRequest(player.getPlayerId(), player.getTerritoryId(), multimodalId, false);
-	        queueManager.sendValidateTripRequest(request);		    
+	        queueManager.sendValidateTripRequest(request);
+			//add delay of 100 ms
+			Thread.sleep(100);		    
 		}
 	}
 	
