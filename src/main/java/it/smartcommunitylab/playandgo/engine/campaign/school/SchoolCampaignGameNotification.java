@@ -83,11 +83,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			    Player player = playerRepository.findById(playerId).orElse(null);
 			    if(player != null) {
 			        if(player.getGroup()) {
+						long timestamp = System.currentTimeMillis();
 						if(type.endsWith("ChallengeCompletedNotication")) {
-							challengeNotification.challengeCompleted(msg);
+							timestamp = challengeNotification.challengeCompleted(msg, true);
 						}
 						if(type.endsWith("ChallengeFailedNotication")) {
-							challengeNotification.challengeFailed(msg);
+							timestamp = challengeNotification.challengeFailed(msg, true);
 						}			            
 			            String gameId = (String) obj.get("gameId");
 			            Campaign campaign = campaignRepository.findByGameId(gameId);
@@ -95,6 +96,7 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			                String json = JsonUtils.toJSON(msg);
 			                List<CampaignSubscription> list = campaignSubscriptionRepository.findByMetaData(campaign.getCampaignId(), 
 			                        SchoolCampaignSubscription.groupIdKey, playerId);
+							Long challengeEnd = Long.valueOf(timestamp);									
 			                list.forEach(cs -> {
 			                    try {
 	                                Map<String, Object> copyMsg = JsonUtils.toMap(json);
@@ -102,10 +104,12 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 	                                    Map<String, Object> copyObj = (Map<String, Object>) copyMsg.get("obj"); 
 	                                    copyObj.put("playerId", cs.getPlayerId());
 										if(type.endsWith("ChallengeCompletedNotication")) {
-											challengeNotification.challengeCompleted(copyMsg);
+											copyObj.put("end", challengeEnd);
+											challengeNotification.challengeCompleted(copyMsg, false);
 										}
 										if(type.endsWith("ChallengeFailedNotication")) {
-											challengeNotification.challengeFailed(copyMsg);
+											copyObj.put("end", challengeEnd);
+											challengeNotification.challengeFailed(copyMsg, false);
 										}			            																								
 	                                    notificationManager.processNotification(copyMsg);	                                    
 	                                }
@@ -116,10 +120,10 @@ public class SchoolCampaignGameNotification implements ManageGameNotification {
 			            }
 			        } else {
 						if(type.endsWith("ChallengeCompletedNotication")) {
-							challengeNotification.challengeCompleted(msg);
+							challengeNotification.challengeCompleted(msg, true);
 						}
 						if(type.endsWith("ChallengeFailedNotication")) {
-							challengeNotification.challengeFailed(msg);
+							challengeNotification.challengeFailed(msg, true);
 						}			            
 						notificationManager.processNotification(msg); 
 			        }
