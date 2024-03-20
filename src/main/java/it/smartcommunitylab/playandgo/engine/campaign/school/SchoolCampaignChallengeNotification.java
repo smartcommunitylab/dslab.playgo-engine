@@ -25,16 +25,16 @@ public class SchoolCampaignChallengeNotification {
 	@Autowired
 	ChallengeManager challengeManager;
 	
-	public void challengeCompleted(Map<String, Object> msg) {
-		challengeStatus(msg);
+	public long challengeCompleted(Map<String, Object> msg, boolean updateSatus) {
+		return challengeStatus(msg, updateSatus);
 	}
 	
-	public void challengeFailed(Map<String, Object> msg) {
-		challengeStatus(msg);
+	public long challengeFailed(Map<String, Object> msg, boolean updateSatus) {
+		return challengeStatus(msg, updateSatus);
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private void challengeStatus(Map<String, Object> msg) {
+	private long challengeStatus(Map<String, Object> msg, boolean updateSatus) {
 		String type = (String) msg.get("type");
 		boolean completed = false;
 		if(type.endsWith("ChallengeCompletedNotication")) {
@@ -50,15 +50,19 @@ public class SchoolCampaignChallengeNotification {
 			//long timestamp = (Long) obj.get("timestamp");
 			//long start = (Long) obj.get("start");
 			long timestamp = (Long) obj.get("end");
-			try {
-				PlayerChallenge playerChallenge = challengeManager.storePlayerChallenge(playerId, gameId, challengeName);
-				if((playerChallenge.getChallengeData() != null) && (playerChallenge.getChallengeData().getChallCompletedDate() > 0)) {
-					timestamp = playerChallenge.getChallengeData().getChallCompletedDate();
-				}
-			} catch (Exception e) {
-				logger.error(String.format("challengeStatus storePlayerChallenge [%s - %s - %s]:%s", playerId, gameId, challengeName, e.getMessage()));
+			if(updateSatus) {
+				try {
+					PlayerChallenge playerChallenge = challengeManager.storePlayerChallenge(playerId, gameId, challengeName);
+					if((playerChallenge.getChallengeData() != null) && (playerChallenge.getChallengeData().getChallCompletedDate() > 0)) {
+						timestamp = playerChallenge.getChallengeData().getChallCompletedDate();
+					}
+				} catch (Exception e) {
+					logger.error(String.format("challengeStatus storePlayerChallenge [%s - %s - %s]:%s", playerId, gameId, challengeName, e.getMessage()));
+				}	
 			}
 			challengeStatsManager.updateChallengeStat(playerId, gameId, model, challengeName, counterName, timestamp, completed);			
+			return timestamp;
 		}
+		return System.currentTimeMillis();
 	}
 }
