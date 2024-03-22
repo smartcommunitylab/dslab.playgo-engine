@@ -112,7 +112,7 @@ public class SecurityHelper {
 		if(Utils.isEmpty(subject)) {
 			throw new UnauthorizedException("preferred_username not found", ErrorCode.SUBJECT_NOT_FOUND);
 		}
-		return subject;
+		return subject.toLowerCase();
 	}
 	
 	public Player getCurrentPlayer() throws UnauthorizedException {
