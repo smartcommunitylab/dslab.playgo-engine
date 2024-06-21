@@ -1,16 +1,23 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,11 +31,13 @@ import it.smartcommunitylab.playandgo.engine.dto.PlayerInfoConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstanceConsole;
 import it.smartcommunitylab.playandgo.engine.dto.TrackedInstancePoly;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
+import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
@@ -55,6 +64,9 @@ public class ConsoleController extends PlayAndGoController {
 
 	@Autowired
 	CompanyCampaignSurveyManager companySurveyManager;
+	
+	@Autowired
+	GamificationEngineManager gamificationEngineManager; 
 	
 	@PostMapping("/api/console/role/territory")
 	public void addTerritoryManager(
@@ -270,5 +282,36 @@ public class ConsoleController extends PlayAndGoController {
             trackedInstanceManager.validateTripRequest(msg);
         }
     }
+	
+	@GetMapping("/api/console/player/identity")
+	public ResponseEntity<Resource> getPlayerIdentity(
+	        @RequestParam String campaignId,
+	        HttpServletRequest request,
+	        HttpServletResponse response) throws Exception {
+	    checkAdminRole(request);
+	    Campaign campaign = campaignManager.getCampaign(campaignId);
+	    if(campaign == null) {
+	        throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
+	    }
+	    StringBuffer sb = new StringBuffer("playerId,identity\n"); 
+	    if(Utils.isNotEmpty(campaign.getGameId())) {
+	        List<CampaignSubscription> campaignSubscriptions = campaignManager.getCampaignSubscriptions(campaignId);
+	        for(CampaignSubscription sub : campaignSubscriptions) {
+	            String identity = gamificationEngineManager.encryptIdentity(sub.getPlayerId(), campaign.getGameId());
+	            sb.append(sub.getPlayerId() + "," + identity + "\n");
+	        }	        
+	    }
+	    byte[] content = sb.toString().getBytes();
+	    InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(content));
+	    HttpHeaders header = new HttpHeaders();
+	    header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=campaign-identities.csv");
+	    header.add("Access-Control-Expose-Headers", "*");
+	    return ResponseEntity.ok()
+	            .headers(header)
+	            .contentLength(content.length)
+	            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+	            .body(resource);
+	}
+	
 
 }
