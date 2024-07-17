@@ -213,12 +213,6 @@ public abstract class BasicCampaignGameStatusManager {
 				Update gameStatusUpdate = upsertGameStatus(p, c, levels, badges, score);
 				mongoTemplate.findAndModify(gameStatusQuery, gameStatusUpdate, findAndModifyOptions, PlayerGameStatus.class);
 
-				//update global
-				Query globalStatsQuery = new Query(new Criteria("playerId").is(p.getPlayerId()).and("campaignId").is(c.getCampaignId())
-					.and("global").is(Boolean.TRUE));
-				Update globalStatsUpdate = upsertGameStats(p, c, Boolean.TRUE, null, null, null, score, false);
-				mongoTemplate.findAndModify(globalStatsQuery, globalStatsUpdate, findAndModifyOptions, PlayerStatsGame.class);
-				
 				//update daily
 				String dayString = day.format(dtf);
 				String weekOfYear = day.format(dftWeek);

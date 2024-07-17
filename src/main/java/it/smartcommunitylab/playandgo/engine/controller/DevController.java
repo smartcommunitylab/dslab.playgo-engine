@@ -33,6 +33,7 @@ import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.ValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
+import it.smartcommunitylab.playandgo.engine.report.PlayerStatusReport;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
@@ -82,6 +83,9 @@ public class DevController extends PlayAndGoController {
     
     @Autowired
     TrackedInstanceManager trackedInstanceManager;
+    
+    @Autowired
+    PlayerCampaignPlacingManager placingManager;
 	
 	static final Random RANDOM = new Random();
 	
@@ -218,7 +222,7 @@ public class DevController extends PlayAndGoController {
 		checkAdminRole(request);
 		for(String modeType : modeTypes) {
 			long startTime = System.currentTimeMillis();
-			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing("TAA.test1", "distance", modeType, "2022-03-21", "2022-03-31", PageRequest.of(10, 10), false);
+			Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing("TAA.test1", "distance", modeType, "2022-03-21", "2022-03-31", PageRequest.of(10, 10), null, false);
 			long endTime = System.currentTimeMillis();
 			logger.info(String.format("query2 [%s]: %s - %s", modeType, page.getSize(), (endTime - startTime)));
 		}	
@@ -228,6 +232,15 @@ public class DevController extends PlayAndGoController {
 	public List<CampaignSubscription> testFindByMetaData(HttpServletRequest request) throws Exception {
 	    checkAdminRole(request);
 	    return campaignSubscriptionRepository.findByMetaData("TAA.school", SchoolCampaignSubscription.groupIdKey, "06d8f1a3-611d-4068-ad58-02f2a72f66db");
+	}
+	
+	@GetMapping("/api/dev/test/player/status")
+	public PlayerStatusReport getPlayerStatusReport(
+	        @RequestParam String playerId,
+	        HttpServletRequest request) throws Exception {
+	    checkAdminRole(request);
+	    Player player = playerRepository.findById(playerId).orElse(null);
+	    return placingManager.getPlayerStatus(player);
 	}
 	
 	        
