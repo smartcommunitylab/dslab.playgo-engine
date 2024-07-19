@@ -52,6 +52,8 @@ public class Campaign {
 	private List<SurveyRequest> surveys = new ArrayList<>();
 	
 	private List<CampaignWeekConf> weekConfs = new ArrayList<>();
+	
+	private CampaignPlacement campaignPlacement = new CampaignPlacement();
 
 	@JsonIgnore
 	public boolean hasDefaultSurvey() {
@@ -246,5 +248,13 @@ public class Campaign {
 	public void setVisible(Boolean visible) {
 		this.visible = visible;
 	}
+
+    public CampaignPlacement getCampaignPlacement() {
+        return campaignPlacement;
+    }
+
+    public void setCampaignPlacement(CampaignPlacement campaignPlacement) {
+        this.campaignPlacement = campaignPlacement;
+    }
 
 }
