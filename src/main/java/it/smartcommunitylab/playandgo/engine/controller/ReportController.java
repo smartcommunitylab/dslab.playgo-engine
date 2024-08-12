@@ -47,10 +47,11 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			@RequestParam(required = false) boolean groupByGroupId,
+			@RequestParam(required = false) String filterByGroupId,
 			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		Page<CampaignPlacing> page = playerReportManager.getCampaignPlacing(campaignId, metric, mean, 
-				dateFrom, dateTo, pageRequest, groupByGroupId);
+				dateFrom, dateTo, pageRequest, filterByGroupId, groupByGroupId);
 		return page;			
 	}
 	
@@ -62,9 +63,10 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam(required = false) String mean,
 			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
 			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
+			@RequestParam(required = false) String filterByGroupId,
 			HttpServletRequest request) throws Exception {
 		CampaignPlacing placing = playerReportManager.getCampaignPlacingByPlayer(playerId, campaignId, 
-				metric, mean, dateFrom, dateTo);
+				metric, mean, dateFrom, dateTo, filterByGroupId);
 		return placing;
 	}
 	
