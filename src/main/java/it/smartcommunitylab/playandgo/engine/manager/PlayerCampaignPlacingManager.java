@@ -505,7 +505,7 @@ public class PlayerCampaignPlacingManager {
 			criteriaPosition = criteriaPosition.and("global").is(Boolean.FALSE);
 		}
         if(Utils.isNotEmpty(filterByGroupId)) {
-            criteria = criteria.and("groupId").is(filterByGroupId);
+            criteriaPosition = criteriaPosition.and("groupId").is(filterByGroupId);
         }
         
 		MatchOperation matchModeAndTime = Aggregation.match(criteriaPosition);
