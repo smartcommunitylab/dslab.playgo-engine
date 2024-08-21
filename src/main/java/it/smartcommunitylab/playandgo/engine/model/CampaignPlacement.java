@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CampaignPlacement {
+    public static enum CampaignPlacementConf {
+        periodToday, periodCurrentWeek, periodLastWeek, periodCurrentMonth, periodGeneral  
+    }
+    
     private boolean active;
     private Map<String, String> title = new HashMap<>();
     private Map<String, Object> configuration = new HashMap<>();
