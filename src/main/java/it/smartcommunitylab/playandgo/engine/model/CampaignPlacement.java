@@ -5,7 +5,9 @@ import java.util.Map;
 
 public class CampaignPlacement {
     public static enum CampaignPlacementConf {
-        periodToday, periodCurrentWeek, periodLastWeek, periodCurrentMonth, periodGeneral  
+        periodToday, periodCurrentWeek, periodLastWeek, periodCurrentMonth, periodGeneral, periodDefault,
+        metricCo2, metricTrackNumber, metricDistance, metricDuration, metricVirtualScore, metricVirtualTrack,
+        meansShow
     }
     
     private boolean active;
