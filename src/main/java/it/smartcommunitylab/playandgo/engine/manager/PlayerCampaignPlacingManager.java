@@ -490,7 +490,7 @@ public class PlayerCampaignPlacingManager {
         }
         if(aggregationResults.getMappedResults().size() > 0) {
             Document doc = aggregationResults.getMappedResults().get(0);
-            placing.setValue(doc.getDouble("value"));
+            placing.setValue(getDoubleValue(doc, "value"));
         }
 		
 		//get position
