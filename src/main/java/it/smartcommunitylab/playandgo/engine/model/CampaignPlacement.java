@@ -4,6 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CampaignPlacement {
+    public static enum CampaignPlacementConf {
+        periodToday, periodCurrentWeek, periodLastWeek, periodCurrentMonth, periodGeneral, periodDefault,
+        metricCo2, metricTrackNumber, metricDistance, metricDuration, metricVirtualScore, metricVirtualTrack,
+        meansShow
+    }
+    
     private boolean active;
     private Map<String, String> title = new HashMap<>();
     private Map<String, Object> configuration = new HashMap<>();
