@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.manager.azienda;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -88,8 +91,12 @@ public class PgAziendaleManager {
 			throw new ServiceException(e.getMessage(), ErrorCode.EXT_SERVICE_INVOCATION);	
 		}
 		if(!response.getStatusCode().is2xxSuccessful()) {
-			throw new ServiceException("External Service invocation result:" + response.getStatusCodeValue(), 
-					ErrorCode.EXT_SERVICE_INVOCATION);
+		    try {
+                Map<String, Object> map = mapper.readValue(response.getBody(), new TypeReference<>() {});
+                throw new ServiceException((String)map.get("message"), (String)map.get("type"));
+            } catch (JsonProcessingException e) {
+                throw new ServiceException(response.getBody(), response.getBody()); 
+            }
 		}
 	}
 	

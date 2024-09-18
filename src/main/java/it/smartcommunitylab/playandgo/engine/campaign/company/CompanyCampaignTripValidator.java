@@ -27,6 +27,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateCampaignTripRequest;
@@ -36,6 +37,7 @@ import it.smartcommunitylab.playandgo.engine.mq.ValidateCampaignTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
@@ -63,6 +65,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	
 	@Autowired
 	CampaignMsgManager campaignMsgManager;
+	
+	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
 
 	@PostConstruct
 	public void init() {
@@ -93,9 +98,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                         if(playerTrack != null) {
                             TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
                             if(track.getId().equals(trackData.getFirstTrackId())) {
-                                populatePlayerTrack(track, playerTrack, legResult, trackResult.isVirtualTrack());
+                                populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), trackResult.isVirtualTrack());
                             } else {
-                                populatePlayerTrack(track, playerTrack, legResult, false);
+                                populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), false);
                             }
                             playerReportManager.updatePlayerCampaignPlacings(playerTrack);
                             sendWebhookRequest(playerTrack);                                
@@ -107,6 +112,14 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                 campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
             }                           
         }	    
+	}
+	
+	private String getCompanyId(CampaignPlayerTrack pt) {
+	    CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(pt.getCampaignId(), pt.getPlayerId());
+	    if(cs != null) {
+	        return (String) cs.getCampaignData().get(CompanyCampaignSubscription.companyKey);
+	    }
+	    return null;
 	}
 	
 	private boolean filltTrackData(String playerId, String multimodalId, String campaignId, TrackData trackData) {
@@ -154,7 +167,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
     }
 	
 	private void populatePlayerTrack(TrackedInstance track, CampaignPlayerTrack playerTrack, 
-	        LegResult legResult, boolean virtualTrack) {
+	        LegResult legResult, String groupId, boolean virtualTrack) {
 	    playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 	    playerTrack.setVirtualScore(legResult.getVirtualScore());
 	    playerTrack.setVirtualTrack(virtualTrack);
@@ -164,7 +177,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
 		playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), Utils.getTrackDistance(track)));
 		playerTrack.setStartTime(track.getStartTime());
-		playerTrack.setEndTime(Utils.getEndTime(track));		
+		playerTrack.setEndTime(Utils.getEndTime(track));
+		if(Utils.isNotEmpty(groupId)) playerTrack.setGroupId(groupId); 
 		campaignPlayerTrackRepository.save(playerTrack);
 	}
 	
