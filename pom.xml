@@ -191,10 +191,6 @@
 		</plugins>
 	</build>
 	<repositories>
-		<repository>
-			<id>SmartCommunity-releases</id>
-			<url>https://repository.smartcommunitylab.it/content/repositories/releases</url>
-		</repository>
 	</repositories>
 
 </project>
