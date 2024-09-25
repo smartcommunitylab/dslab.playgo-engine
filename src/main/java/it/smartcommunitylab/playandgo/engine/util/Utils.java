@@ -64,15 +64,15 @@ public class Utils {
 	
 	public static double getSavedCo2(String modeType, double distance) {
 		if(modeType.equalsIgnoreCase("walk")) {
-			return (distance / 1000.0) * 0.2417;
+			return (distance / 1000.0) * 0.2319;
 		} else if(modeType.equalsIgnoreCase("bike")) {
-			return (distance / 1000.0) * 0.2417;
+			return (distance / 1000.0) * 0.2319;
         } else if(modeType.equalsIgnoreCase("bus")) {
-            return (distance / 1000.0) * 0.1296;
+            return (distance / 1000.0) * 0.1233;
         } else if(modeType.equalsIgnoreCase("train")) {
-            return (distance / 1000.0) * 0.1843;
+            return (distance / 1000.0) * 0.1919;
         } else if(modeType.equalsIgnoreCase("car")) {
-            return (distance / 1000.0) * 0.0806;
+            return (distance / 1000.0) * 0.0773;
         } 
 		return 0.0;
 	}
