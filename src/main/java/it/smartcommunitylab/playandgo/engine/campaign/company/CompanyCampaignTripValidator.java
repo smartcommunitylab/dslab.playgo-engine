@@ -92,13 +92,18 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                         }
                     }                
                 } else {
+                    boolean setVirtualTrack = false;
                     for(LegResult legResult : trackResult.getLegs()) {
                         CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
                                 msg.getCampaignId(), legResult.getId());
                         if(playerTrack != null) {
                             TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
-                            if(track.getId().equals(trackData.getFirstTrackId())) {
-                                populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), trackResult.isVirtualTrack());
+                            if(trackResult.isVirtualTrack() && !setVirtualTrack) {
+                                //check virtualTrack for multimodalId
+                                if(!isVirtualTrackByMultimodalId(msg, trackData)) {
+                                    populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), true);
+                                    setVirtualTrack = true;
+                                }
                             } else {
                                 populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), false);
                             }
@@ -112,6 +117,16 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                 campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
             }                           
         }	    
+	}
+	
+	private boolean isVirtualTrackByMultimodalId(ValidateCampaignTripRequest msg, TrackData trackData) {
+	    for(LegData leg : trackData.getLegs()) {
+	        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), msg.getCampaignId(), leg.getId());
+	        if((playerTrack != null) && playerTrack.isVirtualTrack()) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 	
 	private String getCompanyId(CampaignPlayerTrack pt) {
