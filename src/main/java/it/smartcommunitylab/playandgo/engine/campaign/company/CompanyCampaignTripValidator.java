@@ -97,7 +97,17 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                         CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
                                 msg.getCampaignId(), legResult.getId());
                         if(playerTrack != null) {
-                            if(playerTrack.getScoreStatus().equals(ScoreStatus.UNASSIGNED) || !playerTrack.isValid()) {
+                            if(playerTrack.getScoreStatus().equals(ScoreStatus.COMPUTED) && playerTrack.isValid()) {
+                                //check if virtualScore is changed
+                                if(playerTrack.getVirtualScore() != legResult.getVirtualScore()) {
+                                    double deltaVirtualScore = legResult.getVirtualScore() - playerTrack.getVirtualScore();
+                                    if(deltaVirtualScore != 0.0) {
+                                        playerTrack.setVirtualScore(legResult.getVirtualScore());
+                                        campaignPlayerTrackRepository.save(playerTrack);
+                                        playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaVirtualScore, 0.0, 0.0, null);
+                                    }
+                                }                                
+                            } else if(playerTrack.getScoreStatus().equals(ScoreStatus.UNASSIGNED) || !playerTrack.isValid()) {
                                 TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
                                 if(trackResult.isVirtualTrack() && !setVirtualTrack) {
                                     //check virtualTrack for multimodalId
@@ -110,16 +120,6 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                                 }
                                 playerReportManager.updatePlayerCampaignPlacings(playerTrack);
                                 sendWebhookRequest(playerTrack);                                                                
-                            } else if(playerTrack.isValid()) {
-                                //check if virtualScore is changed
-                                if(playerTrack.getVirtualScore() != legResult.getVirtualScore()) {
-                                    double deltaVirtualScore = legResult.getVirtualScore() - playerTrack.getVirtualScore();
-                                    if(deltaVirtualScore != 0.0) {
-                                        playerTrack.setVirtualScore(legResult.getVirtualScore());
-                                        campaignPlayerTrackRepository.save(playerTrack);
-                                        playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaVirtualScore, 0.0, 0.0, null);
-                                    }
-                                }
                             }
                         }
                     }
