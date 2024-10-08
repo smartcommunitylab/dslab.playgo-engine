@@ -96,7 +96,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                     for(LegResult legResult : trackResult.getLegs()) {
                         CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
                                 msg.getCampaignId(), legResult.getId());
-                        if((playerTrack != null) && playerTrack.getScoreStatus().equals(ScoreStatus.UNASSIGNED)) {
+                        if((playerTrack != null) && (playerTrack.getScoreStatus().equals(ScoreStatus.UNASSIGNED) || !playerTrack.isValid())) {
                             TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
                             if(trackResult.isVirtualTrack() && !setVirtualTrack) {
                                 //check virtualTrack for multimodalId
