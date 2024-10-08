@@ -223,6 +223,7 @@ public class PlayerCampaignPlacingManager {
             dayByMode.addTrack();
             dayByMode.addVirtualScore(deltaVirtualScore);
             if(pt.isVirtualTrack()) dayByMode.addVirtualTrack();
+            if(Utils.isNotEmpty(pt.getGroupId())) dayByMode.setGroupId(pt.getGroupId());
             String weekOfYear = trackDay.format(dftWeek);
             String monthOfYear = trackDay.format(dftMonth);
             dayByMode.setDay(day);
