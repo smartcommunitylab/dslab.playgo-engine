@@ -114,6 +114,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                                     if(!isVirtualTrackByMultimodalId(msg, trackData)) {
                                         populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), true);
                                         setVirtualTrack = true;
+                                    } else {
+                                        populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), false);
                                     }
                                 } else {
                                     populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), false);
