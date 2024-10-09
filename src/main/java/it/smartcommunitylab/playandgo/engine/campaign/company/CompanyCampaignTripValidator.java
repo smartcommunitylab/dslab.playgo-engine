@@ -92,18 +92,37 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                         }
                     }                
                 } else {
+                    boolean setVirtualTrack = false;
                     for(LegResult legResult : trackResult.getLegs()) {
                         CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
                                 msg.getCampaignId(), legResult.getId());
                         if(playerTrack != null) {
-                            TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
-                            if(track.getId().equals(trackData.getFirstTrackId())) {
-                                populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), trackResult.isVirtualTrack());
-                            } else {
-                                populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), false);
+                            if(playerTrack.getScoreStatus().equals(ScoreStatus.COMPUTED) && playerTrack.isValid()) {
+                                //check if virtualScore is changed
+                                if(playerTrack.getVirtualScore() != legResult.getVirtualScore()) {
+                                    double deltaVirtualScore = legResult.getVirtualScore() - playerTrack.getVirtualScore();
+                                    if(deltaVirtualScore != 0.0) {
+                                        playerTrack.setVirtualScore(legResult.getVirtualScore());
+                                        campaignPlayerTrackRepository.save(playerTrack);
+                                        playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaVirtualScore, 0.0, 0.0, null);
+                                    }
+                                }                                
+                            } else if(playerTrack.getScoreStatus().equals(ScoreStatus.UNASSIGNED) || !playerTrack.isValid()) {
+                                TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
+                                if(trackResult.isVirtualTrack() && !setVirtualTrack) {
+                                    //check virtualTrack for multimodalId
+                                    if(!isVirtualTrackByMultimodalId(msg, trackData)) {
+                                        populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), true);
+                                        setVirtualTrack = true;
+                                    } else {
+                                        populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), false);
+                                    }
+                                } else {
+                                    populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), false);
+                                }
+                                playerReportManager.updatePlayerCampaignPlacings(playerTrack);
+                                sendWebhookRequest(playerTrack);                                                                
                             }
-                            playerReportManager.updatePlayerCampaignPlacings(playerTrack);
-                            sendWebhookRequest(playerTrack);                                
                         }
                     }
                 }
@@ -112,6 +131,16 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                 campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
             }                           
         }	    
+	}
+	
+	private boolean isVirtualTrackByMultimodalId(ValidateCampaignTripRequest msg, TrackData trackData) {
+	    for(LegData leg : trackData.getLegs()) {
+	        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), msg.getCampaignId(), leg.getId());
+	        if((playerTrack != null) && playerTrack.isVirtualTrack()) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 	
 	private String getCompanyId(CampaignPlayerTrack pt) {
@@ -172,13 +201,14 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	    playerTrack.setVirtualScore(legResult.getVirtualScore());
 	    playerTrack.setVirtualTrack(virtualTrack);
 		playerTrack.setValid(true);
+        playerTrack.setErrorCode(null);
 		playerTrack.setModeType(legResult.getMean());
 		playerTrack.setDistance(Utils.getTrackDistance(track));
 		playerTrack.setDuration(track.getValidationResult().getValidationStatus().getDuration());
 		playerTrack.setCo2(Utils.getSavedCo2(legResult.getMean(), Utils.getTrackDistance(track)));
 		playerTrack.setStartTime(track.getStartTime());
 		playerTrack.setEndTime(Utils.getEndTime(track));
-		if(Utils.isNotEmpty(groupId)) playerTrack.setGroupId(groupId); 
+		if(Utils.isNotEmpty(groupId)) playerTrack.setGroupId(groupId);
 		campaignPlayerTrackRepository.save(playerTrack);
 	}
 	

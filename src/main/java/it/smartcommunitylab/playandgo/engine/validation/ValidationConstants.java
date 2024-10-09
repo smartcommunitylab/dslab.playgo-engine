@@ -124,9 +124,9 @@ public class ValidationConstants {
 		
 		defaultValues.put(PARAM_SHARED_TRIP_DISTANCE_THRESHOLD, 1000d);
 		
-		defaultValues.put(PARAM_DISTANCE_THRESHOLD, 250d);
+		defaultValues.put(PARAM_DISTANCE_THRESHOLD, 5d);
 		defaultValues.put(DATA_HOLE_THRESHOLD, 10*60);
-		defaultValues.put(PARAM_BIKE_DISTANCE_THRESHOLD, 250d);
+		defaultValues.put(PARAM_BIKE_DISTANCE_THRESHOLD, 5d);
 		defaultValues.put(PARAM_MAX_AVG_SPEED_THRESHOLD, 200d);
 		
 		defaultValues.put(PARAM_PENDING_COVERAGE_THRESHOLD, 60);

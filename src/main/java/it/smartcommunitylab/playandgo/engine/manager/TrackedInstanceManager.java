@@ -439,7 +439,8 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 					pTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
 					pTrack.setDuration(trackedInstance.getValidationResult().getValidationStatus().getDuration());
 					pTrack.setStartTime(trackedInstance.getStartTime());
-					pTrack.setEndTime(Utils.getEndTime(trackedInstance));        
+					pTrack.setEndTime(Utils.getEndTime(trackedInstance));     
+					pTrack.setModeType(validationStatus.getModeType().toString());
 					pTrack = campaignPlayerTrackRepository.save(pTrack);
 				}
 			}
