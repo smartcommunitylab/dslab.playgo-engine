@@ -55,6 +55,8 @@ public class ValidationConstants {
 	public static final String PARAM_GUARANTEED_COVERAGE_THRESHOLD_VALID 	= "GUARANTEED_COVERAGE_THRESHOLD_VALID"; // %
 	public static final String PARAM_GUARANTEED_COVERAGE_THRESHOLD_PENDING 	= "GUARANTEED_COVERAGE_THRESHOLD_PENDING"; // %
 	
+	public static final long MIN_TRACK_TIME_MILLS = 15000;
+	
 	/**
 	 * @param t
 	 * @param param

@@ -74,12 +74,13 @@ public class GeolocationsProcessor {
 			Multimap<String, Geolocation> geolocationsByItinerary = ArrayListMultimap.create();
 			Map<String, String> freeTracks = new HashMap<String, String>();
 			Map<String, Long> freeTrackStarts = new HashMap<String, Long>();
+			Map<String, Long> freeTrackEnds = new HashMap<String, Long>();
 			String deviceInfo = mapper.writeValueAsString(geolocationsEvent.getDevice());
 
-			groupByItinerary(geolocationsEvent, player.getPlayerId(), geolocationsByItinerary, freeTracks, freeTrackStarts);
+			groupByItinerary(geolocationsEvent, player.getPlayerId(), geolocationsByItinerary, freeTracks, freeTrackStarts, freeTrackEnds);
 
 			for (String key : geolocationsByItinerary.keySet()) {
-				TrackedInstance ti = preSaveTrackedInstance(key, player.getPlayerId(), player.getNickname(), deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts, player.getTerritoryId());
+				TrackedInstance ti = preSaveTrackedInstance(key, player.getPlayerId(), player.getNickname(), deviceInfo, geolocationsByItinerary, freeTracks, freeTrackStarts, freeTrackEnds, player.getTerritoryId());
 				if (ti != null) {
 					instances.add(ti);
 					logger.info("Saved geolocation events, user: " + player.getPlayerId() + ", travel: " + ti.getId() + ", " + ti.getGeolocationEvents().size() + " events.");
@@ -163,7 +164,7 @@ public class GeolocationsProcessor {
 	}
 
 	private void groupByItinerary(GeolocationsEvent geolocationsEvent, String userId, Multimap<String, Geolocation> geolocationsByItinerary, 
-			Map<String, String> freeTracks, Map<String, Long> freeTrackStarts) throws Exception {
+			Map<String, String> freeTracks, Map<String, Long> freeTrackStarts, Map<String, Long> freeTrackEnds) throws Exception {
 		Long now = System.currentTimeMillis();
 		Map<String, Object> device = geolocationsEvent.getDevice();
 
@@ -222,6 +223,8 @@ public class GeolocationsProcessor {
 			for (String key: freeTrackStartsByKey.keySet()) {
 				Long min = freeTrackStartsByKey.get(key).stream().min(Long::compare).orElse(0L);
 				freeTrackStarts.put(key, min);
+				Long max = freeTrackStartsByKey.get(key).stream().max(Long::compare).orElse(0L);
+				freeTrackEnds.put(key,  max);
 			}
 			
 			if (skippedOld > 0) {
@@ -300,7 +303,7 @@ public class GeolocationsProcessor {
 	}
 
 	private TrackedInstance preSaveTrackedInstance(String key, String userId, String nickname, String deviceInfo, Multimap<String, Geolocation> geolocationsByItinerary, Map<String, String> freeTracks,
-			Map<String, Long> freeTrackStarts, String territoryId) throws Exception {
+			Map<String, Long> freeTrackStarts, Map<String, Long> freeTrackEnds, String territoryId) throws Exception {
 		String splitKey[] = key.split("@");
 		String travelId = splitKey[0];
 		String multimodalId = null;
@@ -314,6 +317,12 @@ public class GeolocationsProcessor {
 		//check existing track
 		TrackedInstance res = trackedInstanceRepository.findByUserIdAndClientId(userId, travelId);
 		if (res == null) {
+		    //check min track time
+		    if((freeTrackEnds.get(key) - freeTrackStarts.get(key)) < ValidationConstants.MIN_TRACK_TIME_MILLS) {
+		        logger.debug("Skipping trip duration too short: " + key);
+		        return null;
+		    }
+		        
 			logger.debug("No existing TrackedInstance found.");
 			res = new TrackedInstance();
 			res.setClientId(travelId);
