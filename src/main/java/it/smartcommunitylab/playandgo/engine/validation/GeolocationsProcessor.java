@@ -169,6 +169,7 @@ public class GeolocationsProcessor {
 		Map<String, Object> device = geolocationsEvent.getDevice();
 
 		Multimap<String, Long> freeTrackStartsByKey = ArrayListMultimap.create();
+		Multimap<String, Long> freeTrackTimestampsByKey = ArrayListMultimap.create();
 		
 		if (geolocationsEvent.getLocation() != null) {
 			int skippedOld = 0;
@@ -216,6 +217,7 @@ public class GeolocationsProcessor {
 				}
 
 				freeTrackStartsByKey.put(key, locationTs);
+				freeTrackTimestampsByKey.put(key, location.getTimestamp().getTime());
 
 				// storage.saveGeolocation(geolocation);
 			}
@@ -223,8 +225,11 @@ public class GeolocationsProcessor {
 			for (String key: freeTrackStartsByKey.keySet()) {
 				Long min = freeTrackStartsByKey.get(key).stream().min(Long::compare).orElse(0L);
 				freeTrackStarts.put(key, min);
-				Long max = freeTrackStartsByKey.get(key).stream().max(Long::compare).orElse(0L);
-				freeTrackEnds.put(key,  max);
+			}
+			
+			for (String key: freeTrackTimestampsByKey.keySet()) {
+                Long max = freeTrackTimestampsByKey.get(key).stream().max(Long::compare).orElse(0L);
+                freeTrackEnds.put(key,  max);			    
 			}
 			
 			if (skippedOld > 0) {
@@ -372,10 +377,10 @@ public class GeolocationsProcessor {
 			trackedInstanceRepository.save(res);
 		} else {
 			if (res.getComplete() != null && res.getComplete()) {
-				logger.debug("Skipping complete trip " + res.getId());
+				logger.info("Skipping complete trip " + res.getId());
 				return null;				
 			} else {
-				logger.debug("Skipping already existing trip " + res.getId());
+				logger.info("Skipping already existing trip " + res.getId());
 				return null;
 			}
 		}
