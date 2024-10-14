@@ -319,7 +319,7 @@ public class GeolocationsProcessor {
 		if (res == null) {
 		    //check min track time
 		    if((freeTrackEnds.get(key) - freeTrackStarts.get(key)) < ValidationConstants.MIN_TRACK_TIME_MILLS) {
-		        logger.debug("Skipping trip duration too short: " + key);
+		        logger.info("Skipping trip duration too short: " + key);
 		        return null;
 		    }
 		        
