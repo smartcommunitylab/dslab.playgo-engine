@@ -95,8 +95,7 @@ challengeDir: ${CHALLENGE_DIR:}
 playgoURL: ${PLAYGO_URL:}
 
 gcm:
-  gcmSenderApiKey: ${GCM_SENDER_API_KEY:}
-  gcmSenderId: ${GCM_SENDER_ID:}  
+  firebase-config: ${GCM_FIREBASE_CONFIG:}
   
 minio:
   endpoint: ${MINIO_ENDPOINT:}
