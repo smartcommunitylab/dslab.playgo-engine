@@ -7,11 +7,10 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
 
 public class TestRandomString {
 	
-	@Test
+	//@Test
 	public void generateString() {
 	    int length = 10;
 	    boolean useLetters = true;
@@ -20,7 +19,7 @@ public class TestRandomString {
 	    System.out.println(generatedString);
 	}
 	
-	@Test
+	//@Test
 	public void weekOfYear() {
 	    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 	    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);

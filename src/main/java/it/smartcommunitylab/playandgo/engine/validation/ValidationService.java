@@ -34,6 +34,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 /**
  * @author raman
@@ -92,14 +93,18 @@ public class ValidationService {
 	 * @param territoryId
 	 * @return
 	 */
-	public ValidationResult validateSharedTripPassenger(Collection<Geolocation> passengerTrip, Collection<Geolocation> driverTrip, String territoryId) {
-		if (driverTrip == null) {
+	public ValidationResult validateSharedTripPassenger(TrackedInstance passengerTrack, TrackedInstance driverTrack, boolean forceValidation) {
+		if(forceValidation)
+		    return passengerTrack.getValidationResult();
+		
+		Collection<Geolocation> driverTrip = passengerTrack.getGeolocationEvents();
+	    if (driverTrip == null) {
 			return null;
 		}
-		Territory territory = territoryManager.getTerritory(territoryId);
+		Territory territory = territoryManager.getTerritory(passengerTrack.getTerritoryId());
 
 		ValidationResult vr = new ValidationResult();
-		vr.setValidationStatus(TrackValidator.validateSharedPassenger(passengerTrip, driverTrip, territory));
+		vr.setValidationStatus(TrackValidator.validateSharedPassenger(passengerTrack.getGeolocationEvents(), driverTrack.getGeolocationEvents(), territory));
         if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
             vr.setValid(true);
         }       		
@@ -111,11 +116,15 @@ public class ValidationService {
 	 * @param territoryId
 	 * @return
 	 */
-	public ValidationResult validateSharedTripDriver(Collection<Geolocation> driverTrip, String territoryId) {
+	public ValidationResult validateSharedTripDriver(TrackedInstance track, boolean forceValidation) {
+	    if(forceValidation) 
+	        return track.getValidationResult();
+	    
+	    Collection<Geolocation> driverTrip = track.getGeolocationEvents();
 		if (driverTrip == null) {
 			return null;
 		}
-		Territory territory = territoryManager.getTerritory(territoryId);
+		Territory territory = territoryManager.getTerritory(track.getTerritoryId());
 	
 		ValidationResult vr = new ValidationResult();
 		vr.setValidationStatus(TrackValidator.validateSharedDriver(driverTrip, territory));
