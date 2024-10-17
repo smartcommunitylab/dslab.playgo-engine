@@ -488,13 +488,12 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				List<TrackedInstance> list = trackedInstanceRepository.findPassengerTrips(track.getTerritoryId(), passengerTravelId, track.getUserId());
 				if (!list.isEmpty()) {
 				    //validate driver travel
-		            ValidationResult driverVr = validationService.validateSharedTripDriver(track.getGeolocationEvents(), track.getTerritoryId());
+		            ValidationResult driverVr = validationService.validateSharedTripDriver(track, forceValidation);
 		            updateValidationResult(track, driverVr);				    
 					for(TrackedInstance passengerTravel: list) {
 				        // validate passenger trip
 					    if(TravelValidity.PENDING.equals(passengerTravel.getValidationResult().getTravelValidity())) {
-	                        ValidationResult vr = validationService.validateSharedTripPassenger(passengerTravel.getGeolocationEvents(), 
-	                                track.getGeolocationEvents(), passengerTravel.getTerritoryId());
+	                        ValidationResult vr = validationService.validateSharedTripPassenger(passengerTravel, track, false);
 	                        updateValidationResult(passengerTravel, vr);
 	                        travelToValidateList.add(Pair.of(passengerTravel.getUserId(), passengerTravel.getMultimodalId()));					        
 					    }
@@ -508,13 +507,11 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				TrackedInstance driverTravel = trackedInstanceRepository.findDriverTrip(track.getTerritoryId(), driverTravelId, track.getUserId());
 				if (driverTravel != null) {
 				    //validate passenger travel
-			        ValidationResult vr = validationService.validateSharedTripPassenger(track.getGeolocationEvents(), 
-			                driverTravel.getGeolocationEvents(), track.getTerritoryId());
+			        ValidationResult vr = validationService.validateSharedTripPassenger(track, driverTravel, forceValidation);
 			        updateValidationResult(track, vr);
 			        //validate also driver travel
 		            if(TravelValidity.PENDING.equals(driverTravel.getValidationResult().getTravelValidity())) {
-		                ValidationResult driverVr = validationService.validateSharedTripDriver(driverTravel.getGeolocationEvents(), 
-		                        driverTravel.getTerritoryId());
+		                ValidationResult driverVr = validationService.validateSharedTripDriver(driverTravel, false);
 		                updateValidationResult(driverTravel, driverVr);
 		                travelToValidateList.add(Pair.of(driverTravel.getUserId(), driverTravel.getMultimodalId()));
 		            }
