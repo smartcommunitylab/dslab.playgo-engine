@@ -975,49 +975,50 @@ public class TrackValidator {
 	 * @return
 	 */
 	public static ValidationStatus validateSharedPassenger(Collection<Geolocation> passengerTrack, Collection<Geolocation> driverTrack, Territory territory) {
-		ValidationStatus status = new ValidationStatus();
+		ValidationStatus statusP = new ValidationStatus();
 		// set parameters
-		status.setTripType(TRIP_TYPE.SHARED);
-		status.setModeType(MODE_TYPE.car);
-		status.setValidityThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD));
-		status.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
+		statusP.setTripType(TRIP_TYPE.SHARED);
+		statusP.setModeType(MODE_TYPE.car);
+		statusP.setValidityThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD));
+		statusP.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
+
+		ValidationStatus statusD = new ValidationStatus();
+        // set parameters
+		statusD.setTripType(TRIP_TYPE.SHARED);
+		statusD.setModeType(MODE_TYPE.car);
+		statusD.setValidityThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD));
+		statusD.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
 
 		// basic validation
-		List<Geolocation> points = prevalidate(passengerTrack, status, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
-		if (status.getValidationOutcome() != null) {
-			return status;
+		List<Geolocation> points = prevalidate(passengerTrack, statusP, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
+		if (statusP.getValidationOutcome() != null) {
+			return statusP;
 		}
-		List<Geolocation> driverPoints = prevalidate(driverTrack, status, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
-		if (status.getValidationOutcome() != null) {
-			return status;
+		List<Geolocation> driverPoints = prevalidate(driverTrack, statusD, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
+		if (statusD.getValidationOutcome() != null) {
+            statusP.setValidationOutcome(TravelValidity.INVALID);
+            statusP.setError(ERROR_TYPE.SHARED_DOES_NOT_MATCH);
+			return statusP;
 		}
 		
-		status.setValidationOutcome(TravelValidity.PENDING);
-		
+		statusP.setValidationOutcome(TravelValidity.PENDING);
 		
 		if (driverTrack != null) {
 			points = fillTrace(points, 100.0 / 1000 / 2 / Math.sqrt(2));
+			driverPoints = fillTrace(driverPoints, 100.0 / 1000 / 2 / Math.sqrt(2));
 			// check leg coverage: if is more than threshold (e.g., 80%) - valid, if less than minimum threshold - invalid. Otherwise pending
-			double matchedLength = 0, minMatchedLength = 0, totalLength = 0;
-			int effectiveLength = driverPoints.size();
-			int invalid = trackMatch(driverPoints, points, status.getMatchThreshold());
+			int effectiveLength = points.size();
+			int invalid = trackMatch(points, driverPoints, statusP.getMatchThreshold());
 			double subtrackPrecision =  100.0 * (effectiveLength-invalid) / (effectiveLength);
 			if (subtrackPrecision > ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD)) {
-				matchedLength = status.getDistance();
-			}
-			minMatchedLength = matchedLength * subtrackPrecision / 100.0;
-			totalLength = status.getDistance();
-
-			if ((100.0 * matchedLength / totalLength) > ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD)) {
-				status.setValidationOutcome(TravelValidity.VALID);
-			}
-			if ((100.0 * minMatchedLength / totalLength) < ValidationConstants.getDouble(territory, ValidationConstants.PARAM_MIN_COVERAGE_THRESHOLD)) {
-				status.setValidationOutcome(TravelValidity.INVALID);
-				status.setError(ERROR_TYPE.SHARED_DOES_NOT_MATCH);
-				return status;
-			}
+			    statusP.setValidationOutcome(TravelValidity.VALID);
+			    return statusP;
+			} 
+            statusP.setValidationOutcome(TravelValidity.INVALID);
+            statusP.setError(ERROR_TYPE.SHARED_DOES_NOT_MATCH);
+            return statusP;			
 		} 
-		return status;
+		return statusP;
 	}
 	
 	/**

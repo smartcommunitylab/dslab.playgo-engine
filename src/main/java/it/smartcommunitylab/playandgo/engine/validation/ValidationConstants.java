@@ -132,7 +132,7 @@ public class ValidationConstants {
 		defaultValues.put(PARAM_MAX_AVG_SPEED_THRESHOLD, 200d);
 		
 		defaultValues.put(PARAM_PENDING_COVERAGE_THRESHOLD, 60);
-		defaultValues.put(PARAM_COVERAGE_THRESHOLD, 80d);
+		defaultValues.put(PARAM_COVERAGE_THRESHOLD, 75d);
 		defaultValues.put(PARAM_CERTIFIED_COVERAGE_THRESHOLD_VALID, 70);
 		defaultValues.put(PARAM_CERTIFIED_COVERAGE_THRESHOLD_PENDING, 50);
 		defaultValues.put(PARAM_GUARANTEED_COVERAGE_THRESHOLD_VALID, 90);
