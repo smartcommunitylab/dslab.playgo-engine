@@ -33,6 +33,7 @@ public class TrackedInstance {
 	@Indexed
 	private String multimodalId;
 	
+	@Indexed
 	private String sharedTravelId;
 	
 	private String freeTrackingTransport;
