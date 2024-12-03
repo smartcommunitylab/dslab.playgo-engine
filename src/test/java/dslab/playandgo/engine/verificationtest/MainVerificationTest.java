@@ -128,18 +128,8 @@ public class MainVerificationTest {
         Player player = new Player();
         player.setPlayerId("12345");
         player.setNickname("testPlayer");
-        player.setLanguage("it");
-        player.setMail("testplayer@example.com");
-        player.setSendMail(true);
         player.setTerritoryId("T12345");
         player.setGivenName("Mario");
-        player.setFamilyName("Rossi");
-        player.setDeleted(false);
-        player.setGroup(false);
-        Map<String, Object> personalData = new HashMap<>();
-        personalData.put("age", 25);
-        personalData.put("country", "Italy");
-        player.setPersonalData(personalData);
         return player;
     }
 
@@ -150,11 +140,6 @@ public class MainVerificationTest {
         name.put("it", "Territorio di prova");
         name.put("en", "Test territory");
         territory.setName(name);
-        Map<String, String> description = new HashMap<>();
-        description.put("it", "Descrizione del territorio di prova");
-        description.put("en", "Description of the test territory");
-        territory.setDescription(description);
-        territory.setTerritoryData(new HashMap<>());
         return territory;
     }
 
