@@ -86,8 +86,6 @@ public class MainVerificationTest {
         ObjectMapper objectMapper = new ObjectMapper();
         List<ValidationResult> vrList = new ArrayList<>();
 
-        int count = 0;
-
         Path folderPath = Paths.get("src/test/resources/testverificationfiles/");
 
         if (!Files.isDirectory(folderPath)) {
@@ -109,14 +107,14 @@ public class MainVerificationTest {
                 vrList.clear();
                 for (TrackedInstance trackedInstance : trackedInstances) {
                     ValidationResult vr = validationService.validateFreeTracking(trackedInstance.getGeolocationEvents(), trackedInstance.getFreeTrackingTransport(), trackedInstance.getTerritoryId());
+                    System.out.println("Tracked Instance ID " +trackedInstance.getId() + " is " + vr.getValidationStatus().getValidationOutcome());
                     /*assertThat(vr.getValidationStatus().getValidationOutcome()).isEqualTo(ValidationResult.TravelValidity.VALID);*/
                     vrList.add(vr);
                 }
 
                 assertNotNull(vrList, "Validation results list should not be null");
 
-                count++;
-                System.out.println("Test done:" + count);
+                System.out.println(fileName + " tested.");
 
             }
         }
