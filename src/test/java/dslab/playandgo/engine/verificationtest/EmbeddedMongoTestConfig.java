@@ -25,12 +25,12 @@ public class EmbeddedMongoTestConfig {
         MongodExecutable mongodExecutable = MongodStarter.getDefaultInstance()
                 .prepare(new MongodConfigBuilder()
                         .version(Version.Main.PRODUCTION)
-                        .net(new Net("localhost", 27017, false))
+                        .net(new Net("localhost", 28017, false))
                         .build());
 
         mongodProcess = mongodExecutable.start();
 
-        return MongoClients.create("mongodb://localhost:27017");
+        return MongoClients.create("mongodb://localhost:28017");
     }
 
     @Bean
