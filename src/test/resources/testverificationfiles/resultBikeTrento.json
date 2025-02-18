@@ -1,0 +1,5763 @@
+{
+	"device": {
+		"available":true,
+		"platform":"Android",
+		"version":"9",
+		"uuid":"7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+		"cordova":"8.1.0",
+		"model":"BND-L21",
+		"manufacturer":"HUAWEI",
+		"isVirtual":false,
+		"serial":"unknown",
+		"appVersion":"v 1.0.1"
+	},
+	"location": [
+        
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06582",
+                "longitude" : "11.15451",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202000000",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202000000",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06563",
+                "longitude" : "11.15429",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202003427",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202003427",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06558",
+                "longitude" : "11.15423",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202006854",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202006854",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06553",
+                "longitude" : "11.15417",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202010281",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202010281",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0654",
+                "longitude" : "11.154",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202013708",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202013708",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06535",
+                "longitude" : "11.15393",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202017135",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202017135",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06527",
+                "longitude" : "11.15381",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202020562",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202020562",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06522",
+                "longitude" : "11.15373",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202023989",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202023989",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06516",
+                "longitude" : "11.15363",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202027416",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202027416",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06514",
+                "longitude" : "11.15359",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202030843",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202030843",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06509",
+                "longitude" : "11.1535",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202034270",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202034270",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06504",
+                "longitude" : "11.15339",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202037697",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202037697",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06498",
+                "longitude" : "11.15326",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202041124",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202041124",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06492",
+                "longitude" : "11.15313",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202044551",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202044551",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06482",
+                "longitude" : "11.1529",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202047978",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202047978",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06474",
+                "longitude" : "11.1527",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202051405",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202051405",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06442",
+                "longitude" : "11.1519",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202054832",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202054832",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06436",
+                "longitude" : "11.15174",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202058259",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202058259",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06426",
+                "longitude" : "11.15148",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202061686",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202061686",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06415",
+                "longitude" : "11.1512",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202065113",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202065113",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06411",
+                "longitude" : "11.15109",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202068540",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202068540",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06405",
+                "longitude" : "11.15096",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202071967",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202071967",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06392",
+                "longitude" : "11.15063",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202075394",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202075394",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06385",
+                "longitude" : "11.15044",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202078821",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202078821",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0638",
+                "longitude" : "11.15028",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202082248",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202082248",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06383",
+                "longitude" : "11.15027",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202085675",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202085675",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06386",
+                "longitude" : "11.15024",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202089102",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202089102",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06388",
+                "longitude" : "11.1502",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202092529",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202092529",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06389",
+                "longitude" : "11.15015",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202095956",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202095956",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06389",
+                "longitude" : "11.15011",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202099383",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202099383",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06388",
+                "longitude" : "11.15006",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202102810",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202102810",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06386",
+                "longitude" : "11.15002",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202106237",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202106237",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06384",
+                "longitude" : "11.15",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202109664",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202109664",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06381",
+                "longitude" : "11.14998",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202113091",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202113091",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06378",
+                "longitude" : "11.14997",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202116518",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202116518",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06375",
+                "longitude" : "11.14997",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202119945",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202119945",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06372",
+                "longitude" : "11.14999",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202123372",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202123372",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06369",
+                "longitude" : "11.15003",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202126799",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202126799",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06368",
+                "longitude" : "11.15006",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202130226",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202130226",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06367",
+                "longitude" : "11.15012",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202133653",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202133653",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06338",
+                "longitude" : "11.15013",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202137080",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202137080",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06303",
+                "longitude" : "11.15014",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202140507",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202140507",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06285",
+                "longitude" : "11.15015",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202143934",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202143934",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06268",
+                "longitude" : "11.15017",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202147361",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202147361",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06255",
+                "longitude" : "11.1502",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202150788",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202150788",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06244",
+                "longitude" : "11.15024",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202154215",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202154215",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06229",
+                "longitude" : "11.1503",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202157642",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202157642",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06213",
+                "longitude" : "11.15037",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202161069",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202161069",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06198",
+                "longitude" : "11.15044",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202164496",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202164496",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06185",
+                "longitude" : "11.15049",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202167923",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202167923",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06174",
+                "longitude" : "11.15052",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202171350",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202171350",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06159",
+                "longitude" : "11.15054",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202174777",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202174777",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06157",
+                "longitude" : "11.15054",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202178204",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202178204",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0614",
+                "longitude" : "11.15054",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202181631",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202181631",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06123",
+                "longitude" : "11.15053",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202185058",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202185058",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06109",
+                "longitude" : "11.15052",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202188485",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202188485",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.06079",
+                "longitude" : "11.15051",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202191912",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202191912",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0605",
+                "longitude" : "11.15049",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202195339",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202195339",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05998",
+                "longitude" : "11.15045",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202198766",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202198766",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05973",
+                "longitude" : "11.15043",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202202193",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202202193",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05953",
+                "longitude" : "11.15042",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202205620",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202205620",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05938",
+                "longitude" : "11.15041",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202209047",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202209047",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05921",
+                "longitude" : "11.1504",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202212474",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202212474",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05904",
+                "longitude" : "11.15037",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202215901",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202215901",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05891",
+                "longitude" : "11.15034",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202219328",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202219328",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05876",
+                "longitude" : "11.15028",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202222755",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202222755",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05863",
+                "longitude" : "11.15021",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202226182",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202226182",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05858",
+                "longitude" : "11.15019",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202229609",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202229609",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0584",
+                "longitude" : "11.15009",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202233036",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202233036",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05825",
+                "longitude" : "11.15",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202236463",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202236463",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05757",
+                "longitude" : "11.14959",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202239890",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202239890",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05749",
+                "longitude" : "11.14954",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202243317",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202243317",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05746",
+                "longitude" : "11.14952",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202246744",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202246744",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05731",
+                "longitude" : "11.14943",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202250171",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202250171",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05716",
+                "longitude" : "11.14934",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202253598",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202253598",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05704",
+                "longitude" : "11.14928",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202257025",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202257025",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05702",
+                "longitude" : "11.14927",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202260452",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202260452",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05699",
+                "longitude" : "11.14926",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202263879",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202263879",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05693",
+                "longitude" : "11.14923",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202267306",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202267306",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05683",
+                "longitude" : "11.14919",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202270733",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202270733",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05672",
+                "longitude" : "11.14915",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202274160",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202274160",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05656",
+                "longitude" : "11.14911",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202277587",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202277587",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05637",
+                "longitude" : "11.14907",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202281014",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202281014",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05622",
+                "longitude" : "11.14904",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202284441",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202284441",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05606",
+                "longitude" : "11.14901",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202287868",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202287868",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05591",
+                "longitude" : "11.14899",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202291295",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202291295",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05585",
+                "longitude" : "11.14898",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202294722",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202294722",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05565",
+                "longitude" : "11.14895",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202298149",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202298149",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05551",
+                "longitude" : "11.14893",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202301576",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202301576",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05509",
+                "longitude" : "11.14887",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202305003",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202305003",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05498",
+                "longitude" : "11.14886",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202308430",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202308430",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05486",
+                "longitude" : "11.14884",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202311857",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202311857",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05448",
+                "longitude" : "11.14877",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202315284",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202315284",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05432",
+                "longitude" : "11.14875",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202318711",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202318711",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05418",
+                "longitude" : "11.14873",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202322138",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202322138",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05402",
+                "longitude" : "11.1487",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202325565",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202325565",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05387",
+                "longitude" : "11.14865",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202328992",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202328992",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05378",
+                "longitude" : "11.14861",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202332419",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202332419",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0537",
+                "longitude" : "11.14857",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202335846",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202335846",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05357",
+                "longitude" : "11.14849",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202339273",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202339273",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05347",
+                "longitude" : "11.14842",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202342700",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202342700",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05337",
+                "longitude" : "11.14834",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202346127",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202346127",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05326",
+                "longitude" : "11.14823",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202349554",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202349554",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05317",
+                "longitude" : "11.14813",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202352981",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202352981",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05307",
+                "longitude" : "11.148",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202356408",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202356408",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05295",
+                "longitude" : "11.14782",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202359835",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202359835",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05287",
+                "longitude" : "11.1477",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202363262",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202363262",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05266",
+                "longitude" : "11.14737",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202366689",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202366689",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05253",
+                "longitude" : "11.14717",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202370116",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202370116",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05233",
+                "longitude" : "11.14686",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202373543",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202373543",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05223",
+                "longitude" : "11.1467",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202376970",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202376970",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05196",
+                "longitude" : "11.14628",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202380397",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202380397",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05167",
+                "longitude" : "11.14585",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202383824",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202383824",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05159",
+                "longitude" : "11.14572",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202387251",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202387251",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0515",
+                "longitude" : "11.14558",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202390678",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202390678",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05142",
+                "longitude" : "11.14545",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202394105",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202394105",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05134",
+                "longitude" : "11.14532",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202397532",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202397532",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05126",
+                "longitude" : "11.1452",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202400959",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202400959",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05116",
+                "longitude" : "11.14507",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202404386",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202404386",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05111",
+                "longitude" : "11.14501",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202407813",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202407813",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05106",
+                "longitude" : "11.14495",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202411240",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202411240",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05095",
+                "longitude" : "11.14483",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202414667",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202414667",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05089",
+                "longitude" : "11.14477",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202418094",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202418094",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05083",
+                "longitude" : "11.14471",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202421521",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202421521",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05075",
+                "longitude" : "11.14465",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202424948",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202424948",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05069",
+                "longitude" : "11.14461",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202428375",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202428375",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05062",
+                "longitude" : "11.14457",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202431802",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202431802",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05042",
+                "longitude" : "11.14447",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202435229",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202435229",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05025",
+                "longitude" : "11.1444",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202438656",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202438656",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05012",
+                "longitude" : "11.14435",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202442083",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202442083",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05",
+                "longitude" : "11.14431",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202445510",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202445510",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04988",
+                "longitude" : "11.14427",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202448937",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202448937",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04988",
+                "longitude" : "11.14423",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202452364",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202452364",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04987",
+                "longitude" : "11.14418",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202455791",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202455791",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04985",
+                "longitude" : "11.14414",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202459218",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202459218",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04982",
+                "longitude" : "11.14411",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202462645",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202462645",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04978",
+                "longitude" : "11.1441",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202466072",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202466072",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04975",
+                "longitude" : "11.14411",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202469499",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202469499",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04972",
+                "longitude" : "11.14413",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202472926",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202472926",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0497",
+                "longitude" : "11.14416",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202476353",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202476353",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04964",
+                "longitude" : "11.1441",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202479780",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202479780",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04957",
+                "longitude" : "11.14404",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202483207",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202483207",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04948",
+                "longitude" : "11.14398",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202486634",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202486634",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04941",
+                "longitude" : "11.14394",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202490061",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202490061",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04933",
+                "longitude" : "11.1439",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202493488",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202493488",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04924",
+                "longitude" : "11.14386",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202496915",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202496915",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0491",
+                "longitude" : "11.1438",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202500342",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202500342",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04902",
+                "longitude" : "11.14377",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202503769",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202503769",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04895",
+                "longitude" : "11.14375",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202507196",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202507196",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04881",
+                "longitude" : "11.1437",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202510623",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202510623",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04876",
+                "longitude" : "11.14368",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202514050",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202514050",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04867",
+                "longitude" : "11.14364",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202517477",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202517477",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04856",
+                "longitude" : "11.14358",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202520904",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202520904",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04847",
+                "longitude" : "11.14352",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202524331",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202524331",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04839",
+                "longitude" : "11.14346",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202527758",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202527758",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04829",
+                "longitude" : "11.14338",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202531185",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202531185",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0482",
+                "longitude" : "11.1433",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202534612",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202534612",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04811",
+                "longitude" : "11.1432",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202538039",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202538039",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04805",
+                "longitude" : "11.14312",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202541466",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202541466",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04799",
+                "longitude" : "11.14303",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202544893",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202544893",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0479",
+                "longitude" : "11.1429",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202548320",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202548320",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04783",
+                "longitude" : "11.1428",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202551747",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202551747",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04776",
+                "longitude" : "11.14271",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202555174",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202555174",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04768",
+                "longitude" : "11.14215",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202558601",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202558601",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04762",
+                "longitude" : "11.14188",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202562028",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202562028",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0474",
+                "longitude" : "11.14122",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202565455",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202565455",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04739",
+                "longitude" : "11.14103",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202568882",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202568882",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04741",
+                "longitude" : "11.14086",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202572309",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202572309",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04749",
+                "longitude" : "11.14049",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202575736",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202575736",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04751",
+                "longitude" : "11.14035",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202579163",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202579163",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04756",
+                "longitude" : "11.14011",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202582590",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202582590",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0476",
+                "longitude" : "11.13977",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202586017",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202586017",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04761",
+                "longitude" : "11.13971",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202589444",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202589444",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0476",
+                "longitude" : "11.13965",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202592871",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202592871",
+                            "idTrip": "bike_QXfBcVqNor9Q",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0476",
+                "longitude" : "11.13965",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202593000",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202593000",
+                            "idTrip": "walk_HEQjksPzXyFP",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04761",
+                "longitude" : "11.13953",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202613000",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202613000",
+                            "idTrip": "walk_HEQjksPzXyFP",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04759",
+                "longitude" : "11.13945",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202633000",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202633000",
+                            "idTrip": "walk_HEQjksPzXyFP",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04758",
+                "longitude" : "11.13936",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202653000",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202653000",
+                            "idTrip": "walk_HEQjksPzXyFP",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04756",
+                "longitude" : "11.13891",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202673000",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202673000",
+                            "idTrip": "walk_HEQjksPzXyFP",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04756",
+                "longitude" : "11.13891",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202673000",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202673000",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04754",
+                "longitude" : "11.13886",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202675365",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202675365",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04754",
+                "longitude" : "11.13881",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202677730",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202677730",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04756",
+                "longitude" : "11.13876",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202680095",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202680095",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04761",
+                "longitude" : "11.13869",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202682460",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202682460",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04765",
+                "longitude" : "11.13864",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202684825",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202684825",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04769",
+                "longitude" : "11.13859",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202687190",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202687190",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04772",
+                "longitude" : "11.1385",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202689555",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202689555",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04775",
+                "longitude" : "11.13838",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202691920",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202691920",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0478",
+                "longitude" : "11.13816",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202694285",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202694285",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04784",
+                "longitude" : "11.13784",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202696650",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202696650",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04784",
+                "longitude" : "11.13761",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202699015",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202699015",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04793",
+                "longitude" : "11.13758",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202701380",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202701380",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04806",
+                "longitude" : "11.13753",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202703745",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202703745",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04813",
+                "longitude" : "11.1375",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202706110",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202706110",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04822",
+                "longitude" : "11.13746",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202708475",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202708475",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0483",
+                "longitude" : "11.13742",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202710840",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202710840",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04838",
+                "longitude" : "11.13737",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202713205",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202713205",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04848",
+                "longitude" : "11.13731",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202715570",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202715570",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04856",
+                "longitude" : "11.13726",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202717935",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202717935",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04866",
+                "longitude" : "11.1372",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202720300",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202720300",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04875",
+                "longitude" : "11.13716",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202722665",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202722665",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04885",
+                "longitude" : "11.13713",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202725030",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202725030",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04891",
+                "longitude" : "11.13713",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202727395",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202727395",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04905",
+                "longitude" : "11.13714",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202729760",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202729760",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04974",
+                "longitude" : "11.13725",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202732125",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202732125",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04983",
+                "longitude" : "11.13726",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202734490",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202734490",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.04996",
+                "longitude" : "11.13728",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202736855",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202736855",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0503",
+                "longitude" : "11.13733",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202739220",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202739220",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0505",
+                "longitude" : "11.13735",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202741585",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202741585",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05067",
+                "longitude" : "11.13737",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202743950",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202743950",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05078",
+                "longitude" : "11.13739",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202746315",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202746315",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.0509",
+                "longitude" : "11.13741",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202748680",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202748680",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05104",
+                "longitude" : "11.13743",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202751045",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202751045",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05112",
+                "longitude" : "11.13743",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202753410",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202753410",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05117",
+                "longitude" : "11.13742",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202755775",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202755775",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05122",
+                "longitude" : "11.1374",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202758140",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202758140",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05128",
+                "longitude" : "11.13736",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202760505",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202760505",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05132",
+                "longitude" : "11.13731",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202762870",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202762870",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05137",
+                "longitude" : "11.13723",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202765235",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202765235",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.05141",
+                "longitude" : "11.13715",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202767600",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202767600",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        },
+        {
+            "coords" : {
+                "accuracy" : 26,
+                "latitude" : "46.051422",
+                "longitude" : "11.137118",
+                "altitude" : 39.7,
+                "speed" : 2.02,
+                "heading" : 309.58
+            },
+            "activity" : {
+                "confidence": 100,
+                "type": "still"
+            },
+            "battery" : {
+                "is_charging": false,
+                "level": 0.9
+            },
+            "timestamp": "1733202769965",
+            "uuid": "7d1e31c5-ee86-48c0-be1a-88123dc97a01",
+            "is_moving": true,
+            "extras": {
+                "start": "1733202769965",
+                            "idTrip": "bike_M3uij5L7Wg20",
+                "multimodalId": "kImt9an7t6fV_modal"
+            }
+        }
+    ]
+}
