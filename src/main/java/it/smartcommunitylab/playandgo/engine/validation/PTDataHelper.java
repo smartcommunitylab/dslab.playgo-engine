@@ -166,6 +166,7 @@ public class PTDataHelper {
 		final File[] trainFiles = (new File(shapeFolder+"/train/" + territoryId)).listFiles();
 		if (trainFiles != null) {
 			for (File f : trainFiles) {
+			    logger.info("load train shapes for " + f.getAbsolutePath());
 				trainShapes.addAll(TrackValidator.parseShape(new FileInputStream(f)));
 			}
 			trainPoly = trainShapes.stream().map(x -> GamificationHelper.encodePoly(x)).collect(Collectors.toList());
@@ -174,6 +175,7 @@ public class PTDataHelper {
 		final File[] boatFiles = (new File(shapeFolder+"/boat/" + territoryId)).listFiles();
 		if (boatFiles != null) {
 			for (File f : boatFiles) {
+			    logger.info("load boat shapes for " + f.getAbsolutePath());
 				boatShapes.addAll(TrackValidator.parseShape(new FileInputStream(f)));
 			}
 			boatPoly = boatShapes.stream().map(x -> GamificationHelper.encodePoly(x)).collect(Collectors.toList());
@@ -194,9 +196,9 @@ public class PTDataHelper {
 	 */
 	private void loadBusFolder(File file, TTDescriptor bus) throws Exception {
 		if (file.isDirectory()) {
+		    logger.info("loadBusFolder for folder " + file.getAbsolutePath());
 			File[] files = file.listFiles();
 			InputStream shapes = null, stops = null, trips = null, stopTimes = null;
-			
 			for (File f : files) {
 				if (f.isDirectory()) {
 					loadBusFolder(f, bus);

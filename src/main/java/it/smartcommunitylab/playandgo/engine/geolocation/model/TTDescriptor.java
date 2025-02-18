@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -98,10 +99,13 @@ public class TTDescriptor {
 	 * @throws Exception 
 	 */
 	public synchronized void load(InputStream stopSrc, InputStream tripSrc, InputStream stopTimeSrc, InputStream shapeSrc) throws Exception {
-		loadShapes(shapeSrc);
+		logger.info("load shapes");
+	    loadShapes(shapeSrc);
+	    logger.info("load stops");
 		loadStops(stopSrc);
+		logger.info("load stop times");
 		loadStopTimes(stopTimeSrc, loadTrips(tripSrc));
-		
+		logger.info("build polylines");
 		buildPolylines();
 	}
 	
@@ -296,6 +300,7 @@ public class TTDescriptor {
 	public void loadStopTimes(InputStream stopTimeSrc, Map<String, TTLineDescriptor> tripMap) throws Exception {
 		CsvSchema bootstrapSchema = CsvSchema.emptySchema().withHeader();
 		ObjectMapper mapper = new CsvMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		MappingIterator<GTFSStopTime> values = mapper.readerFor(GTFSStopTime.class).with(bootstrapSchema).readValues(stopTimeSrc);
 
 		Map<String, Integer> minMap = new HashMap<>();
@@ -384,6 +389,7 @@ public class TTDescriptor {
 	public Map<String, TTLineDescriptor> loadTrips(InputStream tripSrc) throws Exception {
 		CsvSchema bootstrapSchema = CsvSchema.emptySchema().withHeader();
 		ObjectMapper mapper = new CsvMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		MappingIterator<GTFSTrip> values = mapper.readerFor(GTFSTrip.class).with(bootstrapSchema).readValues(tripSrc);
 
 		Map<String, TTLineDescriptor> tripMap = new HashMap<>();
@@ -410,6 +416,7 @@ public class TTDescriptor {
 	public void loadStops(InputStream stopSrc) throws Exception {
 		CsvSchema bootstrapSchema = CsvSchema.emptySchema().withHeader();
 		ObjectMapper mapper = new CsvMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		MappingIterator<GTFSStop> values = mapper.readerFor(GTFSStop.class).with(bootstrapSchema).readValues(stopSrc);
 
 		while (values.hasNext()) {
@@ -429,6 +436,7 @@ public class TTDescriptor {
 	private void loadShapes(InputStream shapeSrc) throws Exception {
 		CsvSchema bootstrapSchema = CsvSchema.emptySchema().withHeader();
 		ObjectMapper mapper = new CsvMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		MappingIterator<GTFSShape> values = mapper.readerFor(GTFSShape.class).with(bootstrapSchema).readValues(shapeSrc);
 		Map<String, List<GTFSShape>> shapes = values.readAll().stream().collect(Collectors.groupingBy(s -> s.shape_id));
 
