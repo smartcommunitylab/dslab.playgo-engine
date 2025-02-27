@@ -32,7 +32,7 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 public class BasicCampaignSurveyManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(BasicCampaignSurveyManager.class);
 
-	private static long twoWeeksMillis = 1000 * 60 * 60 * 24 * 14;  
+	private static long twoWeeksMillis = 1000 * 60 * 60 * 24 * 7;  
 	
 	@Autowired
 	GamificationEngineManager gamificationManager;
