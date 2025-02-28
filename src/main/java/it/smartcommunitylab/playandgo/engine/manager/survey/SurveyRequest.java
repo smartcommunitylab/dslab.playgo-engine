@@ -9,6 +9,7 @@ public class SurveyRequest {
 	private long start;
 	private long end;
 	private boolean defaultSurvey;
+	private long defaultSurveyDuration;
 	private String mailSubject;
 	private String mailBody;
 	
@@ -60,5 +61,11 @@ public class SurveyRequest {
 	public void setMailBody(String mailBody) {
 		this.mailBody = mailBody;
 	}
+    public long getDefaultSurveyDuration() {
+        return defaultSurveyDuration;
+    }
+    public void setDefaultSurveyDuration(long defaultSurveyDuration) {
+        this.defaultSurveyDuration = defaultSurveyDuration;
+    }
 
 }

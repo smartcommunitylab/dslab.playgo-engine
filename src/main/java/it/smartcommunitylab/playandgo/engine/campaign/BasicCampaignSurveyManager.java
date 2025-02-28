@@ -32,7 +32,7 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 public class BasicCampaignSurveyManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(BasicCampaignSurveyManager.class);
 
-	private static long twoWeeksMillis = 1000 * 60 * 60 * 24 * 7;  
+	private static long twoWeeksMillis = 1000 * 60 * 60 * 24 * 14;  
 	
 	@Autowired
 	GamificationEngineManager gamificationManager;
@@ -63,7 +63,11 @@ public class BasicCampaignSurveyManager {
 			long now = System.currentTimeMillis();
 			Date startDate = DateUtils.truncate(Utils.getUTCDate(now), Calendar.DAY_OF_MONTH);
 			sr.setStart(startDate.getTime());
-			sr.setEnd(startDate.getTime() + twoWeeksMillis);
+			if(sr.getDefaultSurveyDuration() > 0) {
+			    sr.setEnd(startDate.getTime() + sr.getDefaultSurveyDuration());
+			} else {
+			    sr.setEnd(startDate.getTime() + twoWeeksMillis);
+			}
 		}
 		
 		if(playerIds == null || playerIds.size() == 0) {
