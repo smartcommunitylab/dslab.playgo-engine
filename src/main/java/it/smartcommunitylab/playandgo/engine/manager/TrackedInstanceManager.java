@@ -333,23 +333,28 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	
 	@Override
 	public void validateTripRequest(ValidateTripRequest msg) {
-	    List<Pair<String, String>> validatePairList = new ArrayList<>();
-	    validatePairList.add(Pair.of(msg.getPlayerId(), msg.getMultimodalId())); 
-		List<TrackedInstance> list = getTrackedInstance(msg.getPlayerId(), msg.getMultimodalId());
-		for(TrackedInstance track : list) {
-            if (!StringUtils.hasText(track.getSharedTravelId())) {
-                // free tracking
-                validateFreeTrackingTripRequest(track, msg.isForceValidation());
-            } else {
-                // carsharing
-                List<Pair<String, String>> validateSharedTravelRequest = validateSharedTravelRequest(track, msg.isForceValidation());
-                mergePair(validatePairList, validateSharedTravelRequest);
-            }		    
-		}
-		for(Pair<String, String> pair : validatePairList) {
-		    ValidateTripRequest newMsg = new ValidateTripRequest(pair.getLeft(), msg.getTerritoryId(), pair.getRight(), msg.isForceValidation());
-		    sendValidateCampaignRequest(newMsg);
-		}
+	    try {
+	        List<Pair<String, String>> validatePairList = new ArrayList<>();
+	        validatePairList.add(Pair.of(msg.getPlayerId(), msg.getMultimodalId())); 
+	        List<TrackedInstance> list = getTrackedInstance(msg.getPlayerId(), msg.getMultimodalId());
+	        for(TrackedInstance track : list) {
+	            if (!StringUtils.hasText(track.getSharedTravelId())) {
+	                // free tracking
+	                validateFreeTrackingTripRequest(track, msg.isForceValidation());
+	            } else {
+	                // carsharing
+	                List<Pair<String, String>> validateSharedTravelRequest = validateSharedTravelRequest(track, msg.isForceValidation());
+	                mergePair(validatePairList, validateSharedTravelRequest);
+	            }           
+	        }
+	        logger.info(String.format("validateTripRequest: %s", validatePairList.toString()));
+	        for(Pair<String, String> pair : validatePairList) {
+	            ValidateTripRequest newMsg = new ValidateTripRequest(pair.getLeft(), msg.getTerritoryId(), pair.getRight(), msg.isForceValidation());
+	            sendValidateCampaignRequest(newMsg);
+	        }            
+        } catch (Exception e) {
+            logger.error(String.format("validateTripRequest:%s", e.getMessage()));
+        }
 	}
 	
 	private void mergePair(List<Pair<String, String>> validatePairList, List<Pair<String, String>> newList) {
@@ -379,6 +384,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
                 pendingTrip = true;
             }
         }
+        logger.info(String.format("sendValidateCampaignRequest: %s [valid:%s, pending:%s]", msg.getMultimodalId(), validTrip, pendingTrip));
         if(validTrip && !pendingTrip) {
             List<CampaignSubscription> listSub = campaignSubscriptionRepository.findByPlayerIdAndTerritoryId(msg.getPlayerId(), msg.getTerritoryId());
             for(CampaignSubscription sub : listSub) {
