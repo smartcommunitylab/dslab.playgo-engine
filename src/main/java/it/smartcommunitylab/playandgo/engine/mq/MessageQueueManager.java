@@ -39,7 +39,9 @@ public class MessageQueueManager {
             ValidateTripRequest message = mapper.readValue(json, ValidateTripRequest.class);
             if(manageValidateTripRequest != null) {
                 manageValidateTripRequest.validateTripRequest(message);
-            }                   
+            } else {
+                logger.warn("missing ManageValidateTripRequest:" + json);
+            }
         } catch (Exception e) {
             logger.error(String.format("validateTripRequestCallback:", e.getMessage()));
         }
@@ -55,7 +57,9 @@ public class MessageQueueManager {
             ManageValidateCampaignTripRequest manager = manageValidateCampaignTripRequestMap.get(routingKey);
             if(manager != null) {
                 manager.validateTripRequest(message);
-            }            
+            } else {
+                logger.warn("missing ManageValidateCampaignTripRequest:" + routingKey);
+            }           
         } catch (Exception e) {
             logger.error(String.format("validateCampaignTripRequestCallback:", e.getMessage()));
         }
