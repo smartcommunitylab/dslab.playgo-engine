@@ -322,7 +322,10 @@ public class TrackValidator {
 				if (d < d0) {
 					found = i - 1;
 					break;
-				}
+				} else if (d > 0.25) { //too far from initial point
+                    found = null;
+                    break;
+                }				
 			}
 		}
 
