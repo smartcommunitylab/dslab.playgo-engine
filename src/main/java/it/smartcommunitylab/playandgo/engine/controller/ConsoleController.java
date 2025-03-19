@@ -294,13 +294,19 @@ public class ConsoleController extends PlayAndGoController {
 	        throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
 	    }
 	    StringBuffer sb = new StringBuffer("playerId,identity\n"); 
-	    if(Utils.isNotEmpty(campaign.getGameId())) {
-	        List<CampaignSubscription> campaignSubscriptions = campaignManager.getCampaignSubscriptions(campaignId);
-	        for(CampaignSubscription sub : campaignSubscriptions) {
-	            String identity = gamificationEngineManager.encryptIdentity(sub.getPlayerId(), campaign.getGameId());
-	            sb.append(sub.getPlayerId() + "," + identity + "\n");
-	        }	        
-	    }
+        List<CampaignSubscription> campaignSubscriptions = campaignManager.getCampaignSubscriptions(campaignId);
+        for(CampaignSubscription sub : campaignSubscriptions) {
+            String gameId = null;
+            if(campaign.getType().equals(Campaign.Type.company)) {
+                gameId= campaignId;
+            } else if(Utils.isNotEmpty(campaign.getGameId())) {
+                gameId = campaign.getGameId();
+            }
+            if(gameId != null) {
+                String identity = gamificationEngineManager.encryptIdentity(sub.getPlayerId(), gameId);
+                sb.append(sub.getPlayerId() + "," + identity + "\n");                
+            }
+        }	        
 	    byte[] content = sb.toString().getBytes();
 	    InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(content));
 	    HttpHeaders header = new HttpHeaders();
