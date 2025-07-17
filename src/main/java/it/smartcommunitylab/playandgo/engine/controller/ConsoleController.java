@@ -189,6 +189,7 @@ public class ConsoleController extends PlayAndGoController {
 			@RequestParam(required = false) String campaignId,
 			@RequestParam(required = false) String status,
 			@RequestParam(required = false) String scoreStatus,
+			@RequestParam(required = false) Boolean campaignValidity,
 			@RequestParam(required = false) Boolean toCheck,
 			@RequestParam(required = false) String multimodalId,
 			@ParameterObject Pageable pageRequest,
@@ -201,7 +202,7 @@ public class ConsoleController extends PlayAndGoController {
 			dDateTo = Utils.getUTCDate(dateTo);
 		}
 		return trackedInstanceManager.searchTrackedInstance(territoryId, trackId, multimodalId, playerId, modeType, campaignId, status, scoreStatus,
-				toCheck, dDateFrom, dDateTo, pageRequest);
+		        campaignValidity, toCheck, dDateFrom, dDateTo, pageRequest);
 	}
 	
 	@GetMapping("/api/console/track/detail")
