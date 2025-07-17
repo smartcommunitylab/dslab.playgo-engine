@@ -544,7 +544,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	}
 	
 	public Page<TrackedInstanceConsole> searchTrackedInstance(String territoryId, String trackedInstanceId, String multimodalId, String playerId, String modeType, 
-			String campaignId, String validationStatus, String scoreStatus, Boolean toCheck, Date dateFrom, Date dateTo, Pageable pageRequest) {
+			String campaignId, String validationStatus, String scoreStatus, Boolean campaignValidity, Boolean toCheck, Date dateFrom, Date dateTo, Pageable pageRequest) {
 		List<AggregationOperation> operations = new ArrayList<>();
         
 		Criteria criteria = new Criteria("territoryId").is(territoryId);
@@ -591,6 +591,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
             Criteria criteriaLookup = new Criteria("campaignPlayerTracks.campaignId").is(campaignId);
 			if(Utils.isNotEmpty(scoreStatus)) {
 			    criteriaLookup = criteriaLookup.and("campaignPlayerTracks.scoreStatus").is(scoreStatus);
+			}
+			if (campaignValidity != null) {
+			    criteriaLookup = criteriaLookup.and("campaignPlayerTracks.valid").is(campaignValidity);
 			}
 			operations.add(Aggregation.match(criteriaLookup));
 		}
