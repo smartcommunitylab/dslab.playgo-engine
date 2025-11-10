@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
+import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager.VirtualTrackOp;
 import it.smartcommunitylab.playandgo.engine.manager.ext.CampaignMsgManager;
@@ -79,6 +80,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
    
 	@Autowired
     CampaignMsgManager campaignMsgManager;
+
+	@Autowired
+	UserCampaignLock campaignLock;
 	
 	protected String groupIdKey = null;
 	
@@ -86,22 +90,29 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	
 	@Override
 	public void validateTripRequest(ValidateCampaignTripRequest msg) {
-	    List<TrackedInstance> trackList = getTrackedInstance(msg.getPlayerId(), msg.getMultimodalId());
-	    for(TrackedInstance track : trackList) {
-	        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
-	                msg.getCampaignId(), track.getId());
-	        if((playerTrack != null) && ScoreStatus.UNASSIGNED.equals(playerTrack.getScoreStatus())) {
-                try {
-                    if (!StringUtils.hasText(track.getSharedTravelId())) {
-                        validateFreeTrackingTripRequest(msg, playerTrack, track);
-                    } else {
-                        validateSharedTripRequest(msg, playerTrack, track);
-                    }
-                } catch (Exception e) {
-                    logger.error(String.format("error in validateTripRequest[%s]:%s", track.getId(), e.getMessage()));
-                }
-	        }
-	    }		
+	    try {
+			campaignLock.lock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
+			List<TrackedInstance> trackList = getTrackedInstance(msg.getPlayerId(), msg.getMultimodalId());
+			for(TrackedInstance track : trackList) {
+				CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
+						msg.getCampaignId(), track.getId());
+				if((playerTrack != null) && ScoreStatus.UNASSIGNED.equals(playerTrack.getScoreStatus())) {
+					try {
+						if (!StringUtils.hasText(track.getSharedTravelId())) {
+							validateFreeTrackingTripRequest(msg, playerTrack, track);
+						} else {
+							validateSharedTripRequest(msg, playerTrack, track);
+						}
+					} catch (Exception e) {
+						logger.error(String.format("error in validateTripRequest[%s]:%s", track.getId(), e.getMessage()));
+					}
+				}
+			}		
+		} catch (Exception e) {
+            logger.error("validateTripRequest error:" + e.getMessage());
+		} finally {
+			campaignLock.unlock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
+		}
 	}
 	
     private List<TrackedInstance> getTrackedInstance(String userId, String multimodalId) {

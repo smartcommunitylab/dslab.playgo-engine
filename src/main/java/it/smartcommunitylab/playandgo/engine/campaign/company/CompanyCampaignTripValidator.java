@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
+import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager.VirtualTrackOp;
@@ -69,6 +70,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	@Autowired
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
 
+	@Autowired
+	UserCampaignLock campaignLock;
+
 	@PostConstruct
 	public void init() {
 		queueManager.setManageValidateCampaignTripRequest(this, Type.company);
@@ -81,6 +85,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	            msg.getCampaignId(), trackData);
         if(sendValidation) {
             try {
+				campaignLock.lock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
                 TrackResult trackResult = pgAziendaleManager.validateTrack(msg.getCampaignId(), msg.getPlayerId(), trackData);
                 if(!trackResult.getValid()) {
                     for(LegData legData : trackData.getLegs()) {
@@ -129,7 +134,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
             } catch (ServiceException e) {
                 logger.error("validateTripRequest error:" + e.getMessage());
                 campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
-            }                           
+            } finally {
+				campaignLock.unlock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
+			}  
         }	    
 	}
 	
