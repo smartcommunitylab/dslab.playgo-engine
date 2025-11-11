@@ -290,6 +290,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		    TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
 		    if(track != null) {
 	            try {
+					campaignLock.lock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));					
 	                pgAziendaleManager.invalidateTrack(playerTrack.getCampaignId(), 
 	                        playerTrack.getPlayerId(), playerTrack.getTrackedInstanceId());
 	                List<TrackedInstance> trackList = getTrackedInstance(playerTrack.getPlayerId(), track.getMultimodalId());
@@ -297,14 +298,16 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                         CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerTrack.getPlayerId(), 
                                 playerTrack.getCampaignId(), ti.getId());
                         if((pTrack != null) && (pTrack.isValid())) {
-                            errorPlayerTrack(playerTrack, track.getValidationResult().getValidationStatus().getError().toString());
+                            errorPlayerTrack(pTrack, track.getValidationResult().getValidationStatus().getError().toString());
                             playerReportManager.removePlayerCampaignPlacings(pTrack);                                              
                         }
 	                }
 	            } catch (ServiceException e) {
 	                logger.error("invalidateTripRequest error:" + e.getMessage());
 	                campaignMsgManager.addInvalidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
-	            }
+	            } finally {
+					campaignLock.unlock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));
+				}
 		    }
 		}
 	}
@@ -327,6 +330,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		                pTrack.getCampaignId(), trackData);
 		        if(sendValidation) {
 		            try {
+						campaignLock.lock(campaignLock.getKey(pTrack.getPlayerId(), pTrack.getCampaignId()));
 		                TrackResult trackResult = pgAziendaleManager.validateTrack(pTrack.getCampaignId(), pTrack.getPlayerId(), trackData);
 		                if(!trackResult.getValid()) {
 		                    for(LegData legData : trackData.getLegs()) {
@@ -371,7 +375,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		            } catch (ServiceException e) {
 		                logger.error("revalidateTripRequest error:" + e.getMessage());
 		                campaignMsgManager.addRevalidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
-		            }                           
+		            } finally {
+						campaignLock.unlock(campaignLock.getKey(pTrack.getPlayerId(), pTrack.getCampaignId()));}                          
 		        }   		        
 		    }				
 		}

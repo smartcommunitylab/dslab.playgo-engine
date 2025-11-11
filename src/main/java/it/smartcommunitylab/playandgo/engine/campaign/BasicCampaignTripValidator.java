@@ -240,14 +240,21 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	public void invalidateTripRequest(UpdateCampaignTripRequest msg) {
 		CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
 		if(playerTrack != null) {
-			playerTrack.setValid(false);
-			TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
-			if(track != null) {
-				playerTrack.setErrorCode(track.getValidationResult().getValidationStatus().getError().toString());
+			try {
+				campaignLock.lock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));
+				playerTrack.setValid(false);
+				TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
+				if(track != null) {
+					playerTrack.setErrorCode(track.getValidationResult().getValidationStatus().getError().toString());
+				}
+				campaignPlayerTrackRepository.save(playerTrack);
+				playerReportManager.removePlayerCampaignPlacings(playerTrack);
+				//TODO send action to GamificationEngine?
+			} catch (Exception e) {
+				logger.error("invalidateTripRequest error:" + e.getMessage());
+			} finally {
+				campaignLock.unlock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));
 			}
-			campaignPlayerTrackRepository.save(playerTrack);
-			playerReportManager.removePlayerCampaignPlacings(playerTrack);
-			//TODO send action to GamificationEngine?
 		}
 	}
 
@@ -258,23 +265,30 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 	        TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
 	        Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
 	        if((track != null) && (campaign != null)) {
-	            double deltaDistance = Utils.getTrackDistance(track) - playerTrack.getDistance();
-	            double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(Utils.getTrackDistance(track))) - playerTrack.getCo2();
-	            ScoreStatus oldStatus = playerTrack.getScoreStatus();
-	            if(oldStatus.equals(ScoreStatus.UNASSIGNED) || oldStatus.equals(ScoreStatus.SENT)) {
-	                revalidateTripRequest(msg);
-	            } else if(oldStatus.equals(ScoreStatus.COMPUTED)) {
-	                playerTrack.setDistance(Utils.getTrackDistance(track));
-	                playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
-	                campaignPlayerTrackRepository.save(playerTrack);
-	                if(deltaDistance != 0) {
-	                    playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, 0.0, VirtualTrackOp.nothing);
-	                    if(Utils.isNotEmpty(campaign.getGameId()) && (deltaDistance > 0)) {
-	                        Map<String,Object> trackingData = getTrackingData(track, deltaDistance);
-	                        gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, false);
-	                    }                   
-	                }
-	            }
+				try {
+					campaignLock.lock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));
+					double deltaDistance = Utils.getTrackDistance(track) - playerTrack.getDistance();
+					double deltaCo2 = Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(Utils.getTrackDistance(track))) - playerTrack.getCo2();
+					ScoreStatus oldStatus = playerTrack.getScoreStatus();
+					if(oldStatus.equals(ScoreStatus.UNASSIGNED) || oldStatus.equals(ScoreStatus.SENT)) {
+						revalidateTripRequest(msg);
+					} else if(oldStatus.equals(ScoreStatus.COMPUTED)) {
+						playerTrack.setDistance(Utils.getTrackDistance(track));
+						playerTrack.setCo2(Utils.getSavedCo2(playerTrack.getModeType(), Math.abs(playerTrack.getDistance())));
+						campaignPlayerTrackRepository.save(playerTrack);
+						if(deltaDistance != 0) {
+							playerReportManager.updatePlayerCampaignPlacings(playerTrack, deltaDistance, deltaCo2, 0.0, VirtualTrackOp.nothing);
+							if(Utils.isNotEmpty(campaign.getGameId()) && (deltaDistance > 0)) {
+								Map<String,Object> trackingData = getTrackingData(track, deltaDistance);
+								gamificationEngineManager.sendSaveItineraryAction(playerTrack.getPlayerId(), campaign.getGameId(), trackingData, false);
+							}                   
+						}
+					}					
+				} catch (Exception e) {
+					logger.error("updateTripRequest error:" + e.getMessage());
+				} finally {
+					campaignLock.unlock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));
+				}
 	        }		    
 		}
 	}
@@ -296,6 +310,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
             TrackedInstance track = trackedInstanceRepository.findById(playerTrack.getTrackedInstanceId()).orElse(null);
             if((campaign != null) && (track != null)) {
                 try {
+					campaignLock.lock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));
                     ScoreStatus oldStatus = playerTrack.getScoreStatus();
                     double deltaDistance = Utils.getTrackDistance(track) - playerTrack.getDistance();
                     Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(track.getTerritoryId(), 
@@ -319,7 +334,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
                 } catch (Exception e) {
                     logger.error("revalidateTripRequest error:" + e.getMessage());
                     campaignMsgManager.addRevalidateTripRequest(msg, campaign.getType(), e.getMessage(), ErrorCode.OPERATION_ERROR);
-                }                
+                }  finally {
+					campaignLock.unlock(campaignLock.getKey(playerTrack.getPlayerId(), playerTrack.getCampaignId()));
+				}              
             }
         }	    
 	}
