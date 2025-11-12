@@ -21,7 +21,6 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.
 import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
-import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager.VirtualTrackOp;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.LegData;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.LegResult;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
@@ -146,16 +145,6 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		} catch (Exception e) {
 			throw new ServiceException("updatePlayerCampaignPlacings error:" + e.getMessage());
 		}
-	}
-	
-	private boolean isVirtualTrackByMultimodalId(ValidateCampaignTripRequest msg, TrackData trackData) {
-	    for(LegData leg : trackData.getLegs()) {
-	        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), msg.getCampaignId(), leg.getId());
-	        if((playerTrack != null) && playerTrack.isVirtualTrack()) {
-	            return true;
-	        }
-	    }
-	    return false;
 	}
 	
 	private String getCompanyId(CampaignPlayerTrack pt) {

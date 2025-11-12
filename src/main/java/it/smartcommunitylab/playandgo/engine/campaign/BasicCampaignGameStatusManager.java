@@ -233,16 +233,6 @@ public abstract class BasicCampaignGameStatusManager {
             }
         }
 	}
-    
-    private void setDailyScore(PlayerStatsGame statsGame, JsonNode pointConcept, String day, double delta) {
-        String path = "/periods/daily/instances/" + day + "T00:00:00/score";
-        JsonNode node = pointConcept.at(path);
-        if(node.isMissingNode()) {
-            statsGame.setScore(statsGame.getScore() + delta);
-        } else {
-            statsGame.setScore(node.asDouble());
-        }
-    }
 
 	private Update upsertGameStatus(Player p, Campaign c, List<PlayerLevel> levels, List<BadgeCollectionConcept> badges, double score) {
 		Update update = new Update();
