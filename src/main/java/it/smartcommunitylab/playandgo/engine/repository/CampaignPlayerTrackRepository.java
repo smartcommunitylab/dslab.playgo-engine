@@ -2,6 +2,7 @@ package it.smartcommunitylab.playandgo.engine.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +14,9 @@ public interface CampaignPlayerTrackRepository extends MongoRepository<CampaignP
 	public CampaignPlayerTrack findByPlayerIdAndCampaignIdAndTrackedInstanceId(String playerId, String campaignId, String trackedInstanceId);
 	
 	public List<CampaignPlayerTrack> findByPlayerIdAndTrackedInstanceId(String playerId, String trackedInstanceId);
+
+	public List<CampaignPlayerTrack> findByPlayerIdAndCampaignIdAndModeTypeAndStartingDayAndValid(
+			String playerId, String campaignId, String modeType, String startingDay, boolean valid, Sort sort);
 	
 	public Long countByCampaignId(String campaignId);
 }
