@@ -1,21 +1,29 @@
 package it.smartcommunitylab.playandgo.engine.util;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
+
+	public static final DateTimeFormatter dtfDay = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
+    public static final DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 
 	public static boolean isNotEmpty(String value) {
 		boolean result = false;
@@ -124,5 +132,13 @@ public class Utils {
         }
         return false;	    
 	}
+
+    public static Set<String> getModeTypesFromPlayerTracks(List<CampaignPlayerTrack> playerTracks) {
+		Set<String> modeTypes = new java.util.HashSet<>();
+		for(CampaignPlayerTrack pt : playerTracks) {
+			modeTypes.add(pt.getModeType());
+		}
+		return modeTypes;
+    }
  	
 }

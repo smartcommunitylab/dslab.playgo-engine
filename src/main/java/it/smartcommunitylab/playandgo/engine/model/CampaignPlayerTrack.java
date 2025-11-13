@@ -40,6 +40,7 @@ public class CampaignPlayerTrack {
 	private double co2;	//Kgr
 	private double virtualScore;
 	private boolean virtualTrack;
+	private String startingDay; //yyyy-MM-dd
 	
 	private Map<String, Object> trackingData = new HashMap<>();
 	
@@ -164,5 +165,11 @@ public class CampaignPlayerTrack {
     public void setVirtualTrack(boolean virtualTrack) {
         this.virtualTrack = virtualTrack;
     }
+	public String getStartingDay() {
+		return startingDay;
+	}
+	public void setStartingDay(String startingDay) {
+		this.startingDay = startingDay;
+	}
 
 }

@@ -4,12 +4,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -54,6 +52,7 @@ import it.smartcommunitylab.playandgo.engine.report.GameStats;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatusReport;
 import it.smartcommunitylab.playandgo.engine.report.TransportStat;
 import it.smartcommunitylab.playandgo.engine.report.TransportStats;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerStatsGameRepository;
@@ -99,11 +98,10 @@ public class PlayerCampaignPlacingManager {
 	PlayerStatsGameRepository playerStatsGameRepository;
 	
 	@Autowired
+	CampaignPlayerTrackRepository campaignPlayerTrackRepository;
+
+	@Autowired
 	PgAziendaleManager pgAziendaleManager;
-	
-	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");   
-    DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
-    DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 	
 	private ZonedDateTime getTrackDay(Campaign campaign, CampaignPlayerTrack pt) {		
 		ZoneId zoneId = null;
@@ -125,141 +123,12 @@ public class PlayerCampaignPlacingManager {
             zoneId = ZoneId.of(territory.getTimezone());
         }
         ZonedDateTime zdt = ZonedDateTime.ofInstant(date.toInstant(), zoneId);
-        return zdt.format(dtf);
-	}
-	
-	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt) {
-		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
-		if(campaign != null) {
-			if(!campaign.getType().equals(Type.personal)) {
-				if(pt.getStartTime().before(campaign.getDateFrom()) || pt.getStartTime().after(campaign.getDateTo())) {
-					return;
-				}
-			}
-			Player player = playerRepository.findById(pt.getPlayerId()).orElse(null);
-			if(player == null) {
-				return;
-			}
-			FindAndModifyOptions findAndModifyOptions = FindAndModifyOptions.options().upsert(true).returnNew(true);
-			//transport daily placing
-			ZonedDateTime trackDay = getTrackDay(campaign, pt);
-			String day = trackDay.format(dtf);
-			String weekOfYear = trackDay.format(dftWeek);
-			String monthOfYear = trackDay.format(dftMonth);
-			Query dayByModeQuery = new Query(new Criteria("playerId").is(pt.getPlayerId()).and("campaignId").is(pt.getCampaignId())
-				.and("modeType").is(pt.getModeType()).and("global").is(Boolean.FALSE).and("day").is(day)); 
-			Update dayByModeUpdate = upsertNewPlacing(pt.getPlayerId(), player.getNickname(), pt.getCampaignId(), pt.getModeType(), 
-				pt.getGroupId(), Boolean.FALSE, day, weekOfYear, monthOfYear, pt);
-			mongoTemplate.findAndModify(dayByModeQuery, dayByModeUpdate, findAndModifyOptions, PlayerStatsTransport.class);
-			
-			logger.info(String.format("updatePlayerCampaignPlacings: update player[%s] stats[%s] for campaign[%s]", 
-				pt.getPlayerId(), pt.getModeType(), pt.getCampaignId()));
-		}
-	}
-	
-	public void removePlayerCampaignPlacings(CampaignPlayerTrack pt) {
-		//transport daily placing
-		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
-		ZonedDateTime trackDay = getTrackDay(campaign, pt);
-		String day = trackDay.format(dtf);
-		PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
-				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, day);
-		if(dayByMode != null) {
-			dayByMode.subDistance(pt.getDistance());
-			dayByMode.subDuration(pt.getDuration());
-			dayByMode.subCo2(pt.getCo2());
-			dayByMode.subTrack();
-            dayByMode.subVirtualScore(pt.getVirtualScore());
-            if(pt.isVirtualTrack()) {
-                dayByMode.subVirtualTrack();
-            }			
-			playerStatsTransportRepository.save(dayByMode);					
-		}
-	}
-	
-	public void updatePlayerCampaignPlacings(CampaignPlayerTrack pt, double deltaDistance, double deltaCo2, 
-	        double deltaVirtualScore, VirtualTrackOp virtualTrackOp) {
-		//transport daily placing
-		Player player = playerRepository.findById(pt.getPlayerId()).orElse(null);
-		Campaign campaign = campaignManager.getCampaign(pt.getCampaignId());
-		ZonedDateTime trackDay = getTrackDay(campaign, pt);
-		String day = trackDay.format(dtf);
-		PlayerStatsTransport dayByMode = playerStatsTransportRepository.findByPlayerIdAndCampaignIdAndModeTypeAndGlobalAndDay(
-				pt.getPlayerId(), pt.getCampaignId(), pt.getModeType(), Boolean.FALSE, day);
-		if(dayByMode != null) {
-			if(deltaDistance > 0) {
-				dayByMode.addDistance(deltaDistance);
-				dayByMode.addCo2(deltaCo2);
-			} else if (deltaDistance < 0) {
-				dayByMode.subDistance(Math.abs(deltaDistance));
-				dayByMode.subCo2(Math.abs(deltaCo2));
-			}
-            if(deltaVirtualScore > 0) {
-                dayByMode.addVirtualScore(deltaVirtualScore); 
-            } else if(deltaVirtualScore < 0) {
-                dayByMode.subVirtualScore(Math.abs(deltaVirtualScore));
-            }
-            if(virtualTrackOp != null) {
-                if(virtualTrackOp.equals(VirtualTrackOp.add)) {
-                    dayByMode.addVirtualTrack(); 
-                } else if(virtualTrackOp.equals(VirtualTrackOp.sub)) {
-                    dayByMode.subVirtualTrack();
-                }
-            }            
-			playerStatsTransportRepository.save(dayByMode);			
-		} else {
-		    dayByMode = new PlayerStatsTransport();
-		    dayByMode.setGlobal(Boolean.FALSE);
-		    dayByMode.setModeType(pt.getModeType());
-		    dayByMode.setCampaignId(pt.getCampaignId());
-		    dayByMode.setPlayerId(pt.getPlayerId());
-            if(player != null) {
-                dayByMode.setNickname(player.getNickname());
-                if(player.getGroup()) dayByMode.setGroupId(player.getPlayerId());
-            }
-            dayByMode.addDistance(deltaDistance);
-            dayByMode.addDuration(pt.getDuration());
-            dayByMode.addCo2(deltaCo2);
-            dayByMode.addTrack();
-            dayByMode.addVirtualScore(deltaVirtualScore);
-            if(pt.isVirtualTrack()) dayByMode.addVirtualTrack();
-            if(Utils.isNotEmpty(pt.getGroupId())) dayByMode.setGroupId(pt.getGroupId());
-            String weekOfYear = trackDay.format(dftWeek);
-            String monthOfYear = trackDay.format(dftMonth);
-            dayByMode.setDay(day);
-            dayByMode.setMonthOfYear(monthOfYear);
-            dayByMode.setWeekOfYear(weekOfYear);
-            playerStatsTransportRepository.save(dayByMode);
-		}
-	}
-	
-	private LocalDate getWeeklyDay(int startDayOfWeek, LocalDate trackDay) {
-		LocalDate dayOfWeek = trackDay.with(TemporalAdjusters.previousOrSame(DayOfWeek.of(startDayOfWeek)));
-		return dayOfWeek;
-	}
-	
-	private PlayerStatsTransport addNewPlacing(String playerId, String nickname, String campaignId, String modeType, 
-			String groupId, Boolean global, String day, String weekOfYear, String monthOfYear) {
-		PlayerStatsTransport pst = new PlayerStatsTransport();
-		pst.setPlayerId(playerId);
-		pst.setNickname(nickname);
-		pst.setCampaignId(campaignId);
-		pst.setModeType(modeType);
-		pst.setGlobal(global);
-		if(!global) {
-			pst.setDay(day);
-			pst.setWeekOfYear(weekOfYear);
-			pst.setMonthOfYear(monthOfYear);			
-		}
-		if(Utils.isNotEmpty(groupId)) {
-		    pst.setGroupId(groupId);
-		}
-		playerStatsTransportRepository.save(pst);
-		return pst;
+        return zdt.format(Utils.dtfDay);
 	}
 
 	private Update upsertNewPlacing(String playerId, String nickname, String campaignId, String modeType, 
-			String groupId, Boolean global, String day, String weekOfYear, String monthOfYear, CampaignPlayerTrack pt) {
+			String groupId, Boolean global, String day, String weekOfYear, String monthOfYear, double distance, long duration,
+			double co2, long trackNumber, double virtualScore, long virtualTrack) {
 		Update update = new Update();
 		update.setOnInsert("playerId", playerId);
 		update.setOnInsert("nickname", nickname);
@@ -270,16 +139,12 @@ public class PlayerCampaignPlacingManager {
 		if(Utils.isNotEmpty(day)) update.setOnInsert("day", day);
 		if(Utils.isNotEmpty(monthOfYear)) update.setOnInsert("monthOfYear", monthOfYear);
 		if(Utils.isNotEmpty(weekOfYear)) update.setOnInsert("weekOfYear", weekOfYear);
-		update.inc("distance", pt.getDistance());
-		update.inc("duration", pt.getDuration());
-		update.inc("co2", pt.getCo2());
-		update.inc("trackNumber", 1L);
-		update.inc("virtualScore", pt.getVirtualScore());
-		if(pt.isVirtualTrack()) {
-			update.inc("virtualTrack", 1L);
-		} else {
-			update.inc("virtualTrack", 0L);
-		}
+		update.set("distance", distance);
+		update.set("duration", duration);
+		update.set("co2", co2);
+		update.set("trackNumber", trackNumber);
+		update.set("virtualScore", virtualScore);
+		update.set("virtualTrack", virtualTrack);
 		return update;
 	}
 	
@@ -1054,6 +919,64 @@ public class PlayerCampaignPlacingManager {
             }  
 	    }
 	    return result;
+	}
+
+	public void updatePlayerCampaignPlacings(String playerId, String campaignId, String modeType, String groupId, 
+			ZonedDateTime startingDay) {
+		// get capmpaign
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) return;
+		// check if track is in campaign period
+		if(!campaign.getType().equals(Type.personal)) {
+			if(startingDay.toInstant().isBefore(campaign.getDateFrom().toInstant()) || 
+				startingDay.toInstant().isAfter(campaign.getDateTo().toInstant())) {
+				return;
+			}
+		}
+		String day = startingDay.format(Utils.dtfDay);
+		// get all CampaignPlayerTrack for player and campaign
+		Sort sort = Sort.by(Direction.ASC, "startTime");
+		List<CampaignPlayerTrack> campaignTracks = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndModeTypeAndStartingDayAndValid(playerId, 
+			campaignId, modeType, day, true, sort);
+		if(campaignTracks.size() == 0) return;
+		// calculate totals
+		double totalDistance = 0.0;
+		double totalCo2 = 0.0;
+		long totalDuration = 0L;
+		long totalTracks = 0L;
+		double totalVirtualScore = 0.0;
+		long totalVirtualTrack = 0L; 	
+		for(CampaignPlayerTrack cpt : campaignTracks) {
+			totalDistance += cpt.getDistance();
+			totalCo2 += cpt.getCo2();
+			totalDuration += cpt.getDuration();
+			totalTracks += 1;
+			totalVirtualScore += cpt.getVirtualScore();
+			if(cpt.getVirtualScore() > 0.0) totalVirtualTrack += 1;
+		}
+		// update or create PlayerStatsTransport
+		updatePlayerCampaignPlacings(playerId, campaignId, modeType, startingDay, 
+			groupId, totalDistance, totalDuration, totalCo2, totalTracks, totalVirtualScore, totalVirtualTrack);
+	}
+
+	private void updatePlayerCampaignPlacings(String playerId, String campaignId, String modeType, ZonedDateTime startingDay,
+		String groupId, double distance, long duration, double co2, long trackNumber, double virtualScore, long virtualTrack) {
+		Player player = playerRepository.findById(playerId).orElse(null);
+		if(player == null) {
+			return;
+		}
+		FindAndModifyOptions findAndModifyOptions = FindAndModifyOptions.options().upsert(true).returnNew(true);
+		//transport daily placing
+		String day = startingDay.format(Utils.dtfDay);
+		String weekOfYear = startingDay.format(Utils.dftWeek);
+		String monthOfYear = startingDay.format(Utils.dftMonth);
+		Query dayByModeQuery = new Query(new Criteria("playerId").is(playerId).and("campaignId").is(campaignId)
+			.and("modeType").is(modeType).and("global").is(Boolean.FALSE).and("day").is(day)); 
+		Update dayByModeUpdate = upsertNewPlacing(playerId, player.getNickname(), campaignId, modeType, 
+			groupId, Boolean.FALSE, day, weekOfYear, monthOfYear, distance, duration, co2, trackNumber, virtualScore, virtualTrack);
+		mongoTemplate.findAndModify(dayByModeQuery, dayByModeUpdate, findAndModifyOptions, PlayerStatsTransport.class);
+		logger.info(String.format("updatePlayerCampaignPlacings: update player[%s] stats[%s] for campaign[%s]", 
+			playerId, modeType, campaignId));
 	}
 
 }

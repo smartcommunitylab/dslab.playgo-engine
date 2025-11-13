@@ -26,6 +26,7 @@ import it.smartcommunitylab.playandgo.engine.campaign.city.CityGameDataConverter
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerLevel;
+import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
@@ -78,6 +79,9 @@ public abstract class BasicCampaignGameStatusManager {
 	
 	@Autowired
 	protected CityGameDataConverter gameDataConverter;
+
+	@Autowired
+	UserCampaignLock campaignLock;
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -106,40 +110,46 @@ public abstract class BasicCampaignGameStatusManager {
 				Campaign campaign = campaignRepository.findByGameId(gameId);
 				if(campaign != null) {
 					String campaignId = campaign.getCampaignId();
-					Player p = playerRepository.findById(playerId).orElse(null);
-					
-					CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, 
-							campaignId, trackId);
-					if(playerTrack != null) {
-						playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
-						playerTrack.setScore(playerTrack.getScore() + delta);
-						campaignPlayerTrackRepository.save(playerTrack);
-						logger.info("updatePlayerGameStatus: update playerTrack " + playerTrack.getId());
-					}
-					
-					ZonedDateTime trackDay = null;
-					if(playerTrack != null) {
-						trackDay = getTrackDay(campaign, playerTrack);
-					} else if(p.getGroup() && Utils.isNotEmpty(trackId)) {
-						trackDay = getTrackDay(campaign, trackId, timestamp);
-					} else {
-						trackDay = getTrackDay(campaign, timestamp);
-					}
-					
-					//update game stats and status
-					JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
-					updatePlayerState(playerState, p, campaign, trackDay, delta);
-					logger.info("updatePlayerGameStatus: update player state and stats " + playerId + " - " + gameId);
-					
-					//check recommendation
-					if(delta > 0) {
-						CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), playerId);
-						if((cs != null) && cs.hasRecommendationPlayerToDo()) {
-							String recommenderPlayerId = (String) cs.getCampaignData().get(Campaign.recommenderPlayerId);
-							gamificationEngineManager.sendRecommendation(recommenderPlayerId, gameId);
-							cs.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.FALSE);
-							campaignSubscriptionRepository.save(cs);
+					try {
+						campaignLock.lock(campaignLock.getKey(playerId, campaignId));
+						Player p = playerRepository.findById(playerId).orElse(null);
+						
+						CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, 
+								campaignId, trackId);
+						if(playerTrack != null) {
+							playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
+							playerTrack.setScore(playerTrack.getScore() + delta);
+							campaignPlayerTrackRepository.save(playerTrack);
+							logger.info("updatePlayerGameStatus: update playerTrack " + playerTrack.getId());
 						}
+						
+						ZonedDateTime trackDay = null;
+						if(playerTrack != null) {
+							trackDay = getTrackDay(campaign, playerTrack);
+						} else if(p.getGroup() && Utils.isNotEmpty(trackId)) {
+							trackDay = getTrackDay(campaign, trackId, timestamp);
+						} else {
+							trackDay = getTrackDay(campaign, timestamp);
+						}
+						
+						//update game stats and status
+						JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
+						updatePlayerState(playerState, p, campaign, trackDay, delta);
+						logger.info("updatePlayerGameStatus: update player state and stats " + playerId + " - " + gameId);
+						
+						//check recommendation
+						if(delta > 0) {
+							CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), playerId);
+							if((cs != null) && cs.hasRecommendationPlayerToDo()) {
+								String recommenderPlayerId = (String) cs.getCampaignData().get(Campaign.recommenderPlayerId);
+								gamificationEngineManager.sendRecommendation(recommenderPlayerId, gameId);
+								cs.getCampaignData().put(Campaign.recommendationPlayerToDo, Boolean.FALSE);
+								campaignSubscriptionRepository.save(cs);
+							}
+						}						
+					} catch (Exception e) {
+						logger.error(String.format("updatePlayerGameStatus error:%s - %s", e.getMessage(), msg));
+						campaignLock.unlock(campaignLock.getKey(playerId, campaignId));
 					}
 				}
 			}			
@@ -233,16 +243,6 @@ public abstract class BasicCampaignGameStatusManager {
             }
         }
 	}
-    
-    private void setDailyScore(PlayerStatsGame statsGame, JsonNode pointConcept, String day, double delta) {
-        String path = "/periods/daily/instances/" + day + "T00:00:00/score";
-        JsonNode node = pointConcept.at(path);
-        if(node.isMissingNode()) {
-            statsGame.setScore(statsGame.getScore() + delta);
-        } else {
-            statsGame.setScore(node.asDouble());
-        }
-    }
 
 	private Update upsertGameStatus(Player p, Campaign c, List<PlayerLevel> levels, List<BadgeCollectionConcept> badges, double score) {
 		Update update = new Update();
@@ -256,7 +256,8 @@ public abstract class BasicCampaignGameStatusManager {
 		return update;
 	}
 
-	private Update upsertGameStats(Player p, Campaign c, Boolean global, String day, String weekOfYear, String monthOfYear, double score, boolean isDelta) {
+	private Update upsertGameStats(Player p, Campaign c, Boolean global, String day, String weekOfYear, String monthOfYear, 
+			double score, boolean isDelta) {
 		Update update = new Update();
 		update.setOnInsert("playerId", p.getPlayerId());
 		update.setOnInsert("nickname", p.getNickname());
