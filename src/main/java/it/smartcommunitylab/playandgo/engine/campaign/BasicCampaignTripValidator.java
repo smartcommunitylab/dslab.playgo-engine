@@ -178,16 +178,11 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		
 		sendWebhookRequest(playerTrack);
 		
-		if(campaign != null) {
-			if(Utils.isNotEmpty(campaign.getGameId())) {
-				boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData, true);
-				if(action) {
-				    playerTrack.setScoreStatus(ScoreStatus.SENT);
-				    campaignPlayerTrackRepository.save(playerTrack);
-				}
-			} else {
-			    playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
-			    campaignPlayerTrackRepository.save(playerTrack);
+		if(Utils.isNotEmpty(campaign.getGameId())) {
+			boolean action = gamificationEngineManager.sendSaveItineraryAction(msg.getPlayerId(), campaign.getGameId(), trackingData, true);
+			if(action) {
+				playerTrack.setScoreStatus(ScoreStatus.SENT);
+				campaignPlayerTrackRepository.save(playerTrack);
 			}
 		}
 	}
@@ -199,7 +194,7 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 		trackingData.put(START_TIME, track.getStartTime().getTime());
 		playerTrack.setTrackingData(trackingData);
 		
-		playerTrack.setScoreStatus(ScoreStatus.UNASSIGNED);
+		playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 		playerTrack.setValid(true);
 		ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
 		playerTrack.setModeType(validationStatus.getModeType().toString());
