@@ -149,6 +149,7 @@ public abstract class BasicCampaignGameStatusManager {
 						}						
 					} catch (Exception e) {
 						logger.error(String.format("updatePlayerGameStatus error:%s - %s", e.getMessage(), msg));
+					} finally {
 						campaignLock.unlock(campaignLock.getKey(playerId, campaignId));
 					}
 				}
