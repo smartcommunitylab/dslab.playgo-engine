@@ -359,7 +359,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 		                                pTrack.getCampaignId(), legResult.getId());
 		                        if(playerTrack != null) {
 		                            TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
-									populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), startingDay);
+									populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), 
+										startingDay, trackResult.isVirtualTrack(), trackData.getFirstTrackId());
 									playerTracks.add(playerTrack);                        
 		                        }
 		                    }
