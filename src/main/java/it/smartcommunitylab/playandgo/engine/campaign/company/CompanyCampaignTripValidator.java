@@ -113,7 +113,8 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                                 msg.getCampaignId(), legResult.getId());
                         if(playerTrack != null) {
 							TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
-							populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), startingDay);
+							populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), startingDay, 
+									trackResult.isVirtualTrack(), trackData.getFirstTrackId());
 							playerTracks.add(playerTrack);
                             sendWebhookRequest(playerTrack);                                                                
                         }
@@ -200,10 +201,13 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
     }
 	
 	private void populatePlayerTrack(TrackedInstance track, CampaignPlayerTrack playerTrack, 
-	        LegResult legResult, String groupId, ZonedDateTime firstTrackStartTime) {
+	        LegResult legResult, String groupId, ZonedDateTime firstTrackStartTime, boolean isVirtualTrack, String firstTrackId) {
 	    playerTrack.setScoreStatus(ScoreStatus.COMPUTED);
 	    playerTrack.setVirtualScore(legResult.getVirtualScore());
-	    playerTrack.setVirtualTrack(legResult.getVirtualScore() > 0.0);
+		playerTrack.setVirtualTrack(false);
+		if(isVirtualTrack && firstTrackId.equals(track.getId())) {
+	    	playerTrack.setVirtualTrack(true);
+		}	
 		playerTrack.setValid(true);
         playerTrack.setErrorCode(null);
 		playerTrack.setModeType(legResult.getMean());
