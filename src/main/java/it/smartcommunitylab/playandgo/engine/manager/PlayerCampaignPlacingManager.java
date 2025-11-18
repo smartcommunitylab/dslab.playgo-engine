@@ -952,7 +952,7 @@ public class PlayerCampaignPlacingManager {
 			totalDuration += cpt.getDuration();
 			totalTracks += 1;
 			totalVirtualScore += cpt.getVirtualScore();
-			if(cpt.getVirtualScore() > 0.0) totalVirtualTrack += 1;
+			if(cpt.isVirtualTrack()) totalVirtualTrack += 1;
 		}
 		// update or create PlayerStatsTransport
 		updatePlayerCampaignPlacings(playerId, campaignId, modeType, startingDay, 
