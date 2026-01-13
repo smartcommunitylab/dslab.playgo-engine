@@ -29,6 +29,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.group.GroupCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.group.GroupCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.personal.PersonalCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignSubscription;
@@ -90,10 +92,16 @@ public class CampaignManager {
 	SchoolCampaignSubscription schoolCampaignSubscription; 
 	
 	@Autowired
+	GroupCampaignSubscription groupCampaignSubscription;
+
+	@Autowired
 	CityCampaignGameNotification cityCampaignGameNotification;
 	
 	@Autowired
 	SchoolCampaignGameNotification schoolCampaignGameNotification;
+
+	@Autowired
+	GroupCampaignGameNotification groupCampaignGameNotification;
 	
 	@Autowired
 	StorageManager storageManager;
@@ -113,7 +121,11 @@ public class CampaignManager {
 				case school:
 					schoolCampaignGameNotification.subcribeCampaing(campaign);
 					break;
+				case group:
+					groupCampaignGameNotification.subcribeCampaing(campaign);
+					break;
 				case company:
+					break;
 			}
 			return campaign;
 		} catch (Exception e) {
@@ -149,7 +161,11 @@ public class CampaignManager {
 			case school:
 				schoolCampaignGameNotification.subcribeCampaing(campaignDb);
 				break;
+			case group:
+				groupCampaignGameNotification.subcribeCampaing(campaignDb);
+				break;
 			case company:
+				break;
 		}							
 	}
 	
@@ -242,6 +258,8 @@ public class CampaignManager {
 			case school:
 				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
 				break;
+			case group:
+				sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
 		}
 		return campaignSubscriptionRepository.save(sub);
 	}
@@ -265,6 +283,8 @@ public class CampaignManager {
 						break;
 					case personal:
 						break;
+					case group:
+						groupCampaignSubscription.unsubscribeCampaign(player, campaign);
 				}
 				campaignSubscriptionRepository.deleteById(subscription.getId());
 			}

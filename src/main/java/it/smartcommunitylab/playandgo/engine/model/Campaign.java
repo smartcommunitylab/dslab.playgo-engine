@@ -17,7 +17,7 @@ import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 @Document(collection="campaigns")
 public class Campaign {
 	public static enum Type {
-		company, city, school, personal
+		company, city, school, group, personal
 	};
 	
 	public static String defaultSurveyKey = "defaultSurvey";
