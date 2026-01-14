@@ -26,5 +26,6 @@ public class ErrorCode {
 	public final static String CONCURRENT_TIMEOUT = "E5";
 	public final static String EXT_SERVICE_AUTH = "S1";
 	public final static String EXT_SERVICE_INVOCATION = "S2";
+	public static final String INVALID_TOKEN = "S3";
 	
 }

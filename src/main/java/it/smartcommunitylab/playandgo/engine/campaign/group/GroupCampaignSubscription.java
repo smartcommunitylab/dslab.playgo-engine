@@ -8,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
@@ -22,6 +23,7 @@ import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
+import it.smartcommunitylab.playandgo.engine.util.JwtTokenUtil;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
@@ -30,7 +32,10 @@ public class GroupCampaignSubscription {
 
     public static final String groupIdKey = "groupId";
     public static final String externalTokenKey = "extToken";
-    public static final String providerRuleKey = "providerRule";
+	
+	public static final String jwksEndpointKey = "jwksEndpoint";
+	public static final String claimNameKey = "claimName";
+    public static final String claimRegExpKey = "claimRegExp";
 
     @Autowired
     PlayerRepository playerRepository;
@@ -44,6 +49,9 @@ public class GroupCampaignSubscription {
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
 
+	@Autowired
+	JwtTokenUtil jwtTokenUtil;
+
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData) throws Exception {
 	    String groupId = null;
@@ -56,9 +64,35 @@ public class GroupCampaignSubscription {
                 extToken = (String) campaignData.get(externalTokenKey);
             }
         }
-        // TODO check token validity
-        // TODO check provider rule
-        //String providerRule = (String)campaign.getSpecificData().get(providerRuleKey); 
+        
+        // Validate JWT token if provided
+        if(Utils.isNotEmpty(extToken)) {
+            try {
+                // Se il campaign ha un endpoint JWKS configurato, usalo per validare
+                String jwksEndpoint = (String) campaign.getSpecificData().get(jwksEndpointKey);
+				String claimName = (String) campaign.getSpecificData().get(claimNameKey);
+				String claimRegExp = (String)campaign.getSpecificData().get(claimRegExpKey); 
+				if(Utils.isEmpty(jwksEndpoint))
+					throw new ServiceException("JWKS endpoint not cofigured", ErrorCode.INVALID_TOKEN);
+				Jwt jwt = jwtTokenUtil.validateAndGetClaimsWithJwks(extToken, jwksEndpoint);
+				// Verifica la regola del provider se specificata
+				if(Utils.isNotEmpty(claimRegExp)) {
+					String claimValue = jwt.getClaimAsString(claimName);
+					if(Utils.isEmpty(claimValue)) {
+						throw new ServiceException("Claim '" + claimName + "' not found in token", ErrorCode.INVALID_TOKEN);
+					}	
+					// Verifica se il valore del claim matcha la regex
+					if(!claimValue.matches(claimRegExp)) {
+						logger.warn("Claim value '{}' does not match regex pattern '{}'", claimValue, claimRegExp);
+						throw new ServiceException("Provider rule not satisfied", ErrorCode.INVALID_TOKEN);
+					}
+					logger.debug("Claim '{}' validated against regex pattern", claimName);
+				}
+            } catch (Exception e) {
+                logger.error("Token JWT non valido: {}", e.getMessage());
+                throw new ServiceException("External token validation failed", ErrorCode.INVALID_TOKEN);
+            }
+        }
 
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
