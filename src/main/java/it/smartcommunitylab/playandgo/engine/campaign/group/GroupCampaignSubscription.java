@@ -36,6 +36,7 @@ public class GroupCampaignSubscription {
 	public static final String jwksEndpointKey = "jwksEndpoint";
 	public static final String claimNameKey = "claimName";
     public static final String claimRegExpKey = "claimRegExp";
+	public static final String optionalClaimListKey = "optionalClaimList";
 
     @Autowired
     PlayerRepository playerRepository;
@@ -54,14 +55,25 @@ public class GroupCampaignSubscription {
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData) throws Exception {
+
+		CampaignSubscription sub = new CampaignSubscription();
+		sub.setPlayerId(player.getPlayerId());
+		sub.setCampaignId(campaign.getCampaignId());
+		sub.setTerritoryId(player.getTerritoryId());
+		sub.setMail(player.getMail());
+		sub.setSendMail(player.getSendMail());
+		sub.setRegistrationDate(new Date());
+
 	    String groupId = null;
         String extToken = null;
         if(campaignData != null) {
             if(campaignData.containsKey(groupIdKey)) {
                 groupId = (String) campaignData.get(groupIdKey);
+				sub.getCampaignData().put(groupIdKey, groupId);
             }
             if(campaignData.containsKey(externalTokenKey)) {
                 extToken = (String) campaignData.get(externalTokenKey);
+				sub.getCampaignData().put(externalTokenKey, extToken);
             }
         }
         
@@ -88,21 +100,25 @@ public class GroupCampaignSubscription {
 					}
 					logger.debug("Claim '{}' validated against regex pattern", claimName);
 				}
+				// add optional claims to subscription data 
+				if(campaign.getSpecificData().containsKey(optionalClaimListKey)) {
+					@SuppressWarnings("unchecked")
+					java.util.List<String> optionalClaims = (java.util.List<String>) campaign.getSpecificData().get(optionalClaimListKey);
+					for(String claim : optionalClaims) {
+						String claimValue = jwt.getClaimAsString(claim);
+						if(Utils.isNotEmpty(claimValue)) {
+							sub.getCampaignData().put(claim, claimValue);
+						}
+					}
+				}
             } catch (Exception e) {
                 logger.error("Token JWT non valido: {}", e.getMessage());
                 throw new ServiceException("External token validation failed", ErrorCode.INVALID_TOKEN);
             }
-        }
+        } else {
+			throw new ServiceException("External token is required", ErrorCode.INVALID_TOKEN);
+		}
 
-		CampaignSubscription sub = new CampaignSubscription();
-		sub.setPlayerId(player.getPlayerId());
-		sub.setCampaignId(campaign.getCampaignId());
-		sub.setTerritoryId(player.getTerritoryId());
-		sub.setMail(player.getMail());
-		sub.setSendMail(player.getSendMail());
-		sub.setRegistrationDate(new Date());
-        sub.getCampaignData().put(groupIdKey, groupId);
-        sub.getCampaignData().put(externalTokenKey, extToken); 
 
         if(!Utils.checkPlayerAlreadyRegistered(player, campaign)) {
             playerRepository.save(player);
