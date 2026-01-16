@@ -30,7 +30,6 @@ import com.google.common.collect.Sets;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.ge.model.MailImage;
 import it.smartcommunitylab.playandgo.engine.manager.challenge.ChallengesData;
-import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWeekConf;
 
 @Service
