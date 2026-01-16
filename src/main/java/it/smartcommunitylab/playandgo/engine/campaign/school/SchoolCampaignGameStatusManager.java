@@ -10,6 +10,7 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 
 @Component
 public class SchoolCampaignGameStatusManager extends BasicCampaignGameStatusManager {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(SchoolCampaignGameStatusManager.class);
 	
 	@Override
