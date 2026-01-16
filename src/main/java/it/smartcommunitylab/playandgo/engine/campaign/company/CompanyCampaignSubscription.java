@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
@@ -18,6 +19,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
 public class CompanyCampaignSubscription {
@@ -37,6 +39,11 @@ public class CompanyCampaignSubscription {
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData, boolean sendExtRequest) throws Exception {
+
+		if(!campaign.isRegistrationOpen(new Date())) {
+			throw new ServiceException("Campaign registration is closed", ErrorCode.CAMPAIGN_REGISTRATION_CLOSED);
+		}
+
 		if(sendExtRequest) {
 			aziendaleManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), 
 					(String)campaignData.get(companyKey), (String)campaignData.get(employeeCode));			
@@ -53,8 +60,12 @@ public class CompanyCampaignSubscription {
 		}
         //check default survey
         if(campaign.hasDefaultSurvey()) {
-            SurveyRequest sr = campaign.getDefaultSurvey();
-            surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+            SurveyRequest sr = campaign.getDefaultSurvey();				
+			if(campaign.currentlyActive()) {
+				surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+			} else {
+				surveyManager.addSurveyTask(campaign.getCampaignId(), player.getPlayerId(), sr);
+			}	
         }            
 		sendRegisterWebhookRequest(sub);
 		return sub;			
