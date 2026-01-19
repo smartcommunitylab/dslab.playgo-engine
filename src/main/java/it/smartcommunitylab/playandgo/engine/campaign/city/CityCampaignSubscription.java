@@ -45,6 +45,10 @@ public class CityCampaignSubscription {
 	
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData) throws Exception {
+
+		if(!campaign.isRegistrationOpen(new Date())) {
+			throw new ServiceException("Campaign registration is closed", ErrorCode.CAMPAIGN_REGISTRATION_CLOSED);
+		}
 		
 		CampaignSubscription sub = new CampaignSubscription();
 		sub.setPlayerId(player.getPlayerId());
@@ -70,7 +74,11 @@ public class CityCampaignSubscription {
 	        //check default survey
 	        if(campaign.hasDefaultSurvey()) {
 	            SurveyRequest sr = campaign.getDefaultSurvey();
-	            surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+				if(campaign.currentlyActive()) {
+					surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+				} else {
+					surveyManager.addSurveyTask(campaign.getCampaignId(), player.getPlayerId(), sr);
+				}					
 	        }		    
 		}
 		//create player on GE

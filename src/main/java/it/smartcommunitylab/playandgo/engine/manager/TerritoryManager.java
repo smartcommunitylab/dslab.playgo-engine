@@ -18,6 +18,7 @@ import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
 public class TerritoryManager {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(TerritoryManager.class);
 	
 	@Autowired

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import it.smartcommunitylab.playandgo.engine.dto.CampaignPeriodStatsInfo;
+import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignGamePlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.GameStats;
@@ -28,6 +29,9 @@ public class ReportController extends PlayAndGoController {
 	
 	@Autowired
 	PlayerCampaignPlacingManager playerReportManager;
+    
+	@Autowired
+	PlayerCampaignGamePlacingManager gamePlacingManager;
 	
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -153,7 +157,7 @@ public class ReportController extends PlayAndGoController {
 			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateFrom,
 			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
-		return playerReportManager.getPlayerGameStats(playerId, campaignId, groupMode, dateFrom, dateTo);
+		return gamePlacingManager.getPlayerGameStats(playerId, campaignId, groupMode, dateFrom, dateTo);
 	}
 
     @GetMapping("/api/report/group/game/stats")
@@ -164,7 +168,7 @@ public class ReportController extends PlayAndGoController {
             @RequestParam @Parameter(example = "yyyy-MM-dd") String dateFrom,
             @RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
             HttpServletRequest request) throws Exception {
-        return playerReportManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);
+        return gamePlacingManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);
     }
     
     @GetMapping("/api/report/campaign/placing/game")
@@ -172,11 +176,13 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String campaignId,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) String groupId,
             @RequestParam(required = false) boolean groupByGroupId,
+            @RequestParam(required = false) boolean filterByGroupId,
             @ParameterObject Pageable pageRequest,
             HttpServletRequest request) throws Exception {
-        Page<CampaignPlacing> page = playerReportManager.getCampaignPlacingByGame(campaignId,  
-                dateFrom, dateTo, pageRequest, groupByGroupId);
+        Page<CampaignPlacing> page = gamePlacingManager.getCampaignPlacingByGame(campaignId,  
+                dateFrom, dateTo, groupId, groupByGroupId, filterByGroupId, pageRequest);
         return page;            
     }
 
@@ -186,9 +192,11 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String playerId,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) String groupId,
+            @RequestParam(required = false) boolean filterByGroupId,
             HttpServletRequest request) throws Exception {
-        CampaignPlacing placing = playerReportManager.getCampaignPlacingByGameAndPlayer(playerId, campaignId, 
-                dateFrom, dateTo);
+        CampaignPlacing placing = gamePlacingManager.getCampaignPlacingByGameAndOwner(playerId, campaignId, 
+                dateFrom, dateTo, groupId, false, filterByGroupId);
         return placing;
     }
 
@@ -198,9 +206,10 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String groupId,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
+            @RequestParam(required = false) boolean filterByGroupId,
             HttpServletRequest request) throws Exception {
-        CampaignPlacing placing = playerReportManager.getCampaignPlacingByGameAndGroup(groupId, campaignId, 
-                dateFrom, dateTo);
+        CampaignPlacing placing = gamePlacingManager.getCampaignPlacingByGameAndOwner(groupId, campaignId, 
+                dateFrom, dateTo, groupId, true, filterByGroupId);
         return placing;
     }
     

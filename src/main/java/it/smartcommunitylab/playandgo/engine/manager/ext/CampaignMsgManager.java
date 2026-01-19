@@ -16,6 +16,7 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class CampaignMsgManager {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(CampaignMsgManager.class);
 	
 	@Autowired

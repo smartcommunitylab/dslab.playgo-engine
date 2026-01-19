@@ -11,6 +11,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 
 @Component
 public class PersonalCampaignTripValidator extends BasicCampaignTripValidator {
+	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(PersonalCampaignTripValidator.class);
 
 	@PostConstruct

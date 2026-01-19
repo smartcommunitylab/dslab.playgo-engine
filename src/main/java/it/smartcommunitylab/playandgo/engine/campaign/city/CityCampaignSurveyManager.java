@@ -8,6 +8,7 @@ import it.smartcommunitylab.playandgo.engine.campaign.BasicCampaignSurveyManager
 
 @Component
 public class CityCampaignSurveyManager extends BasicCampaignSurveyManager {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(CityCampaignSurveyManager.class);
 
 	

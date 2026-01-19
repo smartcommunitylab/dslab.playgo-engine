@@ -134,7 +134,7 @@ public abstract class BasicCampaignGameStatusManager {
 						
 						//update game stats and status
 						JsonNode playerState = gamificationEngineManager.getPlayerStatus(playerId, gameId, "green leaves");
-						updatePlayerState(playerState, p, campaign, trackDay, delta);
+						updatePlayerState(playerState, p, playerTrack, campaign, trackDay, delta);
 						logger.info("updatePlayerGameStatus: update player state and stats " + playerId + " - " + gameId);
 						
 						//check recommendation
@@ -196,7 +196,7 @@ public abstract class BasicCampaignGameStatusManager {
         return ZonedDateTime.ofInstant(Utils.getUTCDate(timestamp).toInstant(), zoneId);
     }
 	
-    protected void updatePlayerState(JsonNode root, Player p, Campaign c, ZonedDateTime day, double delta) throws Exception {
+    protected void updatePlayerState(JsonNode root, Player p, CampaignPlayerTrack playerTrack, Campaign c, ZonedDateTime day, double delta) throws Exception {
 		FindAndModifyOptions findAndModifyOptions = FindAndModifyOptions.options().upsert(true).returnNew(true);
 
 		//levels
@@ -237,13 +237,16 @@ public abstract class BasicCampaignGameStatusManager {
 				} else {
 					dailyScore = node.asDouble();
 				}
+				String groupId = getGroupId(playerTrack, p);
 				Query dailyStatsQuery = new Query(new Criteria("playerId").is(p.getPlayerId()).and("campaignId").is(c.getCampaignId())
 					.and("global").is(Boolean.FALSE).and("day").is(dayString));
-				Update dailyStatsUpdate = upsertGameStats(p, c, Boolean.FALSE, dayString, weekOfYear, monthOfYear, dailyScore, isDelta);
+				Update dailyStatsUpdate = upsertGameStats(p, c, Boolean.FALSE, dayString, weekOfYear, monthOfYear, dailyScore, isDelta, groupId);
 				mongoTemplate.findAndModify(dailyStatsQuery, dailyStatsUpdate, findAndModifyOptions, PlayerStatsGame.class);                
             }
         }
 	}
+
+	abstract protected String getGroupId(CampaignPlayerTrack playerTrack, Player p);
 
 	private Update upsertGameStatus(Player p, Campaign c, List<PlayerLevel> levels, List<BadgeCollectionConcept> badges, double score) {
 		Update update = new Update();
@@ -258,7 +261,7 @@ public abstract class BasicCampaignGameStatusManager {
 	}
 
 	private Update upsertGameStats(Player p, Campaign c, Boolean global, String day, String weekOfYear, String monthOfYear, 
-			double score, boolean isDelta) {
+			double score, boolean isDelta, String groupId) {
 		Update update = new Update();
 		update.setOnInsert("playerId", p.getPlayerId());
 		update.setOnInsert("nickname", p.getNickname());
@@ -267,7 +270,7 @@ public abstract class BasicCampaignGameStatusManager {
 		if(Utils.isNotEmpty(day)) update.setOnInsert("day", day);
 		if(Utils.isNotEmpty(monthOfYear)) update.setOnInsert("monthOfYear", monthOfYear);
 		if(Utils.isNotEmpty(weekOfYear)) update.setOnInsert("weekOfYear", weekOfYear);
-		if(p.getGroup()) update.setOnInsert("groupId", p.getPlayerId());
+		if(Utils.isNotEmpty(groupId)) update.setOnInsert("groupId", groupId);
 		if(isDelta) {
 			update.inc("score", score);
 		} else {
