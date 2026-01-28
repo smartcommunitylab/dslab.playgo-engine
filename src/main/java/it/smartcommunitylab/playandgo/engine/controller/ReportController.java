@@ -206,10 +206,9 @@ public class ReportController extends PlayAndGoController {
             @RequestParam String groupId,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateFrom,
             @RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
-            @RequestParam(required = false) boolean filterByGroupId,
             HttpServletRequest request) throws Exception {
         CampaignPlacing placing = gamePlacingManager.getCampaignPlacingByGameAndOwner(groupId, campaignId, 
-                dateFrom, dateTo, groupId, true, filterByGroupId);
+                dateFrom, dateTo, groupId, true, false);
         return placing;
     }
     
