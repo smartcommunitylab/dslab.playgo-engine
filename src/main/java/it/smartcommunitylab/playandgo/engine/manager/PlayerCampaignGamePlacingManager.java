@@ -136,9 +136,6 @@ public class PlayerCampaignGamePlacingManager {
         if(filterByGroupId && (groupId != null)) {
             criteria = criteria.and("groupId").is(groupId);
         }
-		if(groupByGroupId) {
-		    criteria = criteria.and("groupId").ne(null);
-		} 
         MatchOperation matchOperation = Aggregation.match(criteria);
         GroupOperation groupOperation = Aggregation.group(groupField).sum("score").as("value");
         Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
