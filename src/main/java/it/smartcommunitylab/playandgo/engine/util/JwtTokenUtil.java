@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.time.Instant;
 
 @Component
 public class JwtTokenUtil {
@@ -18,11 +19,18 @@ public class JwtTokenUtil {
      * @param token il token JWT
      * @param jwksEndpoint l'endpoint JWKS (es: https://idp.example.com/.well-known/jwks.json)
      * @return Jwt con i claims
-     * @throws JwtException se il token non è valido
+     * @throws JwtException se il token non è valido o scaduto
      */
     public Jwt validateAndGetClaimsWithJwks(String token, String jwksEndpoint) throws JwtException {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksEndpoint).build();
         Jwt jwt = decoder.decode(token);
+        
+        // Verifica che il token non sia scaduto
+        if (jwt.getExpiresAt() != null && jwt.getExpiresAt().isBefore(Instant.now())) {
+            logger.error("Token scaduto. Data di scadenza: {}", jwt.getExpiresAt());
+            throw new JwtException("Token scaduto");
+        }
+        
         logger.debug("Token validato con successo usando JWKS endpoint: {}", jwksEndpoint);
         return jwt;
     }

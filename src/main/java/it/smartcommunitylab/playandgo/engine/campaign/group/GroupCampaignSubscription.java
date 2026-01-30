@@ -3,6 +3,7 @@ package it.smartcommunitylab.playandgo.engine.campaign.group;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -85,33 +86,55 @@ public class GroupCampaignSubscription {
         if(Utils.isNotEmpty(extToken)) {
             try {
                 // Se il campaign ha un endpoint JWKS configurato, usalo per validare
+				List<String> groupValues = extractGroupValues(campaign);
                 String jwksEndpoint = (String) campaign.getSpecificData().get(jwksEndpointKey);
 				String claimName = (String) campaign.getSpecificData().get(claimNameKey);
-				String claimRegExp = (String)campaign.getSpecificData().get(claimRegExpKey); 
 				if(Utils.isEmpty(jwksEndpoint))
 					throw new ServiceException("JWKS endpoint not cofigured", ErrorCode.INVALID_TOKEN);
 				Jwt jwt = jwtTokenUtil.validateAndGetClaimsWithJwks(extToken, jwksEndpoint);
-				// Verifica la regola del provider se specificata
-				if(Utils.isNotEmpty(claimRegExp)) {
-					String claimValue = jwt.getClaimAsString(claimName);
-					if(Utils.isEmpty(claimValue)) {
-						throw new ServiceException("Claim '" + claimName + "' not found in token", ErrorCode.INVALID_TOKEN);
-					}	
-					// Verifica se il valore del claim matcha la regex
-					if(!claimValue.matches(claimRegExp)) {
-						logger.warn("Claim value '{}' does not match regex pattern '{}'", claimValue, claimRegExp);
-						throw new ServiceException("Provider rule not satisfied", ErrorCode.INVALID_TOKEN);
+				// Verifica che il valore del claim corrisponda al groupId fornito
+				if(Utils.isEmpty(claimName))
+					throw new ServiceException("Claim name not configured", ErrorCode.INVALID_TOKEN);
+				String claimValue = jwt.getClaimAsString(claimName);
+				if(Utils.isEmpty(claimValue)) {
+					throw new ServiceException("Claim '" + claimName + "' not found in token", ErrorCode.INVALID_TOKEN);
+				}
+				// divido i valori di claimValue separati da , e verifico che tutti siano presenti in groupValues
+				String[] claimValues = claimValue.split(",");
+				boolean found = true;
+				for(String cv : claimValues) {
+					if(!groupValues.contains(cv)) {
+						found = false;
+						break;
 					}
-					logger.debug("Claim '{}' validated against regex pattern", claimName);
+				}
+				if(!found) {
+					logger.warn("Claim value '{}' not in campaign group list", claimValue);
+					throw new ServiceException("Group ID not valid for this campaign", ErrorCode.INVALID_TOKEN);
+				}
+				if(Utils.isEmpty(groupId)) {
+					throw new ServiceException("Group ID is required", ErrorCode.INVALID_TOKEN);
+				}
+				// verifico che groupId sia uno di quelli presenti in claimValues
+				boolean groupIdFound = false;
+				for(String cv : claimValues) {
+					if(cv.equals(groupId)) {
+						groupIdFound = true;
+						break;
+					}
+				}
+				if(!groupIdFound) {
+					logger.warn("Group ID '{}' not in claim values '{}'", groupId, claimValue);
+					throw new ServiceException("Group ID does not match token claim", ErrorCode.INVALID_TOKEN);
 				}
 				// add optional claims to subscription data 
 				if(campaign.getSpecificData().containsKey(optionalClaimListKey)) {
 					@SuppressWarnings("unchecked")
 					java.util.List<String> optionalClaims = (java.util.List<String>) campaign.getSpecificData().get(optionalClaimListKey);
 					for(String claim : optionalClaims) {
-						String claimValue = jwt.getClaimAsString(claim);
-						if(Utils.isNotEmpty(claimValue)) {
-							sub.getCampaignData().put(claim, claimValue);
+						String cValue = jwt.getClaimAsString(claim);
+						if(Utils.isNotEmpty(cValue)) {
+							sub.getCampaignData().put(claim, cValue);
 						}
 					}
 				}
@@ -184,6 +207,37 @@ public class GroupCampaignSubscription {
 		} catch (Exception e) {
 			logger.error("sendWebhookRequest:" + e.getMessage());
 		}
+	}
+
+	/**
+	 * Estrae una lista di valori dal campo "value" dalla groupList della campaign
+	 * @param campaign oggetto Campaign
+	 * @return lista di stringhe con i valori estratti
+	 */
+	@SuppressWarnings("unchecked")
+	public java.util.List<String> extractGroupValues(Campaign campaign) {
+		java.util.List<String> values = new java.util.ArrayList<>();
+		
+		if (campaign == null || campaign.getSpecificData() == null) {
+			return values;
+		}
+		
+		Object groupListObj = campaign.getSpecificData().get("groupList");
+		if (groupListObj == null || !(groupListObj instanceof java.util.List)) {
+			return values;
+		}
+		
+		java.util.List<Map<String, Object>> groupList = (java.util.List<Map<String, Object>>) groupListObj;
+		for (Map<String, Object> item : groupList) {
+			Object value = item.get("value");
+			if (value != null) {
+				if(!values.contains(value.toString())) {
+					values.add(value.toString());
+				}
+			}
+		}
+		
+		return values;
 	}
 
 }
