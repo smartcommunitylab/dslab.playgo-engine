@@ -13,6 +13,7 @@ public class CampaignWeekConf {
 	private int weekNumber;
 	private Map<String, String> desc = new HashMap<>();
 	private List<CampaignReward> rewards = new ArrayList<>();
+	private String groupId;
 	
 	public String getCampaignId() {
 		return campaignId;
@@ -50,5 +51,11 @@ public class CampaignWeekConf {
     public void setDesc(Map<String, String> desc) {
         this.desc = desc;
     }
+	public String getGroupId() {
+		return groupId;
+	}
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
 	
 }
