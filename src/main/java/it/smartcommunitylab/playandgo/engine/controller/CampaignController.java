@@ -38,6 +38,7 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
 public class CampaignController extends PlayAndGoController {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(CampaignController.class);
 	
 	@Autowired

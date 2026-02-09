@@ -51,7 +51,9 @@ public class TerritoryManager {
 		}
 		territoryDb.setName(territory.getName());
 		territoryDb.setDescription(territory.getDescription());
-		territoryDb.setTerritoryData(territory.getTerritoryData());
+		if (territory.getTerritoryData() != null) {
+			territoryDb.getTerritoryData().putAll(territory.getTerritoryData());
+		}
 		territoryDb.setTimezone(territory.getTimezone());
 		territoryRepository.save(territoryDb);
 	}
