@@ -311,8 +311,10 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
             track.setToCheck(Boolean.FALSE);
         }
         if(TravelValidity.INVALID.equals(result.getTravelValidity())) {
+
             if(ValidationStatus.ERROR_TYPE.NO_DATA.equals(result.getValidationStatus().getError()) ||
-                    ValidationStatus.ERROR_TYPE.TOO_SHORT.equals(result.getValidationStatus().getError())) {
+                    ValidationStatus.ERROR_TYPE.TOO_SHORT.equals(result.getValidationStatus().getError()) ||
+					ValidationStatus.ERROR_TYPE.OUT_OF_AREA.equals(result.getValidationStatus().getError())) {
                 track.setToCheck(Boolean.FALSE);
             } else {
                 track.setToCheck(Boolean.TRUE);
