@@ -142,6 +142,8 @@ public class CampaignManager {
 		campaignDb.setDescription(campaign.getDescription());
 		campaignDb.setDateFrom(campaign.getDateFrom());
 		campaignDb.setDateTo(campaign.getDateTo());
+		campaignDb.setRegistrationFrom(campaign.getRegistrationFrom());
+		campaignDb.setRegistrationTo(campaign.getRegistrationTo());
 		campaignDb.setActive(campaign.getActive());
 		campaignDb.setCommunications(campaign.getCommunications());
 		campaignDb.setVisible(campaign.getVisible());
