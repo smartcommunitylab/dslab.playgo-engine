@@ -24,6 +24,7 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 	
 	public static final DateTimeFormatter dtfDay = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -149,12 +150,9 @@ public class Utils {
 	@SuppressWarnings("unchecked")
 	public static String getPointNameByCampaign(Campaign campaign, String lang) {
 		String pointName = "eco-Leaves";
-		logger.info("getPointNameByCampaign:" + campaign.getCampaignId() + " - " + lang);
 		if((campaign != null) && (campaign.getSpecificData() != null) && (campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME) != null)) {
 			Map<String, String> pointNameMap = (Map<String, String>) campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME);
-			logger.info("getPointNameByCampaign: pointNameMap: " + pointNameMap);
 			String name = pointNameMap.get(lang);
-			logger.info("getPointNameByCampaign: name for lang " + lang + ": " + name);
 			if(Utils.isNotEmpty(name)) {
 				pointName = name;
 			}
