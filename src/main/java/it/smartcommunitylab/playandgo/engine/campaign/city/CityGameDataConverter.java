@@ -672,7 +672,7 @@ public class CityGameDataConverter {
 
 		if (challengeStructure != null) {
 			description = fillLongDescription(challengeStructure, counterName, challenge, lang);
-			// fill pont name
+			// fill point name
 			description = fillPointNameByCampaign(description, campaign, lang);
 			for (String key: challengeReplacements.keySet()) {
 				description = description.replaceAll(key, challengeReplacements.get(key));
