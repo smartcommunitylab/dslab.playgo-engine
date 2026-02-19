@@ -7,8 +7,8 @@
 			"en": "Registration Bonus"
 		},
 		"description": {
-			"it": "'<nickname>' ha tracciato il suo primo viaggio. Avete guadagnato <points> eco-Leaves",
-			"en": "'<nickname>' joined your team. You earn <points> eco-Leaves"
+			"it": "'<nickname>' ha tracciato il suo primo viaggio. Avete guadagnato <points> <ecoLeaves>",
+			"en": "'<nickname>' joined your team. You earn <points> <ecoLeaves>"
 		},
 		"extras": {
 			"it": [
@@ -23,6 +23,12 @@
 					"key": "points",
 					"value": null,
 					"string": "points"
+				},
+				{
+					"type": "REPLACE",
+					"key": "ecoLeaves",
+					"value": null,
+					"string": "ecoLeaves"
 				}
 			],
 			"en": [
@@ -37,6 +43,12 @@
 					"key": "points",
 					"value": null,
 					"string": "points"
+				},
+				{
+					"type": "REPLACE",
+					"key": "ecoLeaves",
+					"value": null,
+					"string": "ecoLeaves"
 				}
 			]
 		}		
@@ -49,8 +61,8 @@
 			"en": "Registration Bonus"
 		},
 		"description": {
-			"it": "'<nickname>' ha tracciato il suo primo viaggio. Hai guadagnato <points> eco-Leaves",
-			"en": "'<nickname>' joined your team. You earn <points> eco-Leaves"
+			"it": "'<nickname>' ha tracciato il suo primo viaggio. Hai guadagnato <points> <ecoLeaves>",
+			"en": "'<nickname>' joined your team. You earn <points> <ecoLeaves>"
 		},
 		"extras": {
 			"it": [
@@ -65,6 +77,12 @@
 					"key": "points",
 					"value": null,
 					"string": "points"
+				},
+				{
+					"type": "REPLACE",
+					"key": "ecoLeaves",
+					"value": null,
+					"string": "ecoLeaves"
 				}
 			],
 			"en": [
@@ -79,6 +97,12 @@
 					"key": "points",
 					"value": null,
 					"string": "points"
+				},
+				{
+					"type": "REPLACE",
+					"key": "ecoLeaves",
+					"value": null,
+					"string": "ecoLeaves"
 				}
 			]
 		}		

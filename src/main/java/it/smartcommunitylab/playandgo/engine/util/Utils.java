@@ -13,6 +13,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
+import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
@@ -140,5 +141,17 @@ public class Utils {
 		}
 		return modeTypes;
     }
+
+	@SuppressWarnings("unchecked")
+	public static String getPointNameByCampaign(Campaign campaign, String lang) {
+		String pointName = "eco-Leaves";
+		if((campaign != null) && (campaign.getSpecificData() != null) && (campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME) != null)) {
+			String name = ((Map<String, String>) campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME)).get(lang);
+			if(Utils.isNotEmpty(name)) {
+				pointName = name;
+			}
+		}
+		return pointName;
+	}
  	
 }

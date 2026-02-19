@@ -269,8 +269,10 @@ public class ChallengeManager {
 			pars.put("rewardThreshold", reward.getThreshold());
 		}
 		
-		Map<String, String> descr = gameDataConverter.fillDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars);
-		Map<String, String> longDescr = gameDataConverter.fillLongDescription(invitation.getChallengeModelName().toString(), invitation.getChallengePointConcept(), pars);
+		Map<String, String> descr = gameDataConverter.fillDescription(invitation.getChallengeModelName().toString(), 
+				invitation.getChallengePointConcept(), pars, campaign);
+		Map<String, String> longDescr = gameDataConverter.fillLongDescription(invitation.getChallengeModelName().toString(), 
+				invitation.getChallengePointConcept(), pars, campaign);
 		
 		Map<String, Object> result = Maps.newTreeMap();
 		result.put("description", descr);

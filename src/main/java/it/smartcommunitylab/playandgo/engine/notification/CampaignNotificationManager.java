@@ -37,6 +37,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepo
 import it.smartcommunitylab.playandgo.engine.repository.PlayerGameStatusRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 
 @Component
@@ -143,7 +144,7 @@ public class CampaignNotificationManager {
 				        Notification notification = null;
 	                    
 	                    try {
-	                        notification = buildNotification(campaign.getCampaignId(), not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
+	                        notification = buildNotification(campaign, not.getGameId(), p.getPlayerId(), p.getLanguage(), not);
 	                    } catch (Exception e) {
 	                        logger.error("Error building notification", e);
 	                    }
@@ -184,7 +185,7 @@ public class CampaignNotificationManager {
 		
 	}
 	
-	private Notification buildNotification(String campaignId, String gameId, String playerId, String lang, NotificationGe not) {
+	private Notification buildNotification(Campaign campaign, String gameId, String playerId, String lang, NotificationGe not) {
 	    String type = not.getClass().getSimpleName();
 	    if(not instanceof MessageNotification) {
 	        type = ((MessageNotification)not).getKey();
@@ -193,7 +194,7 @@ public class CampaignNotificationManager {
 	    
 	    if(type == null) return null;
 		
-		Map<String, String> extraData = buildExtraData(not, type, lang);
+		Map<String, String> extraData = buildExtraData(not, type, lang, campaign);
 		logger.debug("buildExtraData:" + extraData);
 		
 		Notification result = new Notification();
@@ -215,7 +216,7 @@ public class CampaignNotificationManager {
 		return result;
 	}	
 	
-	private Map<String, String> buildExtraData(NotificationGe not, String type, String lang) {
+	private Map<String, String> buildExtraData(NotificationGe not, String type, String lang, Campaign campaign) {
 		Map<String, String> result = Maps.newTreeMap();
 
 		switch (type) {
@@ -263,6 +264,7 @@ public class CampaignNotificationManager {
 			    if(player != null) {
 			        result.put("nickname", player.getNickname());
 			        result.put("points", String.valueOf(((MessageNotification)not).getData().get("points")));
+					result.put("ecoLeaves", Utils.getPointNameByCampaign(campaign, lang));
 			    }
 			    break;
 			}
@@ -272,6 +274,7 @@ public class CampaignNotificationManager {
                 if(player != null) {
                     result.put("nickname", player.getNickname());
                     result.put("points", String.valueOf(((MessageNotification)not).getData().get("points")));
+					result.put("ecoLeaves", Utils.getPointNameByCampaign(campaign, lang));
                 }
                 break;
             }
