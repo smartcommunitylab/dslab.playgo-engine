@@ -1071,7 +1071,7 @@ public class CityGameDataConverter {
 
 	private String fillPointNameByCampaign(String content, Campaign campaign, String lang) {
 		String pointName = Utils.getPointNameByCampaign(campaign, lang);
-		content = content.replace("{pointName}", pointName);
+		content = content.replace("{ecoLeaves}", pointName);
 		return content;
 	}
 
