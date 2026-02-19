@@ -602,7 +602,6 @@ public class CityGameDataConverter {
 			description = fillDescription(challengeStructure, counterNameA, counterNameB, challenge, lang);
 			// fill point name
 			description = fillPointNameByCampaign(description, campaign, lang);
-			logger.info("fillDescription: description after point name filling: " + description);
 			for (String key: challengeReplacements.keySet()) {
 				description = description.replaceAll(key, challengeReplacements.get(key));
 			}			
@@ -1071,7 +1070,7 @@ public class CityGameDataConverter {
 
 	private String fillPointNameByCampaign(String content, Campaign campaign, String lang) {
 		String pointName = Utils.getPointNameByCampaign(campaign, lang);
-		logger.info("fillPointNameByCampaign:" + content + " -> " + pointName);
+		logger.debug("fillPointNameByCampaign:" + content + " -> " + pointName);
 		content = content.replace("{ecoLeaves}", pointName);
 		return content;
 	}
