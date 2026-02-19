@@ -61,6 +61,7 @@ public class CampaignManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(CampaignManager.class);
 	
 	private static final String CAMPAIGNSUB = "campaignSubscriptions";
+	public static final String CAMPAIGNPOINTNAME = "pointName";
 	
 	public static enum ImageType {logo, banner}; 
 	
