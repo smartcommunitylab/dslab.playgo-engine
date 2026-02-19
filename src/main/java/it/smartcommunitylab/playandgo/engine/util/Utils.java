@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
@@ -21,7 +24,8 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
-
+	private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+	
 	public static final DateTimeFormatter dtfDay = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
     public static final DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
@@ -145,8 +149,12 @@ public class Utils {
 	@SuppressWarnings("unchecked")
 	public static String getPointNameByCampaign(Campaign campaign, String lang) {
 		String pointName = "eco-Leaves";
+		logger.info("getPointNameByCampaign:" + campaign.getCampaignId() + " - " + lang);
 		if((campaign != null) && (campaign.getSpecificData() != null) && (campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME) != null)) {
-			String name = ((Map<String, String>) campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME)).get(lang);
+			Map<String, String> pointNameMap = (Map<String, String>) campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME);
+			logger.info("getPointNameByCampaign: pointNameMap: " + pointNameMap);
+			String name = pointNameMap.get(lang);
+			logger.info("getPointNameByCampaign: name for lang " + lang + ": " + name);
 			if(Utils.isNotEmpty(name)) {
 				pointName = name;
 			}
