@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.ge.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -70,6 +71,17 @@ public class BadgesData {
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+
+	public BadgesData clone() {
+		BadgesData clone = new BadgesData();
+		clone.setPath(this.path);
+		clone.setImageName(this.imageName);
+		clone.setImageByte(this.imageByte);
+		clone.setImageType(this.imageType);
+		clone.setTextId(this.textId);
+		clone.setText(new HashMap<>(this.text));
+		return clone;
 	}
 
 }
