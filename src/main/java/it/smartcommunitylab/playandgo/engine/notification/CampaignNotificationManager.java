@@ -87,7 +87,6 @@ public class CampaignNotificationManager {
 	}	
 	
 	private Map<String, NotificationMessage> notificationsMessages;
-	private Map<String, BadgesData> badges;
 	
 	@PostConstruct
 	public void init() throws Exception {
@@ -99,8 +98,6 @@ public class CampaignNotificationManager {
 		});
 		notificationsMessages = messages.stream().collect(Collectors.toMap(NotificationMessage::getId, Function.identity()));
 		logger.info("init:" + notificationsMessages);
-		
-		badges = badgeManager.getAllBadges();
 	}
 	
 	
@@ -252,7 +249,7 @@ public class CampaignNotificationManager {
 			}
 			case "BadgeNotification": {
 				String badge = ((BadgeNotification)not).getBadge();
-				BadgesData badgesData = badges.get(badge);
+				BadgesData badgesData = badgeManager.getAllBadges(campaign).get(badge);
 				if(badgesData != null) {
 					result.put("badgeName", badgesData.getText().get(lang));
 				}

@@ -16,10 +16,16 @@ import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
 import it.smartcommunitylab.playandgo.engine.manager.GameManager;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerGameStatus;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @RestController
 public class GameController extends PlayAndGoController {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(GameController.class);
+	
+	@Autowired
+	CampaignRepository campaignRepository;
 	
 	@Autowired
 	GameManager gameManager;
@@ -36,8 +42,14 @@ public class GameController extends PlayAndGoController {
 	}
 	
 	@GetMapping("/api/game/badge")
-	public Map<String, BadgesData> getAllBadges(HttpServletRequest request) throws Exception {
-		return badgeManager.getAllBadges();
+	public Map<String, BadgesData> getAllBadges(
+		@RequestParam(required = false) String campaignId,
+		HttpServletRequest request) throws Exception {
+		if(Utils.isEmpty(campaignId)) {
+			return badgeManager.getAllBadges(null);
+		} else {
+			return badgeManager.getAllBadges(campaignRepository.findById(campaignId).orElse(null));
+		}
 	}
 	
 }

@@ -2,7 +2,7 @@ package it.smartcommunitylab.playandgo.engine.ge;
 
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +17,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 
+import it.smartcommunitylab.playandgo.engine.config.Const;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgesData;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class BadgeManager {
@@ -45,7 +48,26 @@ public class BadgeManager {
 		}		
 	}
 	
-	public Map<String, BadgesData> getAllBadges() {
-		return Collections.unmodifiableMap(badges);
+	//public Map<String, BadgesData> getAllBadges() {
+	//	return getBadges(null);
+	//}
+
+	public Map<String, BadgesData> getAllBadges(Campaign campaign) {
+		Map<String, BadgesData> result = new HashMap<>();
+		for(BadgesData badge: badges.values()) {
+			// duplicate badge to avoid modifying original one
+			BadgesData newBadge = badge.clone();
+			for(String lang: Const.languages) {
+				newBadge.getText().put(lang, getBadgeContent(campaign, badge.getText().get(lang), lang));
+			}
+			result.put(newBadge.getTextId(), newBadge);
+		}
+		return result;		
+	}
+
+	private String getBadgeContent(Campaign campaign, String content, String lang) {
+		String pointName = Utils.getPointNameByCampaign(campaign, lang);
+		content = content.replace("{ecoLeaves}", pointName);
+		return content;
 	}
 }

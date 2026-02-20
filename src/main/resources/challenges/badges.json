@@ -4,8 +4,8 @@
 	"imageType": "image/png",
 	"textId": "king_week_green",
 	"text": {
-		"it": "Re della Settimana - eco-Leaves",
-		"en": "King of the Week - eco-Leaves"
+		"it": "Re della Settimana - {ecoLeaves}",
+		"en": "King of the Week - {ecoLeaves}"
 	}
 },
 {
@@ -14,8 +14,8 @@
 	"imageType": "image/png",
 	"textId": "50_point_green",
 	"text": {
-		"it": "50 Punti eco-Leaves",
-		"en": "50 eco-Leaves Points"
+		"it": "50 Punti {ecoLeaves}",
+		"en": "50 {ecoLeaves} Points"
 	}
 },
 {
@@ -24,8 +24,8 @@
 	"imageType": "image/png",
 	"textId": "100_point_green",
 	"text": {
-		"it": "100 Punti eco-Leaves",
-		"en": "100 eco-Leaves Points"
+		"it": "100 Punti {ecoLeaves}",
+		"en": "100 {ecoLeaves} Points"
 	}
 },
 {
@@ -34,8 +34,8 @@
 	"imageType": "image/png",
 	"textId": "200_point_green",
 	"text": {
-		"it": "200 Punti eco-Leaves",
-		"en": "200 eco-Leaves Points"
+		"it": "200 Punti {ecoLeaves}",
+		"en": "200 {ecoLeaves} Points"
 	}
 },
 {
@@ -44,8 +44,8 @@
 	"imageType": "image/png",
 	"textId": "400_point_green",
 	"text": {
-		"it": "400 Punti eco-Leaves",
-		"en": "400 eco-Leaves Points"
+		"it": "400 Punti {ecoLeaves}",
+		"en": "400 {ecoLeaves} Points"
 	}
 },
 {
@@ -54,8 +54,8 @@
 	"imageType": "image/png",
 	"textId": "800_point_green",
 	"text": {
-		"it": "800 Punti eco-Leaves",
-		"en": "800 eco-Leaves Points"
+		"it": "800 Punti {ecoLeaves}",
+		"en": "800 {ecoLeaves} Points"
 	}
 },
 {
@@ -64,8 +64,8 @@
 	"imageType": "image/png",
 	"textId": "1500_point_green",
 	"text": {
-		"it": "1500 Punti eco-Leaves",
-		"en": "1500 eco-Leaves Points"
+		"it": "1500 Punti {ecoLeaves}",
+		"en": "1500 {ecoLeaves} Points"
 	}
 },
 {
@@ -74,8 +74,8 @@
 	"imageType": "image/png",
 	"textId": "2500_point_green",
 	"text": {
-		"it": "2500 Punti eco-Leaves",
-		"en": "2500 eco-Leaves Points"
+		"it": "2500 Punti {ecoLeaves}",
+		"en": "2500 {ecoLeaves} Points"
 	}
 },
 {
@@ -84,8 +84,8 @@
 	"imageType": "image/png",
 	"textId": "5000_point_green",
 	"text": {
-		"it": "5000 Punti eco-Leaves",
-		"en": "5000 eco-Leaves Points"
+		"it": "5000 Punti {ecoLeaves}",
+		"en": "5000 {ecoLeaves} Points"
 	}
 },
 {
@@ -94,8 +94,8 @@
 	"imageType": "image/png",
 	"textId": "10000_point_green",
 	"text": {
-		"it": "10000 Punti eco-Leaves",
-		"en": "10000 eco-Leaves Points"
+		"it": "10000 Punti {ecoLeaves}",
+		"en": "10000 {ecoLeaves} Points"
 	}
 },
 {
@@ -104,8 +104,8 @@
 	"imageType": "image/png",
 	"textId": "20000_point_green",
 	"text": {
-		"it": "20000 Punti eco-Leaves",
-		"en": "20000 eco-Leaves Points"
+		"it": "20000 Punti {ecoLeaves}",
+		"en": "20000 {ecoLeaves} Points"
 	}
 },
 {
@@ -114,8 +114,8 @@
 	"imageType": "image/png",
 	"textId": "bronze-medal-green",
 	"text": {
-		"it": "Medaglia di Bronzo - eco-Leaves",
-		"en": "Bronze Medal - eco-Leaves"
+		"it": "Medaglia di Bronzo - {ecoLeaves}",
+		"en": "Bronze Medal - {ecoLeaves}"
 	}
 },
 {
@@ -124,8 +124,8 @@
 	"imageType": "image/png",
 	"textId": "silver-medal-green",
 	"text": {
-		"it": "Medaglia d'Argento - eco-Leaves",
-		"en": "Silver Medal - eco-Leaves"
+		"it": "Medaglia d'Argento - {ecoLeaves}",
+		"en": "Silver Medal - {ecoLeaves}"
 	}
 },
 {
@@ -134,8 +134,8 @@
 	"imageType": "image/png",
 	"textId": "gold-medal-green",
 	"text": {
-		"it": "Medaglia d'Oro - eco-Leaves",
-		"en": "Gold Medal - eco-Leaves"
+		"it": "Medaglia d'Oro - {ecoLeaves}",
+		"en": "Gold Medal - {ecoLeaves}"
 	}
 },
 {
