@@ -161,6 +161,10 @@ public class Campaign {
 
 	public boolean currentlyActive() {
 		Date now = new Date();
+		// if type is personal, we consider the active flag only
+		if (getType() == Type.personal) {
+			return ((getActive() != null) && getActive());
+		}
 		return !Boolean.FALSE.equals(getActive()) && 
 				(getDateFrom() == null || !getDateFrom().after(now)) &&
 				(getDateTo() == null || !getDateTo().before(now));
