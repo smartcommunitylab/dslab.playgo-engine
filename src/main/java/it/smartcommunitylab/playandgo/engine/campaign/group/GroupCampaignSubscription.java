@@ -165,6 +165,9 @@ public class GroupCampaignSubscription {
 			if(createPlayer) {
 		        Map<String, Object> customData = new HashMap<>();
 		        customData.put("activePlayer", true);
+				if(Utils.isNotEmpty(groupId)) {
+					customData.put(groupIdKey, groupId);	
+				}
 		        gamificationEngineManager.changeCustomData(player.getPlayerId(), campaign.getGameId(), customData);
 			} else {
 			    throw new ServiceException("GamificationEngine create user error", ErrorCode.EXT_SERVICE_INVOCATION); 
