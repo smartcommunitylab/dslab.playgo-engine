@@ -147,8 +147,8 @@
 		"modelName": "repetitiveBehaviour",
 		"filter": "Walk_Km",
 		"description": {
-			"it": "Per vincere la sfida vale la somma dei Km camminati al giorno (solo tratte superiori a 250 metri) nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
-			"en": "To win this challenge, we take into account the total number of Km. you have walked within the day (with distance greater than 250m) during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+			"it": "Per vincere la sfida vale la somma dei Km camminati al giorno nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km. you have walked within the day during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
 		}
 	},
 	{
@@ -203,8 +203,8 @@
 		"modelName": "percentageIncrement",
 		"filter": "Walk_Km",
 		"description": {
-			"it": "Per vincere la sfida vale la somma dei Km camminati (solo tratte superiori a 250 metri) nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
-			"en": "To win this challenge, we take into account the total number of Km. you have walked (with distance greater than 250m) during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+			"it": "Per vincere la sfida vale la somma dei Km camminati nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km. you have walked during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
 		}
 	},
 	{
@@ -459,8 +459,8 @@
 		"modelName": "absoluteIncrement",
 		"filter": "Walk_Km",
 		"description": {
-			"it": "Per vincere la sfida vale la somma dei Km camminati (solo tratte superiori a 250 metri) nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
-			"en": "To win this challenge, we take into account the total number of Km. you have walked (with distance greater than 250m) during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
+			"it": "Per vincere la sfida vale la somma dei Km camminati nel corso degli itinerari tracciati con app Play&Go e compiuti durante la validita' della sfida.",
+			"en": "To win this challenge, we take into account the total number of Km. you have walked during all itineraries that you have tracked with app Play&Go and which you have taken in between the beginning and end time for this challenge."
 		}
 	},
 	{
