@@ -128,15 +128,6 @@ public class BasicCampaignSurveyManager {
 		}
 		return complete;
 	}
-	
-	private Map<String, Object> correctData(Map<String, Object> data) {
-		Map<String, Object> res = new HashMap<>();
-		data.keySet().forEach(k -> {
-			String nk = k.replace('.', ' ');
-			res.put(nk, data.getOrDefault(k, ""));
-		});
-		return res;
-	}
 
 	public SurveyInfo getSurveyUrl(String id, String surveyName) {
 		SurveyInfo info = new SurveyInfo();

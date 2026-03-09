@@ -21,6 +21,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 
 @Component
 public class StorageManager {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(StorageManager.class);
 	
 	@Value("${minio.endpoint}")

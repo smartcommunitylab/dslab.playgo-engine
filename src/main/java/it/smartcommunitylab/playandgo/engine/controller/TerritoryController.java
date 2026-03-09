@@ -21,6 +21,7 @@ import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
 
 @RestController
 public class TerritoryController extends PlayAndGoController {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(TerritoryController.class);
 	
 	@Autowired

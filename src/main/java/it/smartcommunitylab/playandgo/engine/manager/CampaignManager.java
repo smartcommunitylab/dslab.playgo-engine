@@ -29,6 +29,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.company.CompanyCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.group.GroupCampaignGameNotification;
+import it.smartcommunitylab.playandgo.engine.campaign.group.GroupCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.personal.PersonalCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignGameNotification;
 import it.smartcommunitylab.playandgo.engine.campaign.school.SchoolCampaignSubscription;
@@ -59,6 +61,7 @@ public class CampaignManager {
 	private static transient final Logger logger = LoggerFactory.getLogger(CampaignManager.class);
 	
 	private static final String CAMPAIGNSUB = "campaignSubscriptions";
+	public static final String CAMPAIGNPOINTNAME = "pointName";
 	
 	public static enum ImageType {logo, banner}; 
 	
@@ -90,10 +93,16 @@ public class CampaignManager {
 	SchoolCampaignSubscription schoolCampaignSubscription; 
 	
 	@Autowired
+	GroupCampaignSubscription groupCampaignSubscription;
+
+	@Autowired
 	CityCampaignGameNotification cityCampaignGameNotification;
 	
 	@Autowired
 	SchoolCampaignGameNotification schoolCampaignGameNotification;
+
+	@Autowired
+	GroupCampaignGameNotification groupCampaignGameNotification;
 	
 	@Autowired
 	StorageManager storageManager;
@@ -113,7 +122,11 @@ public class CampaignManager {
 				case school:
 					schoolCampaignGameNotification.subcribeCampaing(campaign);
 					break;
+				case group:
+					groupCampaignGameNotification.subcribeCampaing(campaign);
+					break;
 				case company:
+					break;
 			}
 			return campaign;
 		} catch (Exception e) {
@@ -130,6 +143,8 @@ public class CampaignManager {
 		campaignDb.setDescription(campaign.getDescription());
 		campaignDb.setDateFrom(campaign.getDateFrom());
 		campaignDb.setDateTo(campaign.getDateTo());
+		campaignDb.setRegistrationFrom(campaign.getRegistrationFrom());
+		campaignDb.setRegistrationTo(campaign.getRegistrationTo());
 		campaignDb.setActive(campaign.getActive());
 		campaignDb.setCommunications(campaign.getCommunications());
 		campaignDb.setVisible(campaign.getVisible());
@@ -149,7 +164,11 @@ public class CampaignManager {
 			case school:
 				schoolCampaignGameNotification.subcribeCampaing(campaignDb);
 				break;
+			case group:
+				groupCampaignGameNotification.subcribeCampaing(campaignDb);
+				break;
 			case company:
+				break;
 		}							
 	}
 	
@@ -242,6 +261,8 @@ public class CampaignManager {
 			case school:
 				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
 				break;
+			case group:
+				sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
 		}
 		return campaignSubscriptionRepository.save(sub);
 	}
@@ -265,6 +286,8 @@ public class CampaignManager {
 						break;
 					case personal:
 						break;
+					case group:
+						groupCampaignSubscription.unsubscribeCampaign(player, campaign);
 				}
 				campaignSubscriptionRepository.deleteById(subscription.getId());
 			}
@@ -470,11 +493,13 @@ public class CampaignManager {
 		while(iterator.hasNextValue()) {
 			try {
 				Map<String, String> map = iterator.next();
+				String groupId;
 				String dateFrom = null;
 				String dateTo = null;
 				int weekNumber;
 				String descIt;
 				String descEn;
+				groupId = map.get("group_id").trim();
 				weekNumber = Integer.valueOf(map.get("settimana").trim());
 				dateFrom = map.get("data inizio").trim();
 				dateTo = map.get("data fine").trim();
@@ -482,13 +507,14 @@ public class CampaignManager {
 				descEn = map.get("desc_en").trim();
 				CampaignWeekConf conf = new CampaignWeekConf();
 				conf.setCampaignId(campaignId);
+				conf.setGroupId(groupId);
 				conf.setWeekNumber(weekNumber);
 				conf.setDateFrom(sdf.parse(dateFrom));
 				conf.setDateTo(sdf.parse(dateTo));
 				conf.getDesc().put("it", descIt);
 				conf.getDesc().put("en", descEn);
 				campaign.getWeekConfs().add(conf);
-				result.add("add week " + weekNumber);
+				result.add("add week " + weekNumber + " - group: " + groupId);
 				lineCount++;
 			} catch (Exception e) {
 				result.add(String.format("error on week [%s]:%s", lineCount, e.getMessage()));
@@ -518,6 +544,7 @@ public class CampaignManager {
 		while(iterator.hasNextValue()) {
 			try {
 				Map<String, String> map = iterator.next();
+				String groupId;
 				int weekNumber;
 				int position;
 				String descIt;
@@ -531,6 +558,7 @@ public class CampaignManager {
 				String rewardNoteEn;
 				String sponsorDescIt;
 				String sponsorDescEn;
+				groupId = map.get("group_id").trim();
 				weekNumber = Integer.valueOf(map.get("settimana").trim());
 				position = Integer.valueOf(map.get("posizione").trim());
 				descIt = map.get("desc_it").trim();
@@ -544,7 +572,7 @@ public class CampaignManager {
 				rewardNoteEn = map.get("note_premio_en").trim();
 				sponsorDescIt = map.get("descrizione_sponsor_it").trim();
 				sponsorDescEn = map.get("descrizione_sponsor_en").trim();
-				CampaignWeekConf conf = getWeekConf(campaign, weekNumber);
+				CampaignWeekConf conf = getWeekConf(campaign, groupId, weekNumber);
 				if(conf != null) {
 					CampaignReward reward = new CampaignReward();
 					reward.setPosition(position);
@@ -560,9 +588,9 @@ public class CampaignManager {
 					reward.getLabel().put("it", labelIt);
 					reward.getLabel().put("en", labelEn);
 					conf.getRewards().add(reward);
-					result.add("add conf " + weekNumber + " - " + lineCount);
+					result.add("add reward " + weekNumber + " - group: " + groupId + " - line: " + lineCount);
 				} else {
-					result.add("skip conf " + weekNumber + " - " + lineCount);
+					result.add("skip conf " + weekNumber + " - group: " + groupId + " - line: " + lineCount);
 				}
 				lineCount++;
 			} catch (Exception e) {
@@ -573,9 +601,9 @@ public class CampaignManager {
 		return result;
 	}
 	
-	private CampaignWeekConf getWeekConf(Campaign campaign, int weekNumber) {
+	private CampaignWeekConf getWeekConf(Campaign campaign, String groupId, int weekNumber) {
 		for(CampaignWeekConf conf : campaign.getWeekConfs()) {
-			if(conf.getWeekNumber() == weekNumber) {
+			if(conf.getGroupId().equals(groupId) && (conf.getWeekNumber() == weekNumber)) {
 				return conf;
 			}
 		}

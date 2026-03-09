@@ -190,7 +190,7 @@ public class ReportEmailSender {
 				lastWeekChallenges = challLists.getChallengeData().get(ChallengeDataType.OLD);
 			}
 
-			List<BadgesData> allBadge = gameDataConverter.getAllBadges();
+			List<BadgesData> allBadge = gameDataConverter.getAllBadges(campaign);
 			someBadge = filterBadges(allBadge, completePlayerStatus);
 			
 			String mailto = null;

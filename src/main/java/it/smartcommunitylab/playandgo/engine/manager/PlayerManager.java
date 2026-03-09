@@ -20,6 +20,7 @@ import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
 public class PlayerManager {
+	@SuppressWarnings("unused")
 	private static transient final Logger logger = LoggerFactory.getLogger(PlayerManager.class);
 	
 	@Autowired

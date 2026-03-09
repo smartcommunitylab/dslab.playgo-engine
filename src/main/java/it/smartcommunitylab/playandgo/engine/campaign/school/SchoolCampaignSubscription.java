@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.manager.highschool.PgHighSchoolManager;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyManager;
@@ -20,6 +21,7 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 @Component
@@ -45,6 +47,11 @@ public class SchoolCampaignSubscription {
 
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData, boolean sendExtRequest) throws Exception {
+
+		if(!campaign.isRegistrationOpen(new Date())) {
+			throw new ServiceException("Campaign registration is closed", ErrorCode.CAMPAIGN_REGISTRATION_CLOSED);
+		}
+
 	    String groupId = null;
 	    if(sendExtRequest) {
 	        groupId = highSchoolManager.subscribeCampaign(campaign.getCampaignId(), player.getPlayerId(), 
@@ -66,8 +73,11 @@ public class SchoolCampaignSubscription {
             //check default survey
             if(campaign.hasDefaultSurvey()) {
                 SurveyRequest sr = campaign.getDefaultSurvey();
-                surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
-            }            
+				if(campaign.currentlyActive()) {
+					surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
+				} else {
+					surveyManager.addSurveyTask(campaign.getCampaignId(), player.getPlayerId(), sr);
+				}	            }            
         }
 		sendRegisterWebhookRequest(sub);
 		return sub;

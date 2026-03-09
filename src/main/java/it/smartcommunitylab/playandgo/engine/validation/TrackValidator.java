@@ -35,6 +35,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+import it.smartcommunitylab.playandgo.engine.geolocation.model.Circle;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.Shape;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.TrackSplit;
@@ -71,7 +72,7 @@ public class TrackValidator {
 		return validateFreePTMode(
 				track, 
 				PTDataHelper.getTrainTracksForTerritory(territory.getTerritoryId()), 
-				null, 
+				getAreasFromTerritory(territory), 
 				mode, 
 				speedThreshold, timeThreshold, minTrackThreshold, false, 
 				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_DISTANCE_THRESHOLD),
@@ -102,7 +103,7 @@ public class TrackValidator {
 		return validateFreePTMode(
 				track, 
 				PTDataHelper.getBusTracksForTerritory(territory.getTerritoryId(), track), 
-				null, 
+				getAreasFromTerritory(territory), 
 				mode, 
 				speedThreshold, timeThreshold, minTrackThreshold, true, 
 				ValidationConstants.getDouble(territory, ValidationConstants.PARAM_DISTANCE_THRESHOLD),
@@ -132,7 +133,7 @@ public class TrackValidator {
 		return validateFreePTMode(
 				track, 
 				PTDataHelper.getBoatTracksForTerritory(territory.getTerritoryId()), 
-				null, 
+				getAreasFromTerritory(territory), 
 				mode, 
 				speedThreshold, timeThreshold, minTrackThreshold, false, 
 				1000,
@@ -163,7 +164,7 @@ public class TrackValidator {
 				guaranteedAvgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_WALK_GUARANTEED_AVG_SPEED_THRESHOLD); 
 	
 		
-		return validateFreeMode(track, null, mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_DISTANCE_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD));
+		return validateFreeMode(track, getAreasFromTerritory(territory), mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_DISTANCE_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD));
 	}
 
 	/**
@@ -180,7 +181,7 @@ public class TrackValidator {
 				timeThreshold = 10 * 1000, minTrackThreshold = 60*1000, 
 				avgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_AVG_SPEED_THRESHOLD), 
 				guaranteedAvgSpeedThreshold = ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_GUARANTEED_AVG_SPEED_THRESHOLD); 
-		ValidationStatus status = validateFreeMode(track, null, mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_DISTANCE_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD));
+		ValidationStatus status = validateFreeMode(track, getAreasFromTerritory(territory), mode, speedThreshold, timeThreshold, minTrackThreshold, avgSpeedThreshold, guaranteedAvgSpeedThreshold, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_BIKE_DISTANCE_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_VALIDITY_THRESHOLD), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_COVERAGE_THRESHOLD));
 	
 		if (TravelValidity.INVALID.equals(status.getValidationOutcome()) && ERROR_TYPE.TOO_SHORT.equals(status.getError())) {
 			status.setError(ERROR_TYPE.DOES_NOT_MATCH);
@@ -993,11 +994,11 @@ public class TrackValidator {
 		statusD.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
 
 		// basic validation
-		List<Geolocation> points = prevalidate(passengerTrack, statusP, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
+		List<Geolocation> points = prevalidate(passengerTrack, statusP, getAreasFromTerritory(territory), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
 		if (statusP.getValidationOutcome() != null) {
 			return statusP;
 		}
-		List<Geolocation> driverPoints = prevalidate(driverTrack, statusD, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
+		List<Geolocation> driverPoints = prevalidate(driverTrack, statusD, getAreasFromTerritory(territory), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
 		if (statusD.getValidationOutcome() != null) {
             statusP.setValidationOutcome(TravelValidity.INVALID);
             statusP.setError(ERROR_TYPE.SHARED_DOES_NOT_MATCH);
@@ -1039,13 +1040,62 @@ public class TrackValidator {
 		status.setMatchThreshold(ValidationConstants.getDouble(territory, ValidationConstants.PARAM_ACCURACY_THRESHOLD));
 
 		// basic validation
-		prevalidate(driverTrack, status, null, ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
+		prevalidate(driverTrack, status, getAreasFromTerritory(territory), ValidationConstants.getDouble(territory, ValidationConstants.PARAM_SHARED_TRIP_DISTANCE_THRESHOLD));
 		if (status.getValidationOutcome() != null) {
 			return status;
 		}
 
 		status.setValidationOutcome(TravelValidity.VALID);
 		return status;
+	}
+
+
+	private static List<Shape> getAreasFromTerritory(Territory territory) {
+		List<Shape> shapes = new ArrayList<>();
+		
+		if ((territory == null) || (territory.getTerritoryData() == null) || !territory.getTerritoryData().containsKey("area")
+				|| !territory.getTerritoryData().containsKey("validation")) {
+			return shapes;
+		}
+
+		// check validation flag
+		Object validationObj = territory.getTerritoryData().get("validation");
+		if (validationObj instanceof Boolean) {
+			Boolean validation = (Boolean) validationObj;
+			if (!validation) {
+				return shapes;
+			}
+		} else {
+			return shapes;
+		}
+		
+		Object areaObj = territory.getTerritoryData().get("area");
+		if (areaObj instanceof List) {
+			List<?> areaList = (List<?>) areaObj;
+			for (Object item : areaList) {
+				if (item instanceof Map) {
+					@SuppressWarnings("unchecked")
+					Map<String, Object> areaMap = (Map<String, Object>) item;
+					Circle circle = new Circle();
+					// Extract lat, long, radius
+					Object lat = areaMap.get("lat");
+					Object lon = areaMap.get("long");
+					Object radius = areaMap.get("radius");
+					
+					if (lat != null && lon != null && radius != null) {
+						double latitude = ((Number) lat).doubleValue();
+						double longitude = ((Number) lon).doubleValue();
+						double radiusValue = ((Number) radius).doubleValue();
+						
+						circle.setCenter(new double[]{latitude, longitude});
+						circle.setRadius(radiusValue);
+						shapes.add(circle);
+					}
+				}
+			}
+		}
+		
+		return shapes;
 	}
 
 

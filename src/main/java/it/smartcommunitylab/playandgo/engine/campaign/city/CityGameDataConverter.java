@@ -7,7 +7,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,6 +39,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
 
+import it.smartcommunitylab.playandgo.engine.config.Const;
 import it.smartcommunitylab.playandgo.engine.ge.BadgeManager;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.BadgeCollectionConcept;
@@ -60,6 +60,7 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.OtherAttendeeData
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
@@ -126,8 +127,6 @@ public class CityGameDataConverter {
 		  { "weekly", "weeks" }, 
 		}).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 	
-	private static final List<String> languages = Arrays.asList("it", "en");
-	
 	@Value("${challengeDir}")
 	private String challengeDir;
 	
@@ -140,6 +139,9 @@ public class CityGameDataConverter {
 	@Autowired
     TerritoryRepository territoryRepository;
 	
+	@Autowired
+	private CampaignRepository campaignRepository;
+
 	@Autowired
 	private GamificationEngineManager gamificationEngineManager;
 	
@@ -154,10 +156,9 @@ public class CityGameDataConverter {
 
 	private Map<String, List> challengeDictionaryMap;
 	private Map<String, String> challengeReplacements;
-
-	private Map<String, BadgesData> badges;
 	
 	private ObjectMapper mapper = new ObjectMapper();
+
 	
 	@PostConstruct
 	public void init() throws Exception {
@@ -184,16 +185,14 @@ public class CityGameDataConverter {
 
 		challengeDictionaryMap = mapper.readValue(Paths.get(challengeDir + "/challenges_dictionary.json").toFile(), Map.class);
 		challengeReplacements = mapper.readValue(Paths.get(challengeDir + "/challenges_replacements.json").toFile(), Map.class);
-		
-		badges = badgeManager.getAllBadges();
 	}
 	
 	public String encryptIdentity(String playerId, String gameId) throws Exception {
 		return gamificationEngineManager.encryptIdentity(playerId, gameId);
 	}
 	
-	public List<BadgesData> getAllBadges() {
-		return Lists.newArrayList(badges.values());
+	public List<BadgesData> getAllBadges(Campaign campaign) {
+		return badgeManager.getAllBadges(campaign).values().stream().collect(Collectors.toList());
 	}
 	
 	public List<BadgeCollectionConcept> convertBadgeCollection(JsonNode rootNode) {
@@ -208,9 +207,10 @@ public class CityGameDataConverter {
         if(badges == null) {
             return new ArrayList<BadgeCollectionConcept>();
         }
+		Map<String, BadgesData> badgeMap = badgeManager.getAllBadges(null);
 	    List<BadgeCollectionConcept> filteredBadges = badges.stream().filter(x -> !x.isHidden()).map(x -> {
             x.getBadgeEarned().forEach(y -> {
-                y.setUrl(getUrlFromBadgeName(playgoURL, y.getName()));
+                y.setUrl(getUrlFromBadgeName(playgoURL, y.getName(), badgeMap));
             });
             return x;
         }).collect(Collectors.toList());
@@ -364,8 +364,8 @@ public class CityGameDataConverter {
 		}
 	}
 	
-	private String getUrlFromBadgeName(String gamificationUrl, String b_name) {
-		BadgesData badge = badges.get(b_name);
+	private String getUrlFromBadgeName(String gamificationUrl, String b_name, Map<String,BadgesData> badgeMap) {
+		BadgesData badge = badgeMap.get(b_name);
 		if (badge != null) {
 			return gamificationUrl + "/" + badge.getPath();
 		}
@@ -560,7 +560,7 @@ public class CityGameDataConverter {
 		return word;
 	}
 
-	private String fillDescription(ChallengeConcept challenge, String lang, boolean isGroup) {
+	private String fillDescription(ChallengeConcept challenge, String lang, boolean isGroup, Campaign campaign) {
 		String filter = getFilterByType(challenge.getModelName());
 		String description = null;
 		String name = challenge.getModelName();
@@ -595,7 +595,8 @@ public class CityGameDataConverter {
 
 		if (challengeStructure != null) {
 			description = fillDescription(challengeStructure, counterNameA, counterNameB, challenge, lang);
-			
+			// fill point name
+			description = fillPointNameByCampaign(description, campaign, lang);
 			for (String key: challengeReplacements.keySet()) {
 				description = description.replaceAll(key, challengeReplacements.get(key));
 			}			
@@ -607,23 +608,29 @@ public class CityGameDataConverter {
 		return description;
 	}
 	
-	public Map<String, String> fillDescription(String name, String filterField, Map<String, Object> params) {
+	public Map<String, String> fillDescription(String name, String filterField, Map<String, Object> params, Campaign campaign) {
 		Map<String, String> result = new HashMap<>();
 		ChallengeStructure challengeStructure = challengeStructureMap.getOrDefault(name + "#" + filterField, null);
 		if (challengeStructure != null) {
-			for(String lang : languages) {
+			for(String lang : Const.languages) {
 				String description = "";
 				ST st = new ST(challengeStructure.getDescription().get(lang));
 				
 				for (String field : params.keySet()) {
 					Object o = params.get(field);
 					st.add(field, o instanceof Number ? ((Number) o).intValue() : (o instanceof String ? instantiateWord(o.toString(), false, lang) : o));
-				}			
+				}
+				
+				description = st.render();
+
+				// fill point name
+				description = fillPointNameByCampaign(description, campaign, lang);
 				
 				for (String key: challengeReplacements.keySet()) {
 					description = description.replaceAll(key, challengeReplacements.get(key));
 				}		
-				result.put(lang, st.render());				
+				
+				result.put(lang, description);				
 			}
 		} else {
 			logger.error("Cannot find structure for challenge preview: '" + name + "', " + filterField);
@@ -647,7 +654,7 @@ public class CityGameDataConverter {
 		return st.render();
 	}
 
-	private String fillLongDescription(ChallengeConcept challenge, String filterField, String lang, boolean isGroup) {
+	private String fillLongDescription(ChallengeConcept challenge, String filterField, String lang, boolean isGroup, Campaign campaign) {
 		String description = null;
 		String name = challenge.getModelName();
 		if(isGroup) {
@@ -659,7 +666,8 @@ public class CityGameDataConverter {
 
 		if (challengeStructure != null) {
 			description = fillLongDescription(challengeStructure, counterName, challenge, lang);
-			
+			// fill point name
+			description = fillPointNameByCampaign(description, campaign, lang);
 			for (String key: challengeReplacements.keySet()) {
 				description = description.replaceAll(key, challengeReplacements.get(key));
 			}			
@@ -680,24 +688,30 @@ public class CityGameDataConverter {
 		return st.render();
 	}
 	
-	public Map<String, String> fillLongDescription(String name, String filterField, Map<String, Object> params) {
+	public Map<String, String> fillLongDescription(String name, String filterField, Map<String, Object> params, Campaign campaign) {
 		Map<String, String> result = new HashMap<>();
 		ChallengeLongDescrStructure challengeStructure = challengeLongStructureMap.getOrDefault(name + "#" + filterField, null);
 		
 		if (challengeStructure != null) {
-			for(String lang : languages) {
+			for(String lang : Const.languages) {
 				String description = "";
 				ST st = new ST(challengeStructure.getDescription().get(lang));
 				
 				for (String field : params.keySet()) {
 					Object o = params.get(field);
 					st.add(field, o instanceof Number ? ((Number) o).intValue() : (o instanceof String ? instantiateWord(o.toString(), false, lang) : o));
-				}			
+				}
+				
+				description = st.render();
+
+				// fill point name	
+				description = fillPointNameByCampaign(description, campaign, lang);
 				
 				for (String key: challengeReplacements.keySet()) {
 					description = description.replaceAll(key, challengeReplacements.get(key));
 				}
-				result.put(lang, st.render());
+
+				result.put(lang, description);
 			}
 		} else {
 			logger.error("Cannot find structure for challenge preview: '" + name + "', " + filterField);
@@ -1034,17 +1048,26 @@ public class CityGameDataConverter {
 				}
 			}
 		}
+
+		Campaign campaign = campaignRepository.findByGameId(gameId);
 		
 		challengeData.setChallTarget((int)target);
-		for(String lang : languages) {
-			challengeData.getChallDesc().put(lang, fillDescription(challenge, lang, isGroup));
-			challengeData.getChallCompleteDesc().put(lang, fillLongDescription(challenge, getFilterByType(challengeData.getType()), lang, isGroup));
+		for(String lang : Const.languages) {
+			challengeData.getChallDesc().put(lang, fillDescription(challenge, lang, isGroup, campaign));
+			challengeData.getChallCompleteDesc().put(lang, fillLongDescription(challenge, getFilterByType(challengeData.getType()), lang, isGroup, campaign));
 		}
 
 		challengeData.setBonus(bonusScore);
 		challengeData.setStatus(status);
 		challengeData.setRow_status(round(row_status, 2));
 		return challengeData;
+	}
+
+	private String fillPointNameByCampaign(String content, Campaign campaign, String lang) {
+		String pointName = Utils.getPointNameByCampaign(campaign, lang);
+		logger.debug("fillPointNameByCampaign:" + content + " -> " + pointName);
+		content = content.replace("{ecoLeaves}", pointName);
+		return content;
 	}
 
 }

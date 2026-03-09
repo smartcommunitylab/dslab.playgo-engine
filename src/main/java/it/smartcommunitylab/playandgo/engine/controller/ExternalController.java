@@ -30,6 +30,7 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.NotFoundException;
 import it.smartcommunitylab.playandgo.engine.manager.AvatarManager;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
+import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignGamePlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.PlayerCampaignPlacingManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.manager.UnregisterManager;
@@ -52,6 +53,9 @@ public class ExternalController extends PlayAndGoController {
 	
 	@Autowired
 	PlayerCampaignPlacingManager placingManager;
+
+	@Autowired
+	PlayerCampaignGamePlacingManager gamePlacingManager;
 
 	@Autowired
 	TrackedInstanceManager trackedInstanceManager;
@@ -119,7 +123,7 @@ public class ExternalController extends PlayAndGoController {
 		for(String nickname : nicknames) {
 			Player player = playerRepository.findByNicknameIgnoreCase(nickname);
 			if(player != null) {
-				result.put(nickname, placingManager.getPlayerGameTotalScore(nickname, campaignId));
+				result.put(nickname, gamePlacingManager.getPlayerGameTotalScore(nickname, campaignId));
 			}
 		}
 		return result;
@@ -133,8 +137,8 @@ public class ExternalController extends PlayAndGoController {
 			@ParameterObject Pageable pageRequest,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
-		Page<CampaignPlacing> page = placingManager.getCampaignPlacingByGame(campaignId,  
-				dateFrom, dateTo, pageRequest, true);
+		Page<CampaignPlacing> page = gamePlacingManager.getCampaignPlacingByGame(campaignId,  
+				dateFrom, dateTo, null, true, false, pageRequest);
 		return page;			
 	}
 
@@ -146,7 +150,7 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam(required = false) @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
-		CampaignGroupPlacing placing = placingManager.getCampaignGroupPlacingByGameAndPlayer(groupId, campaignId, 
+		CampaignGroupPlacing placing = gamePlacingManager.getCampaignGroupPlacingByGameAndPlayer(groupId, campaignId, 
 				dateFrom, dateTo);
 		return placing;
 	}
@@ -160,7 +164,7 @@ public class ExternalController extends PlayAndGoController {
 			@RequestParam @Parameter(example = "yyyy-MM-dd") String dateTo,
 			HttpServletRequest request) throws Exception {
 		checkAPIRole(request);
-		return placingManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);
+		return gamePlacingManager.getGroupGameStats(groupId, campaignId, groupMode, dateFrom, dateTo);
 	}
 
 	@GetMapping("/api/ext/territory/players")

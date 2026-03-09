@@ -14,7 +14,9 @@ import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerIdentity;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.SurveyTask;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
+import it.smartcommunitylab.playandgo.engine.repository.SurveyTaskRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
@@ -33,6 +35,22 @@ public class SurveyManager {
 
 	@Autowired
     GamificationEngineManager gamificationManager;
+
+    @Autowired
+    SurveyTaskRepository surveyTaskRepository;    
+
+	public void addSurveyTask(String campaignId, String playerId, SurveyRequest sr) throws Exception {
+		SurveyTask existingTask = surveyTaskRepository.findByCampaignIdAndPlayerIdAndSurveyName(campaignId, playerId, sr.getSurveyName());
+		if(existingTask != null) {
+			logger.info(String.format("addSurveyTask: task already exists for campaign %s - player %s - survey %s", 
+					campaignId, playerId, sr.getSurveyName()));
+			return;
+		}
+		SurveyTask task = new SurveyTask(campaignId, playerId, sr.getSurveyName(), sr);
+		logger.info(String.format("addSurveyTask: campaign %s - player %s - survey %s", 
+					campaignId, playerId, sr.getSurveyName()));
+		surveyTaskRepository.save(task);
+	}
 	
 	public void assignSurveyChallenges(String campaignId, List<String> playerIds, SurveyRequest sr) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
@@ -49,6 +67,9 @@ public class SurveyManager {
 		    case school:
 		        basicCampaignSurveyManager.assignSurvey(campaignId, playerIds, sr);
 		        break;
+			case group:
+				basicCampaignSurveyManager.assignSurvey(campaignId, playerIds, sr);
+                break;
             default:
                 break;
 		}
@@ -76,6 +97,9 @@ public class SurveyManager {
 		                break;
 		            case school:
 		                complete = basicCampaignSurveyManager.compileSurvey(surveyName, formData);
+		                break;
+					case group:
+						complete = basicCampaignSurveyManager.compileSurvey(surveyName, formData);
 		                break;
 		            default:
 		                break;			                
@@ -105,6 +129,9 @@ public class SurveyManager {
 	                        break;
 	                    case school:
 	                        info = basicCampaignSurveyManager.getSurveyUrl(id, surveyName);
+	                        break;
+						case group:
+							info = basicCampaignSurveyManager.getSurveyUrl(id, surveyName);
 	                        break;
 	                    default:
 	                        break;                          

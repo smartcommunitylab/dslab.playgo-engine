@@ -13,6 +13,7 @@ import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 
 @Component
 public class SchoolCampaignTripValidator extends BasicCampaignTripValidator {
+	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(SchoolCampaignTripValidator.class);
 	
 	@Autowired

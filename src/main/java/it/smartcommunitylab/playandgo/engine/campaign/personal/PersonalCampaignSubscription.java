@@ -13,6 +13,7 @@ import it.smartcommunitylab.playandgo.engine.model.Player;
 
 @Component
 public class PersonalCampaignSubscription {
+	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(PersonalCampaignSubscription.class);
 	
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 

@@ -1,21 +1,35 @@
 package it.smartcommunitylab.playandgo.engine.util;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
+import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
 public class Utils {
+	@SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+	
+	public static final DateTimeFormatter dtfDay = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter dftWeek = DateTimeFormatter.ofPattern("YYYY-ww", Locale.ITALY);
+    public static final DateTimeFormatter dftMonth = DateTimeFormatter.ofPattern("yyyy-MM");
 
 	public static boolean isNotEmpty(String value) {
 		boolean result = false;
@@ -123,6 +137,27 @@ public class Utils {
             return means.contains(mean);
         }
         return false;	    
+	}
+
+    public static Set<String> getModeTypesFromPlayerTracks(List<CampaignPlayerTrack> playerTracks) {
+		Set<String> modeTypes = new java.util.HashSet<>();
+		for(CampaignPlayerTrack pt : playerTracks) {
+			modeTypes.add(pt.getModeType());
+		}
+		return modeTypes;
+    }
+
+	@SuppressWarnings("unchecked")
+	public static String getPointNameByCampaign(Campaign campaign, String lang) {
+		String pointName = "eco-Leaves";
+		if((campaign != null) && (campaign.getSpecificData() != null) && (campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME) != null)) {
+			Map<String, String> pointNameMap = (Map<String, String>) campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME);
+			String name = pointNameMap.get(lang);
+			if(Utils.isNotEmpty(name)) {
+				pointName = name;
+			}
+		}
+		return pointName;
 	}
  	
 }

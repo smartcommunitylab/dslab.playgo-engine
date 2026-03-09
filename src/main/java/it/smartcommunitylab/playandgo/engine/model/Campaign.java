@@ -17,7 +17,7 @@ import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 @Document(collection="campaigns")
 public class Campaign {
 	public static enum Type {
-		company, city, school, personal
+		company, city, school, group, personal
 	};
 	
 	public static String defaultSurveyKey = "defaultSurvey";
@@ -35,6 +35,8 @@ public class Campaign {
 	private Map<String, String> description = new HashMap<>();
 	private Date dateFrom;
 	private Date dateTo;
+	private Date registrationFrom;
+	private Date registrationTo;
 	private Boolean active = Boolean.FALSE;
 	private Boolean communications = Boolean.FALSE;
 	private Boolean visible = Boolean.FALSE;
@@ -159,6 +161,10 @@ public class Campaign {
 
 	public boolean currentlyActive() {
 		Date now = new Date();
+		// if type is personal, we consider the active flag only
+		if (getType() == Type.personal) {
+			return ((getActive() != null) && getActive());
+		}
 		return !Boolean.FALSE.equals(getActive()) && 
 				(getDateFrom() == null || !getDateFrom().after(now)) &&
 				(getDateTo() == null || !getDateTo().before(now));
@@ -167,6 +173,11 @@ public class Campaign {
 	public boolean validTrack(Date date) {
 		return (getDateFrom() == null || getDateFrom().before(date)) && 
 			(getDateTo() == null || getDateTo().after(date));
+	}
+
+	public boolean isRegistrationOpen(Date date) {
+		return (getRegistrationFrom() == null || !getRegistrationFrom().after(date)) && 
+			(getRegistrationTo() == null || !getRegistrationTo().before(date));
 	}
 
 	public Image getBanner() {
@@ -191,6 +202,22 @@ public class Campaign {
 
 	public void setDateTo(Date dateTo) {
 		this.dateTo = dateTo;
+	}
+
+	public Date getRegistrationFrom() {
+		return registrationFrom;
+	}
+
+	public void setRegistrationFrom(Date registrationFrom) {
+		this.registrationFrom = registrationFrom;
+	}
+
+	public Date getRegistrationTo() {
+		return registrationTo;
+	}
+
+	public void setRegistrationTo(Date registrationTo) {
+		this.registrationTo = registrationTo;
 	}
 
 	public Map<String, Object> getSpecificData() {
