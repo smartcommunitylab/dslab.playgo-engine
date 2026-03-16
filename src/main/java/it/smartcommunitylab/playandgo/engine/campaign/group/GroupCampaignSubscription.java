@@ -127,7 +127,11 @@ public class GroupCampaignSubscription {
 					logger.warn("Group ID '{}' not in claim values '{}'", groupId, claimValue);
 					throw new ServiceException("Group ID does not match token claim", ErrorCode.INVALID_TOKEN);
 				}
-				// add optional claims to subscription data 
+				// add optional claims to subscription data
+				// TODO add email as optional claim, to remove after console update 
+				if(!campaign.getSpecificData().containsKey(optionalClaimListKey)) {
+					campaign.getSpecificData().put(optionalClaimListKey, Arrays.asList("email"));
+				}
 				if(campaign.getSpecificData().containsKey(optionalClaimListKey)) {
 					@SuppressWarnings("unchecked")
 					java.util.List<String> optionalClaims = (java.util.List<String>) campaign.getSpecificData().get(optionalClaimListKey);
