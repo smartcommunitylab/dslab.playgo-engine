@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.campaign.BasicCampaignGameStatusManager;
+import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 
@@ -14,7 +15,7 @@ public class CityCampaignGameStatusManager  extends BasicCampaignGameStatusManag
 	private static transient final Logger logger = LoggerFactory.getLogger(CityCampaignGameStatusManager.class);
 
 	@Override
-	protected String getGroupId(CampaignPlayerTrack playerTrack, Player p) {
+	protected String getGroupId(CampaignPlayerTrack playerTrack, Player p, Campaign campaign) {
 		if(p.getGroup()) {
 			return p.getPlayerId();
 		}
