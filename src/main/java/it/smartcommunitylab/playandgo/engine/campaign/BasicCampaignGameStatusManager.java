@@ -237,7 +237,7 @@ public abstract class BasicCampaignGameStatusManager {
 				} else {
 					dailyScore = node.asDouble();
 				}
-				String groupId = getGroupId(playerTrack, p);
+				String groupId = getGroupId(playerTrack, p, c);
 				Query dailyStatsQuery = new Query(new Criteria("playerId").is(p.getPlayerId()).and("campaignId").is(c.getCampaignId())
 					.and("global").is(Boolean.FALSE).and("day").is(dayString));
 				Update dailyStatsUpdate = upsertGameStats(p, c, Boolean.FALSE, dayString, weekOfYear, monthOfYear, dailyScore, isDelta, groupId);
@@ -246,7 +246,7 @@ public abstract class BasicCampaignGameStatusManager {
         }
 	}
 
-	abstract protected String getGroupId(CampaignPlayerTrack playerTrack, Player p);
+	abstract protected String getGroupId(CampaignPlayerTrack playerTrack, Player p, Campaign campaign);
 
 	private Update upsertGameStatus(Player p, Campaign c, List<PlayerLevel> levels, List<BadgeCollectionConcept> badges, double score) {
 		Update update = new Update();
