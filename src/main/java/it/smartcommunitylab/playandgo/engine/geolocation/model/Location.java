@@ -23,6 +23,8 @@ public class Location implements Comparable<Location> {
 	
 	private Map<String, Object> extras;
 
+	private boolean mock;
+
 	public Activity getActivity() {
 		return this.activity;
 	}
@@ -85,6 +87,14 @@ public class Location implements Comparable<Location> {
 
 	public void setExtras(Map<String, Object> extras) {
 		this.extras = extras;
+	}
+
+	public boolean isMock() {
+		return mock;
+	}
+
+	public void setMock(boolean mock) {
+		this.mock = mock;
 	}
 
 	@Override
