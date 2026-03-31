@@ -258,6 +258,8 @@ public class GeolocationsProcessor {
 
 		geolocation.setTravelId(locationTravelId);
 
+		geolocation.setMock(location.isMock());
+
 		geolocation.setUuid(location.getUuid());
 		if (device != null) {
 			geolocation.setDevice_id((String) device.get("uuid"));

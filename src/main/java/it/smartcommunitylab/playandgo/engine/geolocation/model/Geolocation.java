@@ -37,6 +37,8 @@ public class Geolocation implements Comparable<Geolocation> {
 	private String certificate;
 	
 	private double[] geocoding;
+
+    private boolean mock;
 	
 	public Geolocation() {
 	}
@@ -242,6 +244,14 @@ public class Geolocation implements Comparable<Geolocation> {
 	public void setSharedTravelId(String sharedTravelId) {
 		this.sharedTravelId = sharedTravelId;
 	}
+
+    public boolean isMock() {
+        return mock;
+    }
+
+    public void setMock(boolean mock) {
+        this.mock = mock;
+    }
 
 	@Override
 	public int hashCode() {
