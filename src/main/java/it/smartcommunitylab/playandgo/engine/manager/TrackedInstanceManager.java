@@ -174,6 +174,19 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		String poly = GamificationHelper.encodePoly(geo);
 		return poly;
 	}
+
+	private double getEffectiveDistance(TrackedInstance track) {
+		double distance = track.getValidationResult().getValidationStatus().getDistance();
+		if(track.getValidationResult().getValidationStatus().getEffectiveDistances() != null) {
+			if(track.getValidationResult().getValidationStatus().getModeType() != null) {
+				Double effectiveDistance = track.getValidationResult().getValidationStatus().getEffectiveDistances().get(track.getValidationResult().getValidationStatus().getModeType());
+				if(effectiveDistance != null) {
+					return effectiveDistance;
+				}
+			} 
+		}
+		return distance;
+	}
 	
 	private TrackedInstanceInfo getTrackedInstanceInfoFromTrack(TrackedInstance track, String playerId, String campaignId) {
 		TrackedInstanceInfo trackInfo = new TrackedInstanceInfo();
@@ -183,9 +196,10 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		trackInfo.setStartTime(track.getStartTime());
 		trackInfo.setEndTime(Utils.getEndTime(track));
 		trackInfo.setValidity(track.getValidationResult().getTravelValidity());
-		trackInfo.setDistance(track.getValidationResult().getValidationStatus().getDistance());
+		trackInfo.setDistance(getEffectiveDistance(track));
 		if(track.getValidationResult().getValidationStatus().getModeType() != null) {
 			trackInfo.setModeType(track.getValidationResult().getValidationStatus().getModeType().toString());
+
 		} else {
 			trackInfo.setModeType(track.getFreeTrackingTransport());
 		}

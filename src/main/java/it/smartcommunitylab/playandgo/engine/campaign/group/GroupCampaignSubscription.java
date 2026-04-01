@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
+import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.JwtTokenUtil;
@@ -41,6 +42,9 @@ public class GroupCampaignSubscription {
 
     @Autowired
     PlayerRepository playerRepository;
+
+	@Autowired
+	CampaignSubscriptionRepository campaignSubscriptionRepository;
 
 	@Autowired
 	SurveyManager surveyManager;
@@ -186,6 +190,10 @@ public class GroupCampaignSubscription {
         if(Utils.isNotEmpty(campaign.getGameId())) {
             Map<String, Object> customData = new HashMap<>();
             customData.put("activePlayer", false);
+			CampaignSubscription cs = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaign.getCampaignId(), player.getPlayerId());
+			if((cs != null) && (cs.getCampaignData() != null) && (cs.getCampaignData().containsKey(groupIdKey))) {
+				customData.put(groupIdKey, (String) cs.getCampaignData().get(groupIdKey));
+			}
             gamificationEngineManager.changeCustomData(player.getPlayerId(), campaign.getGameId(), customData);
         }
 		sendUnregisterWebhookRequest(player.getPlayerId(), campaign.getCampaignId());
