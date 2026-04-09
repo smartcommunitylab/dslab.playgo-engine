@@ -488,6 +488,14 @@
 		}
 	},	
 	{
+		"modelName": "absoluteIncrement",
+		"filter": "Mobility_Leaves",
+		"description": {
+			"it": "Per vincere la sfida accumula almeno <target> punti {ecoLeaves} con i tuoi viaggi nel corso del periodo di validita' della sfida.",
+			"en": "To win this challenge you need to earn at least <target> {ecoLeaves} points with yours trips in between the beginning and end time of the challenge."
+		}
+	},	
+	{
 		"modelName": "absoluteIncrementTeam",
 		"filter": "green leaves",
 		"description": {

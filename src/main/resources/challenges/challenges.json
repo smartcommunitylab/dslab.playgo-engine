@@ -111,6 +111,14 @@
 		}
 	},
 	{
+		"name": "absoluteIncrement",
+		"filter": "Mobility_Leaves",
+		"description": {
+			"it": "Ottieni almeno <target> punti {ecoLeaves} e avrai <bonusScore> punti {ecoLeaves} in bonus.",
+			"en": "Get at least <target> <counterNameA> points and you will have <bonusScore> additional {ecoLeaves} bonus points."
+		}
+	},
+	{
 		"name": "absoluteIncrementTeam",
 		"filter": "green leaves",
 		"description": {
