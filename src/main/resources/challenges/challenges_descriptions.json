@@ -494,7 +494,15 @@
 			"it": "Per vincere la sfida accumulate come squadra almeno <target> punti {ecoLeaves} nel corso del periodo di validita' della sfida.",
 			"en": "To win this challenge your team needs to earn at least <target> {ecoLeaves} points in between the beginning and end time of the challenge."
 		}
-	},	
+	},
+	{
+		"modelName": "absoluteIncrementTeam",
+		"filter": "Mobility_Leaves",
+		"description": {
+			"it": "Per vincere la sfida accumulate come squadra almeno <target> punti {ecoLeaves}, grazie ai vostri viaggi, nel corso del periodo di validita' della sfida.",
+			"en": "To win this challenge your team needs to earn at least <target> {ecoLeaves} points with your trips in between the beginning and end time of the challenge."
+		}
+	},		
 	{
 		"modelName": "nextBadge",
 		"filter": "park and ride pioneer",

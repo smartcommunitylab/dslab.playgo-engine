@@ -41,6 +41,7 @@ import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.exception.StorageException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerIdentity;
+import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
@@ -109,6 +110,9 @@ public class CampaignManager {
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
+
+	@Autowired
+	UserCampaignLock campaignLock;
 	
 	public Campaign addCampaign(Campaign campaign) throws Exception {
 		try {
@@ -244,27 +248,41 @@ public class CampaignManager {
 		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
 			throw new BadRequestException("territory doesn't match", ErrorCode.TERRITORY_NOT_ALLOWED);
 		}
-		CampaignSubscription sub = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
-		if(sub != null) {
-			throw new BadRequestException("player already joined", ErrorCode.CAMPAIGN_ALREADY_JOINED);
+		Exception ex = null;
+		CampaignSubscription sub = null;
+		try {
+			campaignLock.lock(campaignLock.getKey(player.getPlayerId(), campaignId));
+			sub = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
+			if(sub != null) {
+				throw new BadRequestException("player already joined", ErrorCode.CAMPAIGN_ALREADY_JOINED);
+			}
+			switch (campaign.getType()) {
+				case personal:
+					sub = personalCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+					break;
+				case company:
+					sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true); 
+					break;
+				case city:
+					sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+					break;
+				case school:
+					sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
+					break;
+				case group:
+					sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+					 break;
+			}
+			campaignSubscriptionRepository.save(sub);
+		} catch (Exception e) {
+			ex = e;
+		} finally {
+			campaignLock.unlock(campaignLock.getKey(player.getPlayerId(), campaignId));
 		}
-		switch (campaign.getType()) {
-			case personal:
-				sub = personalCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
-				break;
-			case company:
-				sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true); 
-				break;
-			case city:
-				sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
-				break;
-			case school:
-				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
-				break;
-			case group:
-				sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+		if (ex != null) {
+			throw ex;
 		}
-		return campaignSubscriptionRepository.save(sub);
+		return sub;
 	}
 	
 	public CampaignSubscription unsubscribePlayer(Player player, String campaignId) throws Exception {
