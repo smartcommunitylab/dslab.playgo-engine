@@ -115,7 +115,15 @@
 		"filter": "green leaves",
 		"description": {
 			"it": "Ottenete almeno <target> punti {ecoLeaves} e la vostra squadra riceverà <bonusScore> punti {ecoLeaves} in bonus.",
-			"en": "Get at least <target> <counterNameA> points and your team will have <bonusScore> additional {ecoLeaves} bonus points."
+			"en": "Get at least <target> {ecoLeaves} points and your team will have <bonusScore> additional {ecoLeaves} bonus points."
+		}
+	},
+	{
+		"name": "absoluteIncrementTeam",
+		"filter": "Mobility_Leaves",
+		"description": {
+			"it": "Ottenete almeno <target> punti {ecoLeaves} e la vostra squadra riceverà <bonusScore> punti {ecoLeaves} in bonus.",
+			"en": "Get at least <target> {ecoLeaves} points and your team will have <bonusScore> additional {ecoLeaves} bonus points."
 		}
 	},
 	{
