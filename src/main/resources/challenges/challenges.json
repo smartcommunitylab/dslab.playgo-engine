@@ -9,6 +9,15 @@
 		}
 	},
 	{
+		"name": "repetitiveBehaviour",
+		"filter": "Mobility_Leaves",
+		"periodName": "daily",
+		"description": {
+			"it": "Ottieni almeno <target> punti {ecoLeaves} al giorno con i tuoi viaggi per <periodTarget> giorni e avrai un bonus di <bonusScore> punti {ecoLeaves}.",
+			"en": "Get at least <target> {ecoLeaves} points daily with yours trips for <periodTarget> days and you will get a bonus of <bonusScore> {ecoLeaves} points."
+		}
+	},	
+	{
 		"name": "repetitiveBehaviourTeam",
 		"filter": "green leaves",
 		"periodName": "daily",
@@ -17,6 +26,15 @@
 			"en": "Get at least <target> {ecoLeaves} points daily for <periodTarget> days and your team will get a bonus of <bonusScore> {ecoLeaves} points."
 		}
 	},
+	{
+		"name": "repetitiveBehaviourTeam",
+		"filter": "Mobility_Leaves",
+		"periodName": "daily",
+		"description": {
+			"it": "Ottenete almeno <target> punti {ecoLeaves} al giorno con i tuoi viaggi per <periodTarget> giorni e la vostra squadra riceverà un bonus di <bonusScore> punti {ecoLeaves}.",
+			"en": "Get at least <target> {ecoLeaves} points daily for <periodTarget> days and your team will get a bonus of <bonusScore> {ecoLeaves} points."
+		}
+	},	
 	{
 		"name": "repetitiveBehaviour",
 		"filter": "_Km",
@@ -114,7 +132,7 @@
 		"name": "absoluteIncrement",
 		"filter": "Mobility_Leaves",
 		"description": {
-			"it": "Ottieni almeno <target> punti {ecoLeaves} e avrai <bonusScore> punti {ecoLeaves} in bonus.",
+			"it": "Ottieni almeno <target> punti {ecoLeaves} con i tuoi viaggi e avrai <bonusScore> punti {ecoLeaves} in bonus.",
 			"en": "Get at least <target> <counterNameA> points and you will have <bonusScore> additional {ecoLeaves} bonus points."
 		}
 	},
@@ -130,7 +148,7 @@
 		"name": "absoluteIncrementTeam",
 		"filter": "Mobility_Leaves",
 		"description": {
-			"it": "Ottenete almeno <target> punti {ecoLeaves} e la vostra squadra riceverà <bonusScore> punti {ecoLeaves} in bonus.",
+			"it": "Ottenete almeno <target> punti {ecoLeaves} con i vostri viaggi e la vostra squadra riceverà <bonusScore> punti {ecoLeaves} in bonus.",
 			"en": "Get at least <target> {ecoLeaves} points and your team will have <bonusScore> additional {ecoLeaves} bonus points."
 		}
 	},
