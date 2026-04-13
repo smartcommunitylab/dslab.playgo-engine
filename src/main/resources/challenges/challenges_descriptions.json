@@ -8,6 +8,14 @@
 		}
 	},
 	{
+		"modelName": "repetitiveBehaviour",
+		"filter": "Mobility_Leaves",
+		"description": {
+			"it": "Per vincere la sfida accumula almeno <target> punti {ecoLeaves} con i tuoi viaggi al giorno per <periodTarget> giorni nel corso del periodo di validita' della sfida.",
+			"en": "To win this challenge you need to earn at least <target> {ecoLeaves} points daily with yours tripsfor <periodTarget> days in between the beginning and end time of the challenge."
+		}
+	},	
+	{
 		"modelName": "repetitiveBehaviourTeam",
 		"filter": "green leaves",
 		"description": {
@@ -15,6 +23,14 @@
 			"en": "To win this challenge your team needs to earn at least <target> {ecoLeaves} points daily for <periodTarget> days in between the beginning and end time of the challenge."
 		}
 	},
+	{
+		"modelName": "repetitiveBehaviourTeam",
+		"filter": "Mobility_Leaves",
+		"description": {
+			"it": "Per vincere la sfida accumulate come squadra almeno <target> punti {ecoLeaves} con i vostri viaggi al giorno per <periodTarget> giorni nel corso del periodo di validita' della sfida.",
+			"en": "To win this challenge your team needs to earn at least <target> {ecoLeaves} points with yours trips daily for <periodTarget> days in between the beginning and end time of the challenge."
+		}
+	},	
 	{
 		"modelName": "repetitiveBehaviour",
 		"filter": "Recommendations",
