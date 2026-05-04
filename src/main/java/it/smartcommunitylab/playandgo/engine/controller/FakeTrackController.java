@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,15 +32,20 @@ public class FakeTrackController extends PlayAndGoController {
 	FakeTrackManager fakeTrackManager;
 
     @PostMapping("/api/faketrack/my")
-    public FakeTrack createMyFakeTrack(
+    public List<FakeTrack> createMyFakeTrack(
+			@RequestBody List<Long> timestamps,
             HttpServletRequest request) throws Exception {
         Player player = getCurrentPlayer(request);
-        FakeTrack fakeTrack = new FakeTrack();
-        fakeTrack.setPlayerId(player.getPlayerId());
-        fakeTrack.setTerritoryId(player.getTerritoryId());
-        fakeTrack.setTimestamp(new Date());        
-        logger.info("Creating new FakeTrack " + fakeTrack.toString());
-        return fakeTrackManager.create(fakeTrack);
+		List<FakeTrack> fakeTracks = new ArrayList<>();
+		for (Long timestamp : timestamps) {
+	        FakeTrack fakeTrack = new FakeTrack();
+    	    fakeTrack.setPlayerId(player.getPlayerId());
+        	fakeTrack.setTerritoryId(player.getTerritoryId());
+        	fakeTrack.setTimestamp(new Date(timestamp));        
+        	logger.info("Creating new FakeTrack " + fakeTrack.toString());
+			fakeTracks.add(fakeTrackManager.create(fakeTrack));
+		}
+        return fakeTracks;
     }
 	
 	@PostMapping("/api/faketrack")
