@@ -2,9 +2,7 @@ package dslab.playandgo.engine.verificationtest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylab.playandgo.engine.PlayGoEngineApplication;
-import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.GeolocationsEvent;
-import it.smartcommunitylab.playandgo.engine.geolocation.model.Location;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
@@ -24,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -32,7 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootApplication(exclude = EmbeddedMongoAutoConfiguration.class)
@@ -73,7 +69,6 @@ public class MainVerificationTest {
     @Autowired
     private TerritoryManager territoryManager;
 
-
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -106,7 +101,8 @@ public class MainVerificationTest {
 
                 vrList.clear();
                 for (TrackedInstance trackedInstance : trackedInstances) {
-                    ValidationResult vr = validationService.validateFreeTracking(trackedInstance.getGeolocationEvents(), trackedInstance.getFreeTrackingTransport(), trackedInstance.getTerritoryId());
+                    ValidationResult vr = validationService.validateFreeTracking(trackedInstance.getGeolocationEvents(), trackedInstance.getFreeTrackingTransport(), 
+                        trackedInstance.getTerritoryId(), territory.getValidationData());
                     System.out.println("Tracked Instance ID " +trackedInstance.getId() + " is " + vr.getValidationStatus().getValidationOutcome());
                     /*assertThat(vr.getValidationStatus().getValidationOutcome()).isEqualTo(ValidationResult.TravelValidity.VALID);*/
                     vrList.add(vr);

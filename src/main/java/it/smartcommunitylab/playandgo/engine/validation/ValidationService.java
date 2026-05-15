@@ -22,7 +22,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -32,9 +31,8 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
-import it.smartcommunitylab.playandgo.engine.manager.TerritoryManager;
-import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.model.ValidationData;
 
 /**
  * @author raman
@@ -45,9 +43,6 @@ public class ValidationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ValidationService.class);
 
-	@Autowired
-	private TerritoryManager territoryManager;
-
 	/**
 	 * Validate free tracking instance for a given territory settings
 	 * @param geolocations
@@ -56,29 +51,27 @@ public class ValidationService {
 	 * @return
 	 * @throws Exception
 	 */
-	public ValidationResult validateFreeTracking(Collection<Geolocation> geolocations, String ttype, String territoryId) throws Exception {
+	public ValidationResult validateFreeTracking(Collection<Geolocation> geolocations, String ttype, String territoryId, ValidationData vd) throws Exception {
 		if (geolocations == null || ttype == null) {
 			return null;
 		}
-		Territory territory = territoryManager.getTerritory(territoryId);
-
 		ValidationResult vr = new ValidationResult();
 		
 		switch(ttype) {
 		case "walk":
-			vr.setValidationStatus(TrackValidator.validateFreeWalk(geolocations, territory));
+			vr.setValidationStatus(TrackValidator.validateFreeWalk(geolocations, territoryId, vd));
 			break;
 		case "bike": 
-			vr.setValidationStatus(TrackValidator.validateFreeBike(geolocations, territory));
+			vr.setValidationStatus(TrackValidator.validateFreeBike(geolocations, territoryId, vd));
 			break;
 		case "bus": 
-			vr.setValidationStatus(TrackValidator.validateFreeBus(geolocations, territory));
+			vr.setValidationStatus(TrackValidator.validateFreeBus(geolocations, territoryId, vd));
 			break;
 		case "train": 
-			vr.setValidationStatus(TrackValidator.validateFreeTrain(geolocations, territory));
+			vr.setValidationStatus(TrackValidator.validateFreeTrain(geolocations, territoryId, vd));
 			break;
 		case "boat": 
-			vr.setValidationStatus(TrackValidator.validateFreeBoat(geolocations, territory));
+			vr.setValidationStatus(TrackValidator.validateFreeBoat(geolocations, territoryId, vd));
 			break;
 		}
 		if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
@@ -93,7 +86,8 @@ public class ValidationService {
 	 * @param territoryId
 	 * @return
 	 */
-	public ValidationResult validateSharedTripPassenger(TrackedInstance passengerTrack, TrackedInstance driverTrack, boolean forceValidation) {
+	public ValidationResult validateSharedTripPassenger(TrackedInstance passengerTrack, TrackedInstance driverTrack, 
+				ValidationData vd, boolean forceValidation) {
 		if(forceValidation)
 		    return passengerTrack.getValidationResult();
 		
@@ -101,10 +95,10 @@ public class ValidationService {
 	    if (driverTrip == null) {
 			return null;
 		}
-		Territory territory = territoryManager.getTerritory(passengerTrack.getTerritoryId());
 
 		ValidationResult vr = new ValidationResult();
-		vr.setValidationStatus(TrackValidator.validateSharedPassenger(passengerTrack.getGeolocationEvents(), driverTrack.getGeolocationEvents(), territory));
+		vr.setValidationStatus(TrackValidator.validateSharedPassenger(passengerTrack.getGeolocationEvents(), driverTrack.getGeolocationEvents(), 
+				passengerTrack.getTerritoryId(), vd));
         if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
             vr.setValid(true);
         }       		
@@ -116,7 +110,7 @@ public class ValidationService {
 	 * @param territoryId
 	 * @return
 	 */
-	public ValidationResult validateSharedTripDriver(TrackedInstance track, boolean forceValidation) {
+	public ValidationResult validateSharedTripDriver(TrackedInstance track, ValidationData vd, boolean forceValidation) {
 	    if(forceValidation) 
 	        return track.getValidationResult();
 	    
@@ -124,10 +118,9 @@ public class ValidationService {
 		if (driverTrip == null) {
 			return null;
 		}
-		Territory territory = territoryManager.getTerritory(track.getTerritoryId());
 	
 		ValidationResult vr = new ValidationResult();
-		vr.setValidationStatus(TrackValidator.validateSharedDriver(driverTrip, territory));
+		vr.setValidationStatus(TrackValidator.validateSharedDriver(driverTrip, track.getTerritoryId(), vd));
         if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
             vr.setValid(true);
         }       
@@ -144,15 +137,16 @@ public class ValidationService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> computeFreeTrackingDistances(String territoryId, Collection<Geolocation> geolocationEvents, String ttype, ValidationStatus vs, Map<String, Double> overriddenDistances) throws Exception {
+	public Map<String, Object> computeFreeTrackingDistances(String territoryId, ValidationData vd, Collection<Geolocation> geolocationEvents, 
+			String ttype, ValidationStatus vs, Map<String, Double> overriddenDistances) throws Exception {
 		Map<String, Object> result = Maps.newTreeMap();
 		double distance = 0; 		
 
 		boolean isOverridden = overriddenDistances != null && !overriddenDistances.isEmpty();
 		
-		if (geolocationEvents != null & geolocationEvents.size() >= 2 || isOverridden) {
+		if (((geolocationEvents != null) && (geolocationEvents.size() >= 2)) || isOverridden) {
 			if (vs == null) {
-				vs = validateFreeTracking(geolocationEvents, ttype, territoryId).getValidationStatus();
+				vs = validateFreeTracking(geolocationEvents, ttype, territoryId, vd).getValidationStatus();
 			}
 			
 			if (!isOverridden) {

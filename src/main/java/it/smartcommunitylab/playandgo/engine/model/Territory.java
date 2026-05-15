@@ -13,20 +13,13 @@ public class Territory {
 	private Map<String, String> name = new HashMap<>();
 	private Map<String, String> description = new HashMap<>();
 	private String timezone;
-	
-	private Map<String, Object> territoryData = new HashMap<>();
+	private ValidationData validationData = new ValidationData();
 	
 	public String getTerritoryId() {
 		return territoryId;
 	}
 	public void setTerritoryId(String territoryId) {
 		this.territoryId = territoryId;
-	}
-	public Map<String, Object> getTerritoryData() {
-		return territoryData;
-	}
-	public void setTerritoryData(Map<String, Object> territoryData) {
-		this.territoryData = territoryData;
 	}
 	public String getTimezone() {
 		return timezone;
@@ -45,5 +38,11 @@ public class Territory {
 	}
 	public void setDescription(Map<String, String> description) {
 		this.description = description;
+	}
+	public ValidationData getValidationData() {
+		return validationData;
+	}
+	public void setValidationData(ValidationData validationData) {
+		this.validationData = validationData;
 	}
 }

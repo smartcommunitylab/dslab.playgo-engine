@@ -75,7 +75,7 @@ public class TestTrainValidation {
 			}
 			Collection<Geolocation> track = instance.getGeolocationEvents();
 			System.err.println("track ID = " + instance.getId());
-			ValidationStatus stat = TrackValidator.validateFreeTrain(track, t);
+			ValidationStatus stat = TrackValidator.validateFreeTrain(track, t.getTerritoryId(), t.getValidationData());
 			System.err.println(stat);
 			if (stat.getValidationOutcome().equals(TravelValidity.INVALID)) invalid++;
 			else valid++;

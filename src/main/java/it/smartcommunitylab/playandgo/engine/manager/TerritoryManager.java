@@ -12,6 +12,7 @@ import it.smartcommunitylab.playandgo.engine.exception.StorageException;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.ValidationData;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
@@ -36,7 +37,7 @@ public class TerritoryManager {
 			campaign.setType(Type.personal);
 			campaign.getName().put("it", "Il mio Play&Go");
 			campaign.getName().put("en", "My Play&Go");
-			campaign.getValidationData().put("means", territory.getTerritoryData().get("means"));
+			campaign.getValidationData().put("means", territory.getValidationData().getMeans());
 			//TODO compile other fields
 			campaignRepository.save(campaign);
 		} catch (Exception e) {
@@ -51,10 +52,17 @@ public class TerritoryManager {
 		}
 		territoryDb.setName(territory.getName());
 		territoryDb.setDescription(territory.getDescription());
-		if (territory.getTerritoryData() != null) {
-			territoryDb.getTerritoryData().putAll(territory.getTerritoryData());
-		}
+		territoryDb.setValidationData(territory.getValidationData());
 		territoryDb.setTimezone(territory.getTimezone());
+		territoryRepository.save(territoryDb);
+	}
+
+	public void updateTerritory(String territoryId, ValidationData vd) throws Exception {
+		Territory territoryDb = getTerritory(territoryId);
+		if(territoryDb == null) {
+			throw new BadRequestException("territory doesn't exist", ErrorCode.TERRITORY_NOT_FOUND);
+		}
+		territoryDb.setValidationData(vd);
 		territoryRepository.save(territoryDb);
 	}
 	

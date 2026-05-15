@@ -19,7 +19,7 @@ package it.smartcommunitylab.playandgo.engine.validation;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.ValidationData;
 
 /**
  * @author raman
@@ -62,8 +62,8 @@ public class ValidationConstants {
 	 * @param param
 	 * @return territory property of type long
 	 */
-	public static long getLong(Territory t, String param) {
-		return (Long) t.getTerritoryData().getOrDefault(param, defaultValues.getOrDefault(param, 0l));
+	public static long getLong(ValidationData vd, String param) {
+		return (Long) vd.getValidationMap().getOrDefault(param, defaultValues.getOrDefault(param, 0l));
 	} 
 	/**
 	 * 
@@ -71,8 +71,8 @@ public class ValidationConstants {
 	 * @param param
 	 * @return territory property of type int
 	 */
-	public static int getInt(Territory t, String param) {
-		return (Integer) t.getTerritoryData().getOrDefault(param, defaultValues.getOrDefault(param, 0));
+	public static int getInt(ValidationData vd, String param) {
+		return (Integer) vd.getValidationMap().getOrDefault(param, defaultValues.getOrDefault(param, 0));
 	} 
 	/**
 	 * 
@@ -80,8 +80,8 @@ public class ValidationConstants {
 	 * @param param
 	 * @return territory property of type double
 	 */
-	public static double getDouble(Territory t, String param) {
-		return (Double) t.getTerritoryData().getOrDefault(param, defaultValues.getOrDefault(param, 0d));
+	public static double getDouble(ValidationData vd, String param) {
+		return (Double) vd.getValidationMap().getOrDefault(param, defaultValues.getOrDefault(param, 0d));
 	} 
 	
 	/**

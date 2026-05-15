@@ -164,7 +164,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 
 	private void validateFreeTrackingTripRequest(ValidateCampaignTripRequest msg, CampaignPlayerTrack playerTrack,
 			TrackedInstance track) throws Exception, ParseException {
-		Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(msg.getTerritoryId(), 
+		// TODO get campaign ValidationData	
+		Territory territory = territoryRepository.findById(msg.getTerritoryId()).orElse(null);
+		Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(msg.getTerritoryId(), territory.getValidationData(),
 				track.getGeolocationEvents(), track.getFreeTrackingTransport(), track.getValidationResult().getValidationStatus(), track.getOverriddenDistances());
 
 		Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
@@ -329,7 +331,9 @@ public class BasicCampaignTripValidator implements ManageValidateCampaignTripReq
 					// read again to have last version
 					playerTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
                     ScoreStatus oldStatus = playerTrack.getScoreStatus();
-                    Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(track.getTerritoryId(), 
+					// TODO get campaign ValidationData	
+					Territory territory = territoryRepository.findById(playerTrack.getTerritoryId()).orElse(null);
+                    Map<String, Object> trackingData = validationService.computeFreeTrackingDistances(track.getTerritoryId(), territory.getValidationData(),
                             track.getGeolocationEvents(), track.getFreeTrackingTransport(), track.getValidationResult().getValidationStatus(), track.getOverriddenDistances());
                     ZonedDateTime startingDay = getTrackDay(campaign, track.getStartTime());
 					populatePlayerTrack(playerTrack, track, trackingData, startingDay);

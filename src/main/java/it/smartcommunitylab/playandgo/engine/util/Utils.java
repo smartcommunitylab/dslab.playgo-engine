@@ -22,6 +22,7 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
+import it.smartcommunitylab.playandgo.engine.model.ValidationData;
 
 public class Utils {
 	@SuppressWarnings("unused")
@@ -137,6 +138,13 @@ public class Utils {
             return means.contains(mean);
         }
         return false;	    
+	}
+
+	public static boolean checkMean(ValidationData vf, String mean) {
+		if((vf != null) && (vf.getMeans() != null)) {
+			return vf.getMeans().contains(mean);
+		}
+		return false;
 	}
 
     public static Set<String> getModeTypesFromPlayerTracks(List<CampaignPlayerTrack> playerTracks) {

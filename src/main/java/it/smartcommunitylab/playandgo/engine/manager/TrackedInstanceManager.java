@@ -57,6 +57,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.Territory;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.mq.ManageValidateTripRequest;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
@@ -67,6 +68,7 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepos
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
+import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.GamificationHelper;
@@ -93,6 +95,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	
 	@Autowired
 	PlayerRepository playerRepository;
+
+	@Autowired
+	TerritoryRepository territoryRepository;
 	
 	@Autowired
 	CampaignSubscriptionRepository campaignSubscriptionRepository;
@@ -433,8 +438,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	private void validateFreeTrackingTripRequest(TrackedInstance track, boolean forceValidation) {
 		if(!forceValidation) {
 	        try {
+				Territory territory = territoryRepository.findById(track.getTerritoryId()).orElse(null);
 	            ValidationResult validationResult = validationService.validateFreeTracking(track.getGeolocationEvents(), 
-	                    track.getFreeTrackingTransport(), track.getTerritoryId());
+	                    track.getFreeTrackingTransport(), track.getTerritoryId(), territory.getValidationData());
 	            updateValidationResult(track, validationResult);
 	        } catch (Exception e) {
 	            logger.error("validateFreeTrackingTripRequest error:" + e.getMessage());
@@ -504,18 +510,20 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	private List<Pair<String, String>> validateSharedTravelRequest(TrackedInstance track, boolean forceValidation) {
 	    List<Pair<String, String>> travelToValidateList = new ArrayList<>(); 
 		String sharedId = track.getSharedTravelId();
+		Territory territory = territoryRepository.findById(track.getTerritoryId()).orElse(null);
 		try {
 			if (ValidationConstants.isDriver(sharedId)) {
 				String passengerTravelId = ValidationConstants.getPassengerTravelId(sharedId);
 				List<TrackedInstance> list = trackedInstanceRepository.findPassengerTrips(track.getTerritoryId(), passengerTravelId, track.getUserId());
 				if (!list.isEmpty()) {
 				    //validate driver travel
-		            ValidationResult driverVr = validationService.validateSharedTripDriver(track, forceValidation);
+		            ValidationResult driverVr = validationService.validateSharedTripDriver(track, territory.getValidationData(), forceValidation);
 		            updateValidationResult(track, driverVr);				    
 					for(TrackedInstance passengerTravel: list) {
 				        // validate passenger trip
 					    if(TravelValidity.PENDING.equals(passengerTravel.getValidationResult().getTravelValidity())) {
-	                        ValidationResult vr = validationService.validateSharedTripPassenger(passengerTravel, track, false);
+	                        ValidationResult vr = validationService.validateSharedTripPassenger(passengerTravel, track, 
+								territory.getValidationData(), false);
 	                        updateValidationResult(passengerTravel, vr);
 	                        travelToValidateList.add(Pair.of(passengerTravel.getUserId(), passengerTravel.getMultimodalId()));					        
 					    }
@@ -529,11 +537,11 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				TrackedInstance driverTravel = trackedInstanceRepository.findDriverTrip(track.getTerritoryId(), driverTravelId, track.getUserId());
 				if (driverTravel != null) {
 				    //validate passenger travel
-			        ValidationResult vr = validationService.validateSharedTripPassenger(track, driverTravel, forceValidation);
+			        ValidationResult vr = validationService.validateSharedTripPassenger(track, driverTravel, territory.getValidationData(), forceValidation);
 			        updateValidationResult(track, vr);
 			        //validate also driver travel
 		            if(TravelValidity.PENDING.equals(driverTravel.getValidationResult().getTravelValidity())) {
-		                ValidationResult driverVr = validationService.validateSharedTripDriver(driverTravel, false);
+		                ValidationResult driverVr = validationService.validateSharedTripDriver(driverTravel, territory.getValidationData(), false);
 		                updateValidationResult(driverTravel, driverVr);
 		                travelToValidateList.add(Pair.of(driverTravel.getUserId(), driverTravel.getMultimodalId()));
 		            }
