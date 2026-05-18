@@ -30,9 +30,11 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.Geolocation;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.ERROR_TYPE;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.model.ValidationData;
+import it.smartcommunitylab.playandgo.engine.util.Utils;
 
 /**
  * @author raman
@@ -73,6 +75,11 @@ public class ValidationService {
 		case "boat": 
 			vr.setValidationStatus(TrackValidator.validateFreeBoat(geolocations, territoryId, vd));
 			break;
+		}
+		// check mode type validity
+		if(!Utils.checkMean(vd, ttype)) {
+			vr.getValidationStatus().setValidationOutcome(TravelValidity.INVALID);
+			vr.getValidationStatus().setError(ERROR_TYPE.DOES_NOT_MATCH);
 		}
 		if(TravelValidity.VALID.equals(vr.getValidationStatus().getValidationOutcome())) {
 			vr.setValid(true);
