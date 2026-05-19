@@ -237,64 +237,6 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		return trackInfo;
 	}	
 	
-	/**
-	public List<TripInfo> getTripInfoList(Player player, Pageable pageRequest) {
-		List<TripInfo> result = new ArrayList<>();
-		
-		//get trips
-		MatchOperation matchOperation = Aggregation.match(new Criteria("playerId").is(player.getPlayerId()));
-		GroupOperation groupOperation = Aggregation.group("multimodalId").min("startTime").as("minStartTime");
-		SortOperation sortOperation = Aggregation.sort(Sort.by(Direction.DESC, "minStartTime"));
-		SkipOperation skipOperation = Aggregation.skip((long) (pageRequest.getPageNumber() * pageRequest.getPageSize()));
-		LimitOperation limitOperation = Aggregation.limit(pageRequest.getPageSize());
-		Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, skipOperation, limitOperation);
-		AggregationResults<Document> trips = mongoTemplate.aggregate(aggregation, TrackedInstance.class, Document.class);
-		for(Document doc : trips.getMappedResults()) {
-			String multimodalId = doc.getString("_id");
-			TripInfo tripInfo = new TripInfo();
-			
-			//tracks info
-			List<TrackedInstance> trackList = trackedInstanceRepository.findByMultimodalId(multimodalId, Sort.by(Sort.Direction.ASC, "startTime"));
-			double distance = 0.0;
-			Date startTime = doc.getDate("minStartTime");
-			Date endTime = null;
-			for(TrackedInstance track : trackList) {
-				TrackedInstanceInfo info = new TrackedInstanceInfo();
-				info.setStartTime(track.getStartTime());
-				info.setEndTime(getEndTime(track));
-				info.setValidity(track.getValidationResult().getTravelValidity());
-				tripInfo.getTracks().add(info);
-				endTime = info.getEndTime();
-				distance += track.getValidationResult().getValidationStatus().getDistance();
-			}
-			tripInfo.setStartTime(startTime);
-			tripInfo.setEndTime(endTime);
-			tripInfo.setDistance(distance);
-			
-			//campaigns info
-			Map<String, CampaignTripInfo> campaignInfoMap = new HashMap<>();
-			for(TrackedInstance track : trackList) {
-				List<CampaignPlayerTrack> playerTrackList = campaignPlayerTrackRepository.findByPlayerIdAndTrackedInstanceId(player.getPlayerId(), track.getId());
-				for(CampaignPlayerTrack playerTrack : playerTrackList) {
-					CampaignTripInfo info = campaignInfoMap.get(playerTrack.getCampaignId());
-					if(info == null) {
-						info = new CampaignTripInfo();
-						Campaign campaign = campaignRepository.findById(playerTrack.getCampaignId()).orElse(null);
-						info.setCampaignId(campaign.getCampaignId());
-						info.setCampaignName(campaign.getName());
-						campaignInfoMap.put(campaign.getCampaignId(), info);
-					}
-					info.setScore(info.getScore() + playerTrack.getScore());
-				}
-			}
-			tripInfo.getCampaigns().addAll(campaignInfoMap.values());
-			
-			//(campaignSubscriptionRepository
-			result.add(tripInfo);
-		}
-		return result;
-	}**/
-	
 	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, Player player) throws Exception {
 		List<TrackedInstance> list = geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, player);
 		List<String> multimodalIds = new ArrayList<>();
