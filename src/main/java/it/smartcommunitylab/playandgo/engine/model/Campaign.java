@@ -46,8 +46,9 @@ public class Campaign {
 	private Map<String, List<CampaignDetail>> details = new HashMap<>();
 	private Image logo;
 	private Image banner;
-	
-	private Map<String, Object> validationData = new HashMap<>();
+	private String colorPalette;
+
+	private ValidationData validationData = new ValidationData();
 	
 	private Map<String, Object> specificData = new HashMap<>();
 	
@@ -111,11 +112,11 @@ public class Campaign {
 		this.gameId = gameId;
 	}
 
-	public Map<String, Object> getValidationData() {
+	public ValidationData getValidationData() {
 		return validationData;
 	}
 
-	public void setValidationData(Map<String, Object> validationData) {
+	public void setValidationData(ValidationData validationData) {
 		this.validationData = validationData;
 	}
 
@@ -283,5 +284,13 @@ public class Campaign {
     public void setCampaignPlacement(CampaignPlacement campaignPlacement) {
         this.campaignPlacement = campaignPlacement;
     }
+
+	public String getColorPalette() {
+		return colorPalette;
+	}
+
+	public void setColorPalette(String colorPalette) {
+		this.colorPalette = colorPalette;
+	}
 
 }

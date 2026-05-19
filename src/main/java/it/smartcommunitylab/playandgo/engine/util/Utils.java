@@ -15,9 +15,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
-import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.Player;
@@ -92,8 +92,8 @@ public class Utils {
 		return 0.0;
 	}
 	
-	public static double getTrackDistance(TrackedInstance track) {
-	    ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
+	public static double getTrackDistance(ValidationResult validationResult) {
+	    ValidationStatus validationStatus = validationResult.getValidationStatus();
         if(validationStatus.getEffectiveDistances().containsKey(validationStatus.getModeType())) {
             return validationStatus.getEffectiveDistances().get(validationStatus.getModeType());
         }     
@@ -131,15 +131,6 @@ public class Utils {
 	    return result;
 	}
 	
-	@SuppressWarnings("unchecked")
-    public static boolean checkMean(Campaign campaign, String mean) {
-        if((campaign.getValidationData() != null) && (campaign.getValidationData().get(TrackedInstanceManager.meansKey) != null)) {
-            List<String> means = (List<String>) campaign.getValidationData().get(TrackedInstanceManager.meansKey);
-            return means.contains(mean);
-        }
-        return false;	    
-	}
-
 	public static boolean checkMean(ValidationData vf, String mean) {
 		if((vf != null) && (vf.getMeans() != null)) {
 			return vf.getMeans().contains(mean);

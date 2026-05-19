@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
+import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.TravelValidity;
 import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
@@ -45,7 +46,9 @@ import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TrackedInstanceRepository;
+import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
+import it.smartcommunitylab.playandgo.engine.validation.ValidationService;
 
 @Component
 public class CompanyCampaignTripValidator implements ManageValidateCampaignTripRequest {
@@ -79,6 +82,9 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	TerritoryRepository territoryRepository;
 
 	@Autowired
+	ValidationService validationService;
+
+	@Autowired
 	UserCampaignLock campaignLock;
 
 	@PostConstruct
@@ -88,46 +94,56 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 
 	@Override
 	public void validateTripRequest(ValidateCampaignTripRequest msg) {
+		validateTripRequest(msg, true);
+	}
+
+	private void validateTripRequest(ValidateCampaignTripRequest msg, boolean validateTrip) {
 	    Campaign campaign = campaignRepository.findById(msg.getCampaignId()).orElse(null);
 		if(campaign == null) return;
-		TrackData trackData = new TrackData();
-	    boolean sendValidation = fillTrackData(msg.getPlayerId(), msg.getMultimodalId(), 
-	            msg.getCampaignId(), trackData);
-        if(sendValidation) {
-			ZonedDateTime startingDay = getTrackDay(campaign, new Date(trackData.getStartTime()));		
-            try {
-				campaignLock.lock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
-                TrackResult trackResult = pgAziendaleManager.validateTrack(msg.getCampaignId(), msg.getPlayerId(), trackData);
-                if(!trackResult.getValid()) {
-                    for(LegData legData : trackData.getLegs()) {
-                        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
-                                msg.getCampaignId(), legData.getId());
-                        if(playerTrack != null) {
-                            errorPlayerTrack(playerTrack, trackResult.getErrorCode());                               
-                        }
-                    }                
-                } else {
+        try {
+			campaignLock.lock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
+			// validate tracks for campaign
+			TrackData trackData = new TrackData();
+			boolean sendValidation = fillTrackData(msg.getPlayerId(), msg.getMultimodalId(), 
+					msg.getCampaignId(), trackData, validateTrip);
+			if(sendValidation) {
+				ZonedDateTime startingDay = getTrackDay(campaign, new Date(trackData.getStartTime()));		
+				TrackResult trackResult = pgAziendaleManager.validateTrack(msg.getCampaignId(), msg.getPlayerId(), trackData);
+				if(!trackResult.getValid()) {
+					for(LegData legData : trackData.getLegs()) {
+						CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
+								msg.getCampaignId(), legData.getId());
+						if(playerTrack != null) {
+							errorPlayerTrack(playerTrack, trackResult.getErrorCode());                               
+						}
+					}                
+				} else {
 					List<CampaignPlayerTrack> playerTracks = new ArrayList<>();
-                    for(LegResult legResult : trackResult.getLegs()) {
-                        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
-                                msg.getCampaignId(), legResult.getId());
-                        if(playerTrack != null) {
+					for(LegResult legResult : trackResult.getLegs()) {
+						CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(msg.getPlayerId(), 
+								msg.getCampaignId(), legResult.getId());
+						if(playerTrack != null) {
 							TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
 							populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), startingDay, 
 									trackResult.isVirtualTrack(), trackData.getFirstTrackId());
 							playerTracks.add(playerTrack);
-                            sendWebhookRequest(playerTrack);                                                                
-                        }
-                    }
+							sendWebhookRequest(playerTrack);                                                                
+						}
+					}
 					updatePlayerCampaignPlacings(playerTracks, startingDay);
-                }
-            } catch (ServiceException e) {
-                logger.error("validateTripRequest error:" + e.getMessage());
-                campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
-            } finally {
-				campaignLock.unlock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
-			}  
-        }	    
+				}
+			}
+        } catch (Exception e) {
+            logger.error("validateTripRequest error:" + e.getMessage());
+			if (e instanceof ServiceException) {
+				ServiceException se = (ServiceException) e;
+            	campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), se.getCode());
+			} else {
+				campaignMsgManager.addValidateTripRequest(msg, Type.company, e.getMessage(), ErrorCode.OPERATION_ERROR);
+			}
+        } finally {
+			campaignLock.unlock(campaignLock.getKey(msg.getPlayerId(), msg.getCampaignId()));
+		}      
 	}
 
 	private void updatePlayerCampaignPlacings(List<CampaignPlayerTrack> playerTracks, ZonedDateTime firstTrackStartTime) throws ServiceException {
@@ -156,7 +172,7 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	    return null;
 	}
 	
-	private boolean fillTrackData(String playerId, String multimodalId, String campaignId, TrackData trackData) {
+	private boolean fillTrackData(String playerId, String multimodalId, String campaignId, TrackData trackData, boolean validateTrip) throws Exception {
         Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
         if(campaign != null) {
             boolean sendValidation = false;            
@@ -170,23 +186,30 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
                 }
                 LegData legData = null;
                 if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
-                    legData = getLegData(track);
+                    if(validateTrip) {
+						CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, 
+								campaignId, track.getId());
+						if(playerTrack != null) {
+							ValidationResult validationResult = validationService.validateFreeTracking(track.getGeolocationEvents(), 
+									track.getFreeTrackingTransport(), track.getTerritoryId(), campaign.getValidationData());	
+							if(!validationResult.isValid()) {
+								legData = getLegDataForInvalid(track);
+								errorPlayerTrack(playerTrack, validationResult.getValidationStatus().getError().toString());
+							} else {
+								sendValidation = true;
+								legData = getLegData(track, validationResult);
+							}							
+						}
+					} else {
+						sendValidation = true;
+						legData = getLegData(track, track.getValidationResult());
+					}
                 } else {
                     legData = getLegDataForInvalid(track);
                 }
                 if(legData != null) {
                     trackData.getLegs().add(legData);
                 }                   
-                if(Utils.checkMean(campaign, track.getFreeTrackingTransport())) {
-                    if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
-						CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, 
-							campaignId, track.getId());
-						if(playerTrack != null) {
-							//send if at least one track is valid
-							sendValidation = true;                         							
-						}
-                    }
-                }
             }
             trackData.setStartTime(startTime.getTime());
             logger.info("filltTrackData:" + trackData.toString());
@@ -231,15 +254,15 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
         campaignPlayerTrackRepository.save(playerTrack);
     }
     
-	private LegData getLegData(TrackedInstance track) {
+	private LegData getLegData(TrackedInstance track, ValidationResult validationResult) {
 		if(track != null) {
 			LegData legData = new LegData();
 			legData.setId(track.getId());
-			ValidationStatus validationStatus = track.getValidationResult().getValidationStatus();
+			ValidationStatus validationStatus = validationResult.getValidationStatus();
 			legData.setMean(validationStatus.getModeType().toString());
-			legData.setDistance(Utils.getTrackDistance(track));
+			legData.setDistance(Utils.getTrackDistance(validationResult));
 			legData.setDuration(validationStatus.getDuration());
-			legData.setCo2(Utils.getSavedCo2(validationStatus.getModeType().toString(), Utils.getTrackDistance(track)));
+			legData.setCo2(Utils.getSavedCo2(validationStatus.getModeType().toString(), Utils.getTrackDistance(validationResult)));
 			legData.getPoints().addAll(track.getGeolocationEvents());
 			legData.setValid(true);
 			return legData;
@@ -325,53 +348,31 @@ public class CompanyCampaignTripValidator implements ManageValidateCampaignTripR
 	@Override
 	public void updateTripRequest(UpdateCampaignTripRequest msg) {
 	    logger.info(String.format("updateTripRequest[%s]:%s", msg.getCampaignPlayerTrackId(), msg.getCampaignType()));
-	    revalidateTripRequest(msg);
+	    revalidateTripRequest(msg, false);
 	}
 
 	@Override
 	public void revalidateTripRequest(UpdateCampaignTripRequest msg) {
+		logger.info(String.format("revalidateTripRequest[%s]:%s", msg.getCampaignPlayerTrackId(), msg.getCampaignType()));
+		revalidateTripRequest(msg, true);
+	}
+
+	private void revalidateTripRequest(UpdateCampaignTripRequest msg, boolean validateTrip) {
 		CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findById(msg.getCampaignPlayerTrackId()).orElse(null);
-		if(pTrack != null) {
+		if((pTrack != null) && (ScoreStatus.UNASSIGNED.equals(pTrack.getScoreStatus()) || !pTrack.isValid())) {
 		    Campaign campaign = campaignRepository.findById(pTrack.getCampaignId()).orElse(null);
-		    TrackedInstance uTrack = trackedInstanceRepository.findById(pTrack.getTrackedInstanceId()).orElse(null);
+		    TrackedInstance uTrack = trackedInstanceRepository.findById(pTrack.getTrackedInstanceId()).orElse(null);			
 		    if((campaign != null) && (uTrack != null)) {
-		        TrackData trackData = new TrackData();
-		        boolean sendValidation = fillTrackData(pTrack.getPlayerId(), uTrack.getMultimodalId(), 
-		                pTrack.getCampaignId(), trackData);
-		        if(sendValidation) {
-					ZonedDateTime startingDay = getTrackDay(campaign, new Date(trackData.getStartTime()));
-		            try {
-						campaignLock.lock(campaignLock.getKey(pTrack.getPlayerId(), pTrack.getCampaignId()));
-						List<CampaignPlayerTrack> playerTracks = new ArrayList<>();
-		                TrackResult trackResult = pgAziendaleManager.validateTrack(pTrack.getCampaignId(), pTrack.getPlayerId(), trackData);
-		                if(!trackResult.getValid()) {
-		                    for(LegData legData : trackData.getLegs()) {
-		                        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(pTrack.getPlayerId(), 
-		                                pTrack.getCampaignId(), legData.getId());
-		                        if(playerTrack != null) {
-		                            errorPlayerTrack(playerTrack, trackResult.getErrorCode()); 
-									playerTracks.add(playerTrack);     
-		                        }
-		                    }                
-		                } else {
-		                    for(LegResult legResult : trackResult.getLegs()) {
-		                        CampaignPlayerTrack playerTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(pTrack.getPlayerId(), 
-		                                pTrack.getCampaignId(), legResult.getId());
-		                        if(playerTrack != null) {
-		                            TrackedInstance track = trackedInstanceRepository.findById(legResult.getId()).orElse(null);
-									populatePlayerTrack(track, playerTrack, legResult, getCompanyId(playerTrack), 
-										startingDay, trackResult.isVirtualTrack(), trackData.getFirstTrackId());
-									playerTracks.add(playerTrack);                        
-		                        }
-		                    }
-		                }
-						updatePlayerCampaignPlacings(playerTracks, startingDay);						
-		            } catch (ServiceException e) {
-		                logger.error("revalidateTripRequest error:" + e.getMessage());
-		                campaignMsgManager.addRevalidateTripRequest(msg, Type.company, e.getMessage(), e.getCode());
-		            } finally {
-						campaignLock.unlock(campaignLock.getKey(pTrack.getPlayerId(), pTrack.getCampaignId()));}                          
-		        }   		        
+				ValidateCampaignTripRequest validateMsg = new ValidateCampaignTripRequest();
+				validateMsg.setPlayerId(pTrack.getPlayerId());
+				validateMsg.setCampaignId(pTrack.getCampaignId());
+				validateMsg.setTerritoryId(pTrack.getTerritoryId());
+				validateMsg.setMultimodalId(uTrack.getMultimodalId());
+				validateMsg.setCampaignSubscriptionId(pTrack.getCampaignSubscriptionId());
+				validateMsg.setCampaignType(campaign.getType().toString());
+				logger.info(String.format("revalidateTripRequest playerId:%s, campaignId:%s, multimodalId:%s", 
+						validateMsg.getPlayerId(), validateMsg.getCampaignId(), validateMsg.getMultimodalId()));
+				validateTripRequest(validateMsg, validateTrip);
 		    }				
 		}
 	}

@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.manager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class TerritoryManager {
 			campaign.setType(Type.personal);
 			campaign.getName().put("it", "Il mio Play&Go");
 			campaign.getName().put("en", "My Play&Go");
-			campaign.getValidationData().put("means", territory.getValidationData().getMeans());
+			campaign.getValidationData().setMeans(new ArrayList<>(territory.getValidationData().getMeans()));
 			//TODO compile other fields
 			campaignRepository.save(campaign);
 		} catch (Exception e) {

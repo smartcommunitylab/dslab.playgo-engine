@@ -454,7 +454,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 		TrackedInstance trackedInstance = getTrackedInstance(trackedInstanceId);
 		if(trackedInstance != null) {
 			ValidationStatus validationStatus = trackedInstance.getValidationResult().getValidationStatus();
-			if(Utils.checkMean(campaign, validationStatus.getModeType().toString())) {
+			if(Utils.checkMean(campaign.getValidationData(), validationStatus.getModeType().toString())) {
 				// keep existing track
 				CampaignPlayerTrack pTrack = campaignPlayerTrackRepository.findByPlayerIdAndCampaignIdAndTrackedInstanceId(playerId, campaign.getCampaignId(), trackedInstanceId);
 				if (pTrack == null) {
@@ -718,7 +718,7 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 				validateTripRequest(msg);
 			} else if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
 				//update distance for a already validated track
-				double delta = distance - Utils.getTrackDistance(track);
+				double delta = distance - Utils.getTrackDistance(track.getValidationResult());
 				track.getValidationResult().getValidationStatus().setDistance(distance);
 				track.getValidationResult().getValidationStatus().getEffectiveDistances().put(MODE_TYPE.valueOf(track.getFreeTrackingTransport()), distance);
 				trackedInstanceRepository.save(track);
