@@ -3,7 +3,10 @@ package it.smartcommunitylab.playandgo.engine.model.conf;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CampaignSchoolConf {
+import org.springframework.data.annotation.TypeAlias;
+
+@TypeAlias("CampaignSchoolConf")
+public class CampaignSchoolConf extends CampaignConf {
 	Map<String, String> pointName = new HashMap<>();
 	boolean showGeneralInfo;
 	boolean showBadgeSection;

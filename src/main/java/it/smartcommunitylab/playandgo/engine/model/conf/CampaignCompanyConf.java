@@ -3,7 +3,10 @@ package it.smartcommunitylab.playandgo.engine.model.conf;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CampaignCompanyConf {
+import org.springframework.data.annotation.TypeAlias;
+
+@TypeAlias("CampaignCompanyConf")
+public class CampaignCompanyConf extends CampaignConf {
 	boolean showGeneralInfo;
 	boolean hideCompanyDesc;
 	Map<String, String> registrationCompanyDesc = new HashMap<>();

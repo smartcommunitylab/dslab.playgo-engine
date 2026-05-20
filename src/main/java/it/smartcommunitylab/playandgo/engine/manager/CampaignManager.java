@@ -155,6 +155,8 @@ public class CampaignManager {
 		campaignDb.setStartDayOfWeek(campaign.getStartDayOfWeek());
 		campaignDb.setDetails(campaign.getDetails());
 		campaignDb.setGameId(campaign.getGameId());
+		campaignDb.setColorPalette(campaign.getColorPalette());
+		campaignDb.setSpecificConf(campaign.getSpecificConf());
 		campaignDb.setValidationData(campaign.getValidationData());
 		campaignDb.setSpecificData(campaign.getSpecificData());
 		campaignDb.setCampaignPlacement(campaign.getCampaignPlacement());

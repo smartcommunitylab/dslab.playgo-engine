@@ -1,6 +1,9 @@
 package it.smartcommunitylab.playandgo.engine.model.conf;
 
-public class CampaignPersonalConf {
+import org.springframework.data.annotation.TypeAlias;
+
+@TypeAlias("CampaignPersonalConf")
+public class CampaignPersonalConf extends CampaignConf {
     boolean showGeneralInfo;
     TransportPlacingConf transportPlacing;
     TransportStatsConf transportStats;

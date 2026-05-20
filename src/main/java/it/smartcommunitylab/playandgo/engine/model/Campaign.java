@@ -11,10 +11,14 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignConf;
+import it.smartcommunitylab.playandgo.engine.config.CampaignDeserializer;
 
 @Document(collection="campaigns")
+@JsonDeserialize(using = CampaignDeserializer.class)
 public class Campaign {
 	public static enum Type {
 		company, city, school, group, personal
@@ -55,6 +59,8 @@ public class Campaign {
 	private List<SurveyRequest> surveys = new ArrayList<>();
 	
 	private List<CampaignWeekConf> weekConfs = new ArrayList<>();
+
+	private CampaignConf specificConf;
 	
 	private CampaignPlacement campaignPlacement = new CampaignPlacement();
 
@@ -291,6 +297,14 @@ public class Campaign {
 
 	public void setColorPalette(String colorPalette) {
 		this.colorPalette = colorPalette;
+	}
+
+	public CampaignConf getSpecificConf() {
+		return specificConf;
+	}
+
+	public void setSpecificConf(CampaignConf specificConf) {
+		this.specificConf = specificConf;
 	}
 
 }

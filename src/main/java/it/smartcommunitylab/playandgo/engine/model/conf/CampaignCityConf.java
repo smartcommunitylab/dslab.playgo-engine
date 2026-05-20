@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CampaignCityConf {
+import org.springframework.data.annotation.TypeAlias;
+
+@TypeAlias("CampaignCityConf")
+public class CampaignCityConf extends CampaignConf {
 	Map<String, String> pointName = new HashMap<>();
 	boolean showGeneralInfo;
 	boolean showBadgeSection;
