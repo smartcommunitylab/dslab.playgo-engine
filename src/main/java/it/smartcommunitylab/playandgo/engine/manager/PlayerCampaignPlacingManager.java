@@ -42,6 +42,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerStatsTransport;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.conf.PeriodConf;
 import it.smartcommunitylab.playandgo.engine.report.CampaignPlacing;
 import it.smartcommunitylab.playandgo.engine.report.PlayerStatusReport;
 import it.smartcommunitylab.playandgo.engine.report.TransportStat;
@@ -586,31 +587,18 @@ public class PlayerCampaignPlacingManager {
 		return result;
 	}
 		
-	@SuppressWarnings("unchecked")
     public List<CampaignPeriodStatsInfo> getCampaignPeriodStatsInfo(String campaignId, String playerId) {
 	    List<CampaignPeriodStatsInfo> result = new ArrayList<>();
 	    Campaign campaign = campaignManager.getCampaign(campaignId);
-	    if((campaign != null) && (campaign.getSpecificData().get("periods") != null)) {
+	    if(campaign != null) {
 	        try {
-	            List<Map<String, Object>> periods = (List<Map<String, Object>>) campaign.getSpecificData().get("periods");
+				List<PeriodConf> periods = Utils.getCompanyCampaignPeriods(campaign);
 	            periods.forEach(p -> {
-	                Long start = 0L;
-	                Long end = 0L;
-	                if(p.get("start") instanceof Long) {
-	                    start = (Long)p.get("start");
-	                } else if(p.get("start") instanceof String) {
-	                    start = Long.valueOf((String)p.get("start"));
-	                }
-                    if(p.get("end") instanceof Long) {
-                        end = (Long)p.get("end");
-                    } else if(p.get("end") instanceof String) {
-                        end = Long.valueOf((String)p.get("end"));
-                    }
 	                CampaignPeriodStatsInfo info = new CampaignPeriodStatsInfo();
-	                info.setDateFrom(start);
-	                info.setDateTo(end);
-	                info.setDateFromS(getDay(campaign, new Date(start)));
-	                info.setDateToS(getDay(campaign, new Date(end)));
+	                info.setDateFrom(p.getStart());
+	                info.setDateTo(p.getEnd());
+	                info.setDateFromS(getDay(campaign, new Date(p.getStart())));
+	                info.setDateToS(getDay(campaign, new Date(p.getEnd())));
 	                result.add(info);
 	            });
 	            String dateFrom = getDay(campaign, campaign.getDateFrom());

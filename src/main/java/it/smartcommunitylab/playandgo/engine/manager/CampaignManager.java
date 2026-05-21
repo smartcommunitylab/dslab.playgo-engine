@@ -158,8 +158,6 @@ public class CampaignManager {
 		campaignDb.setColorPalette(campaign.getColorPalette());
 		campaignDb.setSpecificConf(campaign.getSpecificConf());
 		campaignDb.setValidationData(campaign.getValidationData());
-		campaignDb.setSpecificData(campaign.getSpecificData());
-		campaignDb.setCampaignPlacement(campaign.getCampaignPlacement());
 		campaignRepository.save(campaignDb);
 		switch (campaign.getType()) {
 			case personal:

@@ -60,6 +60,8 @@ import it.smartcommunitylab.playandgo.engine.manager.challenge.OtherAttendeeData
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignCityConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignSchoolConf;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.PlayerRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
@@ -296,7 +298,7 @@ public class CityGameDataConverter {
 					points, filterBadges(badges), challengeList);
 
 			challenges.setCanInvite(false);
-			
+
 			String expressionFromString = Utils.getCronExp(campaign, Campaign.challengePlayerProposed);
 			String expressionToString = Utils.getCronExp(campaign, Campaign.challengePlayerAssigned);
 			

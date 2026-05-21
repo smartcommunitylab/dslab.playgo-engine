@@ -1,5 +1,6 @@
 package it.smartcommunitylab.playandgo.engine.campaign.group;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook.EventType;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignCityConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.Group;
 import it.smartcommunitylab.playandgo.engine.mq.MessageQueueManager;
 import it.smartcommunitylab.playandgo.engine.mq.WebhookRequest;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
@@ -85,14 +88,18 @@ public class GroupCampaignSubscription {
 				sub.getCampaignData().put(externalTokenKey, extToken);
             }
         }
+
+		CampaignCityConf cityConf = Utils.getCityCampaignConf(campaign);
+		if (cityConf == null) 
+			cityConf = new CampaignCityConf();
         
         // Validate JWT token if provided
-        if(Utils.isNotEmpty(extToken)) {
+        if(Utils.isNotEmpty(extToken) && cityConf.isUseExtAuth() && (cityConf.getExtProvider() != null)) {
             try {
                 // Se il campaign ha un endpoint JWKS configurato, usalo per validare
-				List<String> groupValues = extractGroupValues(campaign);
-                String jwksEndpoint = (String) campaign.getSpecificData().get(jwksEndpointKey);
-				String claimName = (String) campaign.getSpecificData().get(claimNameKey);
+				List<String> groupValues = extractGroupValues(cityConf);
+                String jwksEndpoint = cityConf.getExtProvider().getJwksEndpoint();
+				String claimName = cityConf.getExtProvider().getClaimName();
 				if(Utils.isEmpty(jwksEndpoint))
 					throw new ServiceException("JWKS endpoint not cofigured", ErrorCode.INVALID_TOKEN);
 				Jwt jwt = jwtTokenUtil.validateAndGetClaimsWithJwks(extToken, jwksEndpoint);
@@ -132,14 +139,10 @@ public class GroupCampaignSubscription {
 					throw new ServiceException("Group ID does not match token claim", ErrorCode.INVALID_TOKEN);
 				}
 				// add optional claims to subscription data
-				// TODO add email as optional claim, to remove after console update 
-				if(!campaign.getSpecificData().containsKey(optionalClaimListKey)) {
-					campaign.getSpecificData().put(optionalClaimListKey, Arrays.asList("email"));
-				}
-				if(campaign.getSpecificData().containsKey(optionalClaimListKey)) {
-					@SuppressWarnings("unchecked")
-					java.util.List<String> optionalClaims = (java.util.List<String>) campaign.getSpecificData().get(optionalClaimListKey);
-					for(String claim : optionalClaims) {
+				// TODO add email as optional claim, to remove after console update
+				cityConf.getExtProvider().setOptionalClaims(Arrays.asList("email"));
+				if(cityConf.getExtProvider().getOptionalClaims() != null) {
+					for(String claim : cityConf.getExtProvider().getOptionalClaims()) {
 						String cValue = jwt.getClaimAsString(claim);
 						if(Utils.isNotEmpty(cValue)) {
 							sub.getCampaignData().put(claim, cValue);
@@ -229,25 +232,13 @@ public class GroupCampaignSubscription {
 	 * @param campaign oggetto Campaign
 	 * @return lista di stringhe con i valori estratti
 	 */
-	@SuppressWarnings("unchecked")
-	public java.util.List<String> extractGroupValues(Campaign campaign) {
-		java.util.List<String> values = new java.util.ArrayList<>();
+	public List<String> extractGroupValues(CampaignCityConf cityConf) {
+		List<String> values = new ArrayList<>();
 		
-		if (campaign == null || campaign.getSpecificData() == null) {
-			return values;
-		}
-		
-		Object groupListObj = campaign.getSpecificData().get("groupList");
-		if (groupListObj == null || !(groupListObj instanceof java.util.List)) {
-			return values;
-		}
-		
-		java.util.List<Map<String, Object>> groupList = (java.util.List<Map<String, Object>>) groupListObj;
-		for (Map<String, Object> item : groupList) {
-			Object value = item.get("value");
-			if (value != null) {
-				if(!values.contains(value.toString())) {
-					values.add(value.toString());
+		if (cityConf.getGroups() != null) {
+			for (Group group : cityConf.getGroups()) {
+				if(Utils.isNotEmpty(group.getValue()) && !values.contains(group.getValue())) {
+					values.add(group.getValue());
 				}
 			}
 		}

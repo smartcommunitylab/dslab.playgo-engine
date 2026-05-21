@@ -106,6 +106,9 @@ public class CampaignConfWriteConverter implements Converter<CampaignConf, Docum
         doc.put("useMultiLocation", source.isUseMultiLocation());
         doc.put("useEmployeeLocation", source.isUseEmployeeLocation());
         
+        if (source.getPeriods() != null) {
+            doc.put("periods", objectMapper.convertValue(source.getPeriods(), Document.class));
+        }
         if (source.getVirtualScoreConf() != null) {
             doc.put("virtualScoreConf", objectMapper.convertValue(source.getVirtualScoreConf(), Document.class));
         }

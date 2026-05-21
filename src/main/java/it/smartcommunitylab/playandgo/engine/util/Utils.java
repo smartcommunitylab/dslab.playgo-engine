@@ -17,12 +17,16 @@ import org.slf4j.LoggerFactory;
 
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
-import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 import it.smartcommunitylab.playandgo.engine.model.ValidationData;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignCityConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignCompanyConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignPersonalConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignSchoolConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.PeriodConf;
 
 public class Utils {
 	@SuppressWarnings("unused")
@@ -100,8 +104,7 @@ public class Utils {
         return validationStatus.getDistance();
 	}
 	
-	public static String getCronExp(Campaign campaign, String cronKey) {
-	    String exp = (String)campaign.getSpecificData().get(cronKey);
+	public static String getCronExp(String exp) {
 	    if(Utils.isNotEmpty(exp)) {
 	        String[] items = exp.split(";");
 	        if(items.length > 1) {
@@ -111,7 +114,33 @@ public class Utils {
 	    }
 	    return null;
 	}
-	
+
+	public static String getCronExp(Campaign campaign, String cronKey) {
+	    String exp = null;
+	    if(campaign.getSpecificConf() != null) {
+	        switch (campaign.getType()) {
+	            case city:
+	            case group:
+	                CampaignCityConf cityConf = (CampaignCityConf) campaign.getSpecificConf();
+					if (Campaign.challengePlayerProposed.equals(cronKey))
+						exp = cityConf.getChallengeProposed();
+					if (Campaign.challengePlayerAssigned.equals(cronKey))
+						exp = cityConf.getChallengeAssigned();
+	                break;
+	            case school:
+	                CampaignSchoolConf schoolConf = (CampaignSchoolConf) campaign.getSpecificConf();
+					if (Campaign.challengePlayerProposed.equals(cronKey))
+						exp = schoolConf.getChallengeProposed();
+					if (Campaign.challengePlayerAssigned.equals(cronKey))
+						exp = schoolConf.getChallengeAssigned();
+	                break;
+	            default:
+	                break;
+	        }
+	    }
+	    return getCronExp(exp);
+	}
+
 	@SuppressWarnings("unchecked")
     public static boolean checkPlayerAlreadyRegistered(Player player, Campaign campaign) {
 	    boolean result = false;
@@ -146,17 +175,75 @@ public class Utils {
 		return modeTypes;
     }
 
-	@SuppressWarnings("unchecked")
 	public static String getPointNameByCampaign(Campaign campaign, String lang) {
 		String pointName = "eco-Leaves";
-		if((campaign != null) && (campaign.getSpecificData() != null) && (campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME) != null)) {
-			Map<String, String> pointNameMap = (Map<String, String>) campaign.getSpecificData().get(CampaignManager.CAMPAIGNPOINTNAME);
-			String name = pointNameMap.get(lang);
-			if(Utils.isNotEmpty(name)) {
-				pointName = name;
+		if((campaign != null) && (campaign.getSpecificConf() != null)) {
+			Map<String, String> pointNameMap = null;
+			switch (campaign.getType()) {
+				case city:
+				case group:
+					CampaignCityConf campaignCityconf = (CampaignCityConf) campaign.getSpecificConf();
+					pointNameMap = campaignCityconf.getPointName();
+					break;
+				case school:
+					CampaignSchoolConf campaignSchoolConf = (CampaignSchoolConf) campaign.getSpecificConf();
+					pointNameMap = campaignSchoolConf.getPointName();
+					break;
+				default:
+					break;
+			}
+			if (pointNameMap != null) {
+				String name = pointNameMap.get(lang);
+				if(Utils.isNotEmpty(name)) {
+					pointName = name;
+				}
 			}
 		}
 		return pointName;
 	}
- 	
+
+	public static List<PeriodConf> getCompanyCampaignPeriods(Campaign campaign) {
+		List<PeriodConf> periods = new ArrayList<>();
+		if((campaign != null) && (campaign.getType().equals(Campaign.Type.company)) && (campaign.getSpecificConf() != null)) {
+			CampaignCompanyConf conf = (CampaignCompanyConf) campaign.getSpecificConf();
+			if(conf.getPeriods() != null) {
+				periods = conf.getPeriods();
+			}
+		}
+		return periods;
+	}
+
+	public static CampaignCityConf getCityCampaignConf(Campaign campaign) {
+		CampaignCityConf conf = null;
+		if((campaign != null) && (campaign.getType().equals(Campaign.Type.city) || campaign.getType().equals(Campaign.Type.group)) 
+				&& (campaign.getSpecificConf() != null)) {
+			conf = (CampaignCityConf) campaign.getSpecificConf();
+		}
+		return conf;
+	}
+
+	public static CampaignCompanyConf getCompanyCampaignConf(Campaign campaign) {
+		CampaignCompanyConf conf = null;
+		if((campaign != null) && (campaign.getType().equals(Campaign.Type.company)) && (campaign.getSpecificConf() != null)) {
+			conf = (CampaignCompanyConf) campaign.getSpecificConf();
+		}
+		return conf;
+	}
+
+	public static CampaignSchoolConf getSchoolCampaignConf(Campaign campaign) {
+		CampaignSchoolConf conf = null;
+		if((campaign != null) && (campaign.getType().equals(Campaign.Type.school)) && (campaign.getSpecificConf() != null)) {
+			conf = (CampaignSchoolConf) campaign.getSpecificConf();
+		}
+		return conf;
+	}
+
+	public static CampaignPersonalConf getPersonalCampaignConf(Campaign campaign) {
+		CampaignPersonalConf conf = null;
+		if((campaign != null) && (campaign.getType().equals(Campaign.Type.personal)) && (campaign.getSpecificConf() != null)) {
+			conf = (CampaignPersonalConf) campaign.getSpecificConf();
+		}
+		return conf;
+	}
+
 }

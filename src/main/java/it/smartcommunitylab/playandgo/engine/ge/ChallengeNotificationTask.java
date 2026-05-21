@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Territory;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignCityConf;
 import it.smartcommunitylab.playandgo.engine.notification.CampaignNotificationManager;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.TerritoryRepository;
@@ -74,8 +75,12 @@ public class ChallengeNotificationTask {
     private void sendNotifications(String cronKey, String messageKey) {
         List<Campaign> campaigns = campaignRepository.findAll();
         for(Campaign campaign : campaigns) {
-            if(campaign.currentlyActive() && Utils.isNotEmpty(campaign.getGameId()) 
-                    && Utils.isNotEmpty(Utils.getCronExp(campaign, cronKey))) {
+            if(campaign.currentlyActive() && Utils.isNotEmpty(campaign.getGameId())) {
+                String cronExp = Utils.getCronExp(campaign, cronKey);
+                if (Utils.isEmpty(cronExp)) {
+                    continue;
+                }
+
                 CronExpression expression = CronExpression.parse(Utils.getCronExp(campaign, cronKey));
                 ZonedDateTime nowZoned = getZonedDateTime(campaign);
                 ZonedDateTime truncatedTime = nowZoned.truncatedTo(ChronoUnit.HOURS);

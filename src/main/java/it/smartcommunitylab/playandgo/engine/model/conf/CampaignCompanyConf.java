@@ -1,6 +1,8 @@
 package it.smartcommunitylab.playandgo.engine.model.conf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.TypeAlias;
@@ -12,6 +14,7 @@ public class CampaignCompanyConf extends CampaignConf {
 	Map<String, String> registrationCompanyDesc = new HashMap<>();
 	boolean useMultiLocation;
 	boolean useEmployeeLocation;
+    List<PeriodConf> periods = new ArrayList<>();
 	VirtualScoreConf virtualScoreConf;
     TransportPlacingConf transportPlacing;
     TransportStatsConf transportStats;
@@ -79,5 +82,12 @@ public class CampaignCompanyConf extends CampaignConf {
     public void setTransportStats(TransportStatsConf transportStats) {
         this.transportStats = transportStats;
     }
+
+    public List<PeriodConf> getPeriods() {
+        return periods;
+    }
     
+    public void setPeriods(List<PeriodConf> periods) {
+        this.periods = periods;
+    }
 }

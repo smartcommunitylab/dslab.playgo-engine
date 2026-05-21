@@ -1,10 +1,14 @@
 package it.smartcommunitylab.playandgo.engine.model.conf;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ExtProviderConf {
 	String jwksEndpoint;
 	String claimName;
 	String authUrl;
 	String clientId;
+    List<String> optionalClaims = new ArrayList<>();   
 
     public String getJwksEndpoint() {
         return jwksEndpoint;
@@ -36,6 +40,14 @@ public class ExtProviderConf {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public List<String> getOptionalClaims() {
+        return optionalClaims;
+    }
+
+    public void setOptionalClaims(List<String> optionalClaims) {
+        this.optionalClaims = optionalClaims;
     }
 
 }
