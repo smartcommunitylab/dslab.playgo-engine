@@ -9,12 +9,12 @@ public class VirtualScoreConf {
     Map<String, String> limitCompanyDesc = new HashMap<>();
     List<LimitConf> limits = new ArrayList<>();
     String label;
-    int scoreDailyLimit;
-    int scoreWeeklyLimit;
-    int scoreMonthlyLimit;
-    int trackDailyLimit;
-    int trackWeeklyLimit;
-    int trackMonthlyLimit;
+    int scoreDailyLimit = -1;
+    int scoreWeeklyLimit = -1;
+    int scoreMonthlyLimit = -1;
+    int trackDailyLimit = -1;
+    int trackWeeklyLimit = -1;
+    int trackMonthlyLimit = -1;
     String firstLimitBar;
     String secondLimitBar;
     List<PointConf> points = new ArrayList<>();
