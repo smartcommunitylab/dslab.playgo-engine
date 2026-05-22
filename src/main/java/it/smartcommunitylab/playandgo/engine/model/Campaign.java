@@ -54,15 +54,11 @@ public class Campaign {
 
 	private ValidationData validationData = new ValidationData();
 	
-	//private Map<String, Object> specificData = new HashMap<>();
-	
 	private List<SurveyRequest> surveys = new ArrayList<>();
 	
 	private List<CampaignWeekConf> weekConfs = new ArrayList<>();
 
 	private CampaignConf specificConf;
-	
-	//private CampaignPlacement campaignPlacement = new CampaignPlacement();
 
 	@JsonIgnore
 	public boolean hasDefaultSurvey() {
@@ -227,14 +223,6 @@ public class Campaign {
 		this.registrationTo = registrationTo;
 	}
 
-	// public Map<String, Object> getSpecificData() {
-	// 	return specificData;
-	// }
-
-	// public void setSpecificData(Map<String, Object> specificData) {
-	// 	this.specificData = specificData;
-	// }
-
 	public Map<String, String> getName() {
 		return name;
 	}
@@ -282,14 +270,6 @@ public class Campaign {
 	public void setVisible(Boolean visible) {
 		this.visible = visible;
 	}
-
-    // public CampaignPlacement getCampaignPlacement() {
-    //     return campaignPlacement;
-    // }
-
-    // public void setCampaignPlacement(CampaignPlacement campaignPlacement) {
-    //     this.campaignPlacement = campaignPlacement;
-    // }
 
 	public String getColorPalette() {
 		return colorPalette;
