@@ -7,7 +7,6 @@ import java.util.Map;
 
 public class VirtualScoreConf {
     Map<String, String> limitCompanyDesc = new HashMap<>();
-    List<LimitConf> limits = new ArrayList<>();
     String label;
     double scoreDailyLimit = -1.0;
     double scoreWeeklyLimit = -1.0;
@@ -21,10 +20,6 @@ public class VirtualScoreConf {
 
     public Map<String, String> getLimitCompanyDesc() {
         return limitCompanyDesc;
-    }
-
-    public List<LimitConf> getLimits() {
-        return limits;
     }
 
     public String getLabel() {
@@ -69,10 +64,6 @@ public class VirtualScoreConf {
 
     public void setLimitCompanyDesc(Map<String, String> limitCompanyDesc) {
         this.limitCompanyDesc = limitCompanyDesc;
-    }
-
-    public void setLimits(List<LimitConf> limits) {
-        this.limits = limits;
     }
 
     public void setLabel(String label) {
