@@ -33,6 +33,10 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignWebhook;
 import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.PlayerRole.Role;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignCityConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignCompanyConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignPersonalConf;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignSchoolConf;
 import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 import it.smartcommunitylab.playandgo.engine.util.Utils;
 
@@ -64,6 +68,58 @@ public class CampaignController extends PlayAndGoController {
 			HttpServletRequest request) throws Exception {
 		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
 		campaignManager.updateCampaign(campaign);
+	}
+
+	@PutMapping("/api/campaign/{campaignId}/personal")
+	public void updatePersonalConf(
+			@PathVariable String campaignId,
+			@RequestBody CampaignPersonalConf conf,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		campaignManager.updateConf(campaignId, conf);
+	}
+
+	@PutMapping("/api/campaign/{campaignId}/company")
+	public void updateCompanyConf(
+			@PathVariable String campaignId,
+			@RequestBody CampaignCompanyConf conf,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		campaignManager.updateConf(campaignId, conf);
+	}
+
+	@PutMapping("/api/campaign/{campaignId}/city")
+	public void updateCityConf(
+			@PathVariable String campaignId,
+			@RequestBody CampaignCityConf conf,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		campaignManager.updateConf(campaignId, conf);
+	}
+
+	@PutMapping("/api/campaign/{campaignId}/school")
+	public void updateSchoolConf(
+			@PathVariable String campaignId,
+			@RequestBody CampaignSchoolConf conf,
+			HttpServletRequest request) throws Exception {
+		Campaign campaign = campaignManager.getCampaign(campaignId);
+		if(campaign == null) {
+			throw new BadRequestException("campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}	
+		checkRole(request, campaign.getTerritoryId(), campaign.getCampaignId());
+		campaignManager.updateConf(campaignId, conf);
 	}
 	
 	@GetMapping("/api/campaign/{campaignId}")

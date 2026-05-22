@@ -45,6 +45,7 @@ import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
+import it.smartcommunitylab.playandgo.engine.model.conf.CampaignConf;
 import it.smartcommunitylab.playandgo.engine.model.CampaignReward;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWeekConf;
@@ -174,6 +175,16 @@ public class CampaignManager {
 			case company:
 				break;
 		}							
+	}
+
+	public Campaign updateConf(String campaignId, CampaignConf conf) throws Exception {
+		Campaign campaignDb = getCampaign(campaignId);
+		if(campaignDb == null) {
+			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}
+		campaignDb.setSpecificConf(conf);
+		campaignRepository.save(campaignDb);
+		return campaignDb;
 	}
 	
 	public Campaign getCampaign(String campaignId) {
