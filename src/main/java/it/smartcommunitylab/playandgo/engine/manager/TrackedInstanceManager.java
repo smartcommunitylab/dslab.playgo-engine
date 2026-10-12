@@ -408,7 +408,8 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
                 for(TrackedInstance track : list) {
                     if(TravelValidity.VALID.equals(track.getValidationResult().getTravelValidity())) {
 	        	        // skip non-active campaigns
-						if((campaign.validTrack(track.getStartTime()) && campaign.currentlyActive()) || 
+						if((campaign.validTrack(track.getStartTime()) && campaign.currentlyActive() 
+								&& Utils.checkPrivacyAndRulesAcceptance(sub)) || 
 								(campaign.validTrack(track.getStartTime()) && msg.isForceValidation())) {
 							storeCampaignPlayerTrack(msg.getTerritoryId(), msg.getPlayerId(), track.getId(), campaign, sub.getId());
 						} 
