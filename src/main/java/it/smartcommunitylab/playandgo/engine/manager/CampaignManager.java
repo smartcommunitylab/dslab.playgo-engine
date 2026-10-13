@@ -51,7 +51,7 @@ import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWeekConf;
 import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
-import it.smartcommunitylab.playandgo.engine.repository.CampaignAcceptanceRepository;
+
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
@@ -267,16 +267,16 @@ public class CampaignManager {
 					sub = personalCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
 					break;
 				case company:
-					sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true); 
+					sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true, userAcceptance); 
 					break;
 				case city:
-					sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+					sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData, userAcceptance);
 					break;
 				case school:
-					sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
+					sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true, userAcceptance);
 					break;
 				case group:
-					sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+					sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData, userAcceptance);
 					break;
 			}
 			if (sub != null) {

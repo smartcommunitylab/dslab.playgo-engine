@@ -44,7 +44,7 @@ public class CityCampaignSubscription {
 	MessageQueueManager queueManager;
 	
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
-			Map<String, Object> campaignData) throws Exception {
+			Map<String, Object> campaignData, boolean userAcceptance) throws Exception {
 
 		if(!campaign.isRegistrationOpen(new Date())) {
 			throw new ServiceException("Campaign registration is closed", ErrorCode.CAMPAIGN_REGISTRATION_CLOSED);
@@ -72,7 +72,7 @@ public class CityCampaignSubscription {
 	            }               
 	        }
 	        //check default survey
-	        if(campaign.hasDefaultSurvey()) {
+	        if(campaign.hasDefaultSurvey() && userAcceptance) {
 	            SurveyRequest sr = campaign.getDefaultSurvey();
 				if(campaign.currentlyActive()) {
 					surveyManager.assignSurveyChallenges(campaign.getCampaignId(), Arrays.asList(player.getPlayerId()), sr);
