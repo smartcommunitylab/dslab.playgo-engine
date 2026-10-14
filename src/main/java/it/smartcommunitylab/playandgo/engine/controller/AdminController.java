@@ -142,7 +142,7 @@ public class AdminController extends PlayAndGoController {
 				Map<String, Object> campaignData = new HashMap<>();
 				campaignData.put(CompanyCampaignSubscription.companyKey, companyKey);
 				campaignData.put(CompanyCampaignSubscription.employeeCode, employeeCode);
-				sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, false);
+				sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, false, true);
 				campaignSubscriptionRepository.save(sub);
 			} catch (Exception e) {
 				result.add(String.format("error on player [%s] %s : %s", lineCount, playerId, e.getMessage()));
