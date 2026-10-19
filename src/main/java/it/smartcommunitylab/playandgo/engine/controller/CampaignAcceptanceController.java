@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.manager.CampaignAcceptanceManager;
 import it.smartcommunitylab.playandgo.engine.model.CampaignAcceptance;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 
 @RestController
@@ -89,5 +90,28 @@ public class CampaignAcceptanceController extends PlayAndGoController {
             HttpServletRequest request) throws Exception {
         checkAdminRole(request);
         return campaignAcceptanceManager.getByPlayerIdAndCampaignId(playerId, campaignId, sortBy, direction);
+    }
+
+    @PutMapping("/api/campaign-acceptance/subscription/{playerId}/{campaignId}")
+    public CampaignSubscription updateSubscriptionFlags(
+            @PathVariable String playerId,
+            @PathVariable String campaignId,
+            @RequestParam boolean privacyAcceptance,
+            @RequestParam boolean rulesAcceptance,
+            HttpServletRequest request) throws Exception {
+        checkAdminRole(request);
+        return campaignAcceptanceManager.updateSubscriptionFlags(playerId, campaignId, privacyAcceptance,
+                rulesAcceptance);
+    }
+
+    @PutMapping("/api/campaign-acceptance/subscriptions/{campaignId}")
+    public List<CampaignSubscription> updateCampaignSubscriptionFlags(
+            @PathVariable String campaignId,
+            @RequestParam boolean privacyAcceptance,
+            @RequestParam boolean rulesAcceptance,
+            HttpServletRequest request) throws Exception {
+        checkAdminRole(request);
+        return campaignAcceptanceManager.updateCampaignSubscriptionFlags(campaignId, privacyAcceptance,
+                rulesAcceptance);
     }
 }
