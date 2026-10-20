@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ import it.smartcommunitylab.playandgo.engine.util.ErrorCode;
 
 @Component
 public class CampaignAcceptanceManager {
+
+    static Log logger = LogFactory.getLog(CampaignAcceptanceManager.class);
 
     @Autowired
     private CampaignAcceptanceRepository campaignAcceptanceRepository;
@@ -74,6 +78,52 @@ public class CampaignAcceptanceManager {
 			throw ex;
 		}        
         return acceptance;
+    }
+
+    public CampaignSubscription updateSubscriptionFlags(String playerId, String campaignId,
+            boolean privacyAcceptance, boolean rulesAcceptance) throws BadRequestException {
+        validateId(playerId);
+        validateId(campaignId);
+
+        CampaignSubscription subscription = campaignSubscriptionRepository
+                .findByCampaignIdAndPlayerId(campaignId, playerId);
+        if (subscription == null) {
+            throw new BadRequestException("CampaignSubscription not found for playerId: " + playerId
+                    + " and campaignId: " + campaignId, ErrorCode.INVALID_REQUEST);
+        }
+         try {
+            campaignLock.lock(campaignLock.getKey(playerId, campaignId));
+            subscription.setPrivacyAcceptance(privacyAcceptance);
+            subscription.setRulesAcceptance(rulesAcceptance);
+            campaignSubscriptionRepository.save(subscription);
+            logger.info("Successfully updated subscription flags for playerId: " + playerId + " and campaignId: " + campaignId + " with privacyAcceptance: " + privacyAcceptance + " and rulesAcceptance: " + rulesAcceptance);
+        } catch (Exception e) {
+            logger.warn("Failed to update subscription flags for playerId: " + playerId + " and campaignId: " + campaignId, e);
+        } finally {
+            campaignLock.unlock(campaignLock.getKey(playerId, campaignId));
+        }
+        return subscription;
+    }
+
+    public List<CampaignSubscription> updateCampaignSubscriptionFlags(String campaignId,
+            boolean privacyAcceptance, boolean rulesAcceptance) throws BadRequestException {
+        validateId(campaignId);
+
+        List<CampaignSubscription> subscriptions = campaignSubscriptionRepository.findByCampaignId(campaignId);
+        for (CampaignSubscription subscription : subscriptions) {
+            try {
+                campaignLock.lock(campaignLock.getKey(subscription.getPlayerId(), campaignId));
+                subscription.setPrivacyAcceptance(privacyAcceptance);
+                subscription.setRulesAcceptance(rulesAcceptance);
+                campaignSubscriptionRepository.save(subscription);
+                logger.info("Successfully updated subscription flags for playerId: " + subscription.getPlayerId() + " and campaignId: " + campaignId + " with privacyAcceptance: " + privacyAcceptance + " and rulesAcceptance: " + rulesAcceptance);
+            } catch (Exception e) {
+                logger.warn("Failed to update subscription flags for playerId: " + subscription.getPlayerId() + " and campaignId: " + campaignId, e);
+            } finally {
+                campaignLock.unlock(campaignLock.getKey(subscription.getPlayerId(), campaignId));
+            }
+        }
+        return subscriptions;
     }
 
     public CampaignAcceptance getById(String id) throws BadRequestException {
