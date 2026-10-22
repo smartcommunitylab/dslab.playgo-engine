@@ -48,7 +48,7 @@ public class SchoolCampaignSubscription {
 	public CampaignSubscription subscribeCampaign(Player player, Campaign campaign, 
 			Map<String, Object> campaignData, boolean sendExtRequest, boolean userAcceptance) throws Exception {
 
-		if(!campaign.isRegistrationOpen(new Date())) {
+		if(!campaign.isRegistrationOpen(new Date()) && userAcceptance) {
 			throw new ServiceException("Campaign registration is closed", ErrorCode.CAMPAIGN_REGISTRATION_CLOSED);
 		}
 
