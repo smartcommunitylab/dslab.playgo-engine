@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylab.playandgo.engine.campaign.city.CityCampaignSubscription;
+import it.smartcommunitylab.playandgo.engine.campaign.group.GroupCampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.exception.BadRequestException;
 import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.manager.azienda.PgAziendaleManager;
@@ -82,6 +83,9 @@ public class UnregisterManager {
     
 	@Autowired
     CityCampaignSubscription cityCampaignSubscription;
+
+	@Autowired
+	GroupCampaignSubscription groupCampaignSubscription;
 
 	ObjectMapper mapper = new ObjectMapper();
 	
@@ -154,6 +158,13 @@ public class UnregisterManager {
                                 logger.error(String.format("unregisterPlayer[%s] city:%s", player.getPlayerId(), e.getMessage()));
                             }
 	                        break;
+						case group:
+							try {
+								groupCampaignSubscription.unsubscribeCampaign(playerDb, campaign);							
+							} catch (Exception e) {
+                                logger.error(String.format("unregisterPlayer[%s] group:%s", player.getPlayerId(), e.getMessage()));
+                            }
+							break;
                         default:
                             break;
 	                }			        

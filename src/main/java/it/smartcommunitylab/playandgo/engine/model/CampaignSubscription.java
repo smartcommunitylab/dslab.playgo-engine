@@ -21,6 +21,8 @@ public class CampaignSubscription {
 	private String territoryId;
 	private String mail;
 	private Boolean sendMail = Boolean.FALSE;
+	private Boolean privacyAcceptance = Boolean.TRUE;
+	private Boolean rulesAcceptance = Boolean.TRUE;
 	private Date registrationDate;
 	private Map<String, Object> campaignData = new HashMap<>();
 	
@@ -67,6 +69,18 @@ public class CampaignSubscription {
 	}
 	public void setSendMail(Boolean sendMail) {
 		this.sendMail = sendMail;
+	}
+	public Boolean isPrivacyAcceptance() {
+		return privacyAcceptance;
+	}
+	public void setPrivacyAcceptance(Boolean privacyAcceptance) {
+		this.privacyAcceptance = privacyAcceptance;
+	}
+	public Boolean isRulesAcceptance() {
+		return rulesAcceptance;
+	}
+	public void setRulesAcceptance(Boolean rulesAcceptance) {
+		this.rulesAcceptance = rulesAcceptance;
 	}
 	public String getTerritoryId() {
 		return territoryId;

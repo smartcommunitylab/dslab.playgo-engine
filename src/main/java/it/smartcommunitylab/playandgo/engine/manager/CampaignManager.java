@@ -41,14 +41,17 @@ import it.smartcommunitylab.playandgo.engine.exception.ServiceException;
 import it.smartcommunitylab.playandgo.engine.exception.StorageException;
 import it.smartcommunitylab.playandgo.engine.ge.GamificationEngineManager;
 import it.smartcommunitylab.playandgo.engine.ge.model.PlayerIdentity;
+import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.manager.survey.SurveyRequest;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
+import it.smartcommunitylab.playandgo.engine.model.CampaignAcceptance;
 import it.smartcommunitylab.playandgo.engine.model.Campaign.Type;
 import it.smartcommunitylab.playandgo.engine.model.CampaignReward;
 import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.CampaignWeekConf;
 import it.smartcommunitylab.playandgo.engine.model.Image;
 import it.smartcommunitylab.playandgo.engine.model.Player;
+
 import it.smartcommunitylab.playandgo.engine.repository.CampaignPlayerTrackRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignRepository;
 import it.smartcommunitylab.playandgo.engine.repository.CampaignSubscriptionRepository;
@@ -109,6 +112,12 @@ public class CampaignManager {
 	
 	@Autowired
 	GamificationEngineManager gamificationEngineManager;
+
+	@Autowired
+	CampaignAcceptanceManager campaignAcceptanceManager;
+
+	@Autowired
+	UserCampaignLock campaignLock;
 	
 	public Campaign addCampaign(Campaign campaign) throws Exception {
 		try {
@@ -236,7 +245,8 @@ public class CampaignManager {
 		return campaignRepository.findByTerritoryIdAndType(territoryId, Type.personal);
 	}
 	
-	public CampaignSubscription subscribePlayer(Player player, String campaignId, Map<String, Object> campaignData) throws Exception {
+	public CampaignSubscription subscribePlayer(Player player, String campaignId, Map<String, Object> campaignData,
+			boolean userAcceptance) throws Exception {
 		Campaign campaign = campaignRepository.findById(campaignId).orElse(null);
 		if(campaign == null) {
 			throw new BadRequestException("campaign doesn't exist", ErrorCode.CAMPAIGN_NOT_FOUND);
@@ -244,27 +254,71 @@ public class CampaignManager {
 		if(!campaign.getTerritoryId().equals(player.getTerritoryId())) {
 			throw new BadRequestException("territory doesn't match", ErrorCode.TERRITORY_NOT_ALLOWED);
 		}
-		CampaignSubscription sub = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
-		if(sub != null) {
-			throw new BadRequestException("player already joined", ErrorCode.CAMPAIGN_ALREADY_JOINED);
+		Exception ex = null;
+		CampaignSubscription sub = null;
+		try {
+			campaignLock.lock(campaignLock.getKey(player.getPlayerId(), campaignId));
+			sub = campaignSubscriptionRepository.findByCampaignIdAndPlayerId(campaignId, player.getPlayerId());
+			if(sub != null) {
+				throw new BadRequestException("player already joined", ErrorCode.CAMPAIGN_ALREADY_JOINED);
+			}
+			switch (campaign.getType()) {
+				case personal:
+					sub = personalCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+					break;
+				case company:
+					sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true, userAcceptance); 
+					break;
+				case city:
+					sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData, userAcceptance);
+					break;
+				case school:
+					sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true, userAcceptance);
+					break;
+				case group:
+					sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData, userAcceptance);
+					break;
+			}
+			if (sub != null) {
+				if (!userAcceptance) {
+					sub.setPrivacyAcceptance(false);
+					sub.setRulesAcceptance(false);
+				}
+				campaignSubscriptionRepository.save(sub);
+				// add CampaignAcceptance record
+				CampaignAcceptance acceptance = new CampaignAcceptance();
+				acceptance.setCampaignId(campaignId);
+				acceptance.setPlayerId(player.getPlayerId());
+				acceptance.setPrivacyAcceptance(sub.isPrivacyAcceptance());
+				acceptance.setRulesAcceptance(sub.isRulesAcceptance());
+				campaignAcceptanceManager.create(acceptance);
+			}			
+		} catch (Exception e) {
+			ex = e;
+		} finally {
+			campaignLock.unlock(campaignLock.getKey(player.getPlayerId(), campaignId));
 		}
-		switch (campaign.getType()) {
-			case personal:
-				sub = personalCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
-				break;
-			case company:
-				sub = companyCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true); 
-				break;
-			case city:
-				sub = cityCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
-				break;
-			case school:
-				sub = schoolCampaignSubscription.subscribeCampaign(player, campaign, campaignData, true);
-				break;
-			case group:
-				sub = groupCampaignSubscription.subscribeCampaign(player, campaign, campaignData);
+		if (ex != null) {
+			throw ex;
 		}
-		return campaignSubscriptionRepository.save(sub);
+		return sub;
+	}
+
+	public void copyCampaignSubscriptions(String oldCampaignId, String newCampaignId) throws Exception {
+		if (oldCampaignId == null || oldCampaignId.isEmpty() || newCampaignId == null || newCampaignId.isEmpty()) {
+			throw new BadRequestException("Old and new campaign ids are required", ErrorCode.INVALID_REQUEST);
+		}
+		List<CampaignSubscription> subscriptions = campaignSubscriptionRepository.findByCampaignId(oldCampaignId);
+		for (CampaignSubscription subscription : subscriptions) {
+			Player player = playerRepository.findById(subscription.getPlayerId()).orElse(null);
+			if (player == null) continue;
+			try {
+				this.subscribePlayer(player, newCampaignId, subscription.getCampaignData(), false);
+			} catch (Exception e) {
+				logger.warn("Failed to subscribe player '{}' to new campaign '{}': {}", player.getPlayerId(), newCampaignId, e.getMessage());
+			}
+			
+		}
 	}
 	
 	public CampaignSubscription unsubscribePlayer(Player player, String campaignId) throws Exception {

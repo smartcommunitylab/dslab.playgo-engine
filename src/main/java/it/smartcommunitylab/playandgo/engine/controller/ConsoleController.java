@@ -151,6 +151,23 @@ public class ConsoleController extends PlayAndGoController {
 		checkRole(request, Role.territory, campaign.getTerritoryId());
 		return playerRoleRepository.findByRoleAndEntityId(Role.campaign, campaignId);
 	}
+
+	@PostMapping("/api/console/campaign/subscriptions/copy")
+	public void copyCampaignSubscriptions(
+			@RequestParam String oldCampaignId,
+			@RequestParam String newCampaignId,
+			HttpServletRequest request) throws Exception {
+		checkAdminRole(request);
+		Campaign oldCampaign = campaignManager.getCampaign(oldCampaignId);
+		if (oldCampaign == null) {
+			throw new BadRequestException("source campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}
+		Campaign newCampaign = campaignManager.getCampaign(newCampaignId);
+		if (newCampaign == null) {
+			throw new BadRequestException("destination campaign not found", ErrorCode.CAMPAIGN_NOT_FOUND);
+		}
+		campaignManager.copyCampaignSubscriptions(oldCampaignId, newCampaignId);
+	}
 	
 	@GetMapping("/api/console/role/my")
 	public List<PlayerRole> getMyRoles(HttpServletRequest request) throws Exception {

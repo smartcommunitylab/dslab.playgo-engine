@@ -20,6 +20,7 @@ import it.smartcommunitylab.playandgo.engine.manager.CampaignManager;
 import it.smartcommunitylab.playandgo.engine.manager.TrackedInstanceManager;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
+import it.smartcommunitylab.playandgo.engine.model.CampaignSubscription;
 import it.smartcommunitylab.playandgo.engine.model.Player;
 import it.smartcommunitylab.playandgo.engine.model.TrackedInstance;
 
@@ -158,6 +159,11 @@ public class Utils {
 			}
 		}
 		return pointName;
+	}
+
+	public static boolean checkPrivacyAndRulesAcceptance(CampaignSubscription subscription) {
+		return subscription.isPrivacyAcceptance() != null && subscription.isPrivacyAcceptance()
+			&& subscription.isRulesAcceptance() != null && subscription.isRulesAcceptance();
 	}
  	
 }

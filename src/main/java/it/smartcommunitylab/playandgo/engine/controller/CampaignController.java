@@ -154,7 +154,7 @@ public class CampaignController extends PlayAndGoController {
 			@RequestBody(required = false) Map<String, Object> campaignData,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
-		return campaignManager.subscribePlayer(player, campaignId, campaignData);
+		return campaignManager.subscribePlayer(player, campaignId, campaignData, true);
 	}
 	
 	@PutMapping("/api/campaign/{campaignId}/unsubscribe")

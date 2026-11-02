@@ -56,7 +56,7 @@ public class PlayerManager {
 		playerDb = playerRepository.save(player);
 		Campaign campaign = campaignManager.getDefaultCampaignByTerritory(player.getTerritoryId());
 		if(campaign != null) {
-			campaignManager.subscribePlayer(playerDb, campaign.getCampaignId(), null);
+			campaignManager.subscribePlayer(playerDb, campaign.getCampaignId(), null, true);
 		}
 		return playerDb;
 	}
