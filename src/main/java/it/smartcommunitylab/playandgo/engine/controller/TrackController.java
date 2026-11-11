@@ -36,6 +36,7 @@ public class TrackController extends PlayAndGoController {
 			@RequestBody(required = false) GeolocationsEvent geolocationsEvent,
 			HttpServletRequest request) throws Exception {
 		Player player = getCurrentPlayer(request);
+		logger.info("Storing geolocation event for player: " + player.getPlayerId());
 		trackedInstanceManager.storeGeolocationEvents(geolocationsEvent, player);
 	}
 	
