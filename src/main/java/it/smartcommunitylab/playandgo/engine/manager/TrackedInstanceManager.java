@@ -52,6 +52,7 @@ import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationResult.
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.ERROR_TYPE;
 import it.smartcommunitylab.playandgo.engine.geolocation.model.ValidationStatus.MODE_TYPE;
+import it.smartcommunitylab.playandgo.engine.lock.UserCampaignLock;
 import it.smartcommunitylab.playandgo.engine.model.Campaign;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack;
 import it.smartcommunitylab.playandgo.engine.model.CampaignPlayerTrack.ScoreStatus;
@@ -81,6 +82,8 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	private static Log logger = LogFactory.getLog(TrackedInstanceManager.class);
 	
 	public static final String meansKey = "means";
+
+	public static final String STORE_GEOLOCATION = "storeGeolocation";
 	
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -108,6 +111,9 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	
 	@Autowired
 	ValidationService validationService;
+
+	@Autowired
+	UserCampaignLock campaignLock;
 	
 	@PostConstruct
 	public void init() {
@@ -291,8 +297,23 @@ public class TrackedInstanceManager implements ManageValidateTripRequest {
 	}**/
 	
 	public void storeGeolocationEvents(GeolocationsEvent geolocationsEvent, Player player) throws Exception {
-		List<TrackedInstance> list = geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, player);
+		Exception ex = null;
+		List<TrackedInstance> list = null;
+		try {
+			campaignLock.lock(campaignLock.getKey(player.getPlayerId(), STORE_GEOLOCATION));
+			list = geolocationsProcessor.storeGeolocationEvents(geolocationsEvent, player);
+		} catch (Exception e) {
+            logger.error("storeGeolocationEvents error:" + e.getMessage());
+			ex = e;
+		} finally {
+			campaignLock.unlock(campaignLock.getKey(player.getPlayerId(), STORE_GEOLOCATION));
+		}	
+		if (ex != null) {
+			throw ex;
+		}
 		List<String> multimodalIds = new ArrayList<>();
+		if (list == null || list.isEmpty())
+			return;
 		for(TrackedInstance ti : list) {
 		    if(!multimodalIds.contains(ti.getMultimodalId())) {
 		        multimodalIds.add(ti.getMultimodalId());
